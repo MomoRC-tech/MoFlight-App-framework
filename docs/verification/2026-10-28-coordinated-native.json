@@ -180,7 +180,7 @@
         "rejected": true,
         "recovery_resume_not_offered": true,
         "activation_success_not_shown": true,
-        "message": "Abruf unterbrochen, weil die App verlassen wurde. Nach der R\u00fcckkehr kannst du gespeicherten Fortschritt fortsetzen.",
+        "message": "Abruf unterbrochen, weil die App verlassen wurde. Nach der Rückkehr kannst du gespeicherten Fortschritt fortsetzen.",
         "limit": "UI exposes generic/background failure; exact codec rejection reason is host-validated, not attested by native UI."
       },
       {
@@ -188,7 +188,7 @@
         "rejected": true,
         "recovery_resume_not_offered": true,
         "activation_success_not_shown": true,
-        "message": "Abruf unterbrochen, weil die App verlassen wurde. Nach der R\u00fcckkehr kannst du gespeicherten Fortschritt fortsetzen.",
+        "message": "Abruf unterbrochen, weil die App verlassen wurde. Nach der Rückkehr kannst du gespeicherten Fortschritt fortsetzen.",
         "limit": "UI exposes generic/background failure; exact codec rejection reason is host-validated, not attested by native UI."
       },
       {
@@ -196,7 +196,7 @@
         "rejected": true,
         "recovery_resume_not_offered": true,
         "activation_success_not_shown": true,
-        "message": "Abruf unterbrochen, weil die App verlassen wurde. Nach der R\u00fcckkehr kannst du gespeicherten Fortschritt fortsetzen.",
+        "message": "Abruf unterbrochen, weil die App verlassen wurde. Nach der Rückkehr kannst du gespeicherten Fortschritt fortsetzen.",
         "limit": "UI exposes generic/background failure; exact codec rejection reason is host-validated, not attested by native UI."
       }
     ],
@@ -243,6 +243,83 @@
       "Populated Start preview and measured equivalent-input timings",
       "Native interrupted/pending restore and foreign-owner registry/session boundaries",
       "Physical Android/iOS/light/spoken; no expense work"
+    ]
+  },
+  "backup_fix_20261029": {
+    "status": "passed within #106 repeat-save scope",
+    "source_commit": "cc229028f05613a698e7bcbfb51b0f581628ee3b",
+    "diagnostic_source": "14387f1e5d89aed294ad8c95468e11b0a8d4148b",
+    "localization": "Pre-fix second save reproduced generic database-all native-null. Each generic driver now owns an independent native SQLite root; no shared handle cleanup across readers. No raw errors/SQL/paths/data retained in diagnostics.",
+    "regressions": "Driver lifetime and stale/current picker error-state assertions fail without their fixes; consecutive aggregate exports preserve prior files and exact supported snapshots.",
+    "host": {
+      "report": "build/host-checks/20261029T062505Z-ec18f3b3/report.json",
+      "groups": "5/5",
+      "mobile_passed": 1760,
+      "mobile_skipped": 2,
+      "python_run": 136,
+      "python_skipped": 16,
+      "provenance": "14387f1 plus finalized unchanged cc22902 code/tests; no later runtime/test edits; not separate clean-SHA host rerun",
+      "exports": "Android/iOS Hermes passed"
+    },
+    "apk_sha256": "4a56b7f64a7db35d3c82408bed9b8c523043c18d9af95255b838e59df7b8ddce",
+    "zip_sha256": "8a43e42e907858376cdef68c755a421d4084c83d73bbdfa6a29f7a67c5cf24b3",
+    "download_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/backup-fix-2026-10-29-cc22902/MoFlight-Android-cc22902.zip",
+    "download_verified": true,
+    "native": {
+      "platform": "Android17/API37; MoFlight_Synthetic_API37; emulator-5578; dark/offline",
+      "logical_dp": [
+        411.43,
+        731.43
+      ],
+      "density_dpi": 420,
+      "font_scale": 1.0,
+      "installed_apk_hash_and_embedded_source_match": true,
+      "verified_saves": 3,
+      "two_consecutive_saves": true,
+      "folder_cancel_then_retry": true,
+      "cold_offline_reopen": true,
+      "actual_archives": "Production codec validates all three files; isolated in-memory pilot restore/readback matches. All supported sections equal each other and original pre-fix archive, only aggregate createdAt excluded.",
+      "coverage": "Four existing pilot books; zero real-flight records/receipts/bindings, null information export, zero AI conversations. No populated-source or financial acceptance.",
+      "original_external_backup_hash_preserved": true,
+      "recovery_snapshots_retained": true,
+      "original": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "1.0",
+        "airplane": "1",
+        "wifi": "0",
+        "data": "0"
+      },
+      "restored": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "1.0",
+        "airplane": "1",
+        "wifi": "0",
+        "data": "0"
+      },
+      "native_restore_activated": false,
+      "bounded_current_process_fatal_scan": "No fatal exception/signal/ANR in bounded current-process log; not full-run crash proof"
+    },
+    "cleanup": "Original display/font/offline flags and external backup/snapshots retained; app at Start; originally running emulator retained. No reset, restore activation, owner/session replacement, Sync/provider/model operation.",
+    "limits": [
+      "Valid native restore activation and interruption/recovery not exercised",
+      "No native foreign-owner/pending-work mutation trial; relevant deterministic guards pass existing tests",
+      "Populated Start/device speed, populated source/AI backup, financial source/UI/backup, physical phone and iOS runtime remain open",
+      "Supported-export equality is not a private database/registry byte comparison"
+    ],
+    "logs": [
+      "build/backup-fix-20261029/diagnostic-build.log",
+      "build/backup-fix-20261029/diagnostic-process.log",
+      "build/backup-fix-20261029/driver-red.log",
+      "build/backup-fix-20261029/stale-message-red.log",
+      "build/backup-fix-20261029/current-message-red.log",
+      "build/backup-fix-20261029/fix-build.log",
+      "build/backup-fix-20261029/bundle.log",
+      "build/backup-fix-native-20261029/report.json",
+      "build/backup-fix-native-20261029/archive-validation.json",
+      "build/backup-fix-20261029/native-cleanup.log",
+      "build/backup-fix-20261029/delivery/publication.json"
     ]
   }
 }
