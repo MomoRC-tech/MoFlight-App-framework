@@ -1,5 +1,7 @@
 # Visual foundations
 
+**29 October Start tiles:** the [selected Issue 108 correction](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) uses separate `startTileSurfaces`: card `#164154`, raised `#235469`, thin outline `#60889E`. Existing `startSurfaces` retain shell decoration. Start per-record Medical badges add green ✓ beyond six months, amber ! within the inclusive window, red × past and gray ? unknown; existing source/date semantics remain.
+
 **28 October approved surface refinement:** content cards/raised surfaces now separate more clearly from the retained navy canvas. Start and header/bottom decoration explicitly retain their previous surface values; see the [scoped amendment](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026). Text/cyan/logo remain.
 
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
@@ -46,7 +48,7 @@ The ordinary header green ✓ requires matching confirmed proof younger than 90 
 
 ## Gradients, overlays and shadows
 
-Medical source-date reminders use `#ff7777` for recorded past expiry and `#f9b65b` for dates from today through six calendar months inclusive. Later/unknown dates retain muted text; date relationship and partial/unknown source meaning also have text. These colors do not indicate flight fitness. The original recorded source remains available in details.
+Medical source-date reminders use `#ff7777` for recorded past expiry and `#f9b65b` for dates from today through six calendar months inclusive. Start retains white later/unknown dates and adds the per-row status badges above; the older header/details component retains muted later dates. Date relationship and partial/unknown source meaning also have text. These colors do not indicate flight fitness. The original recorded source remains available in details.
 
 | Surface | Implemented treatment | Source / use |
 | --- | --- | --- |

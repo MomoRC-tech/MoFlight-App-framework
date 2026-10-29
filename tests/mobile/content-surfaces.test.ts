@@ -55,15 +55,17 @@ test('content action separates a compact face from its independent target and re
   assert.equal(calls, 2);
 });
 
-test('content cards brighten independently while Start keeps its selected surfaces', () => {
+test('Start tiles brighten independently of shell and ordinary content surfaces', () => {
   const { theme } = fixture();
   assert.equal(theme.colors.background, '#001b29'); assert.equal(theme.colors.cyan, '#27d3d2');
   assert.equal(flatten(theme.Card({}).props.style).backgroundColor, '#103546');
   const start = flatten(theme.Card({ surface: 'start' }).props.style);
-  assert.equal(start.backgroundColor, '#062331'); assert.equal(start.borderColor, '#183d50');
+  assert.equal(start.backgroundColor, '#164154'); assert.equal(start.borderColor, '#60889e');
+  assert.equal(start.borderWidth, 1);
+  assert.equal(theme.startSurfaces.card, '#062331'); assert.equal(theme.startSurfaces.border, '#183d50');
   const secondary = (surface: string) => flatten(theme.Action({ secondary: true, surface, onPress() {} }).children[0].props.style);
   assert.equal(secondary('content').backgroundColor, '#1a4356');
-  assert.equal(secondary('start').backgroundColor, '#0c3041');
+  assert.equal(secondary('start').backgroundColor, '#235469');
 });
 
 test('short decisions retain cancellation and confirmation with growing faces inside distinct tap targets', () => {

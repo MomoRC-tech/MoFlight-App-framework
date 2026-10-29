@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { Action, Card, Label, Section, colors, startSurfaces } from './theme';
+import { Action, Card, Label, Section, colors, startTileSurfaces } from './theme';
 import { SymbolIcon } from './SymbolIcon';
 import { ClubHeading, ClubSubheading } from './ClubHeading';
 import type { DutyItem, DutyOverview } from '../vereinsflieger/duties';
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   disclosure: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 8 },
   disclosureLabel: { flex: 1, color: colors.cyan, fontSize: 13 },
   group: { gap: 8 },
-  row: { gap: 4, paddingHorizontal: 2, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: startSurfaces.border },
+  row: { gap: 4, paddingHorizontal: 2, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: startTileSurfaces.border },
   heading: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 },
   duty: { fontWeight: '600', flexShrink: 1 },
   dates: { fontSize: 12, lineHeight: 20, textAlign: 'right', flexShrink: 0, maxWidth: '65%' },

@@ -25,6 +25,7 @@ function nodes(tree: Element): Element[] {
   return [tree, ...tree.children.flatMap(child => child && typeof child === 'object' && 'children' in child ? nodes(child as Element) : [])];
 }
 function text(tree: Element) { return nodes(tree).flatMap(node => node.children.filter(child => typeof child === 'string')).join(''); }
+function medicalRows(tree: Element) { return nodes(tree).filter(node => node.type === 'View' && node.children.length === 3 && (node.children[1] as Element)?.type === 'Text' && (node.children[2] as Element)?.type === 'Text'); }
 function capture(values: string[][]): InformationCapture {
   return { version:1, id:'synthetic-medical', owner:'synthetic-owner', connectionId:'synthetic-connection', retrievedAt:'2026-10-01T12:00:00Z',
     sourceIdentity:'provisional-observed-profile', category:'medical', path:'/member/profile/viewprofile',
@@ -42,12 +43,13 @@ test('Start lists every Medical with its own parsed date and color, preserving d
   const original = structuredClone(medical);
   let opened = 0;
   const tile = render(medical,()=>opened++).children[0] as Element;
-  const rows = nodes(tile).filter(node => node.type === 'View' && node.children.length === 2 && node.children.every(child => (child as Element)?.type === 'Text'));
-  assert.deepEqual(rows.map(text), ['LAPL31.12.2027','Klasse 225.10.2026','Klasse 126.04.2027']);
-  assert.deepEqual(rows.map(row => (row.children[1] as Element).props.style[2].color), ['#f4f8fc','#ff7777','#f9b65b']);
+  const rows = medicalRows(tile);
+  assert.deepEqual(rows.map(text), ['✓LAPL31.12.2027','×Klasse 225.10.2026','!Klasse 126.04.2027']);
+  assert.deepEqual(rows.map(row => (row.children[2] as Element).props.style[2].color), ['#f4f8fc','#ff7777','#f9b65b']);
+  assert.deepEqual(rows.map(row => (row.children[0] as Element).props.style[1].borderColor), ['#48dba5','#ff7777','#f9b65b']);
   assert.doesNotMatch(text(tile), /Erfasst bis| bis /);
   for (const row of rows) {
-    for (const child of row.children as Element[]) {
+    for (const child of row.children.slice(1) as Element[]) {
       assert.equal(child.props.numberOfLines,1);
       assert.ok(tile.props.accessibilityLabel.includes(text(child)));
     }
@@ -64,6 +66,8 @@ test('Start retains every unknown/invalid Medical and partial-source warnings wi
   assert.match(text(tile), /LAPLunbekannt\*/);
   assert.match(text(tile), /Klasse 2unbekannt\*/);
   assert.match(text(tile), /Medical-Art unbekannt30.06.2028\*/);
+  assert.deepEqual(medicalRows(tile).map(row => text(row.children[0] as Element)), ['?','?','✓']);
+  assert.ok(medicalRows(tile).every(row => (row.children[0] as Element).props.importantForAccessibility === 'no-hide-descendants'), 'The labelled parent announces each date relationship once');
   assert.match(tile.props.accessibilityLabel,/Quellenangaben teilweise unbekannt oder uneindeutig/);
   assert.doesNotMatch(text(tile),/31.02.2027/);
   assert.match(text(render()), /Status unbekannt/);
@@ -79,9 +83,17 @@ test('enlarged text keeps stacked tiles and complete Medical content', () => {
     assert.equal(tile.props.style({pressed:false})[1].width,'100%');
     assert.match(text(tile),/Synthetic long Medical name31.12.2027/);
     assert.match(tile.props.accessibilityLabel,/Synthetic long Medical name bis 31.12.2027/);
-    assert.equal(nodes(tile).find(node => node.type === 'Text')?.props.ellipsizeMode, 'tail');
+    assert.equal(nodes(tile).find(node => node.type === 'Text' && node.props.ellipsizeMode)?.props.ellipsizeMode, 'tail');
     assert.ok(nodes(tile).filter(node => node.type === 'Text').every(node => node.props.numberOfLines === 1));
   } finally { fontScale = 1; }
+});
+
+test('badges use the existing inclusive six-month window and keep an invalid clock unknown', () => {
+  const medical=capture([['26.10.2026','Today'],['26.04.2027','Boundary'],['27.04.2027','Later']]);
+  assert.deepEqual(medicalRows(render(medical)).map(row=>text(row.children[0] as Element)), ['!','!','✓']);
+  const unknown=component.OverviewTiles({medical,now:Number.NaN,onMedical(){},onPaper(){}});
+  assert.deepEqual(medicalRows(unknown).map(row=>text(row.children[0] as Element)), ['?','?','?']);
+  assert.match((unknown.children[0] as Element).props.accessibilityLabel,/Einordnung unbekannt/);
 });
 
 

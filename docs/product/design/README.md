@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+**29 October Start correction (#108):** [lighter tile fills, thin visible outlines and per-Medical expiry badges](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) supersede the retained Start tile colors only. Header/navigation and all source/date rules remain separately scoped.
+
 **29 October selected hybrid Statistics:** [compact last-flight line, shared chart viewer and compact Statistics filters](compact-cockpit.md#hybrid-season-and-statistics--authorized-29-october-2026), under #9, amend the season/chart area only. [Original handover](../design-sources/2026-10-29-statistics/README.md) remains reference material; cumulative progress and unsupported optional data views are deferred. [Verification](../../verification/2026-10-20-real-flight-statistics.md#hybrid-chart-package--29-october-2026) keeps source/platform acceptance explicit.
 
 **28 October approved refinement (#94):** [compact controls and clearer dark surfaces](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026) reduces painted action faces, retains independent touch targets and separates content cards/dialogs from the canvas. Start palette/composition and shell sizing are scoped exceptions. [Verification](../../verification/2026-10-26-material-settings.md#compact-controls-and-clearer-dark-surfaces--28-october-2026) records source/platform limits.

@@ -121,11 +121,11 @@
           "title": "Medical overview tile",
           "status": "Current native UI · outlined family",
           "sample": "<img src=\"asset:apps/platform-lab/assets/icons/duotone/medical-card-default.png\" alt=\"Outlined medical-card\"><span class=\"mini-label\">Medical<br>Status unbekannt</span>",
-          "appearance": "Current outlined medical-card glyph, with recorded expiry or explicit unknown status. Partial source issues remain available in read-only details.",
+          "appearance": "Current outlined medical-card glyph. Every Start source row has an inline green ✓ / orange ! / red × / gray ? expiry badge plus its recorded date. Partial source issues remain visible and available in read-only details.",
           "where": "Compact overview tile beside Papierflugbuch; stacked at enlarged text.",
           "meaning": "Availability of saved own Medical source text; never a validity or fitness verdict.",
           "behavior": "Tap opens read-only original class/expiry text with source and retrieval time, or an unknown-state explanation.",
-          "states": "Source-date reminder: earliest recorded expiry including expired; red for past, amber through six calendar months inclusive, quiet later. Missing/ambiguous/partial source explicit; raw text retained. No fitness or legal eligibility judgment. No fitness verdict follows from icon color.",
+          "states": "Start per-record source-date reminder: green ✓ beyond six calendar months; orange ! from today through six calendar months inclusive; red × for past; gray ? for unknown date or clock. Existing date text and source-warning asterisks remain. Aggregate details retain earliest expiry and raw source text. No fitness or legal eligibility judgment.",
           "file": "apps/platform-lab/src/mobile/SymbolIcon.tsx",
           "locator": "duotone-assets.ts; symbols/glyphs.svg #medical-card"
         },

@@ -21,7 +21,7 @@ export function CockpitPreview({onClose,onFlights,onStatistics}: {onClose:()=>vo
   const [mode,setMode]=useState<'ready'|'missing'|'loading'|'failed'>('ready');
   const [configured,setConfigured]=useState(false),[medical,setMedical]=useState(false),[paper,setPaper]=useState(false);
   const [knownMedical,setKnownMedical]=useState(true);
-  const demoMedical:InformationCapture={version:1,id:'synthetic-medical',owner:'synthetic-owner',connectionId:'synthetic-connection',retrievedAt:'2026-10-22T10:00:00.000Z',sourceIdentity:'provisional-observed-profile',category:'medical',path:'/member/profile/viewprofile',columns:[{key:'kind',label:'Medical-Art',index:0},{key:'expiry',label:'Gültig bis',index:1}],rows:[{position:0,values:['Demo Klasse 2','10.08.2027']}],filters:[],empty:false,coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}};
+  const demoMedical:InformationCapture={version:1,id:'synthetic-medical',owner:'synthetic-owner',connectionId:'synthetic-connection',retrievedAt:'2026-10-22T10:00:00.000Z',sourceIdentity:'provisional-observed-profile',category:'medical',path:'/member/profile/viewprofile',columns:[{key:'kind',label:'Medical-Art',index:0},{key:'expiry',label:'Gültig bis',index:1}],rows:[{position:0,values:['LAPL','10.08.2027']},{position:1,values:['Klasse 2','22.04.2027']},{position:2,values:['Klasse 1','21.10.2026']},{position:3,values:['Demo','']}],filters:[],empty:false,coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}};
   const [sync,setSync]=useState<Progress>({state:'idle',last:null,current:null});
   const [page,setPage]=useState<'home'|'club'|'ai'>('home');
   return <View style={{flex:1,backgroundColor:colors.background}}>
@@ -31,7 +31,7 @@ export function CockpitPreview({onClose,onFlights,onStatistics}: {onClose:()=>vo
       {page==='ai'?<View style={{gap:12}}><Label>MoFlight AI · Demo</Label><Label muted>Der AI-Dienst ist nicht verbunden.</Label><Action secondary onPress={()=>setPage('home')}>Zur Übersicht</Action></View>:page==='club'?<DutyRoster overview={fixture.dutyOverview} expanded/>:<>
       <Dashboard persistDutyTarget={false} ownFlights={mode==='ready'?fixture.view:null} ownFlightPhase={mode} pending={null} width={width} fontScale={fontScale} now={DESIGN_PREVIEW_NOW} onFlights={onFlights} onFlight={onFlights} onStatistics={onStatistics} onPaper={()=>setPaper(!paper)}/>
       <OverviewTiles medical={knownMedical?demoMedical:null} now={DESIGN_PREVIEW_NOW} onMedical={()=>setMedical(!medical)} onPaper={()=>setPaper(!paper)} bookName={configured?'Demo Flugbuch':null} pending={configured?3:null}/>
-      {medical&&<Label>{knownMedical?'Erfasstes Demo-Datum 10.08.2027':'Medical unbekannt'} · synthetische Vorschau, keine Flugtauglichkeitsbestätigung.</Label>}
+      {medical&&<Label>{knownMedical?'Erfasste Demo-Ablaufdaten':'Medical unbekannt'} · synthetische Vorschau, keine Flugtauglichkeitsbestätigung.</Label>}
       {paper&&<Label>{configured?'Demo Flugbuch · 3 Flüge offen':'Einrichtung in Vorbereitung · keine Datenänderung'}</Label>}
       <DutyRoster overview={fixture.dutyOverview} onOpen={()=>setPage('club')}/>
       </>}

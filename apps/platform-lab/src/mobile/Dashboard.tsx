@@ -1,7 +1,7 @@
 import { startRenderSpan } from '../start-timing';
 import React, { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { Card, Label, colors as contentColors, startSurfaces, ui } from './theme';
+import { Card, Label, colors as contentColors, startTileSurfaces, ui } from './theme';
 import type { OwnFlightView } from './own-flight-reader';
 import { formatReportedMinutes } from './real-flight-statistics';
 import { SymbolIcon } from './SymbolIcon';
@@ -14,7 +14,7 @@ import { startFlightDashboard, startDashboardValues, type StartPreview } from '.
 import { DutyTargetEditor, useDutyTarget } from './DutyTarget';
 import { StartSeasonCharts } from './StartSeasonCharts';
 import type { ChartKind, ChartContributors } from './statistics-charts-model';
-const colors = { ...contentColors, ...startSurfaces };
+const colors = { ...contentColors, ...startTileSurfaces };
 interface Props {
   preview?: StartPreview | null; ownFlights: OwnFlightView | null; ownFlightPhase: 'loading' | 'ready' | 'missing' | 'failed'; pending: number | null; width: number; fontScale: number;
   onPaper: () => void; onFlights: () => void; onFlight?: (flightId: string) => void; onStatistics?: (year: number, section?: StatisticsSection, chart?: ChartKind, contributors?: ChartContributors) => void; now?: number; persistDutyTarget?: boolean; onBackHandler?:(handler:()=>boolean)=>void;

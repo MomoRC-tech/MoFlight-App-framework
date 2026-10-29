@@ -1,11 +1,17 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Label, colors as contentColors, startSurfaces, ui } from './theme';
+import { Label, colors as contentColors, startTileSurfaces, ui } from './theme';
 import { SymbolIcon } from './SymbolIcon';
 import { medicalExpiry, medicalExpiryStatusText } from './medical-expiry';
 import type { InformationCapture } from '../vereinsflieger/information';
 
-const colors = { ...contentColors, ...startSurfaces };
+const colors = { ...contentColors, ...startTileSurfaces };
+const expiryBadges = {
+  later: { symbol: '✓', color: '#48dba5', backgroundColor: '#123f38' },
+  soon: { symbol: '!', color: '#f9b65b', backgroundColor: '#513b22' },
+  expired: { symbol: '×', color: '#ff7777', backgroundColor: '#512c36' },
+  unknown: { symbol: '?', color: '#a9bed3', backgroundColor: '#293e4c' },
+};
 
 export function OverviewTiles({medical = null, medicalLoading = false, now, onMedical, onPaper, pending = null, bookName = null}: {
   medicalLoading?: boolean; medical?: InformationCapture | null; now: number; onMedical: () => void; onPaper: () => void; pending?: number | null; bookName?: string | null;
@@ -23,7 +29,13 @@ export function OverviewTiles({medical = null, medicalLoading = false, now, onMe
   const {fontScale}=useWindowDimensions();
   return <View style={[styles.row,fontScale>1.3&&{flexDirection:'column'}]}>
     <Pressable accessibilityRole="button" accessibilityLabel={`Medical. ${medicalDescription}.${entries.length && assessment.issues.length ? ' Quellenangaben teilweise unbekannt oder uneindeutig.' : ''} Details öffnen`} onPress={onMedical} style={({pressed})=>[styles.tile,fontScale>1.3&&{flex:0,width:'100%'},pressed&&ui.pressed]}>
-      <View style={styles.medicalCopy}><View style={styles.medicalHeading}><SymbolIcon name="medical-card" size={20}/><Label style={styles.title}>Medical</Label></View>{entries.length ? entries.map((entry,index)=><View key={index} style={styles.medicalRow}><Text numberOfLines={1} ellipsizeMode="tail" style={[ui.text,styles.medicalName]}>{entry.name}</Text><Text numberOfLines={1} style={[ui.text,styles.medicalDate,{color:entry.state==='expired'?'#ff7777':entry.state==='soon'?'#f9b65b':colors.text}]}>{entry.date??'unbekannt'}{assessment.issues.length?'*':''}</Text></View>) : <Label muted style={styles.small}>{medicalLoading?'Wird geladen…':'Status unbekannt'}</Label>}<Label style={styles.link}>Details ›</Label></View>
+      <View style={styles.medicalCopy}><View style={styles.medicalHeading}><SymbolIcon name="medical-card" size={20}/><Label style={styles.title}>Medical</Label></View>{entries.length ? entries.map((entry,index)=>{
+        const badge=expiryBadges[entry.state];
+        return <View key={index} style={styles.medicalRow}>
+          <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.medicalBadge,{backgroundColor:badge.backgroundColor,borderColor:badge.color}]}><Text numberOfLines={1} style={[styles.medicalBadgeText,{color:badge.color}]}>{badge.symbol}</Text></View>
+          <Text numberOfLines={1} ellipsizeMode="tail" style={[ui.text,styles.medicalName]}>{entry.name}</Text><Text numberOfLines={1} style={[ui.text,styles.medicalDate,{color:entry.state==='expired'?'#ff7777':entry.state==='soon'?'#f9b65b':colors.text}]}>{entry.date??'unbekannt'}{assessment.issues.length?'*':''}</Text>
+        </View>;
+      }) : <Label muted style={styles.small}>{medicalLoading?'Wird geladen…':'Status unbekannt'}</Label>}<Label style={styles.link}>Details ›</Label></View>
     </Pressable>
     <Pressable accessibilityRole="button" accessibilityLabel={`Papierflugbuch. ${bookName ? `${bookName}, ${pending === null ? 'Papierstand unbekannt' : pending+' Flüge offen'}` : 'Einrichtung in Vorbereitung'}. Öffnen`} onPress={onPaper} style={({pressed})=>[styles.tile,fontScale>1.3&&{flex:0,width:'100%'},pressed&&ui.pressed]}>
       <SymbolIcon name="book" size={28}/><View style={styles.copy}><Label style={styles.title}>Papierflugbuch</Label><Label muted style={styles.small}>{bookName??'Noch nicht eingerichtet'}</Label><Label style={styles.link}>{bookName?(pending===null?'Stand ansehen ›':`${pending} offen ›`):'In Vorbereitung ›'}</Label></View>
@@ -36,4 +48,5 @@ const styles = StyleSheet.create({
   copy:{flex:1,minWidth:90,gap:2},title:{fontSize:14,lineHeight:20,fontWeight:'600'},small:{fontSize:12,lineHeight:18},link:{fontSize:12,lineHeight:18,color:colors.cyan},
   medicalCopy:{width:'100%',minWidth:0,gap:4},medicalHeading:{flexDirection:'row',alignItems:'center',gap:6},
   medicalRow:{flexDirection:'row',alignItems:'center',gap:4},medicalName:{flex:1,minWidth:0,fontSize:12,lineHeight:18},medicalDate:{flexShrink:0,fontWeight:'600',fontSize:12,lineHeight:18,fontVariant:['tabular-nums']},
+  medicalBadge:{minWidth:18,minHeight:18,paddingHorizontal:3,borderRadius:99,borderWidth:1,alignItems:'center',justifyContent:'center'},medicalBadgeText:{fontSize:12,lineHeight:18,fontWeight:'700',textAlign:'center'},
 });

@@ -2,9 +2,11 @@ import React from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 import { SymbolIcon, legacyIconTone, type SymbolName, type SymbolTone } from './SymbolIcon';
 
-// Selected content surfaces; Start and shell decoration retain their scoped palette.
+// Content, shell and Start tiles have separately scoped surface roles.
 export const colors = { background: '#001b29', card: '#103546', raised: '#1a4356', border: '#31586b', text: '#f4f8fc', muted: '#a9bed3', blue: '#27d3d2', cyan: '#27d3d2', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
 export const startSurfaces = { card: '#062331', raised: '#0c3041', border: '#183d50' };
+// Brighter Start tiles; keep the header/bottom-navigation palette above unchanged.
+export const startTileSurfaces = { card: '#164154', raised: '#235469', border: '#60889e' };
 export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
   return <SymbolIcon name="glider" size={large ? 68 : 28} tone={legacyIconTone(color)} />;
 }
@@ -47,7 +49,7 @@ export const ui = StyleSheet.create({
   title: { color: colors.text, fontSize: 26, fontWeight: '700', letterSpacing: -.6 },
   heading: { color: colors.text, fontSize: 19, lineHeight: 26, fontWeight: '600' },
   card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 16, gap: 10, overflow: 'hidden' },
-  startCard: { backgroundColor: startSurfaces.card, borderColor: startSurfaces.border },
+  startCard: { backgroundColor: startTileSurfaces.card, borderColor: startTileSurfaces.border },
   headerAction: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   cockpitImage: { opacity: .82 },
   cockpitShade: { backgroundColor: '#001b2944' },
@@ -60,7 +62,7 @@ export const ui = StyleSheet.create({
   actionText: { color: '#031326', fontSize: 15, lineHeight: 22, fontWeight: '600' },
   actionContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   secondary: { backgroundColor: colors.raised, borderWidth: 1, borderColor: colors.border },
-  startSecondary: { backgroundColor: startSurfaces.raised, borderColor: startSurfaces.border },
+  startSecondary: { backgroundColor: startTileSurfaces.raised, borderColor: startTileSurfaces.border },
   chipTouch: { minHeight: 48, justifyContent: 'center' },
   chip: { minHeight: 40, minWidth: 66, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.card },
   chipSelected: { backgroundColor: colors.blue, borderColor: colors.blue }, chipText: { color: colors.text, fontSize: 14, lineHeight: 20 },
