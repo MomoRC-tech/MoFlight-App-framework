@@ -848,7 +848,13 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     setSyncProgress(previous=>({...previous,state:'failed',message:'Anbieterstatus konnte nicht sicher gelesen werden. Gespeicherte Daten bleiben erhalten.'}));
   },[open,syncEntry,c.viewReadFailed]);
   useEffect(()=>{
-    if(!providerEntryAllowed||!open||!entryReady||!entryPreparation.current?.ready||initialUpdate.current||busy||!snapshot||!c.viewReady||c.recovery)return;
+    if(!providerEntryAllowed||!open||!entryReady||!entryPreparation.current?.ready||initialUpdate.current||busy||!snapshot||!c.viewReady)return;
+    if(syncEntry&&c.recovery){
+      estimateEvent({type:'terminal',outcome:'cancelled'});estimate.current=null;finishStage('prepare');
+      const message='Die Anbieteransicht muss vor dem nächsten Abruf wiederhergestellt werden.';
+      setSyncProgress(previous=>previous.state==='waiting'&&previous.current===null&&previous.message===message?previous:{...previous,state:'waiting',current:null,message});
+      return;
+    }
     initialUpdate.current=true;
     if(!syncEntry)return;
     if(snapshot.recovery.readOnly||recovery.status==='recovery-required'){

@@ -519,6 +519,7 @@ test('idle provider recovery exposes the guarded restoration panel instead of a 
   f.render();await f.flush();const panel=f.nodes().find(n=>n.type==='ProviderConnection')!;
   assert.equal(panel.props.open,true);assert.equal(panel.props.minimal,false);
   assert.equal(panel.props.progress,undefined,'the existing provider restoration controls must own this idle surface');
+  assert.equal(f.progressUpdates.at(-1)?.state,'waiting','the root must show the recovery surface instead of hiding it behind active preparation');
   assert.deepEqual(f.calls,[],'opening recovery cannot start another provider job');
  }finally{f.dispose();}
 });
