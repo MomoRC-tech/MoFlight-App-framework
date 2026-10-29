@@ -1688,6 +1688,50 @@ async function backupVerified(f: ReturnType<typeof fixture>) {
   assert.equal(f.currentCommand().phase, 'reset');
 }
 
+test('measured 500+1 paging survives verified restoration; cancelled partial counts reset on retry', async () => {
+  const f = fixture({ product: true, priorCapture });
+  const headers = ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Kosten'];
+  const rows = Array.from({ length: 501 }, (_, i) => ({ sourceFlightId: String(i + 1), values: ['11.10.2026', 'Synthetic', '10:00', '10:10', '00:10', ''] }));
+  const page = { kind: 'vf-export-v1', status: 'page', preset: exporter.ACTIVE_EXPORT_VIEW,
+    period: 'ab 01.01.2026 bis 31.12.2026', participation: exporter.PARTICIPATION, filtersClear: true,
+    allColumns: true, headers, columnIds: ['1', '2', '3', '4', '5', '6'], total: 501 };
+  async function prepare() {
+    await f.loadFlight(); await backupVerified(f);
+    for (const phase of exporter.EXPORT_PHASES.filter(value => value !== 'read')) {
+      assert.equal(f.currentCommand().phase, phase);
+      await f.message({ kind: 'vf-export-v1', status: 'next', preset: exporter.ACTIVE_EXPORT_VIEW });
+    }
+  }
+  try {
+    f.render(); await f.settle(null); await establishProductAssociation(f);
+    f.controller().retrieve(); await prepare();
+    assert.deepEqual(f.controller().flightProgress, { done: 0, total: null });
+    await f.message({ ...page, first: 1, last: 500, rows: rows.slice(0, 500), nextUrl: FLIGHT_URL + '?page=2' });
+    assert.deepEqual(f.controller().flightProgress, { done: 500, total: 501 });
+    assert.equal(f.savedCapture(), priorCapture, 'A validated partial page is not a saved capture');
+    f.controller().cancelRetrieval();
+    await restoredReadback(f); await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    assert.equal(f.savedCapture(), priorCapture); assert.equal(f.pending(), null);
+
+    f.controller().retrieve(); await prepare();
+    assert.deepEqual(f.controller().flightProgress, { done: 0, total: null }, 'Retry starts a new count, not 500/501');
+    await f.message({ ...page, first: 1, last: 500, rows: rows.slice(0, 500), nextUrl: FLIGHT_URL + '?page=2' });
+    await f.loadPage(FLIGHT_URL + '?page=2');
+    await f.message({ ...page, first: 501, last: 501, rows: rows.slice(500), nextUrl: null });
+    assert.deepEqual(f.controller().flightProgress, { done: 501, total: 501 });
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    assert.deepEqual(f.savedCapture()?.rows, rows);
+    assert.deepEqual(f.pending(), original, 'Saving does not prematurely clear preference recovery');
+    await restoredReadback(f); await f.message({ kind: 'vf-view-v2', status: 'next', view: restored });
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    assert.equal(f.pending(), null); assert.equal(f.controller().recovery, false);
+    assert.equal(f.controller().flightProgress, null, 'Settled retrieval no longer exposes an active counter');
+    assert.equal(f.controller().completedFlightSource?.capture.rows.length, 501);
+    assert.equal(f.savedCapture()?.exportContext?.pageCount, 2);
+  } finally { f.unmount(); }
+});
+
 test('opt-in interruption checkpoint holds after verified reset and ignores navigation and abandoned Continue callbacks', async () => {
   const f = fixture({ priorCapture });
   f.render(); await f.settle(null);

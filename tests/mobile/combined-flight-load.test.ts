@@ -894,6 +894,26 @@ test('Sync forwards measured flight counts and ignores late updates after cancel
   }finally{f.dispose();}
 });
 
+test('Sync publishes confirmed save counts and an optional-source retry cannot recount flights',async()=>{
+  const f=fixture({intent:'update',medicalFailure:true});
+  let finishMedical!:()=>void;const medicalWait=new Promise<void>(resolve=>{finishMedical=resolve;});
+  const medical=f.c.retrieveMedical;f.c.retrieveMedical=async()=>{await medicalWait;return medical();};try{
+    f.render();await f.flush();f.verify();await f.flush();
+    f.c.flightProgress={done:1,total:3};f.render();await f.flush();
+    assert.deepEqual(f.progressUpdates.at(-1)?.count,{done:1,total:3,unit:'flights'});
+    assert.ok(!f.progressUpdates.some(p=>p.last==='save'));
+    f.complete();f.c.completedFlightSource.capture.rows=[{},{},{}];await f.flush();
+    assert.ok(f.progressUpdates.some(p=>p.last==='flights'&&p.lastCount?.done===3&&p.lastCount.total===3));
+    assert.ok(f.progressUpdates.some(p=>p.last==='save'&&p.lastCount?.done===3&&p.lastCount.total===3));
+    finishMedical();await f.flush();
+    assert.equal(f.progressUpdates.at(-1)?.state,'partial');
+    const boundary=f.progressUpdates.length;
+    f.press('Nur Medical erneut laden');await f.flush();f.verify();await f.flush();
+    assert.ok(!f.progressUpdates.slice(boundary).some(p=>p.current==='flights'||p.current==='save'));
+    assert.equal(f.calls.filter(value=>value==='save').length,1);
+  }finally{finishMedical();f.dispose();}
+});
+
 test('a complete sync learns local stage hints and the next comparable attempt has an estimate',async()=>{
  const first=fixture({initialFlightsSaved:true,intent:'update'});let history:unknown;
  try{

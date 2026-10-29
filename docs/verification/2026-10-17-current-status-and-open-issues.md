@@ -1,5 +1,9 @@
 # Implementation and open-issue reviews — 17–29 October 2026
 
+## 29 October focused Sync-count closeout
+
+#92's measured-count deliverable is complete after two additional controller/coordinator regressions, 197 focused passing checks, TypeScript and affected-file lint. [One package report](2026-10-26-sync-counts.md#focused-count-closeout--29-october-2026) separates 500+1 synthetic paging/retry/restoration and confirmed-save/optional-retry checks from reused actual authenticated Android recovery. No application defect/change, build or new provider/device trial was needed. Live >500-row source coverage remains untested under #2/#8; timing stays #41/#90, owner-only phone observations #107 and iOS #8. Earlier dated “Keep #92” dispositions below are superseded only for this count scope. #9 has separately reopened for its authorized hybrid-chart package; its previous closure remains historical.
+
 ## 29 October completed bug and Statistics closeout
 
 **Outcome: 49 open issues and zero open bug-labelled issues.** Starting from the 52-issue privacy checkpoint, #93/#45/#9 are completed after implementation and source-specific host/native acceptance. #94 stays open for U4 inputs/light proposal and U5 engineer/UI integration; it is not an owner-only phone task. [#93 delegated closure](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/93#issuecomment-6493417256) and [#94 review](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94#issuecomment-6491386882) distinguish these outcomes.
