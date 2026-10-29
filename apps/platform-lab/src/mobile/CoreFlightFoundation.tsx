@@ -848,7 +848,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     setSyncProgress(previous=>({...previous,state:'failed',message:'Anbieterstatus konnte nicht sicher gelesen werden. Gespeicherte Daten bleiben erhalten.'}));
   },[open,syncEntry,c.viewReadFailed]);
   useEffect(()=>{
-    if(!providerEntryAllowed||!open||!entryReady||!entryPreparation.current?.ready||initialUpdate.current||busy||!snapshot||!c.viewReady)return;
+    if(!providerEntryAllowed||!open||!entryReady||!entryPreparation.current?.ready||initialUpdate.current||busy||!snapshot||!c.viewReady||c.recovery)return;
     initialUpdate.current=true;
     if(!syncEntry)return;
     if(snapshot.recovery.readOnly||recovery.status==='recovery-required'){
@@ -860,7 +860,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     if(estimate.current)estimate.current=confirmSyncEstimateContext(estimate.current,{mode:snapshot.account?'repeat':'first',volume:syncEstimateVolume(null,flights.length)});
     finishStage('prepare');
     loadFlights();
-  },[open,entryReady,intent,requestId,busy,snapshot,c.viewReady,restoreReadWarning,restorePreparations,recovery,savedSync]);
+  },[open,entryReady,intent,requestId,busy,snapshot,c.viewReady,c.recovery,restoreReadWarning,restorePreparations,recovery,savedSync]);
   useEffect(()=>{
     const subscription=BackHandler.addEventListener('hardwareBackPress',()=>{
       if(!panelActive.current)return false;
@@ -1003,6 +1003,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
   const medicalResult=completed?.medicalStatus==='updated'?'Medical-Angaben geladen.':completed?.medicalStatus==='empty'?'Keine Medical-Angaben gefunden.':completed?.medicalStatus==='skipped'?'Medical nicht abgeschlossen. Gespeicherte Angaben bleiben erhalten.':'Medical konnte nicht geladen werden. Gespeicherte Angaben bleiben erhalten.';
   const restoreTicket=restoreConfirmation.current;
   const blockedSync=entryReady&&(restoreReadOnly||c.recovery||recovery.status==='not-committed'||recovery.status==='recovery-required');
+  const providerRecoveryPage=syncEntry&&entryReady&&!automatic.current&&c.recovery&&!busy;
   // Stay in the sync frame while local reads and recovery checks run. The old
   // generic provider panel exposed manual verification before automatic became true.
   const preparationProgress=syncEntry?<Card>
@@ -1140,7 +1141,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     {destination==='backup'&&open&&confirmRestore&&<BackupRestoreConfirmationDialog onCancel={()=>{restoreConfirmation.current=null;setConfirmRestore(false);}} onConfirm={()=>{if(!restoreTicket||restoreConfirmation.current!==restoreTicket||restoreTicket.requestId!==requestId||lock.current||!panelActive.current||!foreground.current)return;restoreConfirmation.current=null;setConfirmRestore(false);void run(restoreWholeUserBackup,'library-operation',false,()=>true,'restore');}}/>}
     {/* Android's credential dialogs pause the app. Keep their original login target visible;
         foreground guards still suspend verification, retrieval and writes until return. */}
-    <ProviderConnection minimal={syncEntry||destination==='settings'} administration={destination==='settings'} dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={open&&providerOpen&&(providerEntryAllowed||destination==='settings'&&c.visible)} development={intent==='development'} guided={syncEntry||automatic.current} title={syncEntry?'Daten synchronisieren':undefined} progress={progress??preparationProgress} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current)} purpose="own-flight-library" close={()=>{
+    <ProviderConnection minimal={!providerRecoveryPage&&(syncEntry||destination==='settings')} administration={destination==='settings'} dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={open&&providerOpen&&(providerEntryAllowed||destination==='settings'&&c.visible)} development={intent==='development'} guided={syncEntry||automatic.current} title={syncEntry?'Daten synchronisieren':undefined} progress={providerRecoveryPage?undefined:progress??preparationProgress} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current)} purpose="own-flight-library" close={()=>{
       if(automatic.current){
         if(waiting.current){cancelSync();return;}
         if(busy){

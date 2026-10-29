@@ -513,6 +513,37 @@ test('recovery gate stays in the sync frame and offers recovery instead of conne
   }finally{f.dispose();}
 });
 
+test('idle provider recovery exposes the guarded restoration panel instead of a Sync preparation loop',async()=>{
+ const f=fixture({intent:'update'});f.c.recovery=true;
+ try{
+  f.render();await f.flush();const panel=f.nodes().find(n=>n.type==='ProviderConnection')!;
+  assert.equal(panel.props.open,true);assert.equal(panel.props.minimal,false);
+  assert.equal(panel.props.progress,undefined,'the existing provider restoration controls must own this idle surface');
+  assert.deepEqual(f.calls,[],'opening recovery cannot start another provider job');
+ }finally{f.dispose();}
+});
+
+test('an active retrieval keeps Sync progress while its original-view journal is armed',async()=>{
+ const f=fixture({intent:'update'});
+ try{
+  f.render();await f.flush();assert.ok(f.calls.includes('retrieve'));
+  f.c.recovery=true;f.render();const panel=f.nodes().find(n=>n.type==='ProviderConnection')!;
+  assert.equal(panel.props.minimal,true);assert.ok(panel.props.progress);
+  assert.equal(f.calls.filter(call=>call==='retrieve').length,1);
+ }finally{f.dispose();}
+});
+
+test('restoring the provider view returns a persisted interruption to an explicit continuation choice',async()=>{
+ const f=fixture({intent:'update',initialFlightsSaved:true,initialSavedSync:{version:1,ownerId:'owner',storeId:'store',accountRef:'101',clubLabel:'Example',startedAt:'2026-10-29T08:00:00Z',flightCaptureId:null,sources:{}}});
+ f.c.recovery=true;
+ try{
+  f.render();await f.flush();assert.equal(f.nodes().find(n=>n.type==='ProviderConnection')!.props.progress,undefined);
+  f.c.recovery=false;f.render();await f.flush();const panel=f.nodes().find(n=>n.type==='ProviderConnection')!;
+  assert.equal(panel.props.minimal,true);assert.match(f.progressText(),/Synchronisierung fortsetzen/);
+  assert.deepEqual(f.calls,[],'restoration cannot silently resume a cancelled attempt');
+ }finally{f.dispose();}
+});
+
 test('closing and reopening retains the controller and offers recovery without starting another provider request',async()=>{
   const f=fixture({intent:'connect',loginPending:true});try{
     f.render();await f.flush();const first=f.nodes().find(n=>n.type==='ProviderConnection')!.props.controller;
