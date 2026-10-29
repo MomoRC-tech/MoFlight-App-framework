@@ -4,6 +4,8 @@ import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 import ts from 'typescript';
 import * as model from '../../apps/platform-lab/src/mobile/cockpit-season.ts';
+import * as calculation from '../../apps/platform-lab/src/mobile/annual-duty-calculation.ts';
+import type { FeatureSource, WorkSummaryItem } from '../../apps/platform-lab/src/mobile/feature-information.ts';
 
 function deferred() {
   let release!:()=>void;
@@ -28,17 +30,77 @@ function fixture(files=new Map<string,string>()) {
   const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/DutyTarget.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React}}).outputText;
   const modules:any={react:{default:react,...react},'react-native':{View:'View',TextInput:'TextInput'},'./theme':{startTileSurfaces:{card:'#164154',raised:'#235469',border:'#60889e'},Action:'Action',Label:'Label',colors:{}},'expo-file-system':{File,Paths:{document:'synthetic'}},'../duty-target-native':{ subscribeDutyTargets:(listener:()=>void)=>{listeners.add(listener);return()=>listeners.delete(listener);},
     async readDutyTargetNative(key:string) { const file=new File('synthetic',`cockpit-duty-${Buffer.from(key).toString('hex')}.json`); if(!file.exists)return null; const value=JSON.parse(await file.text());if(value.key!==key)throw Error('foreign');return value.hours; },
-    async saveDutyTargetNative(key:string,hours:number,current:()=>boolean) { await Promise.resolve(); if(!current())return false; const file=new File('synthetic',`cockpit-duty-${Buffer.from(key).toString('hex')}.json`); const payload=JSON.stringify({version:1,key,hours});file.write(payload);if(await file.text()!==payload)throw Error('readback');return current(); }
-  },'./cockpit-season':model};
+    async saveDutyTargetNative(key:string,hours:number,current:()=>boolean) { await Promise.resolve(); if(!current())return false; const file=new File('synthetic',`cockpit-duty-${Buffer.from(key).toString('hex')}.json`); const payload=JSON.stringify({version:1,key,hours});file.write(payload);if(await file.text()!==payload)throw Error('readback');return current(); },
+    async readDutyCalculationNative(key:string){const text=files.get(`calculated-${key}`);return text?JSON.parse(text):null;},
+    async saveDutyCalculationNative(key:string,value:unknown,current:()=>boolean){await Promise.resolve();if(!current())return null;if(failWrite)throw Error('disk');files.set(`calculated-${key}`,JSON.stringify(value));return value;},
+    async clearDutyTargetNative(key:string,current:()=>boolean){await Promise.resolve();if(!current())return false;if(failWrite)throw Error('disk');files.delete(`cockpit-duty-${Buffer.from(key).toString('hex')}.json`);return true;}
+  },'./cockpit-season':model,'./annual-duty-calculation':calculation};
   const exports:any={};runInNewContext(source,{exports,require:(id:string)=>{assert.ok(id in modules);return modules[id];}});
   const flush=()=>effects.splice(0).forEach(fn=>fn());
-  const render=(scope:string|null='owner/store/account',year=2026,persistent=true)=>{index=0;const result=exports.useDutyTarget(scope,year,persistent);flush();return result;};
+  const render=(scope:string|null='owner/store/account',year=2026,persistent=true,source?:FeatureSource<WorkSummaryItem>)=>{index=0;const result=exports.useDutyTarget(scope,year,persistent,source);flush();return result;};
   return {render,files,notify:()=>{listeners.forEach(listener=>listener());},fail:(value=true)=>{failWrite=value;},
     pauseRead:()=>{const gate=deferred();nextRead=gate;return gate.release;},corrupt:()=>{corruptRead=true;},accesses:()=>fileAccess,
     unmount:()=>{cleanups.forEach(fn=>fn?.());cleanups.clear();},
     editor:(target:any,onClose:()=>void)=>{index=0;const tree=exports.DutyTargetEditor({target,onClose});flush();return tree;}};
 }
 const settle=()=>new Promise(resolve=>{setImmediate(resolve);});
+const summary=(performed='50,00 EUR',hours='5',retrievedAt='2026-05-01T12:00:00.000Z'):FeatureSource<WorkSummaryItem>=>({status:'partial',empty:false,truncated:false,filters:[],retrievedAt,items:[{key:'synthetic:0',period:'Jahr 2026',obligation:'150,00 EUR',performed,hours}]});
+async function stabilize(f:ReturnType<typeof fixture>,source?:FeatureSource<WorkSummaryItem>,scope='owner/store/account',year=2026,persistent=true){
+  for(let i=0;i<5;i++){f.render(scope,year,persistent,source);await settle();}
+  return f.render(scope,year,persistent,source);
+}
+
+test('annual calculation persists after capping/reopen and resets separately from a manual override',async()=>{
+  const f=fixture();let state=await stabilize(f,summary());
+  assert.equal(state.hours,15);assert.equal(state.lastCalculated,15);assert.equal(state.configured,false);
+  assert.equal(await state.save('22'),true);
+  state=await stabilize(f,summary('60,00 EUR','8','2026-06-01T12:00:00.000Z'));
+  assert.equal(state.hours,22);assert.equal(state.lastCalculated,20);assert.equal(state.configured,true);
+  const reopened=fixture(f.files);state=await stabilize(reopened,summary('150,00 EUR','16','2026-07-01T12:00:00.000Z'));
+  assert.equal(state.hours,22);assert.equal(state.lastCalculated,20,'Equality retains the last valid unequal observation');
+  assert.equal(await state.reset(),true);state=await stabilize(reopened);
+  assert.equal(state.hours,20);assert.equal(state.configured,false);
+  state=await stabilize(reopened,summary('100,00 EUR','10','2026-08-01T12:00:00.000Z'));
+  assert.equal(state.hours,15,'Reset returns to automatic updates');
+  assert.equal((await stabilize(reopened,undefined,'owner/store/account',2027)).hours,30);
+  assert.equal((await stabilize(reopened,undefined,'foreign',2026)).lastCalculated,null);
+});
+
+test('failed automatic persistence is visible, has a bounded attempt and can retry locally',async()=>{
+  const f=fixture();f.fail();let state=await stabilize(f,summary());
+  assert.equal(state.hours,30);assert.equal(state.lastCalculated,null);assert.equal(f.files.size,0);
+  assert.match(state.error,/Berechnetes Soll.*nicht gespeichert/);assert.equal(state.busy,false);
+  f.fail(false);state.retry();state=await stabilize(f,summary());
+  assert.equal(state.hours,15);assert.equal(state.error,null);
+});
+
+test('unreadable derived history cannot hide an existing manual target',async()=>{
+ const f=fixture();f.render();await settle();assert.equal(await f.render().save('22'),true);
+ f.files.set(`calculated-${JSON.stringify(['owner/store/account',2026])}`,'corrupt');
+ const reopened=fixture(f.files),state=await stabilize(reopened);
+ assert.equal(state.hours,22);assert.equal(state.configured,true);assert.equal(state.lastCalculated,null);
+ assert.match(state.error,/Berechnung nicht lesbar/);
+});
+
+test('calculation in preview never writes files and stale reset cannot delete another context',async()=>{
+  const f=fixture();let state=await stabilize(f,summary(),'owner/store/account',2026,false);
+  assert.equal(state.hours,15);assert.equal(f.files.size,0);assert.equal(f.accesses(),0);
+  assert.equal((await stabilize(f,undefined,'owner/store/account',2027,false)).hours,30);
+  state=await stabilize(f,undefined,'owner/store/account',2026,false);assert.equal(state.lastCalculated,15);
+  assert.equal(await state.save('22'),true);
+  assert.equal(await state.reset(),true);assert.equal((await stabilize(f,undefined,'owner/store/account',2026,false)).hours,15);
+  const persistent=fixture();state=await stabilize(persistent,summary());assert.equal(await state.save('22'),true);
+  state=await stabilize(persistent);const reset=state.reset();persistent.render('other');assert.equal(await reset,false);
+  assert.equal((await stabilize(persistent)).hours,22);
+});
+
+test('target editor shows the last calculation and resets through its explicit action',async()=>{
+  const f=fixture();let reset=0,closed=0;
+  const tree=f.editor({hours:22,lastCalculated:15,configured:true,persistent:true,busy:false,error:null,save:async()=>true,reset:async()=>{reset++;return true;}},()=>closed++);
+  assert.match(JSON.stringify(tree),/Zuletzt berechnet: 15 h/);assert.match(JSON.stringify(tree),/Manuelles Soll aktiv/);
+  const action=tree.children.find((n:any)=>n?.type==='Action'&&n.children.includes('Auf berechnetes Soll zurücksetzen'));
+  assert.equal(action.props.disabled,false);action.props.onPress();await settle();assert.equal(reset,1);assert.equal(closed,1);
+});
 test('local provisional target survives reload, isolates accounts and years, and preserves confirmed zero',async()=>{
   const f=fixture();let state=f.render();assert.equal(state.hours,30);await settle();assert.equal(await f.render().save('0'),true);
   assert.equal(f.render().hours,0);f.render('foreign');await settle();assert.equal(f.render('foreign').hours,30);

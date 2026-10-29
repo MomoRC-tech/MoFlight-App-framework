@@ -30,7 +30,7 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
   const [chartSelection,setChartSelection]=useState<{scope:string|null;chart:ChartKind}|null>(null);
   const chartBack=useRef<()=>boolean>(()=>false);
   const selectedChart=chartSelection?.scope===scope?chartSelection.chart:'monthly';
-  const target = useDutyTarget(scope,year,persistDutyTarget);
+  const target = useDutyTarget(scope,year,persistDutyTarget,ownFlightPhase==='ready'&&!ownFlights?.pendingCommand&&!ownFlights?.snapshot.recovery?.readOnly?ownFlights?.featureInformation?.workSummary:undefined);
   onBackHandler?.(()=>{
     if(targetOpen){if(!target.busy)setTargetOpen(false);return true;}
     if(chartBack.current())return true;

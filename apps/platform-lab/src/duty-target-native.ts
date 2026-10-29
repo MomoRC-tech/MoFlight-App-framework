@@ -1,7 +1,7 @@
 import { Directory, File, Paths } from 'expo-file-system';
 import { hash } from './storage';
 import { assertNoPendingUserBackupRestore } from './user-backup-restore-journal-native';
-import { decodeDutyTarget, dutyTargetKey, dutyTargetScopeKey, validateDutyTargetArchive, validDutyTargetHours, type DutyTargetArchive, type DutyTargetScope } from './duty-target';
+import { decodeDutyCalculation, decodeDutyTarget, dutyTargetKey, dutyTargetScopeKey, validateDutyTargetArchive, validDutyTargetHours, type DutyCalculation, type DutyTargetArchive, type DutyTargetScope } from './duty-target';
 
 type Permit = { operationId: string; ownerId: string; storeId: string };
 let locked = false;
@@ -16,6 +16,65 @@ export async function withDutyTargetLock<T>(work: () => Promise<T>): Promise<T> 
   try { return await work(); } finally { locked = false; }
 }
 const fileFor = async (key: string) => new File(Paths.document, `cockpit-duty-${await hash(key)}.json`);
+const calculationFileFor = async (key: string) => new File(Paths.document, `cockpit-duty-calculation-${await hash(key)}.json`);
+async function readCalculationFiles(file: File, key: string): Promise<DutyCalculation | null> {
+  let latest: DutyCalculation | null = null, unreadable = false;
+  for (const candidate of [file, new File(Paths.document, `${file.name}.previous`)]) {
+    if (!candidate.exists) continue;
+    let value: ReturnType<typeof decodeDutyCalculation>;
+    try { value = decodeDutyCalculation(await candidate.text()); } catch { unreadable = true; continue; }
+    if (value.key !== key) throw new Error('Foreign duty calculation file.');
+    if (!latest || value.retrievedAt > latest.retrievedAt) latest = {hours:value.hours,retrievedAt:value.retrievedAt};
+  }
+  if (!latest && unreadable) throw new Error('Unreadable duty calculation.');
+  return latest;
+}
+export async function readDutyCalculationNative(key: string): Promise<DutyCalculation | null> {
+  const started = storageRevision;
+  await assertNoPendingUserBackupRestore();
+  if (locked || started !== storageRevision) throw new Error('Duty target storage is busy.');
+  const file = await calculationFileFor(key);
+  const value = await readCalculationFiles(file,key);
+  await assertNoPendingUserBackupRestore();
+  if (locked || started !== storageRevision) throw new Error('Duty target storage is busy.');
+  return value;
+}
+export async function saveDutyCalculationNative(key: string, calculation: DutyCalculation, current: () => boolean): Promise<DutyCalculation | null> {
+  return withDutyTargetLock(async () => {
+    await assertNoPendingUserBackupRestore();
+    const payload = JSON.stringify({ version: 1, key, ...calculation }); decodeDutyCalculation(payload);
+    const file = await calculationFileFor(key);
+    const previous = await readCalculationFiles(file,key);
+    await assertNoPendingUserBackupRestore();
+    if (!current()) return null;
+    if (previous && previous.retrievedAt >= calculation.retrievedAt) return { hours: previous.hours, retrievedAt: previous.retrievedAt };
+    if (previous) {
+      const original = new File(Paths.document, `${file.name}.previous`);
+      const before = JSON.stringify({version:1,key,...previous});
+      original.write(before);
+      if (await original.text() !== before) throw new Error('Duty calculation preservation failed.');
+    }
+    await assertNoPendingUserBackupRestore();
+    if (!current()) return null;
+    file.write(payload);
+    if (await file.text() !== payload) throw new Error('Duty calculation readback failed.');
+    return current() ? calculation : null;
+  });
+}
+export async function clearDutyTargetNative(key: string, current: () => boolean): Promise<boolean> {
+  const cleared = await withDutyTargetLock(async () => {
+    await assertNoPendingUserBackupRestore();
+    const file = await fileFor(key);
+    if (file.exists && decodeDutyTarget(await file.text()).key !== key) throw new Error('Foreign duty target destination.');
+    await assertNoPendingUserBackupRestore();
+    if (!current()) return false;
+    if (file.exists) file.delete();
+    if (file.exists) throw new Error('Duty target reset failed.');
+    return current();
+  });
+  if (cleared) notifyDutyTargetsChanged();
+  return cleared;
+}
 export async function readDutyTargetNative(key: string): Promise<number | null> {
   const started = storageRevision;
   await assertNoPendingUserBackupRestore();

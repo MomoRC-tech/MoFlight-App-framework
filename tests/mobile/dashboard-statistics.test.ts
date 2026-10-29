@@ -28,9 +28,9 @@ function render(flights:any[], phase='ready', fontScale=1, preview: startPreview
   let hookIndex=0; const memos:{deps:unknown[];value:unknown}[]=[];
   const useMemo=(fn:()=>unknown,deps:unknown[])=>{const i=hookIndex++;if(!memos[i]||deps.some((v,n)=>v!==memos[i]!.deps[n]))memos[i]={deps,value:fn()};return memos[i]!.value;};
   const states:any[]=[];let stateIndex=0;const useState=(initial:any)=>{const i=stateIndex++;if(!(i in states))states[i]=initial;return [states[i],(value:any)=>{states[i]=value;}];};
-  const target={hours:25,busy:false};let inlineBack=()=>false;
+  const target={hours:25,busy:false};let inlineBack=()=>false;let targetSource:unknown;
   const modules:Record<string,unknown>={'../start-timing':startTiming,react:{default:react,useMemo,useState,useRef:(initial:any)=>useMemo(()=>({current:initial}),[])},'react-native':{...leaves(['ActivityIndicator','ImageBackground','Pressable','ScrollView','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
-    './StartSeasonCharts':leaves(['StartSeasonCharts']),'./start-preview':{...startPreview,startFlightDashboard:(...args:Parameters<typeof startPreview.startFlightDashboard>)=>{calculations+=2;return startPreview.startFlightDashboard(...args);}},'./season-work-hours':workHours, './cockpit-season':cockpit, './flight-role-metric':roles, './DutyTarget':{useDutyTarget:()=>target,DutyTargetEditor:'DutyTargetEditor'},
+    './StartSeasonCharts':leaves(['StartSeasonCharts']),'./start-preview':{...startPreview,startFlightDashboard:(...args:Parameters<typeof startPreview.startFlightDashboard>)=>{calculations+=2;return startPreview.startFlightDashboard(...args);}},'./season-work-hours':workHours, './cockpit-season':cockpit, './flight-role-metric':roles, './DutyTarget':{useDutyTarget:(_scope:unknown,_year:unknown,_persistent:unknown,source:unknown)=>{targetSource=source;return target;},DutyTargetEditor:'DutyTargetEditor'},
     './theme':{...leaves(['Action','Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
     './FlightScene':leaves(['FlightScene']),'./SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':{...dashboardModel,monthlySeasonForCoverage:(...args:Parameters<typeof dashboardModel.monthlySeasonForCoverage>)=>{monthlyCalculations++;return dashboardModel.monthlySeasonForCoverage(...args);}}, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
     './processed-result':processedResults,'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
@@ -42,8 +42,20 @@ function render(flights:any[], phase='ready', fontScale=1, preview: startPreview
   if(preview)props.ownFlights=null;
   const tree=exports.Dashboard(props);
   const nodes:Element[]=[];function visit(n:any){if(n?.type?.name==='StatisticsEntry'){visit(n.type(n.props));return;}if(n?.children){nodes.push(n);n.children.forEach(visit);}}visit(tree);
-  return {nodes,calls,opened,statisticsCalls,roleCalls,target,inlineBack:()=>inlineBack(),text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
+  return {nodes,calls,opened,statisticsCalls,roleCalls,target,targetSource:()=>targetSource,inlineBack:()=>inlineBack(),text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
 }
+
+test('automatic duty calculation receives only ready, unblocked selected-library information',()=>{
+ const source={status:'partial',items:[]};
+ for(const phase of ['ready','loading','failed','missing']){
+  const f=render([],phase);f.changeView({...f.view(),featureInformation:{workSummary:source}});
+  assert.equal(f.targetSource(),phase==='ready'?source:undefined);
+  if(phase==='ready'){
+   f.changeView({...f.view(),pendingCommand:true});assert.equal(f.targetSource(),undefined);
+   f.changeView({...f.view(),pendingCommand:false,snapshot:{...f.view().snapshot,recovery:{readOnly:true}}});assert.equal(f.targetSource(),undefined);
+  }
+ }
+});
 
 test('Start renders cached annual values and latest flight with a historical label while fresh data is loading',()=>{
   const f=ownFlightFixture(),now=Date.parse('2026-10-22T12:00:00Z');

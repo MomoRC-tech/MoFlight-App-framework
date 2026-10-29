@@ -1,6 +1,7 @@
 import { canonical } from '@moflight/flight-logbook';
 
 export interface DutyTargetScope { ownerId: string; storeId: string; accountRef: string }
+export interface DutyCalculation { hours: number; retrievedAt: string }
 export interface DutyTargetArchive { scope: DutyTargetScope | null; targets: Array<{ year: number; hours: number }> }
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function exact(value: unknown, keys: string[]): asserts value is Record<string, unknown> {
@@ -35,6 +36,15 @@ export function decodeDutyTarget(text: string): { key: string; scope: DutyTarget
   const scope = validateDutyTargetScope({ ownerId: parts[0], storeId: parts[1], accountRef: parts[2] });
   if (dutyTargetKey(dutyTargetScopeKey(scope), key[1]) !== value.key) throw new Error('Noncanonical duty target key.');
   return { key: value.key, scope, year: key[1], hours: value.hours };
+}
+/** Separate derived memo; the strict v1 manual-target and archive v3 shapes stay unchanged. */
+export function decodeDutyCalculation(text: string): DutyCalculation & { key: string } {
+  if (text.length > 2048) throw new Error('Duty calculation size limit exceeded.');
+  const value: unknown = JSON.parse(text); exact(value, ['version', 'key', 'hours', 'retrievedAt']);
+  const target = decodeDutyTarget(JSON.stringify({ version: value.version, key: value.key, hours: value.hours }));
+  if (typeof value.retrievedAt !== 'string' || !Number.isFinite(Date.parse(value.retrievedAt)) ||
+    new Date(value.retrievedAt).toISOString() !== value.retrievedAt) throw new Error('Invalid duty calculation date.');
+  return { key: target.key, hours: target.hours, retrievedAt: value.retrievedAt };
 }
 export function validateDutyTargetArchive(value: unknown, ownerId: string, storeId: string, accountRef: string | null): DutyTargetArchive {
   exact(value, ['scope', 'targets']);
