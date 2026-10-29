@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "recorded_date": "2026-10-29",
+  "application_source": "58851de4d3de01539384d7e08163e736cce1022b",
+  "apk_sha256": "351fa60bdef8a72fb5e290ca9a5f98e7ecf401143f5ba713d301e9d9478e2022",
+  "device": {
+    "avd": "MoFlight_Synthetic_API37",
+    "android_api": 37,
+    "abi": "x86_64"
+  },
+  "host": {
+    "source": "58851de4d3de01539384d7e08163e736cce1022b",
+    "report": "build/host-checks/20261029T110806Z-5d46a0aa",
+    "checks": "5/5 passed",
+    "focused_statistics_tests": 38
+  },
+  "native_review": [
+    {
+      "question": "Compact last-flight line and explicit horizontal-metric hint",
+      "viewport": "360x900 dp / density160 / font1.6",
+      "status": "parent visually checked",
+      "evidence": "assets/statistics-2026-10-29/start-min.png"
+    },
+    {
+      "question": "Readable separate month axis and immediate chart result",
+      "viewport": "360x900 dp / density160 / font1.6",
+      "status": "parent visually checked",
+      "evidence": "assets/statistics-2026-10-29/monthly-min.png"
+    },
+    {
+      "question": "Annual calendar opens and its 1/2/3/4+ count legend is reachable",
+      "viewport": "800x600 dp / density160 / font1",
+      "status": "parent visually checked plus full XML assertion",
+      "evidence": "assets/statistics-2026-10-29/calendar-wide.png"
+    },
+    {
+      "question": "Aircraft shares, category unknown, exact absolute values",
+      "viewport": "390x900 dp / density160 / font1",
+      "source": "901fd1bd63c0b47b729923cac031ebecb8c090d0",
+      "status": "unchanged aircraft view evidence reused and parent visually checked",
+      "evidence": "assets/statistics-2026-10-29/aircraft-main.png"
+    }
+  ],
+  "harness_limits": [
+    "Parent deterministic follow-up used the existing exact-AVD, APK-hash, offline and display-restoration guards with 40 actions / 6 captures.",
+    "Its final compact-node assertion failed because Session returns at most 100 text nodes; full saved XML and PNG include the calendar legend. Raw failed report preserved; no UI failure inferred from that assertion.",
+    "Earlier exact-label navigation failures and activity-recreation retries remain in ignored reports."
+  ],
+  "preservation": {
+    "display_restored": true,
+    "network_unchanged": true,
+    "install_identity_unchanged": true,
+    "cleanup_errors": [],
+    "provider_or_saved_data_mutations": false
+  },
+  "limits": [
+    "Synthetic in-memory preview only for populated chart presentation.",
+    "Ordinary selected real-library populated native acceptance, custom-keyboard/contributor/account-switch native checks, phone, iOS runtime, spoken and light-theme acceptance remain open.",
+    "No app runtime latency measured; harness elapsed time is not a performance-ledger sample."
+  ]
+}
