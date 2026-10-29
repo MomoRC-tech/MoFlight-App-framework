@@ -22,7 +22,7 @@ export function cockpitRoleMetrics(flights: readonly RealFlightListItem[], year:
   return groupStatisticsFlightRoles(selected.flights).groups.filter(group => group.key !== 'unresolved');
 }
 
-export const PROVISIONAL_DUTY_HOURS = 25;
+export const PROVISIONAL_DUTY_HOURS = 30;
 export function parseDutyTarget(value: string): number | null {
   if (!/^\d{1,3}(?:[,.]\d{1,2})?$/.test(value.trim())) return null;
   const hours = Number(value.trim().replace(',', '.'));

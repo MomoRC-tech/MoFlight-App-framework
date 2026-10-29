@@ -40,14 +40,26 @@ function fixture(files=new Map<string,string>()) {
 }
 const settle=()=>new Promise(resolve=>{setImmediate(resolve);});
 test('local provisional target survives reload, isolates accounts and years, and preserves confirmed zero',async()=>{
-  const f=fixture();let state=f.render();assert.equal(state.hours,25);await settle();assert.equal(await f.render().save('0'),true);
-  assert.equal(f.render().hours,0);f.render('foreign');await settle();assert.equal(f.render('foreign').hours,25);
-  f.render('owner/store/account',2025);await settle();assert.equal(f.render('owner/store/account',2025).hours,25);
+  const f=fixture();let state=f.render();assert.equal(state.hours,30);await settle();assert.equal(await f.render().save('0'),true);
+  assert.equal(f.render().hours,0);f.render('foreign');await settle();assert.equal(f.render('foreign').hours,30);
+  f.render('owner/store/account',2025);await settle();assert.equal(f.render('owner/store/account',2025).hours,30);
   f.render();await settle();assert.equal(f.render().hours,0);assert.equal(f.files.size,1);
+});
+
+test('30-hour annual default never replaces an explicitly saved 25-hour target',async()=>{
+  const f=fixture();f.render();await settle();assert.equal(f.render().hours,30);
+  assert.equal(await f.render().save('25'),true);
+  const reopened=fixture(f.files);reopened.render();await settle();
+  assert.equal(reopened.render().hours,25);assert.equal(reopened.render().configured,true);
+  reopened.render('owner/store/account',2027);await settle();
+  assert.equal(reopened.render('owner/store/account',2027).hours,30);
+  assert.equal(reopened.render('owner/store/account',2027).configured,false);
+  assert.equal(reopened.files.size,1,'The annual fallback is not a migration or preference write');
+  reopened.render();await settle();assert.equal(reopened.render().hours,25);
 });
 test('invalid input and failed writes are explicit; no account means no preference write',async()=>{
   const f=fixture();f.render();await settle();assert.equal(await f.render().save('25 EUR'),false);assert.equal(f.files.size,0);
-  f.fail();assert.equal(await f.render().save('30'),false);assert.match(f.render().error,/nicht gespeichert/);assert.equal(f.render().hours,25);
+  f.fail();assert.equal(await f.render().save('40'),false);assert.match(f.render().error,/nicht gespeichert/);assert.equal(f.render().hours,30);
   assert.equal(await f.render(null).save('30'),false);assert.equal(f.files.size,0);
 });
 test('an owner switch during awaited hashing cannot save under the incoming owner',async()=>{
@@ -56,12 +68,12 @@ test('an owner switch during awaited hashing cannot save under the incoming owne
 
 test('obsolete readback cannot report success after year/owner switch or A-B-A return',async()=>{
   for(const incoming of ['year','owner','return']){
-    const f=fixture();f.render();await settle();const release=f.pauseRead();const pending=f.render().save('30');await settle();
+    const f=fixture();f.render();await settle();const release=f.pauseRead();const pending=f.render().save('35');await settle();
     if(incoming==='year')f.render('owner/store/account',2025);
     else {f.render('other');if(incoming==='return')f.render();}
     release();assert.equal(await pending,false);await settle();
     const state=incoming==='year'?f.render('owner/store/account',2025):incoming==='owner'?f.render('other'):f.render();
-    assert.equal(state.busy,false);assert.equal(state.hours,incoming==='return'?30:25);assert.equal(f.files.size,1);
+    assert.equal(state.busy,false);assert.equal(state.hours,incoming==='return'?35:30);assert.equal(f.files.size,1);
     assert.equal(await state.save('40'),true,'incoming editor can retry after obsolete work settles');
   }
 });
@@ -81,12 +93,12 @@ test('readback mismatch is explicit and retry works; duplicate submissions canno
 
 test('preview target edits stay in memory and never read existing local preferences',async()=>{
   const files=new Map<string,string>();const local=fixture(files);local.render();await settle();await local.render().save('80');
-  const before=[...files];const preview=fixture(files);preview.render(undefined,2026,false);await settle();assert.equal(preview.render(undefined,2026,false).hours,25);
-  assert.equal(await preview.render(undefined,2026,false).save('30'),true);assert.equal(preview.render(undefined,2026,false).hours,30);
-  preview.render(undefined,2025,false);await settle();assert.equal(preview.render(undefined,2025,false).hours,25);
-  preview.render(undefined,2026,false);await settle();assert.equal(preview.render(undefined,2026,false).hours,30);
+  const before=[...files];const preview=fixture(files);preview.render(undefined,2026,false);await settle();assert.equal(preview.render(undefined,2026,false).hours,30);
+  assert.equal(await preview.render(undefined,2026,false).save('35'),true);assert.equal(preview.render(undefined,2026,false).hours,35);
+  preview.render(undefined,2025,false);await settle();assert.equal(preview.render(undefined,2025,false).hours,30);
+  preview.render(undefined,2026,false);await settle();assert.equal(preview.render(undefined,2026,false).hours,35);
   assert.equal(preview.accesses(),0);assert.deepEqual([...files],before);preview.unmount();
-  const reopened=fixture(files);reopened.render(undefined,2026,false);await settle();assert.equal(reopened.render(undefined,2026,false).hours,25);
+  const reopened=fixture(files);reopened.render(undefined,2026,false);await settle();assert.equal(reopened.render(undefined,2026,false).hours,30);
   assert.equal(reopened.accesses(),0);
 });
 
@@ -99,7 +111,7 @@ test('closing an editor prevents its pending save callback from closing the next
 
 test('subscribed reload clears an obsolete read error and refreshes restored or absent preferences',async()=>{
   const f=fixture();f.render();await settle();assert.equal(await f.render().save('37.5'),true);
-  const reopened=fixture(f.files);reopened.corrupt();reopened.render();await settle();assert.match(reopened.render().error,/nicht gelesen/);
+  const reopened=fixture(f.files);reopened.corrupt();reopened.render();await settle();assert.match(reopened.render().error,/nicht gelesen.*30 h/);
   reopened.notify();reopened.render();await settle();assert.equal(reopened.render().hours,37.5);assert.equal(reopened.render().error,null);
-  reopened.files.clear();reopened.notify();reopened.render();await settle();assert.equal(reopened.render().hours,25);assert.equal(reopened.render().configured,false);assert.equal(reopened.render().error,null);
+  reopened.files.clear();reopened.notify();reopened.render();await settle();assert.equal(reopened.render().hours,30);assert.equal(reopened.render().configured,false);assert.equal(reopened.render().error,null);
 });

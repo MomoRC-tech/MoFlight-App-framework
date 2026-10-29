@@ -719,7 +719,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyRoster.tsx](.
 
 ## DutyTarget.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](../../../apps/platform-lab/src/mobile/DutyTarget.tsx); normalized SHA-256 `6aa01989a142b6ec4b5d9e9e08fd2d3f3dcd7d72367303b93d284de8f9fcb5f1`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](../../../apps/platform-lab/src/mobile/DutyTarget.tsx); normalized SHA-256 `10c1bf462a0d147dc0151b4e8f424e975d0b4953eddfe6d22be4f4f332339676`.
 
 ### Typography declarations
 

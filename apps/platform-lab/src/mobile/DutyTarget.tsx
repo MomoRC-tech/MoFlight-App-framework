@@ -33,7 +33,7 @@ export function useDutyTarget(scope: string | null, year: number, persistent = t
           setSaved(hours === null ? null : {context, hours});
           setFailure(null);
         }
-      } catch { if (alive && isCurrent() && revision.current===started) setFailure({context,message:'Lokales Soll konnte nicht gelesen werden. 25 h bleiben vorläufig.'}); }
+      } catch { if (alive && isCurrent() && revision.current===started) setFailure({context,message:`Lokales Soll konnte nicht gelesen werden. ${PROVISIONAL_DUTY_HOURS} h bleiben vorläufig.`}); }
     })();
     return () => { alive = false; context.active=false; };
   }, [context,storageVersion]);

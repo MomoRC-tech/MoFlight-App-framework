@@ -1,5 +1,9 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Annual provisional target default — selected 29 October 2026
+
+Manuel selected **30 hours for each year's unconfigured Pflicht target** under [#109](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/109). This supersedes the earlier 25-hour fallback below. Preserve explicitly configured account/store/year values, including zero or an existing 25; no migration or preference write occurs merely because the default changes. The editor remains available and the target remains provisional, independent of provider monetary obligations, performed hours and any unverified EUR/hour rule. Read-error wording uses the same default value. This changes data/default wording only, with no layout or provider/backup contract change. [Focused verification](../../verification/2026-10-25-flight-classification.md#annual-default-selected--29-october-2026) keeps delivered-APK status separate.
+
 ## Hybrid season and Statistics — authorized 29 October 2026
 
 Manuel selected the hybrid recommendation after review of the [original statistics handover and four sheets](../design-sources/2026-10-29-statistics/README.md), then instructed implementation under [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9). [Package evidence and limitations](../../verification/2026-10-20-real-flight-statistics.md#hybrid-chart-package--29-october-2026) distinguish implementation from acceptance. This amends the earlier Start latest-flight block and Statistics section/period layout within this scope; existing header, photography, metrics, navigation and vivid navy/cyan remain.
