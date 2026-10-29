@@ -65,7 +65,23 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
             sharedSource = sameScope && prior.detailSource && incomingSource && prior.detailSource.sameEvidence(incomingSource)
               ? prior.detailSource : incomingSource;
           }
-          const candidate = next?.detailSource && sharedSource ? {...next, detailSource: sharedSource} : next;
+          let candidate = next?.detailSource && sharedSource ? {...next, detailSource: sharedSource} : next;
+          if(quiet&&sameScope&&candidate&&!candidate.pendingCommand&&candidate.sections&&prior.sections){
+            // A fresh same-owner flight read must not blank independently saved
+            // sections while their revalidation is still pending. Settled
+            // missing/failed/changed values replace these retained branches.
+            const pending=candidate.sections;
+            candidate={...candidate,
+              medical:pending.medical==='loading'?prior.medical:candidate.medical,
+              medicalReadFailed:pending.medical==='loading'?prior.medicalReadFailed:candidate.medicalReadFailed,
+              duties:pending.duties==='loading'?prior.duties:candidate.duties,
+              dutiesReadFailed:pending.duties==='loading'?prior.dutiesReadFailed:candidate.dutiesReadFailed,
+              featureInformation:pending.information==='loading'?prior.featureInformation:candidate.featureInformation,
+              featureInformationReadFailed:pending.information==='loading'?prior.featureInformationReadFailed:candidate.featureInformationReadFailed,
+              sections:{medical:pending.medical==='loading'?prior.sections.medical:pending.medical,
+                duties:pending.duties==='loading'?prior.sections.duties:pending.duties,
+                information:pending.information==='loading'?prior.sections.information:pending.information}};
+          }
           const shared = sameScope ? reuseEqualData(prior, candidate) : candidate;
           if (!sameScope) { pendingDetail.current = null; setDetailBusy(false); }
           // Details include capture/history evidence beyond the visible facts revision.

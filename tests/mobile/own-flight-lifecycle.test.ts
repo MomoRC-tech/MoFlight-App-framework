@@ -13,6 +13,8 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import * as reader from '../../apps/platform-lab/src/mobile/own-flight-reader.ts';
 import { ownFlightFixture } from './own-flight-fixture.ts';
+import type { InformationCapture } from '../../apps/platform-lab/src/vereinsflieger/information.ts';
+import type { ProviderScope } from '../../apps/platform-lab/src/vereinsflieger/scope-store.ts';
 import * as flightModel from '../../apps/platform-lab/src/mobile/own-flight-model.ts';
 import * as captureReview from '../../apps/platform-lab/src/vereinsflieger/capture-review.ts';
 import { planFlightRetrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval-policy.ts';
@@ -23,6 +25,10 @@ const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/sr
   compilerOptions:{module:ts.ModuleKind.CommonJS},
 }).outputText;
 function deferred<T>() { let resolve!:(value:T)=>void;const promise=new Promise<T>(done=>{resolve=done;});return {promise,resolve}; }
+function savedMedical():InformationCapture {
+ return {version:1,id:'medical',owner:'owner',connectionId:'connection',retrievedAt:'2026-10-21T07:00:00.000Z',sourceIdentity:'provisional-observed-profile',category:'medical',path:'/member/profile/viewprofile',
+  columns:[{key:'kind',label:'Medical-Art',index:0},{key:'expiry',label:'Gültig bis · Originaltext',index:1}],rows:[{position:1,values:['Klasse 2','31.12.2027']}],filters:[],empty:false,coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}};
+}
 function host(withPresentation = false, setup?:(f:ReturnType<typeof ownFlightFixture>)=>void) {
   const f=ownFlightFixture(),hooks:any[]=[],effects:(()=>void)[]=[],cleanups:(()=>void)[]=[];
   setup?.(f);
@@ -227,6 +233,42 @@ test('app switching retains the verified screen and detail throughout a slow unc
  h.foreground();state=await h.flush();assert.equal(state.phase,'ready');assert.equal(state.view,first.view);assert.equal(state.detail,first.detail);
  pending.resolve(structuredClone({snapshot:h.snapshot,flights:h.flights}));state=await h.flush();
  assert.equal(state.view,first.view);assert.equal(state.detail,first.detail);assert.equal(state.phase,'ready');h.unmount();
+});
+
+test('quiet resume retains completed optional sections while their identical saved read is pending',async()=>{
+ const medical=savedMedical(),scope:ProviderScope={version:1,owner:'owner',connectionId:'connection',context:{accountNumber:'101',clubLabel:'Synthetic Club',clubIdentity:'display-label-only',verification:'observed-profile-number'}};
+ const notice:InformationCapture={...medical,id:'notice',category:'document-notices',path:'/member/overview/overview',columns:[{key:'notice',label:'Hinweis · Originaltext',index:0}],rows:[{position:1,values:['Synthetic saved notice']}]};
+ for(const section of ['medical','duties','information']){
+  const pending=deferred<void>();let block=false;
+  const h=host(false,f=>{
+   f.session.readMedical=async()=>{if(block&&section==='medical')await pending.promise;return structuredClone(medical);};
+   f.session.readDuties=async()=>{if(block&&section==='duties')await pending.promise;return structuredClone({scope,snapshot:null});};
+   f.session.readFeatureInformation=async()=>{if(block&&section==='information')await pending.promise;return structuredClone({scope,captures:[notice]});};
+  });
+  const first=(await h.flush()).view;
+  try{
+   block=true;h.background();h.foreground();await h.flush();
+   assert.equal(h.render().view,first,`${section} revalidation must not replace the verified view with loading/null sections`);
+   pending.resolve();const next=(await h.flush()).view;
+   assert.equal(next,first,'unchanged sections retain their processed identities after revalidation');
+  }finally{pending.resolve();h.unmount();}
+ }
+});
+
+test('quiet optional-section retention ends at confirmed missing, failed or changed results',async()=>{
+ const medical=savedMedical();
+ for(const result of ['missing','failed','changed'] as const){
+  const h=host(false,f=>{f.session.readMedical=async()=>structuredClone(medical);});
+  const first=(await h.flush()).view,pending=deferred<void>();
+  try{
+   h.session.readMedical=async()=>{await pending.promise;if(result==='failed')throw new Error('Unreadable saved Medical');return result==='missing'?null:{...medical,id:'new-medical'};};
+   h.background();h.foreground();await h.flush();assert.equal(h.render().view.medical,first.medical);
+   pending.resolve();const next=(await h.flush()).view;
+   assert.equal(next.flights,first.flights);assert.equal(next.medicalReadFailed,result==='failed');
+   assert.equal(next.sections.medical,result==='failed'?'failed':result==='missing'?'missing':'ready');
+   assert.equal(next.medical?.id??null,result==='changed'?'new-medical':null);
+  }finally{pending.resolve();h.unmount();}
+ }
 });
 
 test('changed resume data replaces dependent values and invalidates the old detail',async()=>{
