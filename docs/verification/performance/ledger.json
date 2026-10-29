@@ -35616,6 +35616,37 @@
           }
         }
       ]
+    },
+    {
+      "id": "api37-cold-start-app-launch-20261029",
+      "recorded_date": "2026-10-29",
+      "kind": "emulator-synthetic",
+      "source_commit": "58851de4d3de01539384d7e08163e736cce1022b",
+      "apk_sha256": "351fa60bdef8a72fb5e290ca9a5f98e7ecf401143f5ba713d301e9d9478e2022",
+      "device": "MoFlight_Synthetic_API37; Android API37 x86_64; 1080x1920 px, density420, font scale 1.0",
+      "input": "Existing synthetic app state; no flight/content values read; pre-launch page Flüge/Statistik; package de.momorc.moflight.lab",
+      "conditions": "Wi-Fi off, mobile data off, airplane mode on; first app activity launch after explicit no-snapshot emulator cold boot; foreground launch via ADB",
+      "method": "Android ActivityManager am start -W for MainActivity; reported TotalTime=534 ms and WaitTime=542 ms. TotalTime is the sample; WaitTime is retained separately.",
+      "limits": [
+        "One synthetic emulator sample; no performance comparison or first-presented-frame claim.",
+        "The 534 ms activity launch excludes the emulator boot; Android framework scheduling and ADB observation may contribute.",
+        "App data contents were not inspected; no provider network, physical phone, or iOS acceptance."
+      ],
+      "evidence": [
+        "docs/verification/2026-10-24-ai-chat-implementation.md#80-current-apk-cold-start-recheck-29-october-2026"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "cold-start-launch-0",
+          "metric": "activity-launch",
+          "milliseconds": 534,
+          "outcome": "success",
+          "details": {
+            "am-start.wait-time.milliseconds": 542
+          }
+        }
+      ]
     }
   ]
 }
