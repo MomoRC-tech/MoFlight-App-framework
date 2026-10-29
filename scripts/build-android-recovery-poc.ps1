@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory)][string]$BuildDirectory,
     [Parameter(Mandatory)][string]$OutputDirectory,
     [string]$SourceRef = 'HEAD',
-    [ValidateSet('Recovery', 'Responsiveness', 'Network', 'SyncBenchmark', 'SyncProgress')][string]$Proof = 'Recovery',
+    [ValidateSet('Recovery', 'Responsiveness', 'Network', 'SyncBenchmark', 'SyncProgress', 'DuplicateCounts')][string]$Proof = 'Recovery',
     [string]$HarnessSourceRef,
     [ValidatePattern('^[a-z][a-z0-9-]{0,39}$')][string]$RecoveryNamespace
 )
@@ -22,7 +22,7 @@ Copy-Item -LiteralPath $manifest.apk -Destination $normal
 if ((Get-FileHash -LiteralPath $normal -Algorithm SHA256).Hash.ToLowerInvariant() -ne $manifest.apk_sha256) { throw 'Normal APK manifest mismatch.' }
 $entry = Join-Path $checkout 'apps/platform-lab/index.ts'
 $original = [IO.File]::ReadAllBytes($entry)
-$module = switch ($Proof) { 'Responsiveness' { 'android-flight-responsiveness-poc' } 'Network' { 'android-network-poc' } 'SyncBenchmark' { 'android-sync-benchmark-poc' } 'SyncProgress' { 'android-sync-progress-poc' } default { 'android-core-recovery-poc' } }
+$module = switch ($Proof) { 'DuplicateCounts' { 'android-duplicate-count-poc' } 'Responsiveness' { 'android-flight-responsiveness-poc' } 'Network' { 'android-network-poc' } 'SyncBenchmark' { 'android-sync-benchmark-poc' } 'SyncProgress' { 'android-sync-progress-poc' } default { 'android-core-recovery-poc' } }
 $harnessBackups = @{}
 if ($HarnessSourceRef -and $Proof -ne 'SyncBenchmark') { throw 'Historical harness overlay is restricted to the isolated Sync benchmark.' }
 $androidManifest = Join-Path $checkout 'apps/platform-lab/android/app/src/main/AndroidManifest.xml'
@@ -60,7 +60,7 @@ try {
         & ./gradlew.bat :app:assembleRelease '-PreactNativeArchitectures=arm64-v8a,x86_64' --max-workers=2 *> (Join-Path $evidence 'proof-build.log')
         if ($LASTEXITCODE) { throw 'Recovery proof build failed.' }
     } finally { Pop-Location }
-    $proofName = switch ($Proof) { 'Recovery' { 'core-recovery-poc.apk' } 'Network' { 'network-poc.apk' } 'SyncBenchmark' { 'sync-benchmark-poc.apk' } 'SyncProgress' { 'sync-progress-poc.apk' } default { 'flight-responsiveness-poc.apk' } }
+    $proofName = switch ($Proof) { 'DuplicateCounts' { 'duplicate-count-poc.apk' } 'Recovery' { 'core-recovery-poc.apk' } 'Network' { 'network-poc.apk' } 'SyncBenchmark' { 'sync-benchmark-poc.apk' } 'SyncProgress' { 'sync-progress-poc.apk' } default { 'flight-responsiveness-poc.apk' } }
     $proofApk = Join-Path $evidence $proofName
     Copy-Item -LiteralPath $manifest.apk -Destination $proofApk
     [IO.File]::WriteAllText((Join-Path $evidence 'entry-override.ts'), $override)
