@@ -314,6 +314,7 @@ test('enlarged Statistics sections retain navigation and date submit moves focus
  assert.ok(f.nodes().some(n=>n.type==='Chip'&&n.props.title==='Flugrollen'&&n.props.selected));
  f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Eigener Zeitraum')!.props.onPress();
  const input=(label:string)=>f.nodes().find(n=>n.type==='TextInput'&&n.props.accessibilityLabel===label)!;
+ assert.equal(input('Zeitraum von').props.submitBehavior,'submit','Next submits without blurring the keyboard before the next date receives focus');
  input('Zeitraum von').props.onChangeText('2025-01-01');input('Zeitraum von').props.onSubmitEditing();
  assert.equal(f.keyboardEvents.at(-1),'focus:Zeitraum bis');
  input('Zeitraum bis').props.onSubmitEditing();assert.equal(f.keyboardEvents.at(-1),'keyboard-dismiss');

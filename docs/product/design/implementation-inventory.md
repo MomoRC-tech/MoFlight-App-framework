@@ -1494,7 +1494,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/settings-secondar
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `3497124d98e3cc68aa3065eb97d0621ef766af4f47774f47a82c0e1d28d8120d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `f8b76d0ea043b9946b030111fadac96590243b448e30c4af2f6235d09ab6e110`.
 
 ### Literal colors
 
