@@ -38,6 +38,29 @@ DEFAULT_IDS = ['tab-home', 'tab-flights', 'tab-logbook', 'tab-club', 'tab-ai',
                'development-entry', 'paper-assistant-entry']
 
 
+def keyboard_state(raw):
+    """Only confirmed hidden input/view state admits a generic gesture.
+
+    Input-method dumps can change between Android versions. Missing, malformed
+    or conflicting evidence must never silently allow a swipe over an IME.
+    Return fixed flags only, not surrounding input-method/editor diagnostics.
+    """
+    names = ('mInputShown', 'mIsInputViewShown', 'mShowRequested')
+    values = {name: re.findall(r'\b' + name + r'=(\S*)', raw) for name in names}
+    flags = [f'{name}={value}' for name in names
+             for value in sorted(set(v if v in ('true', 'false') else 'unknown' for v in values[name]))]
+    if any('true' in values[name] for name in names[:2]):
+        visibility = 'visible'
+    elif 'true' in values['mShowRequested']:
+        visibility = 'pending'
+    elif all(values[name] for name in names[:2]) and all(
+            value == 'false' for entries in values.values() for value in entries):
+        visibility = 'hidden'
+    else:
+        visibility = 'unknown'
+    return {'visibility': visibility, 'flags': flags}
+
+
 def utc():
     return datetime.now(timezone.utc).isoformat()
 
@@ -243,16 +266,15 @@ class Session:
             self.device.shell('input', 'keyevent', 'KEYCODE_BACK')
             return {'operation': op}
         if op == 'keyboard':
-            raw = self.device.shell('dumpsys', 'input_method')
-            flags = [line.strip()[:1000] for line in raw.splitlines()
-                     if 'mInputShown=' in line or 'mIsInputViewShown=' in line][:20]
-            return {'flags': flags}
+            return keyboard_state(self.device.shell('dumpsys', 'input_method'))
         if op == 'swipe':
+            if command.get('direction') not in ['up', 'down']:
+                raise ValueError('Swipe direction must be up or down.')
             width, height = self.dimensions()
             low, high = int(height * .72), int(height * .32)
             start, end = (low, high) if command['direction'] == 'up' else (high, low)
-            if command['direction'] not in ['up', 'down']:
-                raise ValueError('Swipe direction must be up or down.')
+            if keyboard_state(self.device.shell('dumpsys', 'input_method'))['visibility'] != 'hidden':
+                raise ValueError('Swipe refused: keyboard visible, pending or unknown. Dismiss it before scrolling.')
             self.device.shell('input', 'swipe', str(width // 2), str(start),
                               str(width // 2), str(end), '400')
             return {'operation': op}

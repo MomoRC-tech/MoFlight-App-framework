@@ -25,6 +25,7 @@ class FakeDevice:
         self.current = {'size': 'Physical size: 1080x1920', 'density': 'Physical density: 420', 'font': 'null'}
         self.calls = []
         self.fail_density_once = False
+        self.keyboard_dump = 'mInputShown=false\nmIsInputViewShown=false\nmShowRequested=false'
 
     def verify(self):
         self.calls.append(('verify',))
@@ -37,6 +38,8 @@ class FakeDevice:
 
     def shell(self, *args):
         self.calls.append(args)
+        if args == ('dumpsys', 'input_method'):
+            return self.keyboard_dump
         if args == ('pm', 'path', ui.APP):
             return 'package:/synthetic/base.apk'
         if args == ('wm', 'size'):
@@ -137,6 +140,80 @@ class ControllerTests(unittest.TestCase):
         result = self.session.action({'op': 'tap', 'by': 'id', 'value': 'tab-flights'})
         self.assertEqual(result['tap'], [25, 45])
         self.assertIn(('input', 'tap', '25', '45'), self.device.calls)
+
+    def test_visible_or_opening_keyboard_refuses_both_swipe_directions(self):
+        for raw in [
+                'mInputShown=true\nmIsInputViewShown=true',
+                'mInputShown=false\nmIsInputViewShown=true',
+                'mInputShown=true\nmIsInputViewShown=false',
+                'mInputShown=false\nmIsInputViewShown=false\nmShowRequested=true']:
+            for direction in ['up', 'down']:
+                with self.subTest(raw=raw, direction=direction):
+                    self.device.keyboard_dump = raw
+                    with self.assertRaisesRegex(ValueError, 'keyboard'):
+                        self.session.perform({'op': 'swipe', 'direction': direction})
+        self.assertFalse(any(args[:2] == ('input', 'swipe') for args in self.device.calls))
+
+    def test_missing_malformed_or_incomplete_keyboard_state_refuses_swipe(self):
+        for raw in ['', 'unsupported keyboard report', 'mInputShown=false',
+                    'mIsInputViewShown=false',
+                    'mInputShown=false\nmIsInputViewShown=unknown',
+                    'mInputShown=maybe\nmIsInputViewShown=false',
+                    'mInputShown=false\nmIsInputViewShown=false\nmShowRequested=unknown']:
+            with self.subTest(raw=raw):
+                self.device.keyboard_dump = raw
+                with self.assertRaisesRegex(ValueError, 'keyboard'):
+                    self.session.perform({'op': 'swipe', 'direction': 'up'})
+        self.assertFalse(any(args[:2] == ('input', 'swipe') for args in self.device.calls))
+
+    def test_swipe_reads_fresh_hidden_state_and_preserves_bounded_coordinates(self):
+        self.session.action({'op': 'swipe', 'direction': 'up'})
+        self.session.action({'op': 'swipe', 'direction': 'down'})
+        swipes = [args for args in self.device.calls if args[:2] == ('input', 'swipe')]
+        self.assertEqual(swipes, [('input', 'swipe', '540', '1382', '540', '614', '400'),
+                                  ('input', 'swipe', '540', '614', '540', '1382', '400')])
+        for index, call in enumerate(self.device.calls):
+            if call[:2] == ('input', 'swipe'):
+                self.assertEqual(self.device.calls[index - 1], ('dumpsys', 'input_method'))
+        self.assertEqual(self.session.report['actions_used'], 2)
+
+    def test_keyboard_probe_failure_never_injects_a_swipe_and_can_clean_up(self):
+        original = self.device.shell
+        def failed_probe(*args):
+            if args == ('dumpsys', 'input_method'):
+                raise RuntimeError('synthetic keyboard probe unavailable')
+            return original(*args)
+        self.device.shell = failed_probe
+        with self.assertRaisesRegex(RuntimeError, 'probe unavailable'):
+            self.session.action({'op': 'swipe', 'direction': 'up'})
+        self.assertFalse(any(args[:2] == ('input', 'swipe') for args in self.device.calls))
+        self.assertEqual(self.session.report['actions_used'], 1)
+        self.session.close('stopped')
+        self.assertEqual(self.session.report['status'], 'stopped')
+        self.assertEqual(self.session.report['restored_display'], self.session.original)
+
+    def test_keyboard_inspection_contains_only_allowlisted_state_flags(self):
+        self.device.keyboard_dump = 'mInputShown=false private-sentinel\nmIsInputViewShown=false'
+        result = self.session.action({'op': 'keyboard'})
+        self.assertEqual(result['visibility'], 'hidden')
+        self.assertEqual(result['flags'], ['mInputShown=false', 'mIsInputViewShown=false'])
+        self.assertNotIn('private-sentinel', json.dumps(result))
+
+    def test_http_keyboard_rejection_then_dismissed_scroll_keeps_budget_and_cleanup(self):
+        self.options['actions'] = 2
+        server = self.http()
+        self.device.keyboard_dump = 'mInputShown=true\nmIsInputViewShown=true'
+        with self.assertRaises(HTTPError):
+            self.post(server, {'op': 'swipe', 'direction': 'up'})
+        self.assertEqual(self.session.report['actions_used'], 1)
+        self.assertFalse(any(args[:2] == ('input', 'swipe') for args in self.device.calls))
+        self.device.keyboard_dump = 'mInputShown=false\nmIsInputViewShown=false'
+        self.post(server, {'op': 'swipe', 'direction': 'up'})
+        self.assertEqual(self.device.calls.count(('input', 'swipe', '540', '1382', '540', '614', '400')), 1)
+        with self.assertRaises(HTTPError):
+            self.post(server, {'op': 'back'})
+        self.assertEqual(self.session.report['status'], 'action_limit')
+        self.assertEqual(self.session.report['restored_display'], self.session.original)
 
     def test_disabled_parent_clipped_or_ambiguous_targets_are_not_tapped(self):
         node = '<node content-desc="Flüge" enabled="true" clickable="true" bounds="{}" />'
