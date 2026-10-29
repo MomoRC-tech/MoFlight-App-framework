@@ -177,6 +177,31 @@ class ControllerTests(unittest.TestCase):
                 self.assertEqual(self.device.calls[index - 1], ('dumpsys', 'input_method'))
         self.assertEqual(self.session.report['actions_used'], 2)
 
+    def test_dismissed_gboard_cached_input_view_uses_confirmed_hidden_window(self):
+        self.device.keyboard_dump = ('mInputShown=false\nmIsInputViewShown=true\n'
+                                     'mDecorViewVisible=false mWindowVisible=false\n'
+                                     'mShowInputRequested=false\nmImeWindowVis=0')
+        self.assertEqual(self.session.action({'op': 'keyboard'})['visibility'], 'hidden')
+        self.session.action({'op': 'swipe', 'direction': 'up'})
+        self.assertEqual(self.device.calls.count(('input', 'swipe', '540', '1382', '540', '614', '400')), 1)
+
+    def test_window_evidence_cannot_override_visible_pending_or_incomplete_state(self):
+        for raw in [
+                'mInputShown=false mIsInputViewShown=false mDecorViewVisible=true mWindowVisible=false mImeWindowVis=0',
+                'mInputShown=false mIsInputViewShown=false mDecorViewVisible=false mWindowVisible=true mImeWindowVis=0',
+                'mInputShown=false mIsInputViewShown=false mDecorViewVisible=false mWindowVisible=false mImeWindowVis=2',
+                'mInputShown=false mIsInputViewShown=false mDecorViewVisible=false mWindowVisible=false mImeWindowVis=unknown',
+                'mInputShown=false mIsInputViewShown=false mDecorViewVisible=false mImeWindowVis=0',
+                'mInputShown=false mIsInputViewShown=false mWindowVisible=false',
+                'mInputShown=false mIsInputViewShown=false mShowInputRequested=true',
+                'mInputShown=false mIsInputViewShown=false mShowInputRequested=unknown',
+                'mInputShown=false mInputShown=true mIsInputViewShown=false mDecorViewVisible=false mWindowVisible=false mImeWindowVis=0']:
+            with self.subTest(raw=raw):
+                self.device.keyboard_dump = raw
+                with self.assertRaisesRegex(ValueError, 'keyboard'):
+                    self.session.perform({'op': 'swipe', 'direction': 'up'})
+        self.assertFalse(any(args[:2] == ('input', 'swipe') for args in self.device.calls))
+
     def test_keyboard_probe_failure_never_injects_a_swipe_and_can_clean_up(self):
         original = self.device.shell
         def failed_probe(*args):

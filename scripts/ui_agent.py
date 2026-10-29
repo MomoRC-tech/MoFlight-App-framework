@@ -45,16 +45,27 @@ def keyboard_state(raw):
     or conflicting evidence must never silently allow a swipe over an IME.
     Return fixed flags only, not surrounding input-method/editor diagnostics.
     """
-    names = ('mInputShown', 'mIsInputViewShown', 'mShowRequested')
+    names = ('mInputShown', 'mIsInputViewShown', 'mShowRequested',
+             'mShowInputRequested', 'mDecorViewVisible', 'mWindowVisible')
     values = {name: re.findall(r'\b' + name + r'=(\S*)', raw) for name in names}
     flags = [f'{name}={value}' for name in names
              for value in sorted(set(v if v in ('true', 'false') else 'unknown' for v in values[name]))]
-    if any('true' in values[name] for name in names[:2]):
+    window = re.findall(r'\bmImeWindowVis=(\S*)', raw)
+    if window:
+        flags += ['mImeWindowVis=' + ('0' if set(window) <= {'0', '0x0'} else 'unknown')]
+    window_names = ('mDecorViewVisible', 'mWindowVisible')
+    malformed = any(value not in ('true', 'false') for entries in values.values() for value in entries)
+    window_present = bool(window or any(values[name] for name in window_names))
+    window_hidden = all(values[name] and set(values[name]) == {'false'} for name in window_names) and (
+        bool(window) and set(window) <= {'0', '0x0'})
+    # Android's service can retain mIsInputViewShown=true after its window is
+    # hidden. Admit that cache only with complete, nonconflicting window proof.
+    if any('true' in values[name] for name in ('mInputShown', *window_names)):
         visibility = 'visible'
-    elif 'true' in values['mShowRequested']:
+    elif any('true' in values[name] for name in ('mShowRequested', 'mShowInputRequested')):
         visibility = 'pending'
-    elif all(values[name] for name in names[:2]) and all(
-            value == 'false' for entries in values.values() for value in entries):
+    elif not malformed and set(values['mInputShown']) == {'false'} and (
+            window_hidden if window_present else set(values['mIsInputViewShown']) == {'false'}):
         visibility = 'hidden'
     else:
         visibility = 'unknown'
