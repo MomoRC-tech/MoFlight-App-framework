@@ -51,6 +51,7 @@ import { ConnectionSummary } from './ConnectionSummary';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import type { OwnFlightRequest } from './own-flight-model';
 import { useOwnFlights } from './use-own-flights';
+import type { ChartKind, ChartContributors } from './statistics-charts-model';
 import { StatisticsOverlay } from './StatisticsOverlay';
 import type { StatisticsSection } from './statistics-overlay-model';
 import { ownFlightReadPorts } from './own-flight-reader-native';
@@ -110,6 +111,8 @@ export default function MobileApp() {
 }
 function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus,syncRunning=false,syncControls=null,syncProgress=idleSyncProgress}:{onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean,destination?:OptionsDestination)=>void;coreFlightsOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus;syncRunning?:boolean;syncControls?:SyncControls|null;syncProgress?:SyncProgressState}={}) {
   const [tab, setTab] = useState<Tab>('home');
+  const [statisticsContributors,setStatisticsContributors]=useState<ChartContributors|undefined>(undefined);
+  const [statisticsChart,setStatisticsChart]=useState<ChartKind|undefined>(undefined);
   const [statisticsYear,setStatisticsYear]=useState<number|undefined>(undefined);
   const [statisticsSection,setStatisticsSection]=useState<StatisticsSection>('overview');
   const [sheet, setSheet] = useState<Sheet>(null);
@@ -307,7 +310,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
           <View style={{width:'100%',maxWidth:wide?920:520,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:'flex-start',gap:12}}>
-          <View style={{width:'100%',flex:wide?1:undefined,gap:10}}><Dashboard preview={startPreview} onBackHandler={handler=>{dashboardBack.current=handler;}} now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onFlight={flightId=>{setFlightRequest({year:null,flightId});setTab('flights');}} onPaper={() => setTab('logbook')} onStatistics={(year,section='overview') => { setStatisticsYear(year);setStatisticsSection(section);ownFlights.clearDetail(); openHeaderSheet('statistics'); }} onFlights={() => { overlayHistory.current=[]; setDetail(null); setSheet(null); setFlightRequest({year:null}); setTab('flights'); }} /><OverviewTiles medicalLoading={medicalLoading&&!startMedical} medical={startMedical} now={now} onMedical={()=>openHeaderSheet('medical')} onPaper={()=>setTab('logbook')}/></View>
+          <View style={{width:'100%',flex:wide?1:undefined,gap:10}}><Dashboard preview={startPreview} onBackHandler={handler=>{dashboardBack.current=handler;}} now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onFlight={flightId=>{setFlightRequest({year:null,flightId});setTab('flights');}} onPaper={() => setTab('logbook')} onStatistics={(year,section='overview',chart,contributors) => { setStatisticsContributors(contributors);setStatisticsChart(chart);setStatisticsYear(year);setStatisticsSection(section);ownFlights.clearDetail(); openHeaderSheet('statistics'); }} onFlights={() => { overlayHistory.current=[]; setDetail(null); setSheet(null); setFlightRequest({year:null}); setTab('flights'); }} /><OverviewTiles medicalLoading={medicalLoading&&!startMedical} medical={startMedical} now={now} onMedical={()=>openHeaderSheet('medical')} onPaper={()=>setTab('logbook')}/></View>
           {<View style={{width:'100%',flex:wide?1:undefined}}>{dutyContent(false,'start',startDutyOverview)}</View>}
           </View>
         </ScrollView>
@@ -353,7 +356,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
     </View>
     {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal]} accessibilityViewIsModal>
       {statisticsPageOpen && <KeyboardAvoidingView style={[{ flex: 1, minHeight: 0 }, sheet !== 'statistics' && s.hidden]} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} accessibilityElementsHidden={sheet !== 'statistics'} importantForAccessibility={sheet === 'statistics' ? 'auto' : 'no-hide-descendants'}>
-        <StatisticsOverlay helpEnabled={helpEnabled === true} onHelp={entryId=>openHelp(entryId,true)} initialYear={statisticsYear} initialSection={statisticsSection} key={statisticsScopeKey} data={ownFlights} today={today} fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} onClose={closeOverlay} headerActions={statusControls} feedback={<SyncProgress notice={notice} cancel={syncControls?.cancel} canCancel={syncControls?.canCancel} progress={syncProgress} retry={()=>openFlightFlow('update')} details={()=>openHeaderSheet('status')}/>} />
+        <StatisticsOverlay initialContributors={statisticsContributors} initialChart={statisticsChart} helpEnabled={helpEnabled === true} onHelp={entryId=>openHelp(entryId,true)} initialYear={statisticsYear} initialSection={statisticsSection} key={statisticsScopeKey} data={ownFlights} today={today} fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} onClose={closeOverlay} headerActions={statusControls} feedback={<SyncProgress notice={notice} cancel={syncControls?.cancel} canCancel={syncControls?.canCancel} progress={syncProgress} retry={()=>openFlightFlow('update')} details={()=>openHeaderSheet('status')}/>} />
       </KeyboardAvoidingView>}
       {sheet !== 'statistics' && <>
       {sheet !== 'designPreview'&&<AppHeader variant={['profile','help','medical','status','diagnostics','credits','development'].includes(sheet ?? '')?'page':'branded'} profile={['profile','help','medical','status','diagnostics','credits','development'].includes(sheet ?? '')?undefined:profileControl} source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'importPreview' ? 'Importvorschau' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Synthetische Sicherung' : sheet === 'diagnostics' ? 'Diagnose' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'help' ? 'Hilfe & Einführung' : sheet === 'medical' ? 'Medical' : sheet==='status'?'Verbindung & Datenstatus':sheet==='selectBook'?'Synthetisches Flugbuch':sheet==='credits'?'Über MoFlight':'MoFlight'}>{statusControls}</AppHeader>}

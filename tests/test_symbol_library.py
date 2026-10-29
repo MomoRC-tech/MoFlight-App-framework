@@ -34,7 +34,7 @@ class SymbolLibraryTests(unittest.TestCase):
 
     def test_every_semantic_id_is_explicit_and_selected_artwork_stays_preserved(self):
         manifest = json.loads(self.outputs[library.BASE / 'manifest.json'])
-        self.assertEqual(len(manifest['mapping']), 50)
+        self.assertEqual(len(manifest['mapping']), 51)
         self.assertEqual(manifest['mapping']['H04']['glyph'], 'medical-card')
         self.assertEqual(manifest['mapping']['D09']['glyph'], 'chart')
         for ident in ['H01', 'D07', 'D08', 'T01', 'T03', 'T04', 'T07', 'B01', 'B02', 'B03']:

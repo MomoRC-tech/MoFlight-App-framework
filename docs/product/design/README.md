@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+**29 October selected hybrid Statistics:** [compact last-flight line, shared chart viewer and compact Statistics filters](compact-cockpit.md#hybrid-season-and-statistics--authorized-29-october-2026), under #9, amend the season/chart area only. [Original handover](../design-sources/2026-10-29-statistics/README.md) remains reference material; cumulative progress and unsupported optional data views are deferred. [Verification](../../verification/2026-10-20-real-flight-statistics.md#hybrid-chart-package--29-october-2026) keeps source/platform acceptance explicit.
+
 **28 October approved refinement (#94):** [compact controls and clearer dark surfaces](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026) reduces painted action faces, retains independent touch targets and separates content cards/dialogs from the canvas. Start palette/composition and shell sizing are scoped exceptions. [Verification](../../verification/2026-10-26-material-settings.md#compact-controls-and-clearer-dark-surfaces--28-october-2026) records source/platform limits.
 
 **U3 responsive/accessibility implementation — delivered 27 October:** [Selected bounded contract](compact-cockpit.md#responsive-and-accessible-completion--authorized-27-october-2026) covers wrapping category/filter content, scaled AI input, short-surface order/reachability and date-field keyboard semantics. Existing headers/caps/Start remain; [verification](../../verification/2026-10-26-material-settings.md#responsive-and-accessible-completion--27-october-2026) retains unverified wide-AI/keyboard/populated/device gates.
@@ -35,7 +37,7 @@ This is the current starting point for MoFlight's visual design. Use it when enh
 | [Foundations](foundations.md) | Color roles/pairings, typography, spacing, geometry, effects, photography and branding. |
 | [Components and shapes](components.md) | Cards, controls, headers, navigation, sheets, badges and charts, with relevant states and source locations. |
 | [Layout and presentation patterns](patterns.md) | Composition, responsive widths, navigation, keyboard, accessibility and honest data presentation. |
-| [Symbols and icons](../symbol-reference.html) | Current 49-entry catalogue: appearance, meaning, action, states and editable asset paths. |
+| [Symbols and icons](../symbol-reference.html) | Current 51-entry catalogue: appearance, meaning, action, states and editable asset paths. |
 | [Current outlined symbol family](symbols/index.html) | Thirty glyphs using the existing IDs, palettes and legacy `duotone` asset paths. [Source notes](symbols/README.md) distinguish the current masters from historical selections and specimens. |
 | [Implementation inventory](implementation-inventory.md) | Generated complete literal-color map, gradients, typography/geometry declarations and source fingerprints, including retained lab/adapter exceptions. |
 | [Decisions, history and known gaps](history.md) | Authority, overrides, superseded prototypes, unresolved differences and platform evidence. |

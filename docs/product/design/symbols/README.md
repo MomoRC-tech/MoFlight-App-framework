@@ -6,7 +6,7 @@
 
 The **18 October selection** established the earlier family: cyan/slate duotone silhouettes, rounded terminals and soft translucent tiles. **M2 Medical card** and the **supplied folded paper plane** are the Medical and Flüge symbols. The current app uses the outlined replacements throughout navigation, headers, dashboard, club and actions; legacy `duotone` asset paths and semantic IDs remain for compatibility. [Default/removal authorization](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20#issuecomment-6250110588).
 
-Previous aircraft assets, unselected proposals and comparison pages have been removed. The active catalogue contains 49 current entries; retired IDs X01–X03 and B04 are not reused. Approved Thermik branding, text/status notation and native busy indicators retain their identity. D07/D08 now document the current three-column season values; earlier ring specimens remain historical where retained in the handbook. D09 opens the saved-local statistics overlay; T07 records the mathematical minus sign separately from unknown-value notation. Decorative glyph colour does not establish source status.
+Previous aircraft assets, unselected proposals and comparison pages have been removed. The active catalogue contains 51 current entries; retired IDs X01–X03 and B04 are not reused. Approved Thermik branding, text/status notation and native busy indicators retain their identity. D07/D08 now document the current three-column season values; earlier ring specimens remain historical where retained in the handbook. D09 opens the saved-local statistics overlay; T07 records the mathematical minus sign separately from unknown-value notation. Decorative glyph colour does not establish source status.
 
 ## Family and use
 

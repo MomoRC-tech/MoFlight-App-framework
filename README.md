@@ -1,5 +1,7 @@
 # MoFlight
 
+**29 October Statistics refresh:** selected hybrid chart implementation is in verification: compact Start summary, shared chart viewer and simplified Statistics filters. [Contract](docs/product/design/compact-cockpit.md#hybrid-season-and-statistics--authorized-29-october-2026) · [source-specific evidence](docs/verification/2026-10-20-real-flight-statistics.md#hybrid-chart-package--29-october-2026). Latest delivered APK below remains the previous source until this package completes its native checkpoint.
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/branding/moflight-ai-logo-dark.png">

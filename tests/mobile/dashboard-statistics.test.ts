@@ -29,8 +29,8 @@ function render(flights:any[], phase='ready', fontScale=1, preview: startPreview
   const useMemo=(fn:()=>unknown,deps:unknown[])=>{const i=hookIndex++;if(!memos[i]||deps.some((v,n)=>v!==memos[i]!.deps[n]))memos[i]={deps,value:fn()};return memos[i]!.value;};
   const states:any[]=[];let stateIndex=0;const useState=(initial:any)=>{const i=stateIndex++;if(!(i in states))states[i]=initial;return [states[i],(value:any)=>{states[i]=value;}];};
   const target={hours:25,busy:false};let inlineBack=()=>false;
-  const modules:Record<string,unknown>={'../start-timing':startTiming,react:{default:react,useMemo,useState},'react-native':{...leaves(['ActivityIndicator','ImageBackground','Pressable','ScrollView','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
-    './start-preview':{...startPreview,startFlightDashboard:(...args:Parameters<typeof startPreview.startFlightDashboard>)=>{calculations+=2;return startPreview.startFlightDashboard(...args);}},'./season-work-hours':workHours, './cockpit-season':cockpit, './flight-role-metric':roles, './DutyTarget':{useDutyTarget:()=>target,DutyTargetEditor:'DutyTargetEditor'},
+  const modules:Record<string,unknown>={'../start-timing':startTiming,react:{default:react,useMemo,useState,useRef:(initial:any)=>useMemo(()=>({current:initial}),[])},'react-native':{...leaves(['ActivityIndicator','ImageBackground','Pressable','ScrollView','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
+    './StartSeasonCharts':leaves(['StartSeasonCharts']),'./start-preview':{...startPreview,startFlightDashboard:(...args:Parameters<typeof startPreview.startFlightDashboard>)=>{calculations+=2;return startPreview.startFlightDashboard(...args);}},'./season-work-hours':workHours, './cockpit-season':cockpit, './flight-role-metric':roles, './DutyTarget':{useDutyTarget:()=>target,DutyTargetEditor:'DutyTargetEditor'},
     './theme':{...leaves(['Action','Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
     './FlightScene':leaves(['FlightScene']),'./SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':{...dashboardModel,monthlySeasonForCoverage:(...args:Parameters<typeof dashboardModel.monthlySeasonForCoverage>)=>{monthlyCalculations++;return dashboardModel.monthlySeasonForCoverage(...args);}}, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
     './processed-result':processedResults,'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
@@ -100,12 +100,12 @@ test('Solo, Dual and PIC+ share the existing horizontal metric row and open role
 test('compact season deduplicates flights and keeps missing durations explicit',()=>{
  const a=structuredClone(ownFlightFixture().flights[0]!);a.facts.assessment.date={...a.facts.assessment.date,state:'parsed',value:'2026-01-01'};a.facts.assessment.durations.flight={state:'known',minutes:90,evidence:[]};
  const b=structuredClone(a);b.flightId='second';b.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
- const f=render([a,a,b]);assert.match(f.text,/1:30/);assert.match(f.text,/Starts 2026: 2/);assert.match(f.text,/Saisonzeiten unbekannt/);
+ const f=render([a,a,b]);assert.match(f.text,/1:30/);assert.match(f.text,/Flüge 2026: 2/);assert.match(f.text,/Saisonzeiten unbekannt/);
  f.nodes.find(n=>n.type==='Pressable'&&n.children.some(c=>c?.children?.includes('Alle Flüge')))!.props.onPress();assert.deepEqual(f.calls,[undefined]);
 });
 test('unknown cached season remains unknown and loading never publishes cached totals',()=>{
  for(const scale of [1,1.6]){
-  const empty=render([],'ready',scale);assert.match(empty.text,/Starts 2026: —/);
+  const empty=render([],'ready',scale);assert.match(empty.text,/Flüge 2026: —/);
   assert.match(empty.text,/noch keine Flugdaten bestätigt gespeichert/);
   const retrieved=empty.changeView({...empty.view(),snapshot:{...empty.view().snapshot,savedRetrievals:[{from:'2025-01-01',to:'2026-10-22',retrievedAt:'2026-10-22T11:00:00.000Z',savedAt:'2026-10-22T11:00:00.000Z'}]}});
   assert.match(JSON.stringify(retrieved),/nicht erfasste Zeiträume bleiben unbekannt/);

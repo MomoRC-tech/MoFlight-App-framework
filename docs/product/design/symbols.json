@@ -640,6 +640,19 @@
           "states": "Parent owns the accessible edit label and expanded state. No separate small touch target; no verified club-policy claim.",
           "file": "apps/platform-lab/src/mobile/Dashboard.tsx",
           "locator": "workTarget / editCue"
+        },
+        {
+          "id": "T09",
+          "title": "Statistics chart selection and series notation",
+          "status": "Selected hybrid statistics implementation, 29 October",
+          "sample": "<span>▴ ▾ ◆ ⓘ</span>",
+          "appearance": "Small labelled disclosure triangles, diamond comparison mark and contextual-information cue. Existing outlined chart/clock/aircraft/calendar/crew assets identify chart titles.",
+          "where": "Start season charts and Statistics chart/filter controls.",
+          "meaning": "Up/down show disclosure state; diamond marks flight share versus circular time share; circled i indicates information.",
+          "behavior": "Labelled parent controls own actions; chart marks open exact values and contributing flights.",
+          "states": "Meaning never relies on colour alone. Unknown coverage and future dates retain explicit labels.",
+          "file": "apps/platform-lab/src/mobile/StatisticsCharts.tsx",
+          "locator": "StatisticsCharts; StatisticsExplorer; StartSeasonCharts"
         }
       ]
     },

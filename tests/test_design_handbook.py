@@ -11,7 +11,7 @@ from scripts import design_handbook as guide
 class HandbookGenerationTests(unittest.TestCase):
     def test_full_handoff_preserves_all_symbol_ids_and_matches_html(self):
         outputs,report=guide.build()
-        self.assertEqual(report['symbols'],50)
+        self.assertEqual(report['symbols'],51)
         self.assertEqual(report['html_pages'],2)
         self.assertIn(guide.asset_uri(Path('apps/platform-lab/assets/icons/duotone/medical-card-default.png')),outputs[guide.DESIGN/'design-guide.html'])
         self.assertIn(guide.asset_uri(Path('apps/platform-lab/assets/icons/duotone/flight-paper-plane-default.png')),outputs[guide.DESIGN/'design-guide.html'])

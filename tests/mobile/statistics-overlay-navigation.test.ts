@@ -36,7 +36,7 @@ function fixture(initialSection: statisticsModel.StatisticsSection = 'overview')
     './real-flight-statistics': { formatReportedMinutes }, './SeasonMonthlyCharts': leaf(['SeasonMonthlyCharts']),
     '../vereinsflieger/capture-review': captureReview,
     './SymbolIcon': { SymbolIcon: 'SymbolIcon' },
-    './AppHeader': leaf(['AppHeader']),
+    './AppHeader': leaf(['AppHeader']), './StatisticsExplorer':leaf(['StatisticsExplorer']),
     './help-catalog': helpCatalog,
     './season-dashboard-model': { monthlySeasonForCoverage }, '../vereinsflieger/retrieval-policy': { planFlightRetrieval },
     './statistics-overlay-model': statisticsModel,
@@ -79,245 +79,48 @@ function fixture(initialSection: statisticsModel.StatisticsSection = 'overview')
   return { setFontScale:(value:number)=>{fontScale=value;}, keyboardEvents, setHelpEnabled:(enabled:boolean)=>{helpEnabled=enabled;}, data, flights, opened, events, headerActions, feedback, render, nodes: () => nodes(render()), back: () => back() };
 }
 
-test('Start role metrics enter the role section for the selected year',()=>{
-  const f=fixture('roles');
-  const sections=f.nodes().filter(node=>node.type==='Section').map(node=>node.props.title);
-  assert.ok(sections.includes('Ausbildung & Besatzung'));
-  assert.ok(!sections.includes('Jahresvergleich'));
-  assert.ok(f.nodes().some(node=>node.type==='Chip'&&node.props.title==='Flugrollen'&&node.props.selected));
+const explorer=(f:ReturnType<typeof fixture>)=>f.nodes().find(n=>n.type==='StatisticsExplorer')!;
+const previousScope={kind:'custom' as const,from:'2025-01-01',to:'2025-10-22'};
+const openPrevious=(f:ReturnType<typeof fixture>)=>explorer(f).props.onFlights('Vorjahresflüge',['flight-1','foreign'],previousScope);
+const openDetail=(f:ReturnType<typeof fixture>)=>f.nodes().find(n=>n.type==='Card'&&typeof n.props.onPress==='function')!.props.onPress();
+test('Statistics keeps contextual header, feedback, year and initial role chart',()=>{
+  const f=fixture('roles');assert.equal(explorer(f).props.initialChart,'roles');assert.equal(explorer(f).props.period.year,2026);
+  const header=f.nodes().find(n=>n.type==='AppHeader')!;assert.equal(header.props.title,'Flugstatistik');assert.ok(header.children.includes(f.headerActions));assert.ok(f.nodes().includes(f.feedback));
 });
-
-test('role groups follow the selected period and drill down to exact review contributors',()=>{
-  const f=fixture('roles');
-  const setField=(flight:typeof f.flights[number],key:'pilot'|'pic'|'companion'|'sic'|'dualTime',label:string,raw:string)=>{
-    flight.facts.assessment.fields[key]=raw?{state:'value',label,raw}:{state:'blank',label,raw:''};
-  };
-  const solo=f.flights[0]!;
-  setField(solo,'pilot','Pilot','Student Example');
-  setField(solo,'pic','PIC','Student Example');
-  setField(solo,'companion','Begleiter/FI','');
-  setField(solo,'sic','SIC','');
-  setField(solo,'dualTime','Dual-Time','');
-  const review=f.flights[1]!;
-  setField(review,'pilot','Pilot','Student Example');
-  setField(review,'pic','PIC','Instructor Example');
-  setField(review,'companion','Begleiter/FI','Instructor Example');
-  setField(review,'sic','SIC','');
-  setField(review,'dualTime','Dual-Time','');
-  review.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
-
-  const group=(label:string,count:number)=>f.nodes().find(node=>node.type==='Card'&&node.props.label===`${label} · ${count} ${count===1?'Flug':'Flüge'} ansehen`);
-  assert.ok(group('Solo',1),'the initial 2026 role section contains its same-year Solo flight');
-  assert.ok(group('Andere / ungeklärt',0),'the 2025 review flight stays outside the selected year');
-
-  f.nodes().find(node=>node.type==='Chip'&&node.props.title==='Alle Jahre')!.props.onPress();
-  const reviewGroup=group('Andere / ungeklärt',1)!;
-  const reviewText=f.nodes().filter(node=>node.type==='Label').flatMap(node=>node.children).filter((value:any)=>typeof value==='string').join(' ');
-  assert.match(reviewText,/Zeit unbekannt/,'unknown time stays explicit in the review group');
-  reviewGroup.props.onPress();
-  let nodes=f.nodes();
-  assert.ok(nodes.some(node=>node.type==='Label'&&node.children.join('').includes('gefiltert nach dem gesamten gespeicherten Bestand')));
-  const contributors=nodes.filter(node=>node.type==='Card'&&typeof node.props.onPress==='function');
-  assert.equal(contributors.length,1,'all-period review drilldown contains only the selected review contributor');
-  contributors[0]!.props.onPress();
-  assert.deepEqual(f.opened,['flight-1']);
-  assert.equal(f.back(),true);
-  f.nodes();
-  assert.equal(f.back(),true,'Back returns from the contributor list to the role section');
-  f.nodes();
-
-  f.nodes().find(node=>node.type==='Chip'&&node.props.title==='Eigener Zeitraum')!.props.onPress();
-  const input=(label:string)=>f.nodes().find(node=>node.type==='TextInput'&&node.props.accessibilityLabel===label)!;
-  input('Zeitraum von').props.onChangeText('2025-01-01');
-  input('Zeitraum bis').props.onChangeText('2025-12-31');
-  f.nodes().find(node=>node.type==='Action'&&node.children.includes('Zeitraum übernehmen'))!.props.onPress();
-  assert.ok(group('Solo',0),'the custom 2025 period excludes the 2026 Solo contributor');
-  const customReview=group('Andere / ungeklärt',1)!;
-  customReview.props.onPress();
-  nodes=f.nodes();
-  assert.ok(nodes.some(node=>node.type==='Label'&&node.children.join('').includes('gefiltert nach 2025-01-01 bis 2025-12-31')));
-  const customContributors=nodes.filter(node=>node.type==='Card'&&typeof node.props.onPress==='function');
-  assert.equal(customContributors.length,1);
-  customContributors[0]!.props.onPress();
-  assert.deepEqual(f.opened,['flight-1','flight-1'],'the exact same saved contributor is opened for the scoped period');
+test('previous-year contributors retain exact IDs and scope; moved records disappear',()=>{
+  const f=fixture();openPrevious(f);assert.match(JSON.stringify(f.render()),/2025-01-01 bis 2025-10-22/);
+  assert.equal(f.nodes().filter(n=>n.type==='Card'&&typeof n.props.onPress==='function').length,1);
+  f.flights[1]!.facts.assessment.date={...f.flights[1]!.facts.assessment.date,state:'parsed',value:'2024-01-01'};
+  assert.ok(f.nodes().some(n=>n.type==='Empty'&&n.props.title==='Keine passenden Flüge'));
+  assert.equal(f.back(),true);assert.equal(explorer(f).props.period.year,2026);
 });
-
-test('previous-year drilldown keeps its same-date scope, restores Back, and rejects facts moved outside that scope', () => {
-  const f = fixture();
-  const annual = f.nodes().find(node => node.type === 'Section' && String(node.props.title).startsWith('Jahresvergleich'));
-  assert.ok(annual, 'the annual comparison is rendered for the selected current year');
-  const previous = f.nodes().find(node => node.type === 'Action' && node.children.includes('Vorjahresflüge ansehen'))!;
-  assert.ok(previous);
-  previous.props.onPress();
-  let nodes = f.nodes();
-  assert.equal(nodes.find(node => node.type === 'AppHeader')!.props.title, 'Flüge 2025');
-  assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('gefiltert nach 2025-01-01 bis 2025-10-22')));
-  const flightCard = nodes.find(node => node.type === 'Card' && typeof node.props.onPress === 'function')!;
-  flightCard.props.onPress();
-  assert.deepEqual(f.opened, ['flight-1']);
-  assert.equal(f.back(), true, 'contextual Back returns from saved detail to the contributor list');
-  f.render();
-  f.flights[1]!.facts.assessment.date = { ...f.flights[1]!.facts.assessment.date, state: 'parsed', value: '2026-05-01' };
-  nodes = f.nodes();
-  assert.ok(nodes.some(node => node.type === 'Empty' && node.props.title === 'Keine passenden Flüge'));
-  assert.ok(!nodes.some(node => node.type === 'Card' && typeof node.props.onPress === 'function'), 'a refreshed flight outside the captured prior-year range cannot remain in the drilldown');
+test('Back first dismisses chart-local UI and then closes the statistics page',()=>{
+  const f=fixture();let dismiss=true;explorer(f).props.onBackHandler(()=>{const handled=dismiss;dismiss=false;return handled;});
+  const header=()=>f.nodes().find(n=>n.type==='AppHeader')!;
+  header().props.back();assert.deepEqual(f.events,[]);header().props.back();assert.deepEqual(f.events,['close']);
 });
-
-test('statistics coverage detail explains incomplete saved season periods', () => {
-  const f = fixture();
-  let nodes = f.nodes();
-  nodes.find(node=>node.props.accessibilityLabel==='Statistikdatenstand')!.props.onPress();
-  nodes=f.nodes();
-  assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('die Abdeckung kann je Jahr abweichen oder unvollständig sein.')));
-  assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('Aktuell bis 2026-10-22; Vorjahr bis gleicher Kalendertag. Angaben beruhen auf den gespeicherten Zeiträumen.')));
-
-  f.data.view.snapshot.savedRetrievals = f.data.view.snapshot.savedRetrievals.slice(1);
-  nodes = f.nodes();
-  assert.ok(nodes.some(node => node.type === 'Label' && node.children.join('').includes('Vergleich nicht berechnet: gespeicherte Abrufe decken beide Zeiträume nicht vollständig ab.')));
+test('detail and contributor Back preserve exact caller and remembered chart scroll',()=>{
+  const f=fixture();const scroll=()=>f.nodes().find(n=>n.type==='ScrollView')!;
+  scroll().props.onScroll({nativeEvent:{contentOffset:{y:97}}});openPrevious(f);scroll().props.onScroll({nativeEvent:{contentOffset:{y:45}}});
+  openDetail(f);assert.deepEqual(f.opened,['flight-1']);assert.equal(f.back(),true);assert.equal(scroll().props.contentOffset.y,45);
+  assert.equal(f.back(),true);assert.equal(scroll().props.contentOffset.y,97);assert.equal(explorer(f).props.initialChart,'monthly');
 });
-
-
-test('launch and category groups navigate only to their exact period-scoped contributors',()=>{
-  const f=fixture();
-  for(const flight of f.flights){
-    flight.facts.assessment.observation.headers.push('Luftfahrzeugart','S-Art');
-    flight.facts.assessment.observation.row.values.push('Segelflugzeug','W');
-  }
-  const openTab=(title:string)=>f.nodes().find(n=>n.type==='Chip'&&n.props.title===title)!.props.onPress();
-  for(const [tab,label] of [['Startarten','Winde'],['Flugzeuge','Segelflugzeug']]){
-    openTab(tab!);
-    const group=f.nodes().find(n=>n.type==='Card'&&n.props.label===`${label} · 1 Flüge ansehen`);
-    assert.ok(group);group.props.onPress();
-    const rows=f.nodes().filter(n=>n.type==='Card'&&n.props.onPress);
-    assert.equal(rows.length,1);rows[0]!.props.onPress();
-    assert.equal(f.opened.at(-1),f.flights[0]!.flightId);
-    f.back();f.render();f.back();f.render();
-  }
-});
-
-
-test('an all-unknown classification group never labels its missing time as known',()=>{
-  const f=fixture();f.flights[0]!.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
-  f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Startarten')!.props.onPress();
-  const labels=f.nodes().filter(n=>n.type==='Label').flatMap(n=>n.children).filter(value=>typeof value==='string');
-  assert.ok(labels.includes('1× Zeit unbekannt'));
-  assert.ok(!labels.some(label=>label.includes('unbekannt bekannt')));
-});
-
-
-test('Statistics owns its child-page header, local section navigation and sync feedback',()=>{
- const f=fixture();
- let nodes=f.nodes();
- const header=nodes.find(node=>node.type==='AppHeader')!;
- assert.equal(header.props.variant,'page');
- assert.equal(header.props.title,'Flugstatistik');
- assert.equal(header.props.profile,undefined);
- assert.ok(header.children.includes(f.headerActions));
- assert.ok(nodes.includes(f.feedback));
- const tabs=nodes.find(node=>node.props.accessibilityRole==='tablist')!;
- assert.equal(tabs.type,'ScrollView');assert.equal(tabs.props.horizontal,true);
- assert.deepEqual(tabs.children.map((node:Element)=>node.props.title),['Überblick','Flugzeuge','Flugdauer','Startarten','Flugrollen']);
- tabs.children.at(-1)!.props.onPress();nodes=f.nodes();
- assert.ok(nodes.some(node=>node.type==='Chip'&&node.props.title==='Flugrollen'&&node.props.selected));
- assert.equal(nodes.find(node=>node.type==='AppHeader')!.props.title,'Flugstatistik');
- assert.equal(f.back(),false,'A section has no hidden intermediate route');
- nodes.find(node=>node.type==='AppHeader')!.props.back();
- assert.deepEqual(f.events,['close'],'Toolbar Back closes Statistics at its root');
-});
-
-test('Statistics contributor and detail headers restore the exact route and saved scroll position',()=>{
- const f=fixture();
- const content=()=>f.nodes().find(node=>node.type==='ScrollView'&&node.props.onScroll)!;
- const header=()=>f.nodes().find(node=>node.type==='AppHeader')!;
- content().props.onScroll({nativeEvent:{contentOffset:{y:216}}});
- f.nodes().find(node=>node.type==='Action'&&node.children.includes('Vorjahresflüge ansehen'))!.props.onPress();
- assert.equal(header().props.title,'Flüge 2025');
- content().props.onScroll({nativeEvent:{contentOffset:{y:84}}});
- f.nodes().find(node=>node.type==='Card'&&typeof node.props.onPress==='function')!.props.onPress();
- assert.equal(header().props.title,'18.06.25 · D-T001');
- assert.equal(f.back(),true,'Android Back leaves detail before closing its contributor route');
- assert.equal(header().props.title,'Flüge 2025');assert.equal(content().props.contentOffset.y,84);
- assert.deepEqual(f.events,['clear-detail']);
- header().props.back();
- assert.equal(header().props.title,'Flugstatistik');assert.equal(content().props.contentOffset.y,216);
- assert.deepEqual(f.events,['clear-detail'],'Toolbar Back returns to the section without closing Statistics');
- header().props.back();assert.deepEqual(f.events,['clear-detail','close']);
-});
-
-
-test('switching Statistics sections restores each section scroll offset',()=>{
- const f=fixture();
- const content=()=>f.nodes().find(node=>node.type==='ScrollView'&&node.props.onScroll)!;
- const section=(title:string)=>f.nodes().find(node=>node.type==='Chip'&&node.props.title===title)!.props.onPress();
- content().props.onScroll({nativeEvent:{contentOffset:{y:312}}});
- section('Flugzeuge');assert.equal(content().props.contentOffset.y,0);
- content().props.onScroll({nativeEvent:{contentOffset:{y:96}}});
- section('Überblick');assert.equal(content().props.contentOffset.y,312);
- section('Flugzeuge');assert.equal(content().props.contentOffset.y,96);
- assert.deepEqual(f.events,[]);
-});
-
-
-test('Statistics detail shares source disclosure and reopening from contributors resets it',()=>{
-  const f=fixture();
-  f.nodes().find(n=>n.type==='Action'&&n.children.includes('Vorjahresflüge ansehen'))!.props.onPress();
-  const open=()=>f.nodes().find(n=>n.type==='Card'&&typeof n.props.onPress==='function')!.props.onPress();
-  open();const item=f.flights[1]!;f.data.detail={...item,factHistory:[item.facts],pending:[]};
+test('source disclosure consumes Back and reopening resets source state',()=>{
+  const f=fixture();openPrevious(f);openDetail(f);const item=f.flights[1]!;f.data.detail={...item,factHistory:[item.facts],pending:[]};
   const disclosure=()=>f.nodes().find(n=>n.props.accessibilityLabel==='Originale Anbieterfelder')!;
-  assert.ok(disclosure());assert.equal(disclosure().props.accessibilityState.expanded,false);
   disclosure().props.onPress();assert.equal(disclosure().props.accessibilityState.expanded,true);
-  assert.equal(f.back(),true);f.render();open();assert.equal(disclosure().props.accessibilityState.expanded,false);
-  assert.ok(f.opened.every(id=>id===item.flightId));
+  assert.equal(f.back(),true);assert.equal(disclosure().props.accessibilityState.expanded,false);
+  assert.equal(f.back(),true);f.render();openDetail(f);assert.equal(disclosure().props.accessibilityState.expanded,false);
 });
-
-
-test('custom period cancel and Back retain the applied period; apply closes only the editor',()=>{
-  const f=fixture();
-  const custom=()=>f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Eigener Zeitraum')!;
-  const input=(label:string)=>f.nodes().find(n=>n.type==='TextInput'&&n.props.accessibilityLabel===label)!;
-  const action=(label:string)=>f.nodes().find(n=>n.type==='Action'&&n.children.includes(label))!;
-  custom().props.onPress();input('Zeitraum von').props.onChangeText('2025-01-01');input('Zeitraum bis').props.onChangeText('2025-12-31');
-  action('Abbrechen').props.onPress();assert.ok(!f.nodes().some(n=>n.type==='TextInput'));
-  assert.equal(custom().props.selected,false);
-  custom().props.onPress();assert.equal(input('Zeitraum von').props.value,'2025-01-01');
-  assert.equal(f.back(),true);assert.equal(custom().props.selected,false);assert.deepEqual(f.events,[]);
-  custom().props.onPress();action('Zeitraum übernehmen').props.onPress();
-  assert.equal(custom().props.selected,true);assert.ok(!f.nodes().some(n=>n.type==='TextInput'));
-  assert.ok(f.nodes().some(n=>n.type==='Label'&&n.children.includes('2025-01-01 – 2025-12-31')));
-});
-
-test('Statistics failure is not first use, and an empty period disables its contributor action',()=>{
-  const f=fixture();f.data.phase='failed';f.data.view=null;
-  assert.deepEqual(f.nodes().filter(n=>n.type==='Empty').map(n=>n.props.title),['Statistik nicht lesbar']);
-  const g=fixture();g.flights.splice(0);
-  assert.equal(g.nodes().filter(n=>n.type==='Empty'&&n.props.title==='Noch keine gespeicherten Flüge').length,1);
-  assert.equal(g.nodes().find(n=>n.type==='Action'&&n.children.includes('Beitragende Flüge ansehen'))!.props.disabled,true);
-});
-
-test('Statistics detail can retry the current local flight and offers preference-controlled PIC help',()=>{
-  const f=fixture();f.nodes().find(n=>n.type==='Action'&&n.children.includes('Vorjahresflüge ansehen'))!.props.onPress();
-  f.nodes().find(n=>n.type==='Card'&&typeof n.props.onPress==='function')!.props.onPress();
-  f.data.detailError='Local read failed';
+test('local detail retry and preference-controlled PIC help remain available',()=>{
+  const f=fixture();openPrevious(f);openDetail(f);f.data.detailError='Local read failed';
   f.nodes().find(n=>n.type==='Action'&&n.children.includes('Flugdetails erneut prüfen'))!.props.onPress();assert.deepEqual(f.opened,['flight-1','flight-1']);
   const item=f.flights[1]!;f.data.detail={...item,factHistory:[item.facts],pending:[]};
-  const help=f.nodes().find(n=>n.props.accessibilityLabel==='Info zu PIC');
-  assert.ok(help);help.props.onPress();
-  f.nodes().find(n=>n.type==='Action'&&n.children.includes('Mehr erfahren'))!.props.onPress();assert.ok(f.events.includes('help:pic'));
-  f.setHelpEnabled(false);assert.ok(!f.nodes().some(n=>n.props.accessibilityLabel==='Info zu PIC'));
+  f.nodes().find(n=>n.props.accessibilityLabel==='Info zu PIC')!.props.onPress();f.nodes().find(n=>n.type==='Action'&&n.children.includes('Mehr erfahren'))!.props.onPress();assert.ok(f.events.includes('help:pic'));
+  f.setHelpEnabled(false);assert.equal(f.nodes().some(n=>n.props.accessibilityLabel==='Info zu PIC'),false);
 });
-
-
-test('enlarged Statistics sections retain navigation and date submit moves focus without applying drafts',()=>{
- const f=fixture();f.setFontScale(1.6);
- const tabs=f.nodes().find(n=>n.props.accessibilityRole==='tablist')!;assert.equal(tabs.type,'View');
- tabs.children.find((n:Element)=>n.props.title==='Flugrollen')!.props.onPress();
- assert.ok(f.nodes().some(n=>n.type==='Chip'&&n.props.title==='Flugrollen'&&n.props.selected));
- f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Eigener Zeitraum')!.props.onPress();
- const input=(label:string)=>f.nodes().find(n=>n.type==='TextInput'&&n.props.accessibilityLabel===label)!;
- assert.equal(input('Zeitraum von').props.submitBehavior,'submit','Next submits without blurring the keyboard before the next date receives focus');
- input('Zeitraum von').props.onChangeText('2025-01-01');input('Zeitraum von').props.onSubmitEditing();
- assert.equal(f.keyboardEvents.at(-1),'focus:Zeitraum bis');
- input('Zeitraum bis').props.onSubmitEditing();assert.equal(f.keyboardEvents.at(-1),'keyboard-dismiss');
- assert.equal(f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Eigener Zeitraum')!.props.selected,false);
- assert.equal(input('Zeitraum von').props.value,'2025-01-01');
+test('read failures offer local retry without claiming first-use or starting provider work',()=>{
+  const f=fixture();f.data.phase='failed';f.data.view=null;
+  assert.deepEqual(f.nodes().filter(n=>n.type==='Empty').map(n=>n.props.title),['Statistik nicht lesbar']);
+  f.nodes().find(n=>n.type==='Action'&&n.children.includes('Gespeicherte Flüge erneut prüfen'))!.props.onPress();assert.deepEqual(f.events,['reload']);
 });

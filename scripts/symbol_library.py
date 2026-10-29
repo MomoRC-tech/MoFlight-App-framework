@@ -31,7 +31,7 @@ MAPPING = {
     'A01': 'search', 'A02': 'filter', 'A03': 'down', 'A04': 'refresh',
     'A05': 'info', 'A06': 'right', 'A07': 'arrow', 'A08': 'arrow',
     'A09': 'send', 'A10': 'check', 'A11': 'plus', 'A12': 'back',
-    'T01': None, 'T02': None, 'T03': None, 'T04': None, 'T05': None, 'T06': None, 'T07': None, 'T08': None,
+    'T01': None, 'T02': None, 'T03': None, 'T04': None, 'T05': None, 'T06': None, 'T07': None, 'T08': None, 'T09': None,
     'B01': None, 'B02': None, 'B03': None,
 }
 
