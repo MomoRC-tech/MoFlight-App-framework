@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { Card, Label, Action, Chip, colors, ui } from './theme';
@@ -39,6 +39,7 @@ const percent = (v: number) => `${v.toLocaleString('de-DE', { maximumFractionDig
 
 /** Only the active chart is mounted. All values come from the saved, reconciled selection. */
 export function StatisticsCharts({ flights, saved, today, period, filters = emptyChartFilters, initialChart = 'monthly', compact = false, onChartChange, onFlights, onBackHandler }: StatisticsChartsProps) {
+  const {fontScale}=useWindowDimensions();
   const [chart, setChart] = useState<ChartKind>(initialChart);
   const [picker, setPicker] = useState(false), [info, setInfo] = useState(false), [values, setValues] = useState(false);
   const [grouping, setGrouping] = useState<AircraftGrouping>('category'), [calendar, setCalendar] = useState(false);
@@ -59,6 +60,11 @@ export function StatisticsCharts({ flights, saved, today, period, filters = empt
   const summary = dataset.summary;
   const height = compact ? 144 : 185;
   const plotWidth = Math.max(180, width - 38);
+  const monthAxis=()=>{
+    const ticks=width/fontScale>=420?monthNames.map((_,i)=>i):width/fontScale>=240?[0,2,4,6,8,11]:[0,4,8,11];
+    const labelWidth=Math.max(40,30*fontScale);
+    return <View accessibilityLabel="Monatsachse Januar bis Dezember" style={{height:20*fontScale,position:'relative'}}>{ticks.map(i=><View key={i} style={{position:'absolute',left:Math.max(0,Math.min(width-labelWidth,(i+.5)/12*width-labelWidth/2)),width:labelWidth}}><Label muted style={[s.tick,{textAlign:'center'}]}>{monthNames[i]}</Label></View>)}</View>;
+  };
   const dot = (x: number, y: number, color: string, key: string, size = 7) => <View key={key} style={{ position: 'absolute', left: x - size / 2, top: y - size / 2, width: size, height: size, borderRadius: size / 2, backgroundColor: color }} />;
   const guide = (x: number, y: number, w: number, color = colors.border) => <View style={{ position: 'absolute', left: x, top: y, width: Math.max(1, w), height: 1, backgroundColor: color }} />;
   const axes = (max: number, unit: string, content: React.ReactNode, labels: string[], onTouch?: (x: number, y: number) => void) => <View>
@@ -85,12 +91,11 @@ export function StatisticsCharts({ flights, saved, today, period, filters = empt
                 {!previous.future&&previous.validComparison&&(previous.count>0||previous.covered)&&(measure==='count'||previous.knownDurationCount>0||!previous.count&&previous.covered)&&<View style={{position:'absolute',bottom:previous[measure]/max*ph-3,width:6,height:6,borderRadius:3,backgroundColor:priorColor}}/>}
                 {!current.future&&(!current.covered&&!current.count||measure==='knownMinutes'&&current.count>0&&!current.knownDurationCount)&&<Label muted style={s.tick}>?</Label>}
               </View>
-              {measure==='count'&&(width>370||i%2===0)&&<Label muted style={s.tick}>{monthNames[i]}</Label>}
             </Pressable>;
           })}</View>
         </View>;
       };
-      content=<View style={{gap:10}}>{panel('knownMinutes')}{panel('count')}<Label muted style={s.small}>Balken {period.year} · Punkte {period.year-1} · gleicher Stichtag</Label>{monthly.some(pair=>!pair[1]!.future&&!pair[1]!.validComparison)&&<Label muted style={s.small}>Für den Schalttag ist kein Vorjahresvergleich verfügbar.</Label>}</View>;
+      content=<View style={{gap:10}}>{panel('knownMinutes')}{panel('count')}{monthAxis()}<Label muted style={s.small}>Balken {period.year} · Punkte {period.year-1} · gleicher Stichtag</Label>{monthly.some(pair=>!pair[1]!.future&&!pair[1]!.validComparison)&&<Label muted style={s.small}>Für den Schalttag ist kein Vorjahresvergleich verfügbar.</Label>}</View>;
     }
   } else if (chart === 'timeline') {
     const points=dataset.points, from=period.kind==='year'?`${period.year}-01-01`:bounds?.from??points.map(p=>p.date).sort()[0]??today;
@@ -125,7 +130,7 @@ export function StatisticsCharts({ flights, saved, today, period, filters = empt
       })}</View>)}</View></ScrollView><Label muted style={s.small}>Spalten: Wochen · Zeilen: Mo–So · / zukünftig · – lückenhaft</Label></View>;
     } else {
       const groups=monthNames.map((name,i)=>{const month=String(i+1).padStart(2,'0'),selected=days.filter(d=>d.date.slice(5,7)===month),active=selected.filter(d=>d.count>0);return{name,count:active.length,ids:active.flatMap(d=>d.supportingIds),future:selected.every(d=>d.future),partial:selected.some(d=>!d.future&&!d.covered)};});
-      const max=Math.max(1,...groups.map(g=>g.count));content=<View style={{gap:8}}><Label>{dataset.flyingDays} Flugtage · {period.year}</Label><View style={{height:126,flexDirection:'row',gap:2}}>{groups.map((g,i)=><Pressable key={i} disabled={g.future} accessibilityRole="button" accessibilityLabel={`${g.name}, ${g.count} Flugtage${g.partial?', lückenhafte Quelle':''}`} onPress={()=>setSelection({title:g.name,lines:[`${g.count} Flugtage`,g.partial?'Abdeckung lückenhaft':'Abgedeckt'],ids:g.ids})} style={s.monthSlot}><View style={{height:100,justifyContent:'flex-end',alignItems:'center',width:'100%'}}><View style={{height:g.count/max*90,width:'65%',backgroundColor:colors.cyan}}/>{g.partial&&<Label muted style={s.tick}>·</Label>}</View>{(width>370||i%2===0)&&<Label muted style={s.tick}>{g.name}</Label>}</Pressable>)}</View><Action secondary onPress={()=>setCalendar(true)}>Jahreskalender öffnen</Action></View>;
+      const max=Math.max(1,...groups.map(g=>g.count));content=<View style={{gap:8}}><Label>{dataset.flyingDays} Flugtage · {period.year}</Label><View style={{height:126,flexDirection:'row',gap:2}}>{groups.map((g,i)=><Pressable key={i} disabled={g.future} accessibilityRole="button" accessibilityLabel={`${g.name}, ${g.count} Flugtage${g.partial?', lückenhafte Quelle':''}`} onPress={()=>setSelection({title:g.name,lines:[`${g.count} Flugtage`,g.partial?'Abdeckung lückenhaft':'Abgedeckt'],ids:g.ids})} style={s.monthSlot}><View style={{height:100,justifyContent:'flex-end',alignItems:'center',width:'100%'}}><View style={{height:g.count/max*90,width:'65%',backgroundColor:colors.cyan}}/>{g.partial&&<Label muted style={s.tick}>·</Label>}</View></Pressable>)}</View>{monthAxis()}<Action secondary onPress={()=>setCalendar(true)}>Jahreskalender öffnen</Action></View>;
     }
   } else if (chart === 'launchDuration') {
     const max=Math.max(60,...groups.flatMap(g=>g.minutes));

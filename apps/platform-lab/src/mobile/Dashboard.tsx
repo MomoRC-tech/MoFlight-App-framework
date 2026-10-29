@@ -84,6 +84,7 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
             </Pressable>;
           })}
         </ScrollView>
+        <Label muted style={{fontSize:11,lineHeight:16,textAlign:'right'}}>Kennzahlen seitlich wischen</Label>
       </View>
     </ImageBackground>
     {targetOpen&&<View style={styles.inset}>{scope?<DutyTargetEditor key={`${scope}:${year}`} target={target} onClose={()=>setTargetOpen(false)}/>:<Label muted>Ein lokales Soll lässt sich nach Auswahl eines Kontos speichern.</Label>}</View>}

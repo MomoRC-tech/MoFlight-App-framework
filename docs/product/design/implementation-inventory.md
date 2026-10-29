@@ -562,63 +562,64 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `55d727e03303d0a1e82f36c6e93040310bd3dfced40866b07e953fd38fa07378`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `60817760d8cfcdd1f3ddd3590b78155499118bb65e95bd277250b75fcce6e901`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 110 |
-| `fontSize: 12` | 110, 113 |
-| `fontSize: 14` | 108, 113 |
-| `fontSize: 15` | 111 |
-| `fontSize: 16` | 113 |
-| `fontSize: 18` | 107 |
-| `fontSize: 22` | 110 |
-| `fontSize: 27` | 110 |
-| `fontWeight: '600'` | 100, 113 |
-| `fontWeight: '700'` | 107, 110, 113 |
-| `lineHeight: 17` | 110 |
-| `lineHeight: 18` | 110, 111, 113 |
-| `lineHeight: 20` | 108, 113 |
-| `lineHeight: 22` | 113 |
-| `lineHeight: 25` | 107 |
-| `lineHeight: 34` | 110 |
+| `fontSize: 11` | 87, 111 |
+| `fontSize: 12` | 111, 114 |
+| `fontSize: 14` | 109, 114 |
+| `fontSize: 15` | 112 |
+| `fontSize: 16` | 114 |
+| `fontSize: 18` | 108 |
+| `fontSize: 22` | 111 |
+| `fontSize: 27` | 111 |
+| `fontWeight: '600'` | 101, 114 |
+| `fontWeight: '700'` | 108, 111, 114 |
+| `lineHeight: 16` | 87 |
+| `lineHeight: 17` | 111 |
+| `lineHeight: 18` | 111, 112, 114 |
+| `lineHeight: 20` | 109, 114 |
+| `lineHeight: 22` | 114 |
+| `lineHeight: 25` | 108 |
+| `lineHeight: 34` | 111 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `borderRadius: 10` | 64 |
-| `borderRadius: 12` | 108 |
-| `borderRadius: 18` | 113 |
-| `borderWidth: 1` | 113 |
-| `gap: 0` | 105 |
-| `gap: 3` | 109 |
-| `gap: 4` | 111 |
-| `gap: 5` | 108 |
-| `gap: 6` | 64, 107, 112 |
-| `gap: 8` | 106, 113 |
-| `maxWidth: '35%'` | 108 |
+| `borderRadius: 12` | 109 |
+| `borderRadius: 18` | 114 |
+| `borderWidth: 1` | 114 |
+| `gap: 0` | 106 |
+| `gap: 3` | 110 |
+| `gap: 4` | 112 |
+| `gap: 5` | 109 |
+| `gap: 6` | 64, 108, 113 |
+| `gap: 8` | 107, 114 |
+| `maxWidth: '35%'` | 109 |
 | `maxWidth: '45%'` | 62 |
-| `maxWidth: 520` | 105 |
-| `minHeight: 48` | 107, 108, 112, 114, 115 |
-| `minHeight: 72` | 111 |
-| `minWidth: 0` | 107 |
-| `minWidth: 116` | 111 |
+| `maxWidth: 520` | 106 |
+| `minHeight: 48` | 108, 109, 113, 115, 116 |
+| `minHeight: 72` | 112 |
+| `minWidth: 0` | 108 |
+| `minWidth: 116` | 112 |
 | `minWidth: 330` | 65 |
-| `minWidth: 48` | 115 |
-| `minWidth: 90` | 109 |
+| `minWidth: 48` | 116 |
+| `minWidth: 90` | 110 |
 | `opacity: .4` | 64 |
-| `padding: 0` | 105 |
-| `padding: 12` | 112 |
-| `paddingHorizontal: 10` | 108, 113 |
-| `paddingHorizontal: 12` | 106, 112 |
-| `paddingHorizontal: 5` | 109 |
-| `paddingHorizontal: 8` | 115 |
-| `paddingVertical: 3` | 113 |
-| `paddingVertical: 4` | 112 |
-| `width: '100%'` | 105, 106 |
+| `padding: 0` | 106 |
+| `padding: 12` | 113 |
+| `paddingHorizontal: 10` | 109, 114 |
+| `paddingHorizontal: 12` | 107, 113 |
+| `paddingHorizontal: 5` | 110 |
+| `paddingHorizontal: 8` | 116 |
+| `paddingVertical: 3` | 114 |
+| `paddingVertical: 4` | 113 |
+| `width: '100%'` | 106, 107 |
 
 ## DataUpdateIndicator.tsx
 
@@ -1511,7 +1512,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StartSeasonCharts
 
 ## StatisticsCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.tsx](../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx); normalized SHA-256 `6b3d9a284e5dc767b9cb37fa4fc6e1a6a95f3527b794a5d7a9c40826c6cfaafc`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.tsx](../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx); normalized SHA-256 `7670094d1c17610bdb5badd95b7a23b55a4768eadcd639385bc1068d249a4f7e`.
 
 ### Literal colors
 
@@ -1525,52 +1526,52 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 123, 170 |
-| `fontSize: 12` | 124, 170 |
-| `fontWeight: '700'` | 151, 159 |
-| `lineHeight: 16` | 170 |
-| `lineHeight: 18` | 170 |
+| `fontSize: 11` | 128, 175 |
+| `fontSize: 12` | 129, 175 |
+| `fontWeight: '700'` | 156, 164 |
+| `lineHeight: 16` | 175 |
+| `lineHeight: 18` | 175 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 170 |
-| `borderRadius: 3` | 85, 132, 170 |
-| `borderRadius: 4` | 140 |
-| `gap: 10` | 93, 135 |
-| `gap: 14` | 132 |
-| `gap: 2` | 128 |
-| `gap: 3` | 123, 170 |
-| `gap: 4` | 71, 132, 160 |
-| `gap: 6` | 170 |
-| `gap: 8` | 101, 115, 123, 128, 170 |
-| `height: 1` | 63, 67, 140 |
-| `height: 100` | 128 |
-| `height: 126` | 128 |
-| `height: 18` | 132 |
-| `height: 20` | 123 |
-| `height: 22` | 140 |
-| `height: 28` | 132 |
-| `height: 32` | 132 |
-| `height: 44` | 170 |
-| `height: 5` | 132 |
-| `height: 6` | 85 |
-| `height: 8` | 140, 170 |
-| `minHeight: 48` | 157, 170 |
-| `minHeight: 76` | 132 |
-| `minWidth: 0` | 170 |
-| `minWidth: 44` | 170 |
-| `padding: 12` | 170 |
-| `paddingVertical: 4` | 170 |
-| `width: '100%'` | 67, 83, 128, 170 |
-| `width: '54%'` | 84 |
-| `width: '65%'` | 128 |
-| `width: 2` | 132 |
-| `width: 44` | 170 |
-| `width: 5` | 132 |
-| `width: 6` | 85 |
-| `width: 8` | 140 |
+| `borderRadius: 12` | 175 |
+| `borderRadius: 3` | 91, 137, 175 |
+| `borderRadius: 4` | 145 |
+| `gap: 10` | 98, 140 |
+| `gap: 14` | 137 |
+| `gap: 2` | 133 |
+| `gap: 3` | 128, 175 |
+| `gap: 4` | 77, 137, 165 |
+| `gap: 6` | 175 |
+| `gap: 8` | 106, 120, 128, 133, 175 |
+| `height: 1` | 69, 73, 145 |
+| `height: 100` | 133 |
+| `height: 126` | 133 |
+| `height: 18` | 137 |
+| `height: 20` | 66, 128 |
+| `height: 22` | 145 |
+| `height: 28` | 137 |
+| `height: 32` | 137 |
+| `height: 44` | 175 |
+| `height: 5` | 137 |
+| `height: 6` | 91 |
+| `height: 8` | 145, 175 |
+| `minHeight: 48` | 162, 175 |
+| `minHeight: 76` | 137 |
+| `minWidth: 0` | 175 |
+| `minWidth: 44` | 175 |
+| `padding: 12` | 175 |
+| `paddingVertical: 4` | 175 |
+| `width: '100%'` | 73, 89, 133, 175 |
+| `width: '54%'` | 90 |
+| `width: '65%'` | 133 |
+| `width: 2` | 137 |
+| `width: 44` | 175 |
+| `width: 5` | 137 |
+| `width: 6` | 91 |
+| `width: 8` | 145 |
 
 ## StatisticsExplorer.tsx
 
