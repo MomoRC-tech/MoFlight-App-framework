@@ -1,0 +1,121 @@
+{
+  "issue": 108,
+  "application_commit": "4d79282968a92f29f411c8f89604aaec7697f8d6",
+  "apk_sha256": "a83a944074d6c91868fe43f155b8bc20b22959bc0e09f2ccc2f47ffef73a8347",
+  "host": {
+    "result": "5/5 pass",
+    "source": "8459486 plus package working tree, subsequently committed as 4d79282",
+    "mobile_pass": 1784,
+    "mobile_skip": 2,
+    "python_run": 154,
+    "python_skip": 16,
+    "logs": "build/host-checks/20261029T131434Z-203345b4"
+  },
+  "exports": "Android and iOS Hermes pass; build/start-tiles-export.log",
+  "native": {
+    "sessions": [
+      {
+        "application_commit": "4d79282968a92f29f411c8f89604aaec7697f8d6",
+        "avd": "MoFlight_Synthetic_API37",
+        "serial": "emulator-5578",
+        "android_api": "37",
+        "actions_used": 17,
+        "captures_used": 2,
+        "status": "completed",
+        "cleanup_errors": [],
+        "original_display": {
+          "size": "Physical size: 1080x1920",
+          "density": "Physical density: 420",
+          "font": "1.0"
+        },
+        "restored_display": {
+          "size": "Physical size: 1080x1920",
+          "density": "Physical density: 420",
+          "font": "1.0"
+        },
+        "original_network": {
+          "airplane_mode_on": "1",
+          "wifi_on": "0",
+          "mobile_data": "0"
+        },
+        "final_network": {
+          "airplane_mode_on": "1",
+          "wifi_on": "0",
+          "mobile_data": "0"
+        }
+      },
+      {
+        "application_commit": "4d79282968a92f29f411c8f89604aaec7697f8d6",
+        "avd": "MoFlight_Synthetic_API37",
+        "serial": "emulator-5578",
+        "android_api": "37",
+        "actions_used": 14,
+        "captures_used": 1,
+        "status": "completed",
+        "cleanup_errors": [],
+        "original_display": {
+          "size": "Physical size: 1080x1920",
+          "density": "Physical density: 420",
+          "font": "1.0"
+        },
+        "restored_display": {
+          "size": "Physical size: 1080x1920",
+          "density": "Physical density: 420",
+          "font": "1.0"
+        },
+        "original_network": {
+          "airplane_mode_on": "1",
+          "wifi_on": "0",
+          "mobile_data": "0"
+        },
+        "final_network": {
+          "airplane_mode_on": "1",
+          "wifi_on": "0",
+          "mobile_data": "0"
+        }
+      }
+    ],
+    "captures": [
+      {
+        "file": "main-start.png",
+        "sha256": "b24555ff65aa38ea687dc96bde1d2adc6208c0a44c7d42119a0f4347f32306f5",
+        "width_dp": 390,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.0,
+        "data": "existing in-memory synthetic Cockpit preview"
+      },
+      {
+        "file": "min-medical.png",
+        "sha256": "df578023ba1f9da6cd15fcee214af4f35edbfb05a6dfe2c01c3e26c22f060723",
+        "width_dp": 360,
+        "height_dp": 900,
+        "density_dpi": 160,
+        "font_scale": 1.6,
+        "data": "existing in-memory synthetic Cockpit preview"
+      }
+    ],
+    "parent_visual_review": "MAIN clear thin outlines and lighter fills; four badge shapes/colors visible. MIN stacked tiles, complete Medical names/dates and badges readable at font scale 1.6.",
+    "qualification": "First session MIN screenshot showed ordinary loading after viewport activity recreation; it is not populated-badge evidence. The separate native-enlarged session reopened the in-memory preview and supplies that evidence. Initial offscreen Development taps were refused and logged; guarded scrolling reached it.",
+    "preservation": "No data clear, seed/import/provider/network changes. Existing installation updated with -r on the verified synthetic AVD; sessions preserved identity/radios and restored display/font. AVD was already running and remains running.",
+    "timing": "No app runtime measurement gathered; harness elapsed times are not performance observations."
+  },
+  "limits": [
+    "Owner phone",
+    "iOS runtime",
+    "spoken accessibility",
+    "beta light theme",
+    "No new live-provider/Medical-source acceptance"
+  ],
+  "delivery": {
+    "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/start-tiles-2026-10-29-4d79282/MoFlight-Start-4d79282.zip",
+    "zip_sha256": "d49225f0fea56b7379a2b3ab3854a7e82d9464d4358244534590dc7f51e35542",
+    "contents": [
+      "app-release.apk",
+      "build-metadata.json"
+    ],
+    "anonymous_download_verified": true,
+    "github_asset_digest_matches": true,
+    "downloaded_contents_metadata_and_apk_hash_match": true
+  }
+}
