@@ -124,7 +124,13 @@
     "later_broader_mobile": "1767 passed/2 skipped before final recovery-dialog follow-ups",
     "final_affected_regressions": 304,
     "types_lint_platform_exports": "passed for final application content",
-    "native_release_source": "ee6a4ceea6ed2d07b330b21be8b0ebec298ec787"
+    "native_release_source": "ee6a4ceea6ed2d07b330b21be8b0ebec298ec787",
+    "automatic_fast_ci": {
+      "commit": "475050d98b6423d0b025c5ccf0642e44e5d4f074",
+      "conclusion": "success",
+      "same_application_and_tests_as_final_apk": true,
+      "manual_dispatch": false
+    }
   },
   "limits": [
     "Earlier native checks are tied to their actual commits; unchanged code/evidence is reused explicitly.",
@@ -135,5 +141,12 @@
     "Private source IDs, original reports and screenshots stay ignored; only sanitized assertions and timing/counter fields are published.",
     "Physical phone, iOS and extended spoken trials remain untested; owner checklist107 remains unchecked.",
     "No byte-for-byte private database comparison was performed; authorized live Sync legitimately updates capture history."
-  ]
+  ],
+  "publication": {
+    "zip_sha256": "648400f113b1fd86ec471b2f2a7b1b9c11192d214c0f9cbd8b57109abe5a9de4",
+    "apk_sha256": "65509be1ecee5c86cb73a907494e91e6e338f00ea3ad87fb53362a2e73553163",
+    "source_commit": "ee6a4ceea6ed2d07b330b21be8b0ebec298ec787",
+    "exact_contents_verified": true,
+    "download_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/bug-closeout-2026-10-29-ee6a4ce/MoFlight-Android-ee6a4ce.zip"
+  }
 }
