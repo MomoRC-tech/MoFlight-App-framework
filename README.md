@@ -9,6 +9,8 @@
 
 MoFlight is a mobile app in development for glider pilots, students and instructors. It brings saved flight history, season comparisons and supported club information together, with offline local data. Paper-logbook assistance is a later journey; Android is the current focus and iOS runtime acceptance remains deferred.
 
+**29 October issue review:** nine delivered/overlapping trackers closed; **57 issues remain open** after adding [one owner-only phone checklist #107](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/107). [Issue-by-issue analysis](docs/verification/2026-10-17-current-status-and-open-issues.md#29-october-issue-resolution-review) records the evidence and transferred criteria. Engineering/native checks remain under #8 and feature owners; no beta acceptance is implied. Repeated backup save #106 remains an active separate repair.
+
 **Start preview (#105):** source now shows a saved, account-checked Start summary before full local history validation, then updates its sections. No automatic provider Sync. [Implementation and host evidence](docs/verification/2026-10-21-simple-flight-loading.md#saved-start-preview--28-october-2026); the coordinated `abe76e8` APK is delivered with a bounded offline empty-state cold-reopen check. Populated cached-preview behavior and phone timing remain untested.
 
 **Shared local reads:** the phone report exposed a temporary-session identity mismatch in detail navigation. The corrected APK passes real-registry host and synthetic Android restart checks; Manuel confirms detail opening works; a subsequent phone report records successful Sync.

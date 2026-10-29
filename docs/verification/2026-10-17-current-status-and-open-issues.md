@@ -1,4 +1,129 @@
-# Implementation and open-issue reviews — 17–28 October 2026
+# Implementation and open-issue reviews — 17–29 October 2026
+
+## 29 October issue resolution review
+
+**Outcome:** reviewed all **65** initially open issues; closed **9**, created **[#107](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/107)**, leaving **57 open** at this checkpoint. Source baseline `14387f1e5d89aed294ad8c95468e11b0a8d4148b`; a concurrent [#106](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/106) repair progressed during review and its application changes were preserved. This package changes documentation/backlog only. No new application fix, build, device/provider/model operation, funding or acceptance waiver.
+
+Manuel authorized resolving issues where possible and consolidating mandatory manual tests the assistant cannot perform. Closure distinguishes **completed scoped delivery**, **tracking consolidation**, and **owner acceptance still pending**. Engineer-executable native/live checks stay with [#8](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/8) and existing feature owners; they are not recast as human-only work. Closed issue references elsewhere in the roadmap/specs remain valid historical implementation evidence; the transfer below and current ownership map identify live acceptance owners.
+
+### Closed issues and rationale
+
+| Issue | Resolution | Evidence boundary and remaining ownership |
+| --- | --- | --- |
+| [#12](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/12) | Consolidated audit tracker | Dated reviews are delivered. F03/F04/F08 remain with their existing feature owners; recurring F06/F07 release/documentation traceability is explicitly in #8. No whole-product audit pass. |
+| [#17](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/17) | Delivered; owner checks transferred | Guidance/original-login package has bounded host/Android evidence. Wording and actual phone chooser/keyboard move to #107 M01/M02/M06; engineering integration stays #8/#16/#22. |
+| [#19](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/19) | Settled decision; residual work already owned | Explicit Sync/first window/three-month repeat/gap policy is selected and implemented. Pending native window/restoration stays #41/#8, advice #57, assignments #18. |
+| [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/20) | Consolidated presentation umbrella | Delivered presentation evidence retained; uncovered UI stays #94, integrated acceptance #8, guidance #22/#31, advice #57 and actual phone usability #107. |
+| [#42](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42) | Delivered defect correction; owner checks transferred | Manuel reported source256aa3f works; 8eb300f live/offline evidence is bounded. Current fresh phone/Google path moves to #107 M02/M03; two-user/source/integration gates remain #16/#2/#10/#56/#8. |
+| [#43](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/43) | Delivered status correction; owner checks transferred | 215b4bb native account/status/offline evidence and existing receipt/lifecycle host contracts retained. Phone #107 M03/M06; unexecuted current-source receipt/routine-cycle/account integration explicitly #8/#16. |
+| [#44](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/44) | Delivered integration; owner checks transferred | Bounded live Medical/offline and independent retry evidence exists. Current phone #107 M03/M06; privacy #21, source #56, account #16, preservation #29 and task-specific #99 remain open. |
+| [#85](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/85) | Stale completion checkbox corrected | C3 already met by the recorded host/handbook, 12 synthetic native width/font checks and 947fcb8 delivery. Actual-source/physical/account/iOS limits retained under #2/#16/#8/#107. |
+| [#103](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/103) | Delivered; last original-phone check transferred | Settings/Backup lazy-entry regressions and ordinary native entry/cancel/Back are complete. Original populated phone confirmation #107 M04; performance #41/#45/#90 and repeated-save defect #106 remain open. |
+
+All nine issue bodies retain prior evidence/history and add an explicit 29 October resolution. Matching category prefixes/labels are preserved. #85's stale C3 checkbox is corrected. #12/#19/#20 are consolidation closures, not newly passed feature/device tests; #8 explicitly records transferred unfinished engineering criteria and audit findings before those closures.
+
+### One owner-only manual issue
+
+[#107](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/107) contains six bounded checks: German wording/safety examples; actual phone Google/original-page login and keyboard; Sync/saved-age/Medical/offline process restart; populated Settings/Backup entry; classification usefulness; affected populated phone presentation. It records exact source/device/outcome, keeps unavailable cases untested and preserves data/sessions. Use one agreed final Release: delivered `abe76e8` does not include an assumed future #106 fix.
+
+The list deliberately excludes implementation, controlled native measurements, forged/two-user security tests, valid backup activation, iOS engineering, funded model evaluation and legal/operator decisions. [#8](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/8)/[#16](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/16) and their feature owners retain those gates. Spoken accessibility stays last priority; no iOS/physical result is invented.
+
+### Why the other 56 original issues stay open
+
+These are current-contract/evidence judgments, not new executions or approval to implement deferred ideas. GitHub remains the detailed task authority. Real blockers are separated from optional ideas so backlog size is not interpreted as 57 equally urgent missing implementations.
+
+#### Core retrieval, source semantics and analytics
+
+| Issue | Disposition | Reason |
+| --- | --- | --- |
+| [#2](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/2) | Keep | Own-flight import exists; stable identity/role/time/coverage and broader current native/account acceptance remain. |
+| [#9](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/9) | Keep | Statistics exist; ordinary populated contributors/offline return and reviewed source mappings still need scoped acceptance; expenses remain #101. |
+| [#10](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10) | Keep | Positive task/duty/calendar/notices, permitted coverage/identity and financial source attribution are not all proved. |
+| [#16](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/16) | Keep | Two-user/foreign/switch/expiry/clearing/credential and production ownership decisions are engineering/security work. |
+| [#35](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/35) | Keep | Same pilot in multiple clubs has no verified two-club source contract or minimal safe journey. |
+| [#56](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/56) | Keep | Supported jobs exist; positive-source coverage, task-filter restoration/process death and current integrated acceptance remain. |
+| [#57](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/57) | Keep | Advice exists; actual changed record → compatible acknowledgment and hourly-cache restart remain unexecuted. |
+| [#86](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/86) | Keep | REST documentation finding is complete; actual member-facing required-hours source research remains. |
+| [#92](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/92) | Keep | Measured counts are delivered; actual provider paging/restoration/partial-retry count acceptance is still engineer-executable. |
+| [#93](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/93) | Keep | Cancellation fix has host coverage and launch evidence; authenticated interruption/retry itself is not proved. |
+| [#99](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/99) | Keep | Medical/task-control fixes are delivered; the original friend's task-source shape/outcome and restoration remain unconfirmed. |
+| [#100](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/100) | Keep | Duplicate calculation and saved-source parity pass; populated native totals/contributor UI remain untested. |
+| [#101](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/101) | Keep | Pure expense core exists but source attribution, capture/storage/versioned archive and selected UI are unwired. |
+
+#### Preservation and performance
+
+| Issue | Disposition | Reason |
+| --- | --- | --- |
+| [#29](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/29) | Keep | Real repeated save failure #106, ordinary populated restore/settings inventory and financial archive work prevent closure. |
+| [#34](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/34) | Keep | Signed first-beta app/schema baseline and supported ordinary populated update/downgrade paths are not yet named/proved. |
+| [#37](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/37) | Keep | Backup permission/XML configuration exists; system cloud restore/transfer, keyless owner recovery and inventory need engineering proof. |
+| [#41](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/41) | Keep | Several measured host optimizations exist; current native/live comparison, 500-row restoration and three-month-window acceptance remain. |
+| [#45](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/45) | Keep | Retention and JSON work are improved; equivalent-input populated native/tab/resume correctness and responsiveness remain. |
+| [#90](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/90) | Keep | Phone/host results exist; comparable native visible-Start endpoint, attribution and benchmark ledger acceptance remain. |
+| [#105](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/105) | Keep | Saved Start preview exists; populated native preview publication/failure invalidation and equivalent-input timings are untested. |
+| [#106](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/106) | Keep — active elsewhere | Repeated native external save failure is real. A concurrent owner-authorized repair started 29 October; do not duplicate/interfere or infer success from new diagnostics. |
+
+#### UI, guidance and release readiness
+
+| Issue | Disposition | Reason |
+| --- | --- | --- |
+| [#8](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/8) | Keep | Integrated beta/release gate; now explicitly owns inherited engineer-executable checks and audit traceability. #107 supplies only owner observations. |
+| [#21](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/21) | Keep | Actual release data flows/operator/recipients/Medical/storage/AI/financial privacy dispositions remain; no specific risk is accepted by cleanup. |
+| [#22](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/22) | Keep | Bounded guidance is delivered; wider first-use/skip/resume/replay and safe interruption/account journeys are not all complete. |
+| [#31](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/31) | Keep | Help exists; ordinary populated PIC handoff, preview callback gap, named content ownership/domain review remain. |
+| [#94](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/94) | Keep | U1–U3 delivered; remaining U4 light proposal/operator inputs and U5 populated/keyboard/wide/account checks are real work. |
+| [#96](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/96) | Keep | Audience/channel/operator and distribution disclosure locations/child deliverables remain undecided. |
+| [#97](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/97) | Keep | Notice applicability/content/publication still needs verified facts and focused implementation; this is not merely manual sign-off. |
+| [#98](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/98) | Keep | Operator-confirmed Impressum/contact facts and accessible implementation are absent. |
+
+#### AI foundations versus live integration
+
+| Issue | Disposition | Reason |
+| --- | --- | --- |
+| [#13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13) | Keep | First chat scope/local foundations exist; protected ordinary-app runtime, permitted inputs/funding/route and actual service acceptance remain. |
+| [#72](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/72) | Keep | Local policy/admin controls exist; actual hosted permissions/capabilities refresh and live operational/privacy configuration remain. |
+| [#74](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/74) | Keep | Local flight tools/source cases are implemented; ordinary populated source/evidence return, account and performance acceptance remain. |
+| [#75](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/75) | Keep | Local chats/backup and isolated native proof exist; successful-profile receipt and ordinary picker/share/restore/chat integration remain. |
+| [#76](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/76) | Keep | Ordinary app still has no enabled relay client; protected endpoint/runtime, actual receipt/token/route and native login integration remain. |
+| [#77](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/77) | Keep | Atomic local ledger exists; real safe token/fee/FX bounds, provider receipt reconciliation and hosted/funding/retention decisions remain. |
+| [#78](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/78) | Keep | Chat-first UI is delivered; long real conversations, ordinary evidence/service integration and live/native behavior remain. |
+| [#79](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/79) | Keep | Offline scorer is not a model benchmark. Candidates/settings, funded actual-provider quality/usage and integrated beta acceptance remain. |
+
+#### Later product, architecture and genuine backlog
+
+| Issue | Disposition | Reason |
+| --- | --- | --- |
+| [#1](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/1) | Keep — conditional | Cloud Auth trial lacks project/two-user setup and actual registration/recovery/RLS/file/session proof; it is not a manual-only check. |
+| [#3](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/3) | Keep — later | SPL/RAG remains a separately selected/licensed/funded research package, not implemented. |
+| [#4](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/4) | Keep — later | SQLite proof is delivered; cloud sync/conflicts/offline/account linking and production-book migration are unfinished. |
+| [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5) | Keep — decisions | Initial stack is settled; remaining production identity/schema/sync/credential/cloud/runtime decisions are not. |
+| [#7](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/7) | Keep — later | Actual photo-to-writing, assumed/confirmed progress, partial reconciliation and phone/print/model quality remain unimplemented. |
+| [#11](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/11) | Keep — decisions | One-app/beta scope settled; production real-book/format/migration/ADR0007 choices remain. |
+| [#14](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/14) | Keep — later | Activities feasibility is partial; populated-day completeness/identity/freshness and airborne evidence lack a selected runtime contract. |
+| [#15](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/15) | Keep — privacy | Duty safeguards exist; permissions/legal position/audiences/name policy/retention and broader member use remain. |
+| [#18](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/18) | Keep — later | Pure assignment proofs exist; reviewed real-book suggestion/reassignment and durable production decisions remain. |
+| [#24](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/24) | Keep — proposed | Appearance-preserving token consolidation was proposed, not selected or proved unnecessary. Do not silently cancel a recorded idea. |
+| [#28](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/28) | Keep — decision | Commercial offer/price/entitlement/funding/distribution economics remain unselected; no spending or commercial cancellation inferred. |
+| [#30](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/30) | Keep — later | Source-change comparisons/explicit acknowledgments and independent paper-deviation UI/rules are unfinished. |
+| [#48](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/48) | Keep — proposed | Native process-exit adapter is optional unselected work, not implemented by recent database-error categorization. |
+| [#49](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/49) | Keep — later | Remote opt-in/manual diagnostic delivery and analysis pipeline lack receiver/consent/queue/security/retention implementation. |
+| [#51](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/51) | Keep — deferred bug | IME-overlap swipe enforcement is a reproduced controller defect; dismiss-keyboard guidance is mitigation, not a code fix. |
+| [#59](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/59) | Keep — later | Webcam source/permissions/offline/nav feasibility and selection remain. |
+| [#60](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/60) | Keep — later | MoExit HTML/assets and mobile/offline integration scope are not verified/selected. |
+| [#71](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/71) | Keep — later | Permitted WeGlide metadata/geometry, matching tolerance and thumbnail runtime remain unproved/unselected. |
+| [#80](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/80) | Keep — investigation | Preserved APK repair and one cold restart succeeded; original missing-base.apk cause/repeatability remain unproved. |
+
+### Recommended remaining work
+
+1. Finish the already active #106 repeated-save repair with its regression and two consecutive ordinary native exports. Preserve the active owner's edits/sessions and do not equate new sanitized diagnostics with a fix.
+2. Complete #101 source → storage/archive → selected UI rather than repeat the unwired calculation core. Coordinate #29/#34's real preservation and exact signed beta baseline.
+3. Batch the unexecuted engineering cases already owned by #8/#16/#41/#45/#57/#92/#93/#99/#100/#105; reuse evidence only for its actual source/state. Keep pending populated preview/counts and authenticated interruption distinct from launch-only success.
+4. Obtain concrete operator/service/cohort/input/funding facts and complete required live AI #13/#72/#74–#79 and disclosure/privacy #21/#96–#98. A proposal, local mock or configured backup flag is not runtime readiness.
+5. Run #107's combined owner-phone pass on the agreed final artifact. Retain later features/decisions as backlog; deleting them or closing them as not planned would require a real scope decision, not a desire for a smaller count.
+
+### Verification and limits
+
+Reviewed live bodies for all 65 issues, comments for the nine closure candidates and related source/native packages, current README/roadmap/ADRs, and the linked maintained reports plus focused status/test source. All nine closed states and 57 remaining open states/category labels are read back from GitHub; the updated roadmap maps each open issue once. Documentation verification passes: **644 local links/anchors across three changed files**, **77 inbound references** to those files, **65 unique original-issue dispositions**, **57 unique current roadmap entries**, matching category labels and `git diff --check`. Detailed inventory/check results are ignored under `build/issue-review-20261029/`; no private dataset is included. No application tests/builds are appropriate for documentation-only changes. Historical native/host/live results are reused with their recorded commits, fixture/ordinary boundaries and exclusions; none is relabelled as a fresh current-source pass.
 
 ## 28 October amendment — financial inclusion and required live AI
 
