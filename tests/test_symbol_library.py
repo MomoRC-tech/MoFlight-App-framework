@@ -41,7 +41,7 @@ class SymbolLibraryTests(unittest.TestCase):
             self.assertIsNone(manifest['mapping'][ident]['glyph'])
         self.assertEqual(self.report['glyphs'], 30)
         self.assertEqual(self.report['selected_ids'], 35)
-        self.assertEqual(self.report['preserved_ids'], 15)
+        self.assertEqual(self.report['preserved_ids'], 16)
         self.assertFalse({'X01', 'X02', 'X03', 'B04'} & manifest['mapping'].keys())
 
     def test_incomplete_mapping_fails_instead_of_silently_omitting_a_symbol(self):
