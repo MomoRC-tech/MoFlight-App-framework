@@ -1,0 +1,250 @@
+{
+  "samples": [
+    {
+      "scenario": "first",
+      "trial": 0,
+      "milliseconds": 7183.056200001389,
+      "stages": {
+        "retrieval-review": 374.6900000013411,
+        "save": 5607.879099998623,
+        "readback": 890.0766000002623
+      },
+      "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+      "receipts": 2
+    },
+    {
+      "scenario": "first",
+      "trial": 1,
+      "milliseconds": 6834.472699999809,
+      "stages": {
+        "retrieval-review": 305.1929999999702,
+        "save": 5276.745899997652,
+        "readback": 948.0416000001132
+      },
+      "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+      "receipts": 2
+    },
+    {
+      "scenario": "first",
+      "trial": 2,
+      "milliseconds": 6840.3332000002265,
+      "stages": {
+        "retrieval-review": 277.49549999833107,
+        "save": 5396.768500000238,
+        "readback": 855.9589999988675
+      },
+      "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+      "receipts": 2
+    },
+    {
+      "scenario": "first",
+      "trial": 3,
+      "milliseconds": 7188.8964000009,
+      "stages": {
+        "retrieval-review": 313.46389999985695,
+        "save": 5605.935499999672,
+        "readback": 945.3214999996126
+      },
+      "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+      "receipts": 2
+    },
+    {
+      "scenario": "first",
+      "trial": 4,
+      "milliseconds": 7034.824499998242,
+      "stages": {
+        "retrieval-review": 288.318900000304,
+        "save": 5485.751299999654,
+        "readback": 937.7637999989092
+      },
+      "graphSha256": "5a81c0df7178133963002b90682c8f700a2dbcd561aba9ec52030a73d8bda457",
+      "receipts": 2
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 0,
+      "milliseconds": 10785.596500001848,
+      "stages": {
+        "retrieval-review": 3275.452199999243,
+        "save": 5711.71229999885,
+        "readback": 1340.73389999941
+      },
+      "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+      "receipts": 3
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 1,
+      "milliseconds": 10760.372800000012,
+      "stages": {
+        "retrieval-review": 3292.9836999997497,
+        "save": 5647.640000000596,
+        "readback": 1372.5673999972641
+      },
+      "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+      "receipts": 3
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 2,
+      "milliseconds": 11203.468700002879,
+      "stages": {
+        "retrieval-review": 3431.823400001973,
+        "save": 6014.5771000012755,
+        "readback": 1293.6922000013292
+      },
+      "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+      "receipts": 3
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 3,
+      "milliseconds": 10636.324300002307,
+      "stages": {
+        "retrieval-review": 3328.6858999989927,
+        "save": 5608.0625999979675,
+        "readback": 1259.5227999985218
+      },
+      "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+      "receipts": 3
+    },
+    {
+      "scenario": "unchanged",
+      "trial": 4,
+      "milliseconds": 11165.543600000441,
+      "stages": {
+        "retrieval-review": 3237.331700000912,
+        "save": 5805.543699998409,
+        "readback": 1529.3999999985099
+      },
+      "graphSha256": "540560b60e2e7846d4f4d9ef64af5c9ccd19edede5b6444c1b8e1be46f8399cb",
+      "receipts": 3
+    },
+    {
+      "scenario": "changed",
+      "trial": 0,
+      "milliseconds": 11294.973000001162,
+      "stages": {
+        "retrieval-review": 3905.163899999112,
+        "save": 5635.452399998903,
+        "readback": 1309.934500001371
+      },
+      "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+      "receipts": 3
+    },
+    {
+      "scenario": "changed",
+      "trial": 1,
+      "milliseconds": 10756.45739999786,
+      "stages": {
+        "retrieval-review": 3358.159200001508,
+        "save": 5638.434900000691,
+        "readback": 1323.290799997747
+      },
+      "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+      "receipts": 3
+    },
+    {
+      "scenario": "changed",
+      "trial": 2,
+      "milliseconds": 10742.525499999523,
+      "stages": {
+        "retrieval-review": 3368.4446000009775,
+        "save": 5572.915500000119,
+        "readback": 1349.581399999559
+      },
+      "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+      "receipts": 3
+    },
+    {
+      "scenario": "changed",
+      "trial": 3,
+      "milliseconds": 10969.01630000025,
+      "stages": {
+        "retrieval-review": 3445.3474000021815,
+        "save": 5718.139499999583,
+        "readback": 1353.4622999988496
+      },
+      "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+      "receipts": 3
+    },
+    {
+      "scenario": "changed",
+      "trial": 4,
+      "milliseconds": 10491.616900000721,
+      "stages": {
+        "retrieval-review": 3265.745000001043,
+        "save": 5461.36930000037,
+        "readback": 1304.635900001973
+      },
+      "graphSha256": "9867f43560ea2b073fb45378c409d3fe766dcbd68a0ebbefd95cd7b88cad16e6",
+      "receipts": 3
+    },
+    {
+      "scenario": "reopened",
+      "trial": 0,
+      "milliseconds": 1276.0075999982655,
+      "stages": {
+        "readback": 970.0465999990702
+      },
+      "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+      "receipts": 2
+    },
+    {
+      "scenario": "reopened",
+      "trial": 1,
+      "milliseconds": 1178.1416000016034,
+      "stages": {
+        "readback": 882.2234999984503
+      },
+      "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+      "receipts": 2
+    },
+    {
+      "scenario": "reopened",
+      "trial": 2,
+      "milliseconds": 1234.8563999980688,
+      "stages": {
+        "readback": 924.8799999989569
+      },
+      "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+      "receipts": 2
+    },
+    {
+      "scenario": "reopened",
+      "trial": 3,
+      "milliseconds": 1223.7166999988258,
+      "stages": {
+        "readback": 923.6241999976337
+      },
+      "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+      "receipts": 2
+    },
+    {
+      "scenario": "reopened",
+      "trial": 4,
+      "milliseconds": 1240.94280000031,
+      "stages": {
+        "readback": 926.015000000596
+      },
+      "graphSha256": "0c638dd73484e43d892450aaf2bf3a0ef4e7e98c08ffcf9f42fa06a59feeffe5",
+      "receipts": 2
+    }
+  ],
+  "benchmark": {
+    "version": 1,
+    "flights": 101,
+    "scope": "Synthetic Android native SQLite; five byte-identical seed clones per scenario, no provider/network/physical-phone claim",
+    "seedDigests": {
+      "empty": [
+        "47c836cfda38c996e970f2c06a8788c4ee2db4e48953c2ceeeac7f81958dfccf",
+        "1b759cbb7d81722e6d13781e45c487b98fbddc5dcc30828f5cdd85e189768847"
+      ],
+      "populated": [
+        "d892e0d0ea7654cf33a421b1e197db89f2cdaf8487f7703d4305454b63991fcf",
+        "2fa4a6ff079857f7a063c020ee01d57976378328822097292597db60ea907a56"
+      ]
+    },
+    "samples": 20
+  }
+}

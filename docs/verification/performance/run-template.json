@@ -1,0 +1,23 @@
+{
+  "id": "replace-with-unique-run-id",
+  "recorded_date": "YYYY-MM-DD",
+  "kind": "phone",
+  "source_commit": null,
+  "apk_sha256": null,
+  "device": "Record actual model, OS/API/ABI, viewport, density and font; mark unknown fields",
+  "input": "Record fixture or sanitized volume, history/receipt size and cold/warm state",
+  "conditions": "Record network, session, foreground/background and observer overhead",
+  "method": "State measured start/end boundaries and source of individual timings",
+  "limits": ["State unmeasured endpoints, missing provenance and comparison limitations"],
+  "evidence": ["docs/verification/REPLACE-WITH-PACKAGE-REPORT.md"],
+  "comparison": null,
+  "samples": [
+    {
+      "id": "trial-1",
+      "metric": "update-flights",
+      "milliseconds": null,
+      "outcome": "unknown",
+      "details": {}
+    }
+  ]
+}

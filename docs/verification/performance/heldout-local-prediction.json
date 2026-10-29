@@ -1,0 +1,272 @@
+{
+  "version": 2,
+  "source": "d6f61ccb488be9c8671b175ed9aee16261b70487",
+  "mode": "native-local-stages",
+  "boundary": "Actual reducer/learner replay of measured native local stages. retrieval-review maps to review; save plus durable stored readback maps to save; reopened readback maps to prepare. Only these nonoverlapping local windows are modeled. Provider network, user login/setup and optional sources are absent; operation recovery/other gaps remain separately unmodeled. First three chronological trials train frozen per-stage medians; later trials are held out and never learned. Synthetic-AVD local-stage evidence does not establish physical-phone or full real Sync prediction accuracy.",
+  "evaluations": [
+    {
+      "scenario": "first",
+      "trainingTrials": [
+        0,
+        1,
+        2
+      ],
+      "heldOutTrials": [
+        3,
+        4
+      ],
+      "samples": [
+        {
+          "trial": 3,
+          "predictedMs": 6142.248599998653,
+          "actualMs": 5929.782999999821,
+          "operationWallMs": 6244.901699997485,
+          "unmodeledGapMs": 315.1186999976635,
+          "errorMs": 212.46559999883175,
+          "absoluteErrorPercent": 3.583024876270146,
+          "capTimeMs": 0,
+          "stages": [
+            {
+              "stage": "review",
+              "predictedMs": 317.16189999878407,
+              "actualMs": 307.44069999828935,
+              "errorMs": 9.721200000494719,
+              "absoluteErrorPercent": 3.1619756266977044,
+              "capTimeMs": 0
+            },
+            {
+              "stage": "save",
+              "predictedMs": 5825.086699999869,
+              "actualMs": 5622.342300001532,
+              "errorMs": 202.74439999833703,
+              "absoluteErrorPercent": 3.6060486747361824,
+              "capTimeMs": 0
+            }
+          ]
+        },
+        {
+          "trial": 4,
+          "predictedMs": 6142.248599998653,
+          "actualMs": 5870.761399995536,
+          "operationWallMs": 6186.289500001818,
+          "unmodeledGapMs": 315.52810000628233,
+          "errorMs": 271.4872000031173,
+          "absoluteErrorPercent": 4.624395057229268,
+          "capTimeMs": 0,
+          "stages": [
+            {
+              "stage": "review",
+              "predictedMs": 317.16189999878407,
+              "actualMs": 294.3345999978483,
+              "errorMs": 22.827300000935793,
+              "absoluteErrorPercent": 7.75556118822003,
+              "capTimeMs": 0
+            },
+            {
+              "stage": "save",
+              "predictedMs": 5825.086699999869,
+              "actualMs": 5576.426799997687,
+              "errorMs": 248.65990000218153,
+              "absoluteErrorPercent": 4.459126048283905,
+              "capTimeMs": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": "unchanged",
+      "trainingTrials": [
+        0,
+        1,
+        2
+      ],
+      "heldOutTrials": [
+        3,
+        4
+      ],
+      "samples": [
+        {
+          "trial": 3,
+          "predictedMs": 9158.06970000267,
+          "actualMs": 9577.721699997783,
+          "operationWallMs": 10043.533900000155,
+          "unmodeledGapMs": 465.81220000237226,
+          "errorMs": -419.6519999951124,
+          "absoluteErrorPercent": 4.381543055225854,
+          "capTimeMs": 419.6519999951124,
+          "stages": [
+            {
+              "stage": "review",
+              "predictedMs": 3262.1055000014603,
+              "actualMs": 3515.2853999994695,
+              "errorMs": -253.1798999980092,
+              "absoluteErrorPercent": 7.202257318795436,
+              "capTimeMs": 253.1798999980092
+            },
+            {
+              "stage": "save",
+              "predictedMs": 5895.96420000121,
+              "actualMs": 6062.436299998313,
+              "errorMs": -166.47209999710321,
+              "absoluteErrorPercent": 2.7459603987451304,
+              "capTimeMs": 166.47209999710321
+            }
+          ]
+        },
+        {
+          "trial": 4,
+          "predictedMs": 9158.06970000267,
+          "actualMs": 9290.634999994189,
+          "operationWallMs": 9719.294500000775,
+          "unmodeledGapMs": 428.6595000065863,
+          "errorMs": -132.56529999151826,
+          "absoluteErrorPercent": 1.4268701761677343,
+          "capTimeMs": 223.26549999415874,
+          "stages": [
+            {
+              "stage": "review",
+              "predictedMs": 3262.1055000014603,
+              "actualMs": 3171.40529999882,
+              "errorMs": 90.70020000264049,
+              "absoluteErrorPercent": 2.859937202055954,
+              "capTimeMs": 0
+            },
+            {
+              "stage": "save",
+              "predictedMs": 5895.96420000121,
+              "actualMs": 6119.229699995369,
+              "errorMs": -223.26549999415874,
+              "absoluteErrorPercent": 3.648588318139581,
+              "capTimeMs": 223.26549999415874
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": "changed",
+      "trainingTrials": [
+        0,
+        1,
+        2
+      ],
+      "heldOutTrials": [
+        3,
+        4
+      ],
+      "samples": [
+        {
+          "trial": 3,
+          "predictedMs": 9079.307700000703,
+          "actualMs": 9182.50530000031,
+          "operationWallMs": 9621.548099998385,
+          "unmodeledGapMs": 439.04279999807477,
+          "errorMs": -103.19759999960661,
+          "absoluteErrorPercent": 1.1238501544845623,
+          "capTimeMs": 103.19759999960661,
+          "stages": [
+            {
+              "stage": "review",
+              "predictedMs": 3164.9711000025272,
+              "actualMs": 3209.962200000882,
+              "errorMs": -44.99109999835491,
+              "absoluteErrorPercent": 1.4016084051812991,
+              "capTimeMs": 44.99109999835491
+            },
+            {
+              "stage": "save",
+              "predictedMs": 5914.336599998176,
+              "actualMs": 5972.543099999428,
+              "errorMs": -58.2065000012517,
+              "absoluteErrorPercent": 0.9745681031796535,
+              "capTimeMs": 58.2065000012517
+            }
+          ]
+        },
+        {
+          "trial": 4,
+          "predictedMs": 9079.307700000703,
+          "actualMs": 9179.22749999538,
+          "operationWallMs": 9626.60909999907,
+          "unmodeledGapMs": 447.3816000036895,
+          "errorMs": -99.9197999946773,
+          "absoluteErrorPercent": 1.0885425815486933,
+          "capTimeMs": 112.96939999610186,
+          "stages": [
+            {
+              "stage": "review",
+              "predictedMs": 3164.9711000025272,
+              "actualMs": 3277.940499998629,
+              "errorMs": -112.96939999610186,
+              "absoluteErrorPercent": 3.4463529766982988,
+              "capTimeMs": 112.96939999610186
+            },
+            {
+              "stage": "save",
+              "predictedMs": 5914.336599998176,
+              "actualMs": 5901.286999996752,
+              "errorMs": 13.049600001424551,
+              "absoluteErrorPercent": 0.22113142440677322,
+              "capTimeMs": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": "reopened",
+      "trainingTrials": [
+        0,
+        1,
+        2
+      ],
+      "heldOutTrials": [
+        3,
+        4
+      ],
+      "samples": [
+        {
+          "trial": 3,
+          "predictedMs": 927.2171999998391,
+          "actualMs": 941.6805000007153,
+          "operationWallMs": 1247.2749000005424,
+          "unmodeledGapMs": 305.59439999982715,
+          "errorMs": -14.463300000876188,
+          "absoluteErrorPercent": 1.5359031009843787,
+          "capTimeMs": 14.463300000876188,
+          "stages": [
+            {
+              "stage": "prepare",
+              "predictedMs": 927.2171999998391,
+              "actualMs": 941.6805000007153,
+              "errorMs": -14.463300000876188,
+              "absoluteErrorPercent": 1.5359031009843787,
+              "capTimeMs": 14.463300000876188
+            }
+          ]
+        },
+        {
+          "trial": 4,
+          "predictedMs": 927.2171999998391,
+          "actualMs": 936.1944000013173,
+          "operationWallMs": 1244.6511000022292,
+          "unmodeledGapMs": 308.45670000091195,
+          "errorMs": -8.977200001478195,
+          "absoluteErrorPercent": 0.958903407397605,
+          "capTimeMs": 8.977200001478195,
+          "stages": [
+            {
+              "stage": "prepare",
+              "predictedMs": 927.2171999998391,
+              "actualMs": 936.1944000013173,
+              "errorMs": -8.977200001478195,
+              "absoluteErrorPercent": 0.958903407397605,
+              "capTimeMs": 8.977200001478195
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

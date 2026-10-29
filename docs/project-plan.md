@@ -52,6 +52,8 @@ Android is the current execution target. iOS runtime and physical-device evidenc
 
 **Next reviewable result:** resume actual own invoice/charge evidence, prove its account/kind/date/revision/aircraft mappings and connect guarded source/save/read to the independently implemented E2 projector. Neither `Eigene Kosten (Bezahlt)` nor a ledger `Saldo` alone establishes expense. The [expense plan](development/expense-analysis-implementation-plan.md#e2-pure-projection-core--28-october-2026) distinguishes the tested core from remaining source, archive and UI gates; the PDF extension-UI block remains explicit.
 
+**Performance tracking (#90), requested 29 October:** the [maintained ledger/charts](verification/performance/README.md) index retained phone, live/synthetic emulator and separately labelled host measurements, including individual samples, stages, failures and provenance. Every future gathered runtime measurement must be appended with its package. This documentation/tooling deliverable does not close comparable current-source Start/tab/resume, live Sync, physical-phone or iOS acceptance gates.
+
 ## UI completion roadmap — proposed 27 October 2026
 
 **28 October reconciliation:** U1/U2 and U3 were subsequently selected and delivered. Preserve their [current contracts](product/design/compact-cockpit.md) and [source-specific report](verification/2026-10-26-material-settings.md); the original proposal and delivery prose are [archived](archive/planning/2026-10-28-superseded-planning-entry-points.md). This review approves no new visual change.

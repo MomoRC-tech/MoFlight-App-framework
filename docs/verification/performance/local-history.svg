@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1295" viewBox="0 0 1100 1295" role="img" aria-labelledby="title desc">
+<title id="title">Saved-local reads, startup and page-entry observations</title><desc id="desc">Individual successes; page observations also include preparation. Input, startup/warm state and observer delay may differ.</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Arial, sans-serif">
+<text x="24.00" y="32.00" font-size="21" fill="#243447" text-anchor="start">Saved-local reads, startup and page-entry observations</text>
+<text x="24.00" y="58.00" font-size="13" fill="#243447" text-anchor="start">Individual successes; page observations also include preparation. Input, startup/warm state and observer delay may differ.</text>
+<path d="M375.0 80V1252" stroke="#dce3e8"/>
+<text x="375.00" y="1274.00" font-size="12" fill="#243447" text-anchor="middle">0</text>
+<path d="M496.0 80V1252" stroke="#dce3e8"/>
+<text x="496.00" y="1274.00" font-size="12" fill="#243447" text-anchor="middle">3.875</text>
+<path d="M617.0 80V1252" stroke="#dce3e8"/>
+<text x="617.00" y="1274.00" font-size="12" fill="#243447" text-anchor="middle">7.751</text>
+<path d="M738.0 80V1252" stroke="#dce3e8"/>
+<text x="738.00" y="1274.00" font-size="12" fill="#243447" text-anchor="middle">11.626</text>
+<path d="M859.0 80V1252" stroke="#dce3e8"/>
+<text x="859.00" y="1274.00" font-size="12" fill="#243447" text-anchor="middle">15.501</text>
+<path d="M980.0 80V1252" stroke="#dce3e8"/>
+<text x="980.00" y="1274.00" font-size="12" fill="#243447" text-anchor="middle">19.376</text>
+<text x="363.00" y="100.00" font-size="12" fill="#243447" text-anchor="end">1a856b9 · android-unspecified</text>
+<text x="363.00" y="114.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=2)</text>
+<circle cx="425.3638985398642" cy="96" r="4" fill="#7857a5"><title>supplied-android-1a856b9-s14 / s14-o248: 1,613 ms</title></circle>
+<circle cx="425.5200172582147" cy="100" r="4" fill="#7857a5"><title>supplied-android-1a856b9-s14 / s14-o257: 1,618 ms</title></circle>
+<text x="363.00" y="138.00" font-size="12" fill="#243447" text-anchor="end">b3cd5ae · android-unspecified</text>
+<text x="363.00" y="152.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=2)</text>
+<circle cx="418.2136612394123" cy="134" r="4" fill="#7857a5"><title>supplied-android-b3cd5ae-s17 / s17-o313: 1,384 ms</title></circle>
+<circle cx="425.73858346390534" cy="138" r="4" fill="#7857a5"><title>supplied-android-b3cd5ae-s17 / s17-o322: 1,625 ms</title></circle>
+<text x="363.00" y="176.00" font-size="12" fill="#243447" text-anchor="end">256aa3f · emulator-live</text>
+<text x="363.00" y="190.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=2)</text>
+<circle cx="667.5352544451257" cy="172" r="4" fill="#b36b00"><title>live-emulator-256aa3f-s8 / s8-o237: 9,369 ms</title></circle>
+<circle cx="741.8165406362831" cy="176" r="4" fill="#b36b00"><title>live-emulator-256aa3f-s8 / s8-o412: 11,748 ms</title></circle>
+<text x="363.00" y="214.00" font-size="12" fill="#243447" text-anchor="end">8eb300f · emulator-live</text>
+<text x="363.00" y="228.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=1)</text>
+<circle cx="702.6307423303131" cy="210" r="4" fill="#b36b00"><title>live-emulator-8eb300f-s10 / s10-o335: 10,493 ms</title></circle>
+<text x="363.00" y="252.00" font-size="12" fill="#243447" text-anchor="end">766b719 · android-unspecified</text>
+<text x="363.00" y="266.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=11)</text>
+<circle cx="539.7989190907646" cy="248" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1042: 5,278 ms</title></circle>
+<circle cx="551.9761791221018" cy="252" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1227: 5,668 ms</title></circle>
+<circle cx="573.1771010740968" cy="256" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1258: 6,347 ms</title></circle>
+<circle cx="580.6395758112496" cy="248" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1422: 6,586 ms</title></circle>
+<circle cx="607.2734291618411" cy="252" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1435: 7,439 ms</title></circle>
+<circle cx="607.9291277789132" cy="256" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1473: 7,460 ms</title></circle>
+<circle cx="596.3138951336376" cy="248" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1490: 7,088 ms</title></circle>
+<circle cx="600.5915480164407" cy="252" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1503: 7,225 ms</title></circle>
+<circle cx="586.1661784408566" cy="256" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1512: 6,763 ms</title></circle>
+<circle cx="611.2076208642732" cy="248" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1572: 7,565 ms</title></circle>
+<circle cx="620.1688352975906" cy="252" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1599: 7,852 ms</title></circle>
+<text x="363.00" y="290.00" font-size="12" fill="#243447" text-anchor="end">766b719 · android-unspecified</text>
+<text x="363.00" y="304.00" font-size="12" fill="#243447" text-anchor="end">read-flight-detail (n=1)</text>
+<circle cx="522.313622635511" cy="286" r="4" fill="#7857a5"><title>supplied-android-766b719-s16 / s16-o1275: 4,718 ms</title></circle>
+<text x="363.00" y="328.00" font-size="12" fill="#243447" text-anchor="end">7580b67 · android-unspecified</text>
+<text x="363.00" y="342.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=5)</text>
+<circle cx="616.70299975021" cy="324" r="4" fill="#7857a5"><title>supplied-android-7580b67-s17 / s17-o1666: 7,741 ms</title></circle>
+<circle cx="627.2878488543724" cy="328" r="4" fill="#7857a5"><title>supplied-android-7580b67-s17 / s17-o1682: 8,080 ms</title></circle>
+<circle cx="639.1840951926788" cy="332" r="4" fill="#7857a5"><title>supplied-android-7580b67-s17 / s17-o1694: 8,461 ms</title></circle>
+<circle cx="608.2725889592842" cy="324" r="4" fill="#7857a5"><title>supplied-android-7580b67-s17 / s17-o1701: 7,471 ms</title></circle>
+<circle cx="615.2667075413856" cy="328" r="4" fill="#7857a5"><title>supplied-android-7580b67-s17 / s17-o1709: 7,695 ms</title></circle>
+<text x="363.00" y="366.00" font-size="12" fill="#243447" text-anchor="end">7580b67 · android-unspecified</text>
+<text x="363.00" y="380.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=2)</text>
+<circle cx="628.0059949587846" cy="362" r="4" fill="#7857a5"><title>supplied-android-7580b67-s18 / s18-o1726: 8,103 ms</title></circle>
+<circle cx="602.0902877126052" cy="366" r="4" fill="#7857a5"><title>supplied-android-7580b67-s18 / s18-o1753: 7,273 ms</title></circle>
+<text x="363.00" y="404.00" font-size="12" fill="#243447" text-anchor="end">20ade40 · android-unspecified</text>
+<text x="363.00" y="418.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=2)</text>
+<circle cx="613.6742966142108" cy="400" r="4" fill="#7857a5"><title>supplied-android-20ade40-s20 / s20-o1773: 7,644 ms</title></circle>
+<circle cx="645.2415014646774" cy="404" r="4" fill="#7857a5"><title>supplied-android-20ade40-s20 / s20-o1799: 8,655 ms</title></circle>
+<text x="363.00" y="442.00" font-size="12" fill="#243447" text-anchor="end">1b70080 · android-unspecified</text>
+<text x="363.00" y="456.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=5)</text>
+<circle cx="618.670095601426" cy="438" r="4" fill="#7857a5"><title>supplied-android-1b70080-s21 / s21-o1804: 7,804 ms</title></circle>
+<circle cx="697.2914821627268" cy="442" r="4" fill="#7857a5"><title>supplied-android-1b70080-s21 / s21-o1993: 10,322 ms</title></circle>
+<circle cx="767.919590344483" cy="446" r="4" fill="#7857a5"><title>supplied-android-1b70080-s21 / s21-o2010: 12,584 ms</title></circle>
+<circle cx="680.1808706315144" cy="438" r="4" fill="#7857a5"><title>supplied-android-1b70080-s21 / s21-o2025: 9,774 ms</title></circle>
+<circle cx="692.9201580489134" cy="442" r="4" fill="#7857a5"><title>supplied-android-1b70080-s21 / s21-o2067: 10,182 ms</title></circle>
+<text x="363.00" y="480.00" font-size="12" fill="#243447" text-anchor="end">438ece9 · android-unspecified</text>
+<text x="363.00" y="494.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=3)</text>
+<circle cx="668.4407430115584" cy="476" r="4" fill="#7857a5"><title>supplied-android-438ece9-s22 / s22-o2083: 9,398 ms</title></circle>
+<circle cx="694.450121488748" cy="480" r="4" fill="#7857a5"><title>supplied-android-438ece9-s22 / s22-o2113: 10,231 ms</title></circle>
+<circle cx="655.2643231827781" cy="484" r="4" fill="#7857a5"><title>supplied-android-438ece9-s22 / s22-o2146: 8,976 ms</title></circle>
+<text x="363.00" y="518.00" font-size="12" fill="#243447" text-anchor="end">256aa3f · android-unspecified</text>
+<text x="363.00" y="532.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=4)</text>
+<circle cx="657.7309989327157" cy="514" r="4" fill="#7857a5"><title>supplied-android-256aa3f-s23 / s23-o2160: 9,055 ms</title></circle>
+<circle cx="758.8959284238254" cy="518" r="4" fill="#7857a5"><title>supplied-android-256aa3f-s23 / s23-o2346: 12,295 ms</title></circle>
+<circle cx="691.515089583759" cy="522" r="4" fill="#7857a5"><title>supplied-android-256aa3f-s23 / s23-o2355: 10,137 ms</title></circle>
+<circle cx="692.5766968685423" cy="514" r="4" fill="#7857a5"><title>supplied-android-256aa3f-s23 / s23-o2364: 10,171 ms</title></circle>
+<text x="363.00" y="556.00" font-size="12" fill="#243447" text-anchor="end">c643d9d · android-unspecified</text>
+<text x="363.00" y="570.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=5)</text>
+<circle cx="704.6915094125394" cy="552" r="4" fill="#7857a5"><title>supplied-android-c643d9d-s24 / s24-o2374: 10,559 ms</title></circle>
+<circle cx="759.3018370915366" cy="556" r="4" fill="#7857a5"><title>supplied-android-c643d9d-s24 / s24-o2575: 12,308 ms</title></circle>
+<circle cx="812.9130049730908" cy="560" r="4" fill="#7857a5"><title>supplied-android-c643d9d-s24 / s24-o2742: 14,025 ms</title></circle>
+<circle cx="764.953334695824" cy="552" r="4" fill="#7857a5"><title>supplied-android-c643d9d-s24 / s24-o2777: 12,489 ms</title></circle>
+<circle cx="747.7802756772713" cy="556" r="4" fill="#7857a5"><title>supplied-android-c643d9d-s24 / s24-o2786: 11,939 ms</title></circle>
+<text x="363.00" y="594.00" font-size="12" fill="#243447" text-anchor="end">22e64e3 · android-unspecified</text>
+<text x="363.00" y="608.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=8)</text>
+<circle cx="755.7423303131457" cy="590" r="4" fill="#7857a5"><title>supplied-android-22e64e3-s25 / s25-o2815: 12,194 ms</title></circle>
+<circle cx="773.9145491291413" cy="594" r="4" fill="#7857a5"><title>supplied-android-22e64e3-s25 / s25-o3024: 12,776 ms</title></circle>
+<circle cx="806.2935713150305" cy="598" r="4" fill="#7857a5"><title>supplied-android-22e64e3-s25 / s25-o3070: 13,813 ms</title></circle>
+<circle cx="798.0505029861253" cy="590" r="4" fill="#7857a5"><title>supplied-android-22e64e3-s25 / s25-o3080: 13,549 ms</title></circle>
+<circle cx="831.9594886118491" cy="594" r="4" fill="#7857a5"><title>supplied-android-22e64e3-s25 / s25-o3148: 14,635 ms</title></circle>
+<circle cx="777.3179371891817" cy="598" r="4" fill="#7857a5"><title>supplied-android-22e64e3-s25 / s25-o3166: 12,885 ms</title></circle>
+<circle cx="766.0773894679473" cy="590" r="4" fill="#7857a5"><title>supplied-android-22e64e3-s25 / s25-o3190: 12,525 ms</title></circle>
+<circle cx="796.4268683152802" cy="594" r="4" fill="#7857a5"><title>supplied-android-22e64e3-s25 / s25-o3203: 13,497 ms</title></circle>
+<text x="363.00" y="632.00" font-size="12" fill="#243447" text-anchor="end">bc9d2ff · android-unspecified</text>
+<text x="363.00" y="646.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=6)</text>
+<circle cx="785.6234530054272" cy="628" r="4" fill="#7857a5"><title>supplied-android-bc9d2ff-s26 / s26-o3224: 13,151 ms</title></circle>
+<circle cx="846.1350682380724" cy="632" r="4" fill="#7857a5"><title>supplied-android-bc9d2ff-s26 / s26-o3431: 15,089 ms</title></circle>
+<circle cx="797.7694892930945" cy="636" r="4" fill="#7857a5"><title>supplied-android-bc9d2ff-s26 / s26-o3479: 13,540 ms</title></circle>
+<circle cx="828.3999818334582" cy="628" r="4" fill="#7857a5"><title>supplied-android-bc9d2ff-s26 / s26-o3499: 14,521 ms</title></circle>
+<circle cx="843.2624838204237" cy="632" r="4" fill="#7857a5"><title>supplied-android-bc9d2ff-s26 / s26-o3521: 14,997 ms</title></circle>
+<circle cx="833.6767945137044" cy="636" r="4" fill="#7857a5"><title>supplied-android-bc9d2ff-s26 / s26-o3531: 14,690 ms</title></circle>
+<text x="363.00" y="670.00" font-size="12" fill="#243447" text-anchor="end">947fcb8 · android-unspecified</text>
+<text x="363.00" y="684.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=1)</text>
+<circle cx="884.852510388991" cy="666" r="4" fill="#7857a5"><title>supplied-android-947fcb8-s27 / s27-o3547: 16,329 ms</title></circle>
+<text x="363.00" y="708.00" font-size="12" fill="#243447" text-anchor="end">947fcb8 · android-unspecified</text>
+<text x="363.00" y="722.00" font-size="12" fill="#243447" text-anchor="end">read-flight-detail (n=1)</text>
+<circle cx="731.01312532643" cy="704" r="4" fill="#7857a5"><title>supplied-android-947fcb8-s27 / s27-o3560: 11,402 ms</title></circle>
+<text x="363.00" y="746.00" font-size="12" fill="#243447" text-anchor="end">cdd2adb · phone</text>
+<text x="363.00" y="760.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=2)</text>
+<circle cx="796.5517632899607" cy="742" r="4" fill="#087e8b"><title>supplied-android-cdd2adb-s28 / s28-o3569: 13,501 ms</title></circle>
+<circle cx="873.4558439494061" cy="746" r="4" fill="#087e8b"><title>supplied-android-cdd2adb-s28 / s28-o4074: 15,964 ms</title></circle>
+<text x="363.00" y="784.00" font-size="12" fill="#243447" text-anchor="end">b545b64 · android-unspecified</text>
+<text x="363.00" y="798.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=1)</text>
+<circle cx="771.541544610214" cy="780" r="4" fill="#7857a5"><title>supplied-sync-b545b64 / post-sync: 12,700 ms</title></circle>
+<text x="363.00" y="822.00" font-size="12" fill="#243447" text-anchor="end">9eccbf7 · android-unspecified</text>
+<text x="363.00" y="836.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=3)</text>
+<circle cx="764.9221109521538" cy="818" r="4" fill="#7857a5"><title>detail-phone-regression-2026-10-26 / 5849: 12,488 ms</title></circle>
+<circle cx="768.3254990121943" cy="822" r="4" fill="#7857a5"><title>detail-phone-regression-2026-10-26 / 5872: 12,597 ms</title></circle>
+<circle cx="794.366101233054" cy="826" r="4" fill="#7857a5"><title>detail-phone-regression-2026-10-26 / 6103: 13,431 ms</title></circle>
+<text x="363.00" y="860.00" font-size="12" fill="#243447" text-anchor="end">9eccbf7 · android-unspecified</text>
+<text x="363.00" y="874.00" font-size="12" fill="#243447" text-anchor="end">start-screen (n=1)</text>
+<circle cx="770.8858459931421" cy="856" r="4" fill="#7857a5"><title>detail-phone-regression-2026-10-26 / 5846: 12,679 ms</title></circle>
+<text x="363.00" y="898.00" font-size="12" fill="#243447" text-anchor="end">9eccbf7 · android-unspecified</text>
+<text x="363.00" y="912.00" font-size="12" fill="#243447" text-anchor="end">start-presentation (n=2)</text>
+<circle cx="394.7958534868406" cy="894" r="4" fill="#7857a5"><title>detail-phone-regression-2026-10-26 / 5862: 634 ms</title></circle>
+<circle cx="693.6695278969956" cy="898" r="4" fill="#7857a5"><title>detail-phone-regression-2026-10-26 / 6113: 10,206 ms</title></circle>
+<text x="363.00" y="936.00" font-size="12" fill="#243447" text-anchor="end">unknown · android-unspecified</text>
+<text x="363.00" y="950.00" font-size="12" fill="#243447" text-anchor="end">read-flights (n=6)</text>
+<circle cx="861.9030587914708" cy="932" r="4" fill="#7857a5"><title>legacy-supplied-android-extra / legacy-op-77: 15,594 ms</title></circle>
+<circle cx="859.5925017598836" cy="936" r="4" fill="#7857a5"><title>legacy-supplied-android-extra / legacy-op-78: 15,520 ms</title></circle>
+<circle cx="891.2533778413606" cy="940" r="4" fill="#7857a5"><title>legacy-supplied-android-extra / legacy-op-81: 16,534 ms</title></circle>
+<circle cx="865.275223107841" cy="932" r="4" fill="#7857a5"><title>legacy-supplied-android-extra / legacy-op-83: 15,702 ms</title></circle>
+<circle cx="858.9680268864818" cy="936" r="4" fill="#7857a5"><title>legacy-supplied-android-extra / legacy-op-85: 15,500 ms</title></circle>
+<circle cx="935.1851851851851" cy="940" r="4" fill="#7857a5"><title>legacy-supplied-android-extra / legacy-op-87: 17,941 ms</title></circle>
+<text x="363.00" y="974.00" font-size="12" fill="#243447" text-anchor="end">unknown · android-unspecified</text>
+<text x="363.00" y="988.00" font-size="12" fill="#243447" text-anchor="end">read-flight-detail (n=2)</text>
+<circle cx="755.3676453891046" cy="970" r="4" fill="#7857a5"><title>legacy-supplied-android-extra / legacy-op-79: 12,182 ms</title></circle>
+<circle cx="748.5296455253537" cy="974" r="4" fill="#7857a5"><title>legacy-supplied-android-extra / legacy-op-80: 11,963 ms</title></circle>
+<text x="363.00" y="1012.00" font-size="12" fill="#243447" text-anchor="end">814305e · emulator-synthetic</text>
+<text x="363.00" y="1026.00" font-size="12" fill="#243447" text-anchor="end">ui-observed-settings-ready (n=2)</text>
+<circle cx="484.7826827440561" cy="1008" r="4" fill="#1967b5"><title>page-entry-initial / entry-0-sample-0: 3,516 ms</title></circle>
+<circle cx="476.97674682653223" cy="1012" r="4" fill="#1967b5"><title>page-entry-initial / entry-2-sample-0: 3,266 ms</title></circle>
+<text x="363.00" y="1050.00" font-size="12" fill="#243447" text-anchor="end">814305e · emulator-synthetic</text>
+<text x="363.00" y="1064.00" font-size="12" fill="#243447" text-anchor="end">ui-observed-backup-preparing (n=3)</text>
+<circle cx="457.4619070327225" cy="1046" r="4" fill="#1967b5"><title>page-entry-initial / entry-1-sample-0: 2,641 ms</title></circle>
+<circle cx="529.6824261416537" cy="1050" r="4" fill="#1967b5"><title>page-entry-initial / entry-1-sample-1: 4,954 ms</title></circle>
+<circle cx="602.3713014056361" cy="1054" r="4" fill="#1967b5"><title>page-entry-initial / entry-1-sample-2: 7,282 ms</title></circle>
+<text x="363.00" y="1088.00" font-size="12" fill="#243447" text-anchor="end">814305e · emulator-synthetic</text>
+<text x="363.00" y="1102.00" font-size="12" fill="#243447" text-anchor="end">ui-observed-backup-ready (n=1)</text>
+<circle cx="674.0922406158458" cy="1084" r="4" fill="#1967b5"><title>page-entry-initial / entry-1-sample-3: 9,579 ms</title></circle>
+<text x="363.00" y="1126.00" font-size="12" fill="#243447" text-anchor="end">53549c4 · emulator-synthetic</text>
+<text x="363.00" y="1140.00" font-size="12" fill="#243447" text-anchor="end">ui-observed-settings-ready (n=1)</text>
+<circle cx="484.75145900038603" cy="1122" r="4" fill="#1967b5"><title>page-entry-final / entry-0-sample-0: 3,515 ms</title></circle>
+<text x="363.00" y="1164.00" font-size="12" fill="#243447" text-anchor="end">53549c4 · emulator-synthetic</text>
+<text x="363.00" y="1178.00" font-size="12" fill="#243447" text-anchor="end">ui-observed-backup-preparing (n=3)</text>
+<circle cx="455.52603492517653" cy="1160" r="4" fill="#1967b5"><title>page-entry-final / entry-1-sample-0: 2,579 ms</title></circle>
+<circle cx="529.6824261416537" cy="1164" r="4" fill="#1967b5"><title>page-entry-final / entry-1-sample-1: 4,954 ms</title></circle>
+<circle cx="601.372141608193" cy="1168" r="4" fill="#1967b5"><title>page-entry-final / entry-1-sample-2: 7,250 ms</title></circle>
+<text x="363.00" y="1202.00" font-size="12" fill="#243447" text-anchor="end">53549c4 · emulator-synthetic</text>
+<text x="363.00" y="1216.00" font-size="12" fill="#243447" text-anchor="end">ui-observed-backup-ready (n=1)</text>
+<circle cx="673.5926607171242" cy="1198" r="4" fill="#1967b5"><title>page-entry-final / entry-1-sample-3: 9,563 ms</title></circle>
+<text x="24.00" y="1288.00" font-size="13" fill="#243447" text-anchor="start">Seconds · Operation completion / React proxies; first presented pixels remain unmeasured. Full values: history and CSV.</text>
+</g></svg>

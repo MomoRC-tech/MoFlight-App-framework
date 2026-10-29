@@ -1,0 +1,59 @@
+{
+  "method": "Nonoverlapping observed UI stage-start windows through operation end; before-flights includes preparation, verification, waiting and unclassified gaps. Nested stage sums are excluded. One sample per build.",
+  "runs": [
+    {
+      "build": "bc9d2ffdadb21bff63ae15c36e8e93bdaf2efdf2",
+      "totalMs": 120294,
+      "partitionsMs": {
+        "before-flights": 36508,
+        "flights": 23065,
+        "save": 44166,
+        "medical": 2177,
+        "duties": 3652,
+        "events": 2114,
+        "documents": 1967,
+        "work-summary": 2000,
+        "work-hours": 1790,
+        "tasks": 2855
+      },
+      "reportedUserWaitMs": 4486,
+      "sampleCount": 1
+    },
+    {
+      "build": "cdd2adb271b0a29f7ebac9103d3ace9cfbea131b",
+      "totalMs": 129980,
+      "partitionsMs": {
+        "before-flights": 38776,
+        "flights": 24725,
+        "save": 46955,
+        "medical": 2462,
+        "duties": 4300,
+        "events": 2748,
+        "documents": 2320,
+        "work-summary": 2205,
+        "work-hours": 2215,
+        "tasks": 3274
+      },
+      "reportedUserWaitMs": 2867,
+      "sampleCount": 1
+    },
+    {
+      "build": "ad4b7bd076e49a80a2c0e9dfb95034a5408e5194",
+      "totalMs": 139548,
+      "partitionsMs": {
+        "before-flights": 33812,
+        "flights": 27263,
+        "save": 56118,
+        "medical": 2963,
+        "duties": 4941,
+        "events": 3657,
+        "documents": 2485,
+        "work-summary": 2451,
+        "work-hours": 2276,
+        "tasks": 3582
+      },
+      "reportedUserWaitMs": 0,
+      "sampleCount": 1
+    }
+  ]
+}

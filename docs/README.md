@@ -12,6 +12,7 @@
 | How do we implement expense analysis? | [E1–E4 plan and source contract](development/expense-analysis-implementation-plan.md), [E1 evidence](verification/2026-10-28-expense-source-contract.md) and [#101](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/101); isolated money/date proof exists; attribution/source/UI gates remain |
 | What remains for AI chat? | [AI execution plan and Luna delegation](development/ai-chat-implementation-plan.md), [requirements](architecture/logbook-chat-discovery.md) and [#13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13) |
 | How do we build and check it? | [Lab runbook](../apps/platform-lab/README.md), [verification workflow](development/verification-workflow.md) |
+| How has phone/emulator performance changed? | [Maintained performance charts, complete samples and append protocol](verification/performance/README.md) — #90 |
 | What was actually verified? | [Acceptance map](project-plan.md#21-acceptance-traceability), [modern main delivery](verification/2026-10-22-alternative-ui.md#main-adoption-and-documentation-reconciliation) |
 | Where are past plans and rejected designs? | [Archive](archive/README.md) |
 

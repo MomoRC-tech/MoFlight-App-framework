@@ -1,0 +1,224 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="930" viewBox="0 0 1100 930" role="img" aria-labelledby="title desc">
+<title id="title">Controlled synthetic Android comparisons</title><desc id="desc">Each row is its own matched experiment. All samples shown; ticks span min–max and larger marks show medians.</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Arial, sans-serif">
+<text x="24.00" y="32.00" font-size="21" fill="#243447" text-anchor="start">Controlled synthetic Android comparisons</text>
+<text x="24.00" y="58.00" font-size="13" fill="#243447" text-anchor="start">Each row is its own matched experiment. All samples shown; ticks span min–max and larger marks show medians.</text>
+<path d="M375.0 82V887" stroke="#dce3e8"/>
+<text x="375.00" y="910.00" font-size="12" fill="#243447" text-anchor="middle">0</text>
+<path d="M488.0 82V887" stroke="#dce3e8"/>
+<text x="488.00" y="910.00" font-size="12" fill="#243447" text-anchor="middle">2.442</text>
+<path d="M601.0 82V887" stroke="#dce3e8"/>
+<text x="601.00" y="910.00" font-size="12" fill="#243447" text-anchor="middle">4.885</text>
+<path d="M714.0 82V887" stroke="#dce3e8"/>
+<text x="714.00" y="910.00" font-size="12" fill="#243447" text-anchor="middle">7.327</text>
+<path d="M827.0 82V887" stroke="#dce3e8"/>
+<text x="827.00" y="910.00" font-size="12" fill="#243447" text-anchor="middle">9.77</text>
+<path d="M940.0 82V887" stroke="#dce3e8"/>
+<text x="940.00" y="910.00" font-size="12" fill="#243447" text-anchor="middle">12.212</text>
+<text x="361.00" y="109.00" font-size="12" fill="#243447" text-anchor="end">sync-storage-26oct</text>
+<text x="361.00" y="128.00" font-size="12" fill="#243447" text-anchor="end">first</text>
+<path d="M691.1996023374595 102H707.5971560213479" stroke="#7a8795" stroke-width="2"/>
+<circle cx="707.3269568416194" cy="100" r="2" fill="#7a8795"/>
+<circle cx="691.1996023374595" cy="102" r="2" fill="#7a8795"/>
+<circle cx="691.4707407048176" cy="104" r="2" fill="#7a8795"/>
+<circle cx="707.5971560213479" cy="100" r="2" fill="#7a8795"/>
+<circle cx="700.4689581850731" cy="102" r="2" fill="#7a8795"/>
+<circle cx="700.4689581850731" cy="102" r="5" fill="#7a8795"/>
+<path d="M661.2111483516542 120H696.5073539037792" stroke="#087e8b" stroke-width="2"/>
+<circle cx="696.5073539037792" cy="118" r="2" fill="#087e8b"/>
+<circle cx="673.5649350331066" cy="120" r="2" fill="#087e8b"/>
+<circle cx="668.0909842760342" cy="122" r="2" fill="#087e8b"/>
+<circle cx="663.922865135709" cy="118" r="2" fill="#087e8b"/>
+<circle cx="661.2111483516542" cy="120" r="2" fill="#087e8b"/>
+<circle cx="668.0909842760342" cy="120" r="5" fill="#087e8b"/>
+<text x="952.00" y="115.00" font-size="14" fill="#243447" text-anchor="start">-9.9%</text>
+<text x="361.00" y="174.00" font-size="12" fill="#243447" text-anchor="end">sync-storage-26oct</text>
+<text x="361.00" y="193.00" font-size="12" fill="#243447" text-anchor="end">unchanged</text>
+<path d="M867.0937812792904 167H893.3329428971432" stroke="#7a8795" stroke-width="2"/>
+<circle cx="873.9999190827077" cy="165" r="2" fill="#7a8795"/>
+<circle cx="872.8329345529341" cy="167" r="2" fill="#7a8795"/>
+<circle cx="893.3329428971432" cy="169" r="2" fill="#7a8795"/>
+<circle cx="867.0937812792904" cy="165" r="2" fill="#7a8795"/>
+<circle cx="891.5783230360705" cy="167" r="2" fill="#7a8795"/>
+<circle cx="873.9999190827077" cy="167" r="5" fill="#7a8795"/>
+<path d="M804.3441185830127 185H848.8018399658542" stroke="#087e8b" stroke-width="2"/>
+<circle cx="804.3441185830127" cy="183" r="2" fill="#087e8b"/>
+<circle cx="848.8018399658542" cy="185" r="2" fill="#087e8b"/>
+<circle cx="818.9366370012584" cy="187" r="2" fill="#087e8b"/>
+<circle cx="839.6680972539303" cy="183" r="2" fill="#087e8b"/>
+<circle cx="824.667032235126" cy="185" r="2" fill="#087e8b"/>
+<circle cx="824.667032235126" cy="185" r="5" fill="#087e8b"/>
+<text x="952.00" y="180.00" font-size="14" fill="#243447" text-anchor="start">-9.9%</text>
+<text x="361.00" y="239.00" font-size="12" fill="#243447" text-anchor="end">sync-storage-26oct</text>
+<text x="361.00" y="258.00" font-size="12" fill="#243447" text-anchor="end">changed</text>
+<path d="M860.3988357664068 232H897.5664257921185" stroke="#7a8795" stroke-width="2"/>
+<circle cx="897.5664257921185" cy="230" r="2" fill="#7a8795"/>
+<circle cx="872.651787011929" cy="232" r="2" fill="#7a8795"/>
+<circle cx="872.0072221080001" cy="234" r="2" fill="#7a8795"/>
+<circle cx="882.4859092045665" cy="230" r="2" fill="#7a8795"/>
+<circle cx="860.3988357664068" cy="232" r="2" fill="#7a8795"/>
+<circle cx="872.651787011929" cy="232" r="5" fill="#7a8795"/>
+<path d="M813.3284055519475 250H822.085510908418" stroke="#087e8b" stroke-width="2"/>
+<circle cx="813.3284055519475" cy="248" r="2" fill="#087e8b"/>
+<circle cx="815.7365472980312" cy="250" r="2" fill="#087e8b"/>
+<circle cx="822.085510908418" cy="252" r="2" fill="#087e8b"/>
+<circle cx="820.1447560965917" cy="248" r="2" fill="#087e8b"/>
+<circle cx="820.3789052779391" cy="250" r="2" fill="#087e8b"/>
+<circle cx="820.1447560965917" cy="250" r="5" fill="#087e8b"/>
+<text x="952.00" y="245.00" font-size="14" fill="#243447" text-anchor="start">-10.6%</text>
+<text x="361.00" y="304.00" font-size="12" fill="#243447" text-anchor="end">sync-storage-26oct</text>
+<text x="361.00" y="323.00" font-size="12" fill="#243447" text-anchor="end">reopened</text>
+<path d="M429.5071904987982 297H434.03499997871654" stroke="#7a8795" stroke-width="2"/>
+<circle cx="434.03499997871654" cy="295" r="2" fill="#7a8795"/>
+<circle cx="429.5071904987982" cy="297" r="2" fill="#7a8795"/>
+<circle cx="432.13112331596074" cy="299" r="2" fill="#7a8795"/>
+<circle cx="431.6157406574099" cy="295" r="2" fill="#7a8795"/>
+<circle cx="432.41271303690223" cy="297" r="2" fill="#7a8795"/>
+<circle cx="432.13112331596074" cy="297" r="5" fill="#7a8795"/>
+<path d="M429.414039745501 315H432.9178664159217" stroke="#087e8b" stroke-width="2"/>
+<circle cx="432.9178664159217" cy="313" r="2" fill="#087e8b"/>
+<circle cx="429.414039745501" cy="315" r="2" fill="#087e8b"/>
+<circle cx="431.68064638479063" cy="317" r="2" fill="#087e8b"/>
+<circle cx="432.70567016613836" cy="313" r="2" fill="#087e8b"/>
+<circle cx="432.58427901388757" cy="315" r="2" fill="#087e8b"/>
+<circle cx="432.58427901388757" cy="315" r="5" fill="#087e8b"/>
+<text x="952.00" y="310.00" font-size="14" fill="#243447" text-anchor="start">+0.8%</text>
+<text x="361.00" y="369.00" font-size="12" fill="#243447" text-anchor="end">detail-constant-lease-seed</text>
+<text x="361.00" y="388.00" font-size="12" fill="#243447" text-anchor="end">detail-read</text>
+<path d="M431.62302745760314 362H442.14706852430686" stroke="#7a8795" stroke-width="2"/>
+<circle cx="442.14706852430686" cy="360" r="2" fill="#7a8795"/>
+<circle cx="436.468869912838" cy="362" r="2" fill="#7a8795"/>
+<circle cx="433.4886380094535" cy="364" r="2" fill="#7a8795"/>
+<circle cx="432.9234691555439" cy="360" r="2" fill="#7a8795"/>
+<circle cx="431.62302745760314" cy="362" r="2" fill="#7a8795"/>
+<circle cx="433.4886380094535" cy="362" r="5" fill="#7a8795"/>
+<path d="M377.05286049862116 380H378.0986204314676" stroke="#087e8b" stroke-width="2"/>
+<circle cx="378.0986204314676" cy="378" r="2" fill="#087e8b"/>
+<circle cx="377.24851686856516" cy="380" r="2" fill="#087e8b"/>
+<circle cx="377.71246165716866" cy="382" r="2" fill="#087e8b"/>
+<circle cx="377.05286049862116" cy="378" r="2" fill="#087e8b"/>
+<circle cx="377.2248474907923" cy="380" r="2" fill="#087e8b"/>
+<circle cx="377.24851686856516" cy="380" r="5" fill="#087e8b"/>
+<text x="952.00" y="375.00" font-size="14" fill="#243447" text-anchor="start">-96.2%</text>
+<text x="361.00" y="434.00" font-size="12" fill="#243447" text-anchor="end">detail-constant-lease-reopen</text>
+<text x="361.00" y="453.00" font-size="12" fill="#243447" text-anchor="end">detail-read</text>
+<path d="M457.8079475224746 427H466.0938259167666" stroke="#7a8795" stroke-width="2"/>
+<circle cx="464.52227361048733" cy="425" r="2" fill="#7a8795"/>
+<circle cx="459.5628496024291" cy="427" r="2" fill="#7a8795"/>
+<circle cx="466.0938259167666" cy="429" r="2" fill="#7a8795"/>
+<circle cx="462.2525255507259" cy="425" r="2" fill="#7a8795"/>
+<circle cx="457.8079475224746" cy="427" r="2" fill="#7a8795"/>
+<circle cx="462.2525255507259" cy="427" r="5" fill="#7a8795"/>
+<path d="M377.36170979218514 445H378.06730338331755" stroke="#087e8b" stroke-width="2"/>
+<circle cx="378.06730338331755" cy="443" r="2" fill="#087e8b"/>
+<circle cx="377.36170979218514" cy="445" r="2" fill="#087e8b"/>
+<circle cx="377.8260061979086" cy="447" r="2" fill="#087e8b"/>
+<circle cx="377.70556811279704" cy="443" r="2" fill="#087e8b"/>
+<circle cx="377.90122910935924" cy="445" r="2" fill="#087e8b"/>
+<circle cx="377.8260061979086" cy="445" r="5" fill="#087e8b"/>
+<text x="952.00" y="440.00" font-size="14" fill="#243447" text-anchor="start">-96.8%</text>
+<text x="361.00" y="499.00" font-size="12" fill="#243447" text-anchor="end">detail-real-registry-seed</text>
+<text x="361.00" y="518.00" font-size="12" fill="#243447" text-anchor="end">detail-read</text>
+<path d="M430.7496338930673 492H437.0731145222147" stroke="#7a8795" stroke-width="2"/>
+<circle cx="435.9891717560384" cy="490" r="2" fill="#7a8795"/>
+<circle cx="437.0731145222147" cy="492" r="2" fill="#7a8795"/>
+<circle cx="430.7496338930673" cy="494" r="2" fill="#7a8795"/>
+<circle cx="437.0429864949382" cy="490" r="2" fill="#7a8795"/>
+<circle cx="435.0683422785267" cy="492" r="2" fill="#7a8795"/>
+<circle cx="435.9891717560384" cy="492" r="5" fill="#7a8795"/>
+<path d="M381.19627854255964 510H381.90986679474344" stroke="#087e8b" stroke-width="2"/>
+<circle cx="381.80728252696673" cy="508" r="2" fill="#087e8b"/>
+<circle cx="381.3426391305691" cy="510" r="2" fill="#087e8b"/>
+<circle cx="381.26290534311204" cy="512" r="2" fill="#087e8b"/>
+<circle cx="381.90986679474344" cy="508" r="2" fill="#087e8b"/>
+<circle cx="381.19627854255964" cy="510" r="2" fill="#087e8b"/>
+<circle cx="381.3426391305691" cy="510" r="5" fill="#087e8b"/>
+<text x="952.00" y="505.00" font-size="14" fill="#243447" text-anchor="start">-89.6%</text>
+<text x="361.00" y="564.00" font-size="12" fill="#243447" text-anchor="end">detail-real-registry-reopen</text>
+<text x="361.00" y="583.00" font-size="12" fill="#243447" text-anchor="end">detail-read</text>
+<path d="M454.2782908803126 557H462.14115548363645" stroke="#7a8795" stroke-width="2"/>
+<circle cx="459.94342414323376" cy="555" r="2" fill="#7a8795"/>
+<circle cx="457.9397761484545" cy="557" r="2" fill="#7a8795"/>
+<circle cx="458.92198130349925" cy="559" r="2" fill="#7a8795"/>
+<circle cx="462.14115548363645" cy="555" r="2" fill="#7a8795"/>
+<circle cx="454.2782908803126" cy="557" r="2" fill="#7a8795"/>
+<circle cx="458.92198130349925" cy="557" r="5" fill="#7a8795"/>
+<path d="M380.8686640032232 575H383.881721207286" stroke="#087e8b" stroke-width="2"/>
+<circle cx="383.57991813390754" cy="573" r="2" fill="#087e8b"/>
+<circle cx="380.8686640032232" cy="575" r="2" fill="#087e8b"/>
+<circle cx="383.881721207286" cy="577" r="2" fill="#087e8b"/>
+<circle cx="381.6951490806355" cy="573" r="2" fill="#087e8b"/>
+<circle cx="382.2692656627356" cy="575" r="2" fill="#087e8b"/>
+<circle cx="382.2692656627356" cy="575" r="5" fill="#087e8b"/>
+<text x="952.00" y="570.00" font-size="14" fill="#243447" text-anchor="start">-91.3%</text>
+<text x="361.00" y="629.00" font-size="12" fill="#243447" text-anchor="end">replay-27oct</text>
+<text x="361.00" y="648.00" font-size="12" fill="#243447" text-anchor="end">first</text>
+<path d="M642.4071878741912 622H694.467780827758" stroke="#7a8795" stroke-width="2"/>
+<circle cx="694.467780827758" cy="620" r="2" fill="#7a8795"/>
+<circle cx="691.1543917900722" cy="622" r="2" fill="#7a8795"/>
+<circle cx="642.4071878741912" cy="624" r="2" fill="#7a8795"/>
+<circle cx="657.9211325933497" cy="620" r="2" fill="#7a8795"/>
+<circle cx="644.180563727283" cy="622" r="2" fill="#7a8795"/>
+<circle cx="657.9211325933497" cy="622" r="5" fill="#7a8795"/>
+<path d="M616.8618869423741 640H648.560555259636" stroke="#087e8b" stroke-width="2"/>
+<circle cx="647.122080745729" cy="638" r="2" fill="#087e8b"/>
+<circle cx="636.9416481663932" cy="640" r="2" fill="#087e8b"/>
+<circle cx="648.560555259636" cy="642" r="2" fill="#087e8b"/>
+<circle cx="619.0738495196244" cy="638" r="2" fill="#087e8b"/>
+<circle cx="616.8618869423741" cy="640" r="2" fill="#087e8b"/>
+<circle cx="636.9416481663932" cy="640" r="5" fill="#087e8b"/>
+<text x="952.00" y="635.00" font-size="14" fill="#243447" text-anchor="start">-7.4%</text>
+<text x="361.00" y="694.00" font-size="12" fill="#243447" text-anchor="end">replay-27oct</text>
+<text x="361.00" y="713.00" font-size="12" fill="#243447" text-anchor="end">unchanged</text>
+<path d="M740.0571353492692 687H903.0373831775701" stroke="#7a8795" stroke-width="2"/>
+<circle cx="741.5100400408127" cy="685" r="2" fill="#7a8795"/>
+<circle cx="740.0571353492692" cy="687" r="2" fill="#7a8795"/>
+<circle cx="809.8960311629496" cy="689" r="2" fill="#7a8795"/>
+<circle cx="903.0373831775701" cy="685" r="2" fill="#7a8795"/>
+<circle cx="791.7457082338833" cy="687" r="2" fill="#7a8795"/>
+<circle cx="791.7457082338833" cy="687" r="5" fill="#7a8795"/>
+<path d="M691.3876943146021 705H721.2966967320044" stroke="#087e8b" stroke-width="2"/>
+<circle cx="721.2966967320044" cy="703" r="2" fill="#087e8b"/>
+<circle cx="691.3876943146021" cy="705" r="2" fill="#087e8b"/>
+<circle cx="700.9017709871505" cy="707" r="2" fill="#087e8b"/>
+<circle cx="695.1546045464999" cy="703" r="2" fill="#087e8b"/>
+<circle cx="703.5617769357848" cy="705" r="2" fill="#087e8b"/>
+<circle cx="700.9017709871505" cy="705" r="5" fill="#087e8b"/>
+<text x="952.00" y="700.00" font-size="14" fill="#243447" text-anchor="start">-21.8%</text>
+<text x="361.00" y="759.00" font-size="12" fill="#243447" text-anchor="end">replay-27oct</text>
+<text x="361.00" y="778.00" font-size="12" fill="#243447" text-anchor="end">changed</text>
+<path d="M742.5413929287686 752H778.4399091967999" stroke="#7a8795" stroke-width="2"/>
+<circle cx="759.5060586132731" cy="750" r="2" fill="#7a8795"/>
+<circle cx="743.732694551999" cy="752" r="2" fill="#7a8795"/>
+<circle cx="778.4399091967999" cy="754" r="2" fill="#7a8795"/>
+<circle cx="747.7021685772052" cy="750" r="2" fill="#7a8795"/>
+<circle cx="742.5413929287686" cy="752" r="2" fill="#7a8795"/>
+<circle cx="747.7021685772052" cy="752" r="5" fill="#7a8795"/>
+<path d="M684.6680523321223 770H705.1770269104776" stroke="#087e8b" stroke-width="2"/>
+<circle cx="686.5184230616021" cy="768" r="2" fill="#087e8b"/>
+<circle cx="684.6680523321223" cy="770" r="2" fill="#087e8b"/>
+<circle cx="696.9992846318189" cy="772" r="2" fill="#087e8b"/>
+<circle cx="695.0481709975656" cy="768" r="2" fill="#087e8b"/>
+<circle cx="705.1770269104776" cy="770" r="2" fill="#087e8b"/>
+<circle cx="695.0481709975656" cy="770" r="5" fill="#087e8b"/>
+<text x="952.00" y="765.00" font-size="14" fill="#243447" text-anchor="start">-14.1%</text>
+<text x="361.00" y="824.00" font-size="12" fill="#243447" text-anchor="end">replay-27oct</text>
+<text x="361.00" y="843.00" font-size="12" fill="#243447" text-anchor="end">reopened</text>
+<path d="M426.72327656037896 817H430.11497903753235" stroke="#7a8795" stroke-width="2"/>
+<circle cx="427.5954579714675" cy="815" r="2" fill="#7a8795"/>
+<circle cx="426.72327656037896" cy="817" r="2" fill="#7a8795"/>
+<circle cx="430.11497903753235" cy="819" r="2" fill="#7a8795"/>
+<circle cx="429.83922338350146" cy="815" r="2" fill="#7a8795"/>
+<circle cx="429.6748054105776" cy="817" r="2" fill="#7a8795"/>
+<circle cx="429.6748054105776" cy="817" r="5" fill="#7a8795"/>
+<path d="M423.16987188896957 835H424.2140125326927" stroke="#087e8b" stroke-width="2"/>
+<circle cx="423.79742963255336" cy="833" r="2" fill="#087e8b"/>
+<circle cx="424.14506783642935" cy="835" r="2" fill="#087e8b"/>
+<circle cx="423.6933371127656" cy="837" r="2" fill="#087e8b"/>
+<circle cx="423.16987188896957" cy="833" r="2" fill="#087e8b"/>
+<circle cx="424.2140125326927" cy="835" r="2" fill="#087e8b"/>
+<circle cx="423.79742963255336" cy="835" r="5" fill="#087e8b"/>
+<text x="952.00" y="830.00" font-size="14" fill="#243447" text-anchor="start">-10.7%</text>
+<text x="24.00" y="922.00" font-size="13" fill="#243447" text-anchor="start">Gray: baseline · Teal: candidate · Units: seconds · Synthetic local operations, not whole live Sync or phone taps</text>
+</g></svg>

@@ -15,6 +15,8 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 **Shared local reads:** the phone report exposed a temporary-session identity mismatch in detail navigation. The corrected APK passes real-registry host and synthetic Android restart checks; Manuel confirms detail opening works; a subsequent phone report records successful Sync.
 
+**Runtime performance history:** [maintained phone/emulator charts and all retained timing samples](docs/verification/performance/README.md) separate actual observations from controlled comparisons. Future gathered measurements are appended under #90; current phone speed and populated Start-preview acceptance remain open.
+
 **Included in this delivery:** [exact pre-write validation reuse](docs/verification/2026-10-21-simple-flight-loading.md#exact-pre-write-validation-reuse--26-october-2026) avoids repeating a full history replay when the same handle freshly rereads identical validated data. Full post-write checks remain. No new phone-speed acceptance is claimed here.
 
 ## Current delivery

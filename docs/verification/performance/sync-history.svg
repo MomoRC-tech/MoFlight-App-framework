@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="671" viewBox="0 0 1100 671" role="img" aria-labelledby="title desc">
+<title id="title">Android Sync history — individual successful observations</title><desc id="desc">Historical source/record order, not a matched trend. Unknown devices stay separate; elapsed includes recorded waits.</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<g font-family="Arial, sans-serif">
+<text x="24.00" y="32.00" font-size="21" fill="#243447" text-anchor="start">Android Sync history — individual successful observations</text>
+<text x="24.00" y="58.00" font-size="13" fill="#243447" text-anchor="start">Historical source/record order, not a matched trend. Unknown devices stay separate; elapsed includes recorded waits.</text>
+<path d="M295.0 80V626" stroke="#dce3e8"/>
+<text x="295.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">0</text>
+<path d="M432.0 80V626" stroke="#dce3e8"/>
+<text x="432.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">48.575</text>
+<path d="M569.0 80V626" stroke="#dce3e8"/>
+<text x="569.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">97.15</text>
+<path d="M706.0 80V626" stroke="#dce3e8"/>
+<text x="706.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">145.725</text>
+<path d="M843.0 80V626" stroke="#dce3e8"/>
+<text x="843.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">194.3</text>
+<path d="M980.0 80V626" stroke="#dce3e8"/>
+<text x="980.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">242.875</text>
+<text x="283.00" y="100.00" font-size="12" fill="#243447" text-anchor="end">256aa3f · emulator-live</text>
+<text x="283.00" y="115.00" font-size="11" fill="#243447" text-anchor="end">2026-10-23 · s8-o84</text>
+<circle cx="547.7395944981821" cy="100" r="5" fill="#b36b00"/>
+<text x="557.74" y="105.00" font-size="13" fill="#243447" text-anchor="start">89.612 s</text>
+<text x="283.00" y="143.00" font-size="12" fill="#243447" text-anchor="end">256aa3f · emulator-live</text>
+<text x="283.00" y="158.00" font-size="11" fill="#243447" text-anchor="end">2026-10-23 · s8-o259</text>
+<circle cx="542.6375330951645" cy="143" r="5" fill="#b36b00"/>
+<text x="552.64" y="148.00" font-size="13" fill="#243447" text-anchor="start">87.803 s</text>
+<text x="283.00" y="186.00" font-size="12" fill="#243447" text-anchor="end">8eb300f · emulator-live</text>
+<text x="283.00" y="201.00" font-size="11" fill="#243447" text-anchor="end">2026-10-24 · s10-o182</text>
+<circle cx="535.2650684696874" cy="186" r="5" fill="#b36b00"/>
+<text x="545.27" y="191.00" font-size="13" fill="#243447" text-anchor="start">85.189 s</text>
+<text x="283.00" y="229.00" font-size="12" fill="#243447" text-anchor="end">766b719 · android-unspecified</text>
+<text x="283.00" y="244.00" font-size="11" fill="#243447" text-anchor="end">2026-10-26 · s16-o1066</text>
+<circle cx="537.7554610727082" cy="229" r="5" fill="#7857a5"/>
+<text x="547.76" y="234.00" font-size="13" fill="#243447" text-anchor="start">86.072 s</text>
+<text x="283.00" y="272.00" font-size="12" fill="#243447" text-anchor="end">766b719 · android-unspecified</text>
+<text x="283.00" y="287.00" font-size="11" fill="#243447" text-anchor="end">2026-10-26 · s16-o1294</text>
+<circle cx="496.2225941734065" cy="272" r="5" fill="#7857a5"/>
+<text x="506.22" y="277.00" font-size="13" fill="#243447" text-anchor="start">71.346 s</text>
+<text x="283.00" y="315.00" font-size="12" fill="#243447" text-anchor="end">bc9d2ff · android-unspecified</text>
+<text x="283.00" y="330.00" font-size="11" fill="#243447" text-anchor="end">2026-10-26 · s26-o3239</text>
+<circle cx="634.2743916056368" cy="315" r="5" fill="#7857a5"/>
+<text x="644.27" y="320.00" font-size="13" fill="#243447" text-anchor="start">120.294 s</text>
+<text x="283.00" y="358.00" font-size="12" fill="#243447" text-anchor="end">cdd2adb · phone</text>
+<text x="283.00" y="373.00" font-size="11" fill="#243447" text-anchor="end">2026-10-26 · s28-o3614</text>
+<circle cx="661.5925600686705" cy="358" r="5" fill="#087e8b"/>
+<text x="671.59" y="363.00" font-size="13" fill="#243447" text-anchor="start">129.98 s</text>
+<text x="283.00" y="401.00" font-size="12" fill="#243447" text-anchor="end">ad4b7bd · android-unspecified</text>
+<text x="283.00" y="416.00" font-size="11" fill="#243447" text-anchor="end">2026-10-26 · reported-sync</text>
+<circle cx="688.5779240841887" cy="401" r="5" fill="#7857a5"/>
+<text x="698.58" y="406.00" font-size="13" fill="#243447" text-anchor="start">139.548 s</text>
+<text x="283.00" y="444.00" font-size="12" fill="#243447" text-anchor="end">18eae2e · android-unspecified</text>
+<text x="283.00" y="459.00" font-size="11" fill="#243447" text-anchor="end">2026-10-26 · reported-sync</text>
+<circle cx="906.6071428571428" cy="444" r="5" fill="#7857a5"/>
+<text x="916.61" y="449.00" font-size="13" fill="#243447" text-anchor="start">216.853 s</text>
+<text x="283.00" y="487.00" font-size="12" fill="#243447" text-anchor="end">b545b64 · android-unspecified</text>
+<text x="283.00" y="502.00" font-size="11" fill="#243447" text-anchor="end">2026-10-26 · reported-sync</text>
+<circle cx="710.4668674500368" cy="487" r="5" fill="#7857a5"/>
+<text x="720.47" y="492.00" font-size="13" fill="#243447" text-anchor="start">147.309 s</text>
+<text x="283.00" y="530.00" font-size="12" fill="#243447" text-anchor="end">9eccbf7 · android-unspecified</text>
+<text x="283.00" y="545.00" font-size="11" fill="#243447" text-anchor="end">2026-10-26 · 5901</text>
+<circle cx="590.4654807305278" cy="530" r="5" fill="#7857a5"/>
+<text x="600.47" y="535.00" font-size="13" fill="#243447" text-anchor="start">104.761 s</text>
+<text x="283.00" y="573.00" font-size="12" fill="#243447" text-anchor="end">78748e1 · android-unspecified</text>
+<text x="283.00" y="588.00" font-size="11" fill="#243447" text-anchor="end">2026-10-26 · o0</text>
+<circle cx="611.7621449948648" cy="573" r="5" fill="#7857a5"/>
+<text x="621.76" y="578.00" font-size="13" fill="#243447" text-anchor="start">112.312 s</text>
+<text x="637.50" y="667.00" font-size="12" fill="#243447" text-anchor="middle">Operation elapsed time (seconds); no connecting line or speedup claim</text>
+</g></svg>

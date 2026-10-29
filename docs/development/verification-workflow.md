@@ -49,6 +49,12 @@ Prefer the smallest suitable existing harness. Pure rules use node:test/unittest
 
 Ordinary regression execution should make no LLM calls. Use frozen synthetic AI responses to test validation, references, unknowns and deterministic calculations. Actual handwriting/model-quality tests remain separate and require permitted inputs and approved execution budget. A model may help author tests, and an assistant may launch them; neither makes the deterministic test process depend on inference. Reuse existing coverage and inspect summaries first to limit repeated model-led work.
 
+## Runtime performance history
+
+Manuel requested permanent phone/emulator performance tracking on 29 October 2026 under [#90](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/90). Whenever a report is supplied or runtime timing is gathered, append all available individual measurements, stages/counters, outcomes and provenance to the [performance ledger](../verification/performance/README.md) in that package. Preserve historical values, failed/interrupted observations and evidence links. Keep host, synthetic emulator, live emulator, identified phone and unknown-device results separate. Only matched inputs, environment and endpoints establish a controlled comparison; React/layout callbacks remain render proxies.
+
+Follow the ledger's append/template protocol, regenerate with `python scripts/performance_ledger.py`, and run `python scripts/performance_ledger.py --check` plus `python -m unittest discover -s tests -p test_performance_ledger.py -v`. Keep raw private diagnostics ignored and publish timing-only values. This records measurements when work occurs; it creates no recurring device tests, provider calls, spending approval or new acceptance claim.
+
 ## Acceptance traceability and journey variants
 
 Maintain affected rows of the [roadmap acceptance map](../project-plan.md#21-acceptance-traceability), linked to the matching Issue: **requirement/story → journey/scenario → executable check → source/platform evidence → remaining gate**. The map is a bounded current index, not a second requirements specification or a coverage percentage. Reuse R/FL/E IDs and existing journey sources; add finer criteria only where an implementation needs them. A passing test covers its stated aspect, not the whole parent requirement. Update only the affected scope rather than auditing every requirement for each change.
