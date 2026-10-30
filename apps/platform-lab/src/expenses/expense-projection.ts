@@ -1,5 +1,6 @@
 import type { ExpenseContribution, ExpenseFact, ExpenseIssue, ExpenseMoney, ExpensePeriod, ExpenseProjection,
-  ExpenseScope, ExpenseSnapshot } from './expense-types';
+  ExpenseScope, ExpenseSnapshot, UnversionedBilledFlightFact, UnversionedExpenseContribution,
+  UnversionedExpenseProjection, UnversionedExpenseSnapshot } from './expense-types';
 
 const kinds = ['flying', 'club', 'allowance-fee', 'unclassified', 'payment', 'payment-reversal', 'allowance-transfer', 'balance', 'unknown'];
 const maxMinor = BigInt(Number.MAX_SAFE_INTEGER);
@@ -19,8 +20,8 @@ function text(value: unknown, limit = 200): asserts value is string {
     throw new Error('Invalid expense reference.');
   }
 }
-function refs(value: unknown, empty = false): string[] {
-  if (!Array.isArray(value) || value.length > 32 || !empty && !value.length) throw new Error('Invalid expense evidence.');
+function refs(value: unknown, empty = false, limit = 32): string[] {
+  if (!Array.isArray(value) || value.length > limit || !empty && !value.length) throw new Error('Invalid expense evidence.');
   for (const ref of value) text(ref, 256);
   return unique(value as string[]);
 }
@@ -74,7 +75,15 @@ function fingerprint(f: ExpenseFact) {
 /** Pure, bounded calculation over already interpreted facts. This does not parse
  * provider text or authenticate a claimed mapping/identity/revision. No ordinary
  * app adapter supplies these facts yet; source acceptance remains a separate gate. */
-export function projectExpenses(input: ExpenseSnapshot, targetInput: ExpenseScope, request: ExpensePeriod): ExpenseProjection {
+export function projectExpenses(input: ExpenseSnapshot, targetInput: ExpenseScope, request: ExpensePeriod): ExpenseProjection;
+export function projectExpenses(input: UnversionedExpenseSnapshot, targetInput: ExpenseScope, request: ExpensePeriod): UnversionedExpenseProjection;
+export function projectExpenses(input: ExpenseSnapshot | UnversionedExpenseSnapshot, targetInput: ExpenseScope,
+  request: ExpensePeriod): ExpenseProjection | UnversionedExpenseProjection {
+  if (input?.version === 2) return projectUnversionedExpenses(input, targetInput, request);
+  return projectVersionedExpenses(input, targetInput, request);
+}
+
+function projectVersionedExpenses(input: ExpenseSnapshot, targetInput: ExpenseScope, request: ExpensePeriod): ExpenseProjection {
   const target = readScope(targetInput), period = requestedPeriod(request), annual = period.mode === 'year';
   exact(input, ['version', 'scope', 'coverage', 'facts']);
   if (input.version !== 1 || scopeKey(readScope(input.scope)) !== scopeKey(target)) throw new Error('Foreign expense snapshot.');
@@ -145,6 +154,16 @@ export function projectExpenses(input: ExpenseSnapshot, targetInput: ExpenseScop
       evidenceRefs: unique([...current, ...group.filter(f => f.role === 'supporting')].flatMap(f => f.evidenceRefs)),
       supersededEvidenceRefs: unique(primary.filter(f => f.revision !== newest).flatMap(f => f.evidenceRefs)) });
   }
+  return summarizeExpenses(contributions, period, coverage, issues, fundingIssues, excluded);
+}
+
+/** Shared exact arithmetic; resolution of v1 revisions and v2 raw variants is
+ * deliberately separate. No synthetic revision is needed for aggregation. */
+function summarizeExpenses<C extends Omit<ExpenseContribution, 'revision'> & { revision: number | null }>(
+  contributions: C[], period: ExpenseProjection['period'], coverage: ExpenseSnapshot['coverage'],
+  issues: ExpenseIssue[], fundingIssues: ExpenseIssue[], excluded: ExpenseProjection['excluded'],
+): Omit<ExpenseProjection, 'contributions'> & { contributions: C[] } {
+  const annual = period.mode === 'year';
   contributions.sort((a, b) => chargeKey(a) < chargeKey(b) ? -1 : chargeKey(a) > chargeKey(b) ? 1 : 0);
   const sums = { flying: 0n, club: 0n, unclassified: 0n, fee: 0n, covered: 0n, extra: 0n };
   const aircraft = new Map<string | null, { sum: bigint; chargeKeys: string[] }>();
@@ -181,4 +200,85 @@ export function projectExpenses(input: ExpenseSnapshot, targetInput: ExpenseScop
     aircraft: [...aircraft.entries()].sort(([a], [b]) => a === b ? 0 : a === null ? 1 : b === null ? -1 : a < b ? -1 : 1)
       .map(([aircraftRef, value]) => ({ aircraftRef, amount: money(value.sum), chargeKeys: [...value.chargeKeys] })),
     contributions, excluded, issues: allIssues };
+}
+
+function readUnversionedFact(input: UnversionedBilledFlightFact, target: ExpenseScope): UnversionedBilledFlightFact {
+  exact(input, ['scope', 'sourceFlightRef', 'sourceHash', 'revision', 'supersedes', 'invoiceIdentity', 'invoiceReference',
+    'linkState', 'bookingDate', 'currency', 'amountMinor', 'liability', 'aircraftRef', 'blockingIssues', 'evidenceRefs']);
+  const scope = readScope(input.scope);
+  if (scopeKey(scope) !== scopeKey(target)) throw new Error('Foreign unversioned expense fact.');
+  text(input.sourceFlightRef);
+  if (typeof input.sourceHash !== 'string' || !/^[0-9a-f]{64}$/.test(input.sourceHash) || input.revision !== null || input.supersedes !== null) {
+    throw new Error('Unversioned evidence cannot assert a source revision.');
+  }
+  for (const value of [input.invoiceIdentity, input.invoiceReference, input.aircraftRef]) if (value !== null) text(value);
+  if (!['verified', 'unavailable', 'conflict'].includes(input.linkState) || !['own', 'unknown'].includes(input.liability)) throw new Error('Invalid unversioned authority.');
+  for (const [value, limit] of [[input.bookingDate, 32], [input.currency, 8]] as const) {
+    if (value !== null && (typeof value !== 'string' || value.length > limit)) throw new Error('Invalid unversioned source value.');
+  }
+  if (input.amountMinor !== null && typeof input.amountMinor !== 'number') throw new Error('Invalid unversioned amount.');
+  return { ...input, scope, blockingIssues: refs(input.blockingIssues, true, 16), evidenceRefs: refs(input.evidenceRefs, false, 512) };
+}
+
+function projectUnversionedExpenses(input: UnversionedExpenseSnapshot, targetInput: ExpenseScope,
+  request: ExpensePeriod): UnversionedExpenseProjection {
+  const target = readScope(targetInput), period = requestedPeriod(request);
+  exact(input, ['version', 'sourceBasis', 'scope', 'coverage', 'facts']);
+  if (input.sourceBasis !== 'unversioned-billed-flight' || scopeKey(readScope(input.scope)) !== scopeKey(target)) throw new Error('Foreign unversioned expense snapshot.');
+  exact(input.coverage, ['state', 'from', 'through', 'evidenceRefs']);
+  const coverage = input.coverage;
+  if (!['unavailable', 'partial'].includes(coverage.state) || (coverage.from === null) !== (coverage.through === null) ||
+      coverage.from !== null && (!validDate(coverage.from) || !validDate(coverage.through) || coverage.from > coverage.through)) throw new Error('Invalid provisional coverage.');
+  refs(coverage.evidenceRefs, true);
+  if (!Array.isArray(input.facts) || input.facts.length > 10_000 || coverage.state === 'unavailable' && input.facts.length) throw new Error('Invalid unversioned fact coverage.');
+  const facts = input.facts.map(fact => readUnversionedFact(fact, target));
+  const groups = new Map<string, UnversionedBilledFlightFact[]>();
+  for (const fact of facts) { const group = groups.get(fact.sourceFlightRef) ?? []; group.push(fact); groups.set(fact.sourceFlightRef, group); }
+  const contributions: UnversionedExpenseContribution[] = [], issues: ExpenseIssue[] = [];
+  const excluded: ExpenseProjection['excluded'] = [], blockedAircraft = new Set<string | null>();
+  let blocked = false, conflict = false;
+  const inside = (date: string) => date >= period.from && date <= period.through;
+  for (const group of groups.values()) {
+    const evidenceRefs = unique(group.flatMap(fact => fact.evidenceRefs));
+    if (!group.some(fact => !validDate(fact.bookingDate) || inside(fact.bookingDate))) {
+      excluded.push({ reason: 'outside-period', evidenceRefs }); continue;
+    }
+    const block = (code: string, isConflict = false) => {
+      blocked = true; conflict ||= isConflict;
+      for (const fact of group) blockedAircraft.add(fact.aircraftRef);
+      issues.push({ code, evidenceRefs });
+    };
+    if (group.length > 20) { block('history-limit'); continue; }
+    if (new Set(group.map(fact => fact.sourceHash)).size > 1) { block('source-variant-conflict', true); continue; }
+    if (group.some(fact => fact.linkState === 'conflict')) { block('invoice-link-conflict', true); continue; }
+    if (group.some(fact => fact.linkState !== 'verified' || fact.invoiceIdentity === null || fact.invoiceReference === null)) {
+      block('invoice-link-unavailable'); continue;
+    }
+    const fingerprints = new Set(group.map(fact => JSON.stringify([fact.sourceHash, fact.invoiceIdentity, fact.invoiceReference,
+      fact.linkState, fact.bookingDate, fact.currency, fact.amountMinor, fact.liability, fact.aircraftRef, fact.blockingIssues])));
+    if (fingerprints.size > 1) { block('source-variant-conflict', true); continue; }
+    const selected = group[0]!;
+    if (selected.blockingIssues.length) { for (const issue of selected.blockingIssues) block(issue); continue; }
+    if (!validDate(selected.bookingDate)) { block('date-unavailable'); continue; }
+    if (selected.currency !== 'EUR') { block(selected.currency === null ? 'currency-unavailable' : 'unsupported-currency'); continue; }
+    if (selected.liability !== 'own') { block('liability-unavailable'); continue; }
+    if (!safeMinor(selected.amountMinor)) { block('amount-unavailable'); continue; }
+    if (selected.amountMinor < 0) { block('credit-relation-unproved'); continue; }
+    contributions.push({ sourceBasis: 'unversioned-billed-flight', accountRef: 'billed-flight-view', chargeRef: selected.sourceFlightRef,
+      revision: null, kind: 'flying', bookingDate: selected.bookingDate, amountMinor: selected.amountMinor, coveredMinor: null,
+      aircraftRef: selected.aircraftRef, relatedCharge: null, evidenceRefs, supersededEvidenceRefs: [] });
+  }
+  issues.push({ code: 'unversioned-source-provisional', evidenceRefs: refs(coverage.evidenceRefs, true) });
+  const result = summarizeExpenses(contributions, period, coverage, issues, [], excluded);
+  const unknown = (): ExpenseMoney => ({ knownMinor: null, totalMinor: null });
+  const aircraft = result.aircraft.map(group => ({ ...group, amount: blockedAircraft.has(group.aircraftRef) ? unknown() : group.amount }));
+  for (const aircraftRef of blockedAircraft) if (!aircraft.some(group => group.aircraftRef === aircraftRef)) {
+    aircraft.push({ aircraftRef, amount: unknown(), chargeKeys: [] });
+  }
+  aircraft.sort((a, b) => a.aircraftRef === b.aircraftRef ? 0 : a.aircraftRef === null ? 1 : b.aircraftRef === null ? -1 : a.aircraftRef < b.aircraftRef ? -1 : 1);
+  return { ...result, sourceBasis: 'unversioned-billed-flight',
+    state: conflict ? 'conflict' : contributions.length || blocked ? 'partial' : 'unavailable',
+    flying: blocked || !contributions.length ? unknown() : result.flying,
+    club: unknown(), unclassified: unknown(), usageAndClub: unknown(), aircraft,
+    annual: period.mode === 'year' ? { allowanceFee: unknown(), covered: unknown(), extraFlying: unknown(), overallOwn: unknown() } : null };
 }

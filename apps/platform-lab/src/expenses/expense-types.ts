@@ -50,3 +50,39 @@ export interface ExpenseProjection {
   excluded: { reason: string; evidenceRefs: string[] }[];
   issues: ExpenseIssue[];
 }
+
+/** Explicit v2 interpreted input. Integrity/authentication and durable invoice
+ * linkage belong to the trusted adapter, not asserted JSON. This identifies an
+ * observed billed-flight slot, never a permanent economic charge/revision. */
+export interface UnversionedBilledFlightFact {
+  scope: ExpenseScope;
+  sourceFlightRef: string;
+  sourceHash: string;
+  revision: null;
+  supersedes: null;
+  invoiceIdentity: string | null;
+  invoiceReference: string | null;
+  linkState: 'verified' | 'unavailable' | 'conflict';
+  bookingDate: string | null;
+  currency: string | null;
+  amountMinor: number | null;
+  liability: 'own' | 'unknown';
+  aircraftRef: string | null;
+  blockingIssues: string[];
+  evidenceRefs: string[];
+}
+export interface UnversionedExpenseSnapshot {
+  version: 2;
+  sourceBasis: 'unversioned-billed-flight';
+  scope: ExpenseScope;
+  coverage: { state: 'unavailable' | 'partial'; from: string | null; through: string | null; evidenceRefs: string[] };
+  facts: UnversionedBilledFlightFact[];
+}
+export interface UnversionedExpenseContribution extends Omit<ExpenseContribution, 'revision'> {
+  sourceBasis: 'unversioned-billed-flight';
+  revision: null;
+}
+export interface UnversionedExpenseProjection extends Omit<ExpenseProjection, 'contributions'> {
+  sourceBasis: 'unversioned-billed-flight';
+  contributions: UnversionedExpenseContribution[];
+}
