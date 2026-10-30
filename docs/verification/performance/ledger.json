@@ -36130,6 +36130,35 @@
           }
         }
       ]
+    },
+    {
+      "id": "mobile-detail-http-signed-out-fix-30oct",
+      "recorded_date": "2026-10-30",
+      "kind": "emulator-live",
+      "source_commit": "a765430a3c1bed311c297403a22a4b811f6b2e75",
+      "apk_sha256": "31830c82bbd423bede32ab21036af7df2ca4a90a2d62d6ca92929fc7cbbfc409",
+      "device": "MoFlight_Synthetic_API37; Android API 37 x86_64; WebView 155.0.8059.43; 1080x1920 px / 420 dpi (411.43x731.43 dp); font scale 1.0",
+      "input": "Signed-out provider session; actual protected profile displays original sign-in form. No credentials entered and no detail HTTP stage accepted or started.",
+      "conditions": "Foreground committed-source Release, installed APK hash independently matched. Wi-Fi temporarily enabled and airplane mode disabled for this actual provider read; original airplane=1/Wi-Fi=0/mobile-data=0 restored after trial. No cookie clearing or account binding.",
+      "method": "Native controller Date.now from initial profile request including renderer creation to matching bridge rejection. UI hierarchy/screenshot verifies precise session-required reason and Sync recovery; observer acquisition is outside endpoint.",
+      "limits": [
+        "Expected negative verification passes; profile retrieval itself remains failed, not a successful data benchmark.",
+        "One emulator sample; no phone/iOS or speedup claim. Source/reader transport otherwise unchanged.",
+        "Actual network/provider response on the named synthetic device, so classified emulator-live rather than a mocked fixture."
+      ],
+      "evidence": [
+        "docs/verification/2026-10-30-mobile-detail-http-poc.md"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "profile-session-required",
+          "metric": "detail-trial-profile",
+          "milliseconds": 1680,
+          "outcome": "failed",
+          "details": {}
+        }
+      ]
     }
   ]
 }

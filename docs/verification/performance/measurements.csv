@@ -28015,3 +28015,4 @@ mobile-detail-http-owner-phone-30oct,2026-10-30,phone,,navigation,detail-http-ui
 mobile-detail-http-owner-phone-30oct,2026-10-30,phone,,navigation,detail-http-ui-navigation,success,comparison.fields,20,count,docs/verification/2026-10-30-mobile-detail-http-poc.md
 mobile-detail-http-owner-phone-30oct,2026-10-30,phone,,navigation,detail-http-ui-navigation,success,comparison.exact,20,count,docs/verification/2026-10-30-mobile-detail-http-poc.md
 mobile-detail-http-owner-phone-30oct,2026-10-30,phone,,navigation,detail-http-ui-navigation,success,comparison.normalized,20,count,docs/verification/2026-10-30-mobile-detail-http-poc.md
+mobile-detail-http-signed-out-fix-30oct,2026-10-30,emulator-live,a765430a3c1bed311c297403a22a4b811f6b2e75,profile-session-required,detail-trial-profile,failed,milliseconds,1680,ms,docs/verification/2026-10-30-mobile-detail-http-poc.md
