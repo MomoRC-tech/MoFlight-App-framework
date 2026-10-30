@@ -54,7 +54,7 @@ import {readSyncEstimateHistory,saveSyncEstimateHistory} from './sync-estimate-n
 
 // Workload changes invalidate older disposable timing hints.
 // Reuse and local-planning phase boundaries supersede the old v8 hints.
-const ESTIMATE_CONTEXT='sync-attempt-verification-v9';
+const ESTIMATE_CONTEXT='sync-login-handoff-v10';
 const optionalEstimateStages=['medical','duties','events','documents','work-summary','work-hours','tasks'] as const;
 const sourceEstimateStages={medical:'medical',duties:'duties',events:'events',documentNotices:'documents',workSummary:'work-summary',workHours:'work-hours',tasks:'tasks'} as const;
 const remainingEstimateStages=(sources:SyncRecoveryRecord['sources'])=>Object.entries(sourceEstimateStages).filter(([key])=>!['updated','empty','partial'].includes(sources[key as keyof typeof sources]??'')).map(([,stage])=>stage);
@@ -251,7 +251,7 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
   </ScrollView></SafeAreaView>;
 }
 
-type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;checking:boolean;seenBusy:boolean;paused:boolean;resumeRequired:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>|null;signal:AbortSignal;abort:()=>void};
+type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;checking:boolean;admissionAttempted:boolean;seenBusy:boolean;paused:boolean;resumeRequired:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>|null;signal:AbortSignal;abort:()=>void};
 type LoadStage = 'sign-in'|'verify'|'flights'|'save'|'medical'|'done';
 function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,close,startUpdate,open=true,preparing=false,requestId=0,intent=startUpdate?'update':'options',onStatus,prepareSelectedLibrary,takeInitialRepository,diagnosis,developmentRecoveryCheckpoints,providerEntryAllowed=false,dialogTop,onProgress,onControls,onRequestSync,destination='sources'}:{verificationScope?:SyncVerificationScope;syncStartedAt?:number;destination?:OptionsDestination;developmentRecoveryCheckpoints:boolean;lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;open?:boolean;preparing?:boolean;requestId?:number;intent?:ConnectionIntent;onStatus?:(status:ProviderStatus)=>void;onProgress?:(progress:SyncProgress)=>void;onControls?:(controls:SyncControls|null)=>void;prepareSelectedLibrary:()=>Promise<boolean>;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>;providerEntryAllowed?:boolean;dialogTop?:number;onRequestSync?:()=>void}) {
   const c=useAccessController(true,lease.ownerId,developmentRecoveryCheckpoints), controller=useRef(c);controller.current=c;
@@ -367,7 +367,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
   function prepareEstimate(mode:SyncEstimateMode,volume:SyncEstimateContext['volume'],start:number,provisional=false,remaining:readonly SyncEstimateStage[]=['flights','review','save',...optionalEstimateStages]){
     estimateTainted.current=false;estimateSaved.current=false;
     let value=createSyncEstimate({runId:`${estimateInstance.current}:${requestId}:${++estimateSequence.current}`,scope:ESTIMATE_CONTEXT,mode,volume,
-      stages:['prepare','account',...remaining],history:estimateHistory.current,now:start,provisional});
+      stages:['prepare','account',...(remaining.includes('flights')?['flight-prepare' as const]:[]),...remaining],history:estimateHistory.current,now:start,provisional});
     value=reduceSyncEstimate(value,{runId:value.runId,type:'start',stage:'prepare',at:start});
     if(preparationInterrupted.current)value={...value,learnable:false};
     estimate.current=value;
@@ -378,7 +378,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     if(!estimate.current||!['active','paused'].includes(estimate.current.status)){
       prepareEstimate(mode,syncEstimateVolume(null,flights.length),estimate.current!==null?now:preparationStarted.current);
     }
-    estimate.current=confirmSyncEstimateContext(estimate.current!,{mode,volume:storedEstimateContext.current?.volume??syncEstimateVolume(null,flights.length)},remaining);
+    estimate.current=confirmSyncEstimateContext(estimate.current!,{mode,volume:storedEstimateContext.current?.volume??syncEstimateVolume(null,flights.length)},remaining.includes('flights')?['flight-prepare',...remaining]:remaining);
     if(estimate.current.status==='paused')estimateEvent({type:'resume'});
     if(localPlanning)startStage('prepare');
     else{estimateEvent({type:'finish',stage:'prepare'});startStage('account');}
@@ -472,7 +472,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
       };
       // Interactive sign-in has no flight-response deadline. The controller's
       // bounded profile checks still time out; start the outer timer at retrieval.
-      pending={request,resolve,reject,started:false,checking:false,seenBusy:false,paused:false,resumeRequired:false,suppressReview:false,generation:reviewGeneration.current,timer:null,signal,abort};
+      pending={request,resolve,reject,started:false,checking:false,admissionAttempted:false,seenBusy:false,paused:false,resumeRequired:false,suppressReview:false,generation:reviewGeneration.current,timer:null,signal,abort};
       waiting.current=pending;signal.addEventListener('abort',abort,{once:true});
       controller.current.setFrom(request.from);controller.current.setTo(request.to);setProviderOpen(true);
       wakeSource(value=>value+1);
@@ -933,21 +933,30 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
       if(pending.checking)return;
     }
     if(pending.suppressReview&&!c.busy&&!c.saving&&!c.restoring.current){finishSource(new Error('Source review cancelled.'));return;}
+    if(automatic.current&&pending.admissionAttempted&&!pending.started&&!c.busy&&!c.binding&&!c.loginBusy&&c.result==='failed'){
+      diagnosis.current?.finish('failed','source-failed');abandonSource('Provider login did not complete.');return;
+    }
     if(automatic.current&&!pending.checking&&c.viewReady&&c.from===pending.request.from&&c.to===pending.request.to){
-      pending.checking=true;c.beginFreshFlightConnection();return;
+      pending.admissionAttempted=true;
+      const admitted=c.beginFreshFlightConnection(stage=>{
+        if(waiting.current!==pending||pending.suppressReview||pending.signal.aborted||!foreground.current||pending.generation!==reviewGeneration.current)return;
+        if(stage==='prepare'){
+          finishStage(stageTiming.current?.stage==='sign-in'?'sign-in':'account');startStage('flight-prepare');
+          setLoadStage('verify');setStep('Abruf wird vorbereitet …');
+        }else{
+          finishStage('flight-prepare');startStage('flights');pending.started=true;
+          setLoadStage('flights');setStep('Flüge werden geladen …');
+          pending.timer=setTimeout(()=>{interruption.current='timeout';diagnosis.current?.finish('failed','source-timeout');abandonSource('Source request timed out; saved history remains.');},180_000);
+        }
+      });
+      pending.checking=admitted;return;
     }
     if(automatic.current&&pending.checking&&['error','mismatch'].includes(c.connection.phase)){
       diagnosis.current?.finish('blocked',c.connection.phase==='mismatch'?'account-mismatch':'account-verification');
       abandonSource('Provider account could not be verified.');return;
     }
-    // A fresh scoped attempt handles previous provider-view evidence after matching proof.
-    // beginGuidedFlightConnection clears the previous result before returning.
-    // A native login-page failure can finish before retrieval ever becomes busy.
-    if(automatic.current&&pending.checking&&!pending.started&&!c.busy&&!c.binding&&!c.loginBusy&&c.result==='failed'){
-      diagnosis.current?.finish('failed','source-failed');abandonSource('Provider login did not complete.');return;
-    }
-    if(automatic.current&&!pending.started){startStage(c.visible?'sign-in':'account');setLoadStage(c.visible?'sign-in':'verify');setStep(c.visible?'Bitte bei Vereinsflieger anmelden. Danach geht es automatisch weiter.':'Anmeldung wird geprüft …');}
-    if(!pending.started&&c.from===pending.request.from&&c.to===pending.request.to&&c.connection.phase==='observed'&&c.connection.confirmed&&c.viewReady&&!c.recovery&&!c.busy&&!c.visible&&!c.binding&&!c.loginBusy&&!c.saving&&!c.restoring.current){
+    if(automatic.current&&!pending.started&&c.connection.phase!=='observed'){startStage(c.visible?'sign-in':'account');setLoadStage(c.visible?'sign-in':'verify');setStep(c.visible?'Bitte bei Vereinsflieger anmelden. Danach geht es automatisch weiter.':'Anmeldung wird geprüft …');}
+    if(!automatic.current&&!pending.started&&c.from===pending.request.from&&c.to===pending.request.to&&c.connection.phase==='observed'&&c.connection.confirmed&&c.viewReady&&!c.recovery&&!c.busy&&!c.visible&&!c.binding&&!c.loginBusy&&!c.saving&&!c.restoring.current){
       if(!c.checkConnection('retrieve'))return;
       finishStage(c.visible?'sign-in':'account');startStage('flights');pending.started=true;setLoadStage('flights');setStep('Flüge werden geladen …');
       pending.timer=setTimeout(()=>{interruption.current='timeout';diagnosis.current?.finish('failed','source-timeout');abandonSource('Source request timed out; saved history remains.');},180_000);

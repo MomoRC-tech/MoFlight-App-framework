@@ -201,7 +201,7 @@ function fixture(options: { localOwner?: string; deferFinancialAck?: boolean; ht
       confirmProviderScope: async (owner: string, context: unknown) => { scopeWrites++; if (options.deferBinding) await bindingWrite; if (options.failBinding) throw new Error('Synthetic binding failure'); return { version: 1, owner, connectionId: 'synthetic-connection', context }; },
       loadScopedView: async () => { pending = options.scopedView ?? null; return pending; }, loadScopedCapture: async () => savedCapture,
       saveScopedView: (value: unknown, v: ViewPreferences) => (modules['./storage'] as any).saveOriginalView(v),
-      supersedeScopedView:async (_scope:unknown,expected:ViewPreferences|null)=>{if(options.deferViewSupersession)await viewSupersession;if(options.failViewSupersession)throw new Error('Synthetic archival failure');assert.deepEqual(expected,pending);pending=null;},
+      supersedeScopedView:async (_scope:unknown,expected:ViewPreferences|null,gate=()=>{})=>{gate();if(options.deferViewSupersession)await viewSupersession;gate();if(options.failViewSupersession)throw new Error('Synthetic archival failure');assert.deepEqual(expected,pending);pending=null;},
       clearScopedView: (value: unknown, v: ViewPreferences) => (modules['./storage'] as any).clearOriginalView(v),
       saveScopedCapture: (value: unknown, v: probe.ProbeSnapshot) => (modules['./storage'] as any).saveCapture(v),
     },
@@ -690,6 +690,93 @@ test('matching fresh sync retains known page-size recovery and exposes restorati
   assert.deepEqual(f.pending(),original);assert.equal(f.controller().recovery,true);f.unmount();
 });
 
+test('owned fresh retrieval waits for local preparation then starts with one protected-profile request',async()=>{
+  const f=fixture({product:true,deferViewSupersession:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+  const stages:string[]=[];f.render();await f.settle(null);await f.flush();
+  try{
+    assert.equal(f.controller().beginFreshFlightConnection(stage=>stages.push(stage)),true);
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
+    assert.deepEqual(stages,['prepare']);assert.equal(f.controller().busy,false);
+    assert.equal(f.controller().checkConnection('retrieve'),false);
+    assert.ok(f.diagnosticPhases.some(p=>p.name==='session-verification'&&p.result===true));
+    assert.ok(f.diagnosticPhases.some(p=>p.name==='provider-local-preparation'&&p.result===null));
+    f.finishViewSupersession();await f.flush();
+    assert.deepEqual(stages,['prepare','retrieve']);assert.equal(f.controller().busy,true);
+    assert.equal(f.providerEvents.filter(event=>event==='provider-check').length,1);
+    assert.ok(f.diagnosticPhases.some(p=>p.name==='provider-local-preparation'&&p.result===true));
+    await f.contextMessage(observedContext,context.PROFILE_URL,f.lastIssuedNonce());assert.deepEqual(stages,['prepare','retrieve'],'Duplicate reply cannot start another export');
+  }finally{f.finishViewSupersession();f.unmount();}
+});
+
+test('first-use owned retrieval confirms the binding once and advisory identity failure does not reject valid retrieval',async()=>{
+  for(const failIdentity of [false,true]){
+    const f=fixture({product:true,failIdentity});const stages:string[]=[];f.render();await f.settle(null);await f.flush();
+    try{
+      assert.equal(f.controller().beginFreshFlightConnection(stage=>stages.push(stage)),true);
+      await f.loadPage('https://vereinsflieger.de/member/index.php');await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
+      assert.equal(f.scopeWrites(),1);assert.equal(f.controller().connection.confirmed,true);assert.equal(f.controller().busy,true);
+      assert.deepEqual(stages,['prepare','retrieve']);assert.equal(f.providerEvents.filter(e=>e==='provider-check').length,1);
+    }finally{f.unmount();}
+  }
+});
+
+test('local identity and view deadlines fail visibly, retain admission through close, and reject late handoffs',async()=>{
+  for(const kind of ['identity','view','binding'] as const){
+    const f=fixture({product:true,deferIdentity:kind==='identity',deferViewSupersession:kind==='view',deferBinding:kind==='binding',
+      ...(kind==='binding'?{}:{persistedScope:{version:1 as const,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}})});
+    const stages:string[]=[];f.render();await f.settle(null);await f.flush();
+    try{
+      f.controller().beginFreshFlightConnection(stage=>stages.push(stage));
+      if(kind==='binding')await f.loadPage('https://vereinsflieger.de/member/index.php');
+      await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
+      assert.deepEqual(stages,['prepare'],kind);f.fireTimeout();await f.flush();
+      assert.equal(f.controller().connection.phase,'error',kind);assert.equal(f.controller().busy,false);
+      assert.ok(f.providerEvents.includes('provider-verification-timeout'));
+      assert.ok(f.diagnosticPhases.some(p=>p.name==='provider-local-preparation'&&p.result===false));
+      assert.equal(f.controller().checkConnection(),false,'An unresolved native write still owns admission');
+      f.finishIdentity();f.finishViewSupersession();f.finishBinding();await f.flush();
+      assert.deepEqual(stages,['prepare']);assert.equal(f.controller().busy,false);assert.equal(f.identities.length,kind==='view'?1:0);
+      assert.equal(f.controller().checkConnection(),true,'Close completion releases explicit retry');
+    }finally{f.finishIdentity();f.finishViewSupersession();f.finishBinding();f.unmount();}
+  }
+});
+
+test('a changed or reloaded native profile cannot hand its earlier proof into automatic retrieval',async()=>{
+  for(const page of [context.PROFILE_URL,probe.FLIGHT_URL]){
+    const f=fixture({product:true,deferIdentity:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+    const stages:string[]=[];f.render();await f.settle(null);await f.flush();
+    try{
+      f.controller().beginFreshFlightConnection(stage=>stages.push(stage));await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+      await f.loadPage(page);f.finishIdentity();await f.flush();
+      assert.deepEqual(stages,['prepare']);assert.equal(f.controller().busy,false);assert.equal(f.identities.length,0);
+      assert.equal(f.controller().connection.phase,'error');
+    }finally{f.finishIdentity();f.unmount();}
+  }
+});
+
+test('owned handoff rejects foreign and expired profiles and cancelled or foreign-owner local preparation',async()=>{
+  for(const change of ['foreign-profile','expired','background','dismiss','owner'] as const){
+    const f=fixture({product:true,deferIdentity:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
+    const stages:string[]=[];f.render();await f.settle(null);await f.flush();
+    try{
+      f.controller().beginFreshFlightConnection(stage=>stages.push(stage));await f.loadPage(context.PROFILE_URL);
+      await f.contextMessage(change==='foreign-profile'?{...observedContext,accountNumber:'456'}:change==='expired'?{error:'session-required'}:observedContext);
+      if(change==='background')f.appState('background');else if(change==='dismiss')f.controller().dismissLogin();else if(change==='owner')f.changeOwner('foreign-owner');
+      f.finishIdentity();await f.flush();assert.ok(!stages.includes('retrieve'),change);assert.equal(f.controller().busy,false);assert.equal(f.identities.length,0);
+    }finally{f.finishIdentity();f.unmount();}
+  }
+});
+
+test('fresh admission reports refusal during another request and can be retried after it completes',async()=>{
+  const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});f.render();await f.settle(null);await f.flush();
+  try{
+    assert.equal(f.controller().checkConnection(),true);
+    assert.equal(f.controller().beginFreshFlightConnection(()=>assert.fail('Refused attempt must not run')),false);
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
+    assert.equal(f.controller().beginFreshFlightConnection(()=>{}),true);
+  }finally{f.unmount();}
+});
+
 test('retained matching proof cannot admit retrieval until fresh-attempt view preparation completes',async()=>{
   const f=fixture({product:true,deferViewSupersession:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
   f.render();await f.settle(null);await f.flush();f.controller().beginFreshFlightConnection();
@@ -707,14 +794,15 @@ test('retained matching proof cannot admit retrieval until fresh-attempt view pr
   }finally{f.finishViewSupersession();f.unmount();}
 });
 
-test('a cancelled preparation cannot fail a newer check when its local archive completes late',async()=>{
+test('a cancelled preparation reserves admission until its native archive closes without resuming capture',async()=>{
   const f=fixture({product:true,deferViewSupersession:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext}});
   f.render();await f.settle(null);await f.flush();f.controller().beginFreshFlightConnection();
   try{
     await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
-    f.controller().dismissLogin();await f.flush();assert.equal(f.controller().checkConnection(),true);
+    f.controller().dismissLogin();await f.flush();assert.equal(f.controller().checkConnection(),false);
     f.finishViewSupersession();await f.flush();
-    assert.equal(f.controller().connection.phase,'checking');assert.ok(f.providerEvents.includes('provider-verification-superseded'));
+    assert.equal(f.controller().busy,false);assert.ok(f.providerEvents.includes('provider-verification-superseded'));
+    assert.equal(f.controller().checkConnection(),true);
     await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
     assert.equal(f.controller().connection.confirmed,true);assert.ok(!f.providerEvents.includes('provider-verification-context-response'));
   }finally{f.finishViewSupersession();f.unmount();}

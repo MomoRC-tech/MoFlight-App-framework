@@ -66,7 +66,7 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({verificationScope=undefined as syncVerification.SyncVerificationScope|undefined,failRestoreMetadata=false,deferGraph=false,graphReady=true,admissionPending=false,entryProofFails=false,backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({verificationScope=undefined as syncVerification.SyncVerificationScope|undefined,failRestoreMetadata=false,deferGraph=false,graphReady=true,admissionPending=false,entryProofFails=false,backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,deferFlightPreparation=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
   let backupAttempt: (() => Promise<{state:'saved'|'cancelled'}>) | null = null;
   let finishGraph!:()=>void;const graphPreparation=new Promise<void>(resolve=>{finishGraph=resolve;});
@@ -188,11 +188,23 @@ function fixture({verificationScope=undefined as syncVerification.SyncVerificati
     './ConnectionSettings':{ConnectionSettings:'ConnectionSettings'},'./ProviderConnection':leaves(['ProviderConnection']),'./theme':{...leaves(['Action','Card','Label','Section']),colors:{}},
     '../vereinsflieger/retrieval-policy':{planFlightRetrieval},'./data-freshness':{dataFreshness},
   };
-  c.beginFreshFlightConnection=()=>{c.beginGuidedFlightConnection();return true;};
+  let ownedProgress:((stage:'prepare'|'retrieve')=>void)|undefined, ownedPrepared=false;
+  c.admitOwnedRetrieval=true;
+  c.beginFreshFlightConnection=(progress:(stage:'prepare'|'retrieve')=>void)=>{
+    if(c.refuseFreshAdmission)return false;
+    ownedProgress=progress;ownedPrepared=false;c.beginGuidedFlightConnection();return true;
+  };
+  const advanceOwnedRetrieval=()=>{
+    if(!ownedProgress||c.visible||c.connection.phase!=='observed'||!c.connection.confirmed)return;
+    if(!ownedPrepared){ownedPrepared=true;ownedProgress('prepare');}
+    if(deferFlightPreparation||!c.admitOwnedRetrieval||c.binding||c.saving||c.loginBusy||c.busy)return;
+    calls.push('retrieve');c.busy=true;const progress=ownedProgress;ownedProgress=undefined;progress('retrieve');dirty=true;
+  };
+  c.endGuidedFlightConnection=()=>{ownedProgress=undefined;};
   const progressUpdates:syncProgress.SyncProgress[]=[];
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},setTimeout:(fn:()=>void)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:(id:number)=>timers.delete(id),console,Error});
   function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({destination,providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({verificationScope,destination,prepareSelectedLibrary:async()=>{activityOrder.push('graph-preparation');if(deferGraph)await graphPreparation;return graphReady;},preparing:admissionPending,providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
-  async function flush(){for(let n=0;n<12;n++){if(dirty)render();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
+  async function flush(){for(let n=0;n<12;n++){if(dirty)render();advanceOwnedRetrieval();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
@@ -200,7 +212,7 @@ function fixture({verificationScope=undefined as syncVerification.SyncVerificati
     onBackup:(work:()=>Promise<{state:'saved'|'cancelled'}>)=>{backupAttempt=work;},
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
-    finishRead:()=>finishRead(),
+    finishPreparation:()=>{deferFlightPreparation=false;dirty=true;},finishRead:()=>finishRead(),
     finishActivityCancel:()=>finishActivityCancel(),finishActivityWrite:()=>finishActivityWrite(),activityOrder,
     admitSource:()=>admitSource(),
     complete:()=>{c.busy=false;c.result='captured';c.completedFlightSource=input;dirty=true;},
@@ -661,12 +673,38 @@ test('renewed capabilities for one owner selection cannot replace the retained p
 });
 
 
+test('Sync keeps local preparation visible and starts flight timing only on the controller retrieval handoff',async()=>{
+  for(const loginPending of [false,true]){
+  const f=fixture({startUpdate:true,deferFlightPreparation:true,loginPending});try{
+    f.c.checkConnection=()=>assert.fail('Automatic Sync must not request a second protected profile');
+    f.render();await f.flush();if(loginPending){f.verify();await f.flush();}
+    assert.deepEqual(f.calls,['session']);assert.equal(f.pendingTimers(),0);
+    assert.equal(f.progressUpdates.at(-1)?.current,'flight-prepare');assert.match(f.progressText(),/vorbereitet/);
+    assert.ok(f.progressUpdates.some(progress=>progress.last===(loginPending?'sign-in':'account')&&progress.current==='flight-prepare'));
+    assert.equal(f.progressUpdates.at(-1)?.estimate?.current,'flight-prepare');
+    f.finishPreparation();await f.flush();
+    assert.deepEqual(f.calls,['session','retrieve']);assert.equal(f.pendingTimers(),1);
+    assert.equal(f.progressUpdates.at(-1)?.current,'flights');
+    assert.equal(f.progressUpdates.at(-1)?.estimate?.current,'flights');
+  }finally{f.dispose();}
+  }
+});
+
+test('refused fresh login admission remains retryable and does not claim checking started',async()=>{
+  const f=fixture({startUpdate:true});try{
+    f.c.refuseFreshAdmission=true;f.render();await f.flush();
+    assert.deepEqual(f.calls,[]);assert.equal(f.pendingTimers(),0);
+    f.c.refuseFreshAdmission=false;f.render();await f.flush();
+    assert.deepEqual(f.calls,['session','retrieve']);assert.equal(f.pendingTimers(),1);
+  }finally{f.dispose();}
+});
+
 test('a rejected retrieval admission is retried after readiness, without arming a timeout or losing the request',async()=>{
   const f=fixture({startUpdate:true,loginPending:true});try{
     f.render();await f.flush();const check=f.c.checkConnection;
-    f.c.checkConnection=()=>false;f.verify();await f.flush();
+    f.c.admitOwnedRetrieval=false;f.verify();await f.flush();
     assert.equal(f.pendingTimers(),0);assert.equal(f.calls.includes('retrieve'),false);
-    f.c.checkConnection=check;f.render();await f.flush();
+    f.c.admitOwnedRetrieval=true;f.c.checkConnection=check;f.render();await f.flush();
     assert.equal(f.calls.filter(x=>x==='retrieve').length,1);assert.equal(f.pendingTimers(),1);
     f.complete();await f.flush();assert.equal(f.closed.length,1);
   }finally{f.dispose();}
@@ -958,14 +996,14 @@ test('a complete sync learns local stage hints and the next comparable attempt h
 test('old preparation/account timing hints are discarded after the Sync boundary change',async()=>{
  const first=fixture({initialFlightsSaved:true,intent:'update'});let history:syncEstimate.SyncEstimateHistory;
  try{first.render();await first.flush();first.complete();await first.flush();history=first.estimateHistory() as syncEstimate.SyncEstimateHistory;}finally{first.dispose();}
- const old={...history!,scope:'sync-detached-graph-json-v8'};
+ const old={...history!,scope:'sync-attempt-verification-v9'};
  const second=fixture({initialFlightsSaved:true,intent:'update',initialEstimateHistory:old});
  try{
   second.render();await second.flush();
   const estimates=second.progressUpdates.map(p=>p.estimate).filter((p):p is syncEstimate.SyncEstimateState=>!!p);
   assert.ok(estimates.length);assert.ok(estimates.every(p=>p.units.every(unit=>unit.expectedMs===null)));
   second.complete();await second.flush();
-  assert.equal(second.estimateSaves()[0]!.scope,'sync-attempt-verification-v9');
+  assert.equal(second.estimateSaves()[0]!.scope,'sync-login-handoff-v10');
   assert.ok(second.estimateSaves()[0]!.samples.every(sample=>sample.durationsMs.length===1));
  }finally{second.dispose();}
 });
