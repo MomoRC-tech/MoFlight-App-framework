@@ -1,21 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="671" viewBox="0 0 1100 671" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="714" viewBox="0 0 1100 714" role="img" aria-labelledby="title desc">
 <title id="title">Android Sync history — individual successful observations</title><desc id="desc">Historical source/record order, not a matched trend. Unknown devices stay separate; elapsed includes recorded waits.</desc>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <g font-family="Arial, sans-serif">
 <text x="24.00" y="32.00" font-size="21" fill="#243447" text-anchor="start">Android Sync history — individual successful observations</text>
 <text x="24.00" y="58.00" font-size="13" fill="#243447" text-anchor="start">Historical source/record order, not a matched trend. Unknown devices stay separate; elapsed includes recorded waits.</text>
-<path d="M295.0 80V626" stroke="#dce3e8"/>
-<text x="295.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">0</text>
-<path d="M432.0 80V626" stroke="#dce3e8"/>
-<text x="432.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">48.575</text>
-<path d="M569.0 80V626" stroke="#dce3e8"/>
-<text x="569.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">97.15</text>
-<path d="M706.0 80V626" stroke="#dce3e8"/>
-<text x="706.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">145.725</text>
-<path d="M843.0 80V626" stroke="#dce3e8"/>
-<text x="843.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">194.3</text>
-<path d="M980.0 80V626" stroke="#dce3e8"/>
-<text x="980.00" y="648.00" font-size="12" fill="#243447" text-anchor="middle">242.875</text>
+<path d="M295.0 80V669" stroke="#dce3e8"/>
+<text x="295.00" y="691.00" font-size="12" fill="#243447" text-anchor="middle">0</text>
+<path d="M432.0 80V669" stroke="#dce3e8"/>
+<text x="432.00" y="691.00" font-size="12" fill="#243447" text-anchor="middle">48.575</text>
+<path d="M569.0 80V669" stroke="#dce3e8"/>
+<text x="569.00" y="691.00" font-size="12" fill="#243447" text-anchor="middle">97.15</text>
+<path d="M706.0 80V669" stroke="#dce3e8"/>
+<text x="706.00" y="691.00" font-size="12" fill="#243447" text-anchor="middle">145.725</text>
+<path d="M843.0 80V669" stroke="#dce3e8"/>
+<text x="843.00" y="691.00" font-size="12" fill="#243447" text-anchor="middle">194.3</text>
+<path d="M980.0 80V669" stroke="#dce3e8"/>
+<text x="980.00" y="691.00" font-size="12" fill="#243447" text-anchor="middle">242.875</text>
 <text x="283.00" y="100.00" font-size="12" fill="#243447" text-anchor="end">256aa3f · emulator-live</text>
 <text x="283.00" y="115.00" font-size="11" fill="#243447" text-anchor="end">2026-10-23 · s8-o84</text>
 <circle cx="547.7395944981821" cy="100" r="5" fill="#b36b00"/>
@@ -64,5 +64,9 @@
 <text x="283.00" y="588.00" font-size="11" fill="#243447" text-anchor="end">2026-10-26 · o0</text>
 <circle cx="611.7621449948648" cy="573" r="5" fill="#7857a5"/>
 <text x="621.76" y="578.00" font-size="13" fill="#243447" text-anchor="start">112.312 s</text>
-<text x="637.50" y="667.00" font-size="12" fill="#243447" text-anchor="middle">Operation elapsed time (seconds); no connecting line or speedup claim</text>
+<text x="283.00" y="616.00" font-size="12" fill="#243447" text-anchor="end">unknown · phone</text>
+<text x="283.00" y="631.00" font-size="11" fill="#243447" text-anchor="end">2026-10-30 · s55-o9139</text>
+<circle cx="489.9387949440404" cy="616" r="5" fill="#087e8b"/>
+<text x="499.94" y="621.00" font-size="13" fill="#243447" text-anchor="start">69.118 s</text>
+<text x="637.50" y="710.00" font-size="12" fill="#243447" text-anchor="middle">Operation elapsed time (seconds); no connecting line or speedup claim</text>
 </g></svg>
