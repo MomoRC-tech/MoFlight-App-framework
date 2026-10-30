@@ -101,7 +101,7 @@ export function acceptExportMessage(run: ExportRun, data: string, sender: string
 
 // Standalone browser code: use the provider's observed DOM controls/submit handlers,
 // never its private runtime objects, cookies, passwords or signed endpoint templates.
-const driver = String.raw`function(token, phase, request, expectedAccount, rowsPerPage) {
+export const EXPORT_DRIVER_SOURCE = String.raw`function(token, phase, request, expectedAccount, rowsPerPage) {
   if (window.top !== window || location.protocol !== 'https:' || !['vereinsflieger.de','www.vereinsflieger.de'].includes(location.hostname) || location.pathname !== '/member/profile/flightlog.php') return;
   const bridge = window.ReactNativeWebView; if (!bridge) return;
   const clean = e => (e?.textContent || '').replace(/\s+/g,' ').trim();
@@ -244,5 +244,5 @@ const driver = String.raw`function(token, phase, request, expectedAccount, rowsP
   } catch { fail(); }
 }`;
 export function exportScript(token: string, run: ExportRun): string {
-  return `(${driver})(${JSON.stringify(token)},${JSON.stringify(run.phase)},${JSON.stringify(run.request)},${JSON.stringify(run.accountLabel)},${EXPORT_ROWS_PER_PAGE});true;`;
+  return `(${EXPORT_DRIVER_SOURCE})(${JSON.stringify(token)},${JSON.stringify(run.phase)},${JSON.stringify(run.request)},${JSON.stringify(run.accountLabel)},${EXPORT_ROWS_PER_PAGE});true;`;
 }

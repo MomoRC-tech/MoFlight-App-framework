@@ -7,6 +7,7 @@ import { Retrieval } from '../../apps/platform-lab/src/vereinsflieger/retrieval.
 import * as probe from '../../apps/platform-lab/src/vereinsflieger/probe.ts';
 import * as view from '../../apps/platform-lab/src/vereinsflieger/view.ts';
 import * as exporter from '../../apps/platform-lab/src/vereinsflieger/export.ts';
+import * as exportHttp from '../../apps/platform-lab/src/vereinsflieger/export-http.ts';
 import * as context from '../../apps/platform-lab/src/vereinsflieger/context.ts';
 import * as login from '../../apps/platform-lab/src/vereinsflieger/login.ts';
 import * as legacyStore from '../../apps/platform-lab/src/vereinsflieger/legacy-recovery-store.ts';
@@ -51,7 +52,7 @@ const savedLoginSource = ts.transpileModule(readFileSync(new URL('../../apps/pla
 const informationControllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-information-controller.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: false },
 }).outputText;
-function fixture(options: { deferIdentity?: boolean; failIdentity?: boolean; panel?:boolean; deferViewSupersession?:boolean; failViewSupersession?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+function fixture(options: { http?:boolean; deferIdentity?: boolean; failIdentity?: boolean; panel?:boolean; deferViewSupersession?:boolean; failViewSupersession?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   let finishViewSupersession!:()=>void;
   const viewSupersession=new Promise<void>(resolve=>{finishViewSupersession=resolve;});
@@ -135,7 +136,7 @@ function fixture(options: { deferIdentity?: boolean; failIdentity?: boolean; pan
     './flight-diagnostics': { startFlightSpan:(name:string)=>{const phase={name,result:null as boolean|null};diagnosticPhases.push(phase);return(result:boolean)=>{if(phase.result===null)phase.result=result;};} },
     '@moflight/flight-logbook': { canonical }, './legacy-recovery-store': legacyStore,
     react: { default: react, ...react },
-    'react-native': { AppState: { currentState: 'active', addEventListener: (_: string, listener: (state: string) => void) => { appStateListener = listener; return { remove() { appStateListener = undefined; } }; } }, StyleSheet: { create: (value: unknown) => value }, View: 'View', Text: 'Text', FlatList: 'FlatList' },
+    'react-native': { Platform:{OS:options.http?'android':'test'}, AppState: { currentState: 'active', addEventListener: (_: string, listener: (state: string) => void) => { appStateListener = listener; return { remove() { appStateListener = undefined; } }; } }, StyleSheet: { create: (value: unknown) => value }, View: 'View', Text: 'Text', FlatList: 'FlatList' },
     'react-native-webview': { WebView: 'WebView' }, 'expo-crypto': { randomUUID: () => { const nonce = `fixture-${++nextId}`; issuedNonces.push(nonce); return nonce; } },
     './probe': probe,
     './activity-request': { ActivityRequest: FixtureActivityRequest },
@@ -176,6 +177,7 @@ function fixture(options: { deferIdentity?: boolean; failIdentity?: boolean; pan
       forgetSavedLogin: async () => { savedLoginForgets++; if (options.deferLoginForget) await loginForget; if (options.failLoginForget) throw new Error('Synthetic protected-storage deletion failure'); },
     },
     './export': { ...exporter, calendarYearRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }), recentCaptureRequest: () => ({ from: '2026-01-01', to: '2026-12-31' }) },
+    './export-http':{...exportHttp,HTTP_FLIGHT_READ_ENABLED:!!options.http},
     './retrieval': { Retrieval }, './CaptureRun': { CaptureRun }, './WindowCapture': { WindowCapture },
     './connection-flow': {connectionFlow}, './login': login, './view': view, './context': context, './connection-state': { ConnectionSession },
     './information': information, './information-run': { InformationRun },
@@ -216,7 +218,7 @@ function fixture(options: { deferIdentity?: boolean; failIdentity?: boolean; pan
       './SymbolIcon':{SymbolIcon:'SymbolIcon'},'react-native-safe-area-context':{useSafeAreaInsets:()=>({top:0,bottom:0})},
       ...Object.fromEntries(['LegacyRecoveryReview','RawCaptureReview','CapturedFlights','InformationReview'].map(n=>['./'+n,{[n]:n}]))
     });
-    Object.assign(modules['react-native'] as object,{Keyboard:{addListener:()=>({remove(){}})},Platform:{OS:'android'},...Object.fromEntries(['ActivityIndicator','Pressable','ScrollView','TextInput','KeyboardAvoidingView'].map(n=>[n,n]))});
+    Object.assign(modules['react-native'] as object,{Keyboard:{addListener:()=>({remove(){}})},Platform:{OS:options.http?'android':'test'},...Object.fromEntries(['ActivityIndicator','Pressable','ScrollView','TextInput','KeyboardAvoidingView'].map(n=>[n,n]))});
     const panelSource=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/ProviderConnection.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false}}).outputText;
     runInNewContext(panelSource,{exports:panelExports,...runtime});
   }
@@ -298,6 +300,7 @@ function fixture(options: { deferIdentity?: boolean; failIdentity?: boolean; pan
   const loadFlight = () => loadPage(FLIGHT_URL);
   function currentCommand() {
     const script = injections.at(-1); assert.ok(script, 'No native driver command was issued');
+    if(script.includes("kind:'vf-export-http-v1'")){const match=/\}\)\("([^"]+)",/.exec(script);assert.ok(match);return {token:match[1]!,phase:'read'};}
     const match = /\}\)\("([^"]+)","([^"]+)"/.exec(script); assert.ok(match, 'Cannot identify issued native command');
     return { token: match[1]!, phase: match[2]! };
   }
@@ -354,10 +357,88 @@ function fixture(options: { deferIdentity?: boolean; failIdentity?: boolean; pan
     loginStorage: () => ({ reads: savedLoginReads, forgets: savedLoginForgets }),
     finishClear, clearCalls: () => clearCalls, finishLoginRead, finishLoginForget, finishBinding, scopeWrites: () => scopeWrites,
     finishSafety, changeFingerprint: () => { currentFingerprint = 'cd'.repeat(32); },
+    fireTimeout:()=>Array.from(timers.values()).at(-1)?.(),
     isLab: (tree: Element) => tree.type === CaptureRun || tree.type === WindowCapture };
 }
 
 const observedContext = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
+
+async function prepareHttpRead(f: ReturnType<typeof fixture>) {
+  f.render(); await f.settle(null); await establishProductAssociation(f);
+  f.controller().retrieve(); await f.loadFlight(); await backupVerified(f);
+  for (const phase of exporter.EXPORT_PHASES.filter(value => value !== 'read')) await f.message({ kind:'vf-export-v1',status:'next',preset:exporter.ACTIVE_EXPORT_VIEW });
+  assert.ok(f.injections.at(-1)!.includes("kind:'vf-export-http-v1'"));
+}
+function httpPagePayload(token: string, target: string, extra: Record<string, unknown> = {}) {
+  return { kind:'vf-export-v1',token,phase:'read',url:target,status:'page',preset:exporter.ACTIVE_EXPORT_VIEW,
+    accountLabel:original.accountLabel,rowsPerPage:500,period:'ab 01.01.2026 bis 31.12.2026',participation:exporter.PARTICIPATION,
+    filtersClear:true,allColumns:true,headers:['Datum','Lfz.','Start','Landung','Flugzeit','Pilot'],columnIds:['1','2','3','4','5','6'],
+    first:0,last:0,total:0,rows:[],nextUrl:null,...extra };
+}
+async function sendHttpRead(f: ReturnType<typeof fixture>, extra: Record<string,unknown> = {}) {
+  const token=f.currentCommand().token;
+  const target=/"(https:\/\/vereinsflieger\.de\/member\/profile\/flightlog\.php(?:\?page=\d+)?)",function\(document,url,token,request,accountLabel\)/.exec(f.injections.at(-1)!)?.[1];
+  assert.ok(target,'Missing observed HTTP page target');
+  await f.message({kind:'vf-export-http-v1',target,contextBefore:observedContext,contextAfter:observedContext,milliseconds:12,
+    payload:httpPagePayload(token,target),...extra});
+}
+
+test('HTTP configured 500+1 pages reuse the existing final profile/save/restoration boundary', async()=>{
+  const f=fixture({product:true,http:true,priorCapture});
+  try {
+    await prepareHttpRead(f);
+    const rows=Array.from({length:501},(_,i)=>({sourceFlightId:String(i+1),values:['11.10.2026','D-TEST','10:00','10:10','00:10','Synthetic pilot']}));
+    await sendHttpRead(f,{payload:httpPagePayload(f.currentCommand().token,FLIGHT_URL,{first:1,last:500,total:501,rows:rows.slice(0,500),nextUrl:FLIGHT_URL+'?page=2'})});
+    assert.equal(f.controller().currentUrl.current,FLIGHT_URL,'HTTP pagination does not navigate the WebView');
+    assert.deepEqual(f.controller().flightProgress,{done:500,total:501});assert.equal(f.savedCapture(),priorCapture);
+    await sendHttpRead(f,{payload:httpPagePayload(f.currentCommand().token,FLIGHT_URL+'?page=2',{first:501,last:501,total:501,rows:rows.slice(500)})});
+    assert.equal(f.savedCapture(),priorCapture,'Complete rows still require fresh native final profile');
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    assert.equal(f.savedCapture()?.rows.length,501);assert.ok(f.controller().recovery,'Original view still must be restored');
+    assert.equal(f.providerEvents.filter(e=>e==='provider-flight-http-page').length,2);
+    await restoredReadback(f);await f.message({kind:'vf-view-v2',status:'next',view:restored});
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    assert.equal(f.pending(),null);assert.equal(f.controller().recovery,false);
+  } finally {f.unmount();}
+});
+test('only freshly matched HTTP layout failure may use native DOM fallback', async()=>{
+  const f=fixture({product:true,http:true,priorCapture});
+  try {
+    await prepareHttpRead(f);await sendHttpRead(f,{error:'unsupported',fallbackSafe:true});
+    await f.loadFlight();assert.ok(!f.injections.at(-1)!.includes("kind:'vf-export-http-v1'"));
+    assert.ok(f.providerEvents.includes('provider-flight-http-fallback'));assert.equal(f.savedCapture(),priorCapture);
+    await f.message(httpPagePayload(f.currentCommand().token,FLIGHT_URL));
+    await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
+    assert.equal(f.savedCapture()?.rows.length,0,'Verified empty fallback retains the existing scope contract');
+  } finally {f.unmount();}
+  for(const extra of [{error:'session-required',fallbackSafe:true},{error:'unsupported',fallbackSafe:true,contextAfter:{...observedContext,accountNumber:'999'}}]){
+    const denied=fixture({product:true,http:true,priorCapture});try{
+      await prepareHttpRead(denied);await sendHttpRead(denied,extra);
+      assert.equal(denied.controller().busy,false);assert.equal(denied.controller().connection.confirmed,false);
+      assert.equal(denied.savedCapture(),priorCapture);assert.ok(denied.pending());
+      assert.ok(!denied.providerEvents.includes('provider-flight-http-fallback'));
+    }finally{denied.unmount();}
+  }
+});
+test('HTTP cancellation, background and owner switch reject late same-origin replies without saving partial data',async()=>{
+  for(const revoke of ['cancel','background','owner']){
+    const f=fixture({product:true,http:true,priorCapture});try{
+      await prepareHttpRead(f);const browser=f.controller().browser,token=f.currentCommand().token;assert.ok(browser);
+      if(revoke==='cancel')f.controller().cancelRetrieval();else if(revoke==='background')f.appState('background');else f.changeOwner('foreign-owner');
+      (browser.props.onMessage as (e:unknown)=>void)({nativeEvent:{url:FLIGHT_URL,data:JSON.stringify({kind:'vf-export-http-v1',token,url:FLIGHT_URL,target:FLIGHT_URL,contextBefore:observedContext,contextAfter:observedContext,milliseconds:12,payload:httpPagePayload(token,FLIGHT_URL)})}});
+      await f.flush();assert.equal(f.savedCapture(),priorCapture);assert.ok(!f.providerEvents.includes('provider-flight-http-page'));
+      assert.ok(f.injections.some(s=>s.includes('window.__moflightExportHttpAbort?.()'))||revoke==='owner');
+    }finally{f.unmount();}
+  }
+});
+test('HTTP native watchdog aborts without replaying preferences under an unverified session',async()=>{
+  const f=fixture({product:true,http:true,priorCapture});try{
+    await prepareHttpRead(f);f.fireTimeout();await f.flush();
+    assert.equal(f.controller().busy,false);assert.equal(f.controller().connection.confirmed,false);
+    assert.equal(f.savedCapture(),priorCapture);assert.ok(f.pending());assert.equal(f.controller().restoring.current,false);
+    assert.ok(f.injections.some(s=>s.includes('window.__moflightExportHttpAbort?.()')));
+  }finally{f.unmount();}
+});
 
 test('accepted first and returning protected profiles persist historical identity without importing flights', async () => {
   const f = fixture({ product: true }); f.render(); await f.settle(null); await f.flush();

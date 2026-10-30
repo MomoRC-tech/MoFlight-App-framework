@@ -1,6 +1,7 @@
 import { DETAIL_LABELS } from './details';
 import { DETAIL_HTTP_SOURCE, INERT_DETAIL_READER } from './detail-http-poc';
 import { REQUIRED_HEADERS } from './probe';
+import { EXPORT_HTTP_FIXTURE_SOURCE } from './export-http-fixture';
 
 /** Self-contained, synthetic HTML only. fetch is lexically replaced; no server,
  * cookie operation, provider session or remote resource is used by this proof. */
@@ -44,6 +45,7 @@ export function detailHttpFixtureHtml() {
       if(calls.some(c=>c.options.method!=='GET'||c.options.credentials!=='same-origin'||c.options.redirect!=='error'||c.options.cache!=='no-store'))checks.push({scenario:'request-policy',ok:false});
       if(scenario==='foreign-link'&&calls.some(c=>c.url.includes('viewflight.php')))checks.push({scenario:'unobserved-id-not-requested',ok:false});
     }
+    const exported=await (${EXPORT_HTTP_FIXTURE_SOURCE})();checks.push(...exported.checks);samples.push(...exported.samples);
     ReactNativeWebView.postMessage(JSON.stringify({kind:'vf-detail-http-synthetic-v1',checks,samples,passed:checks.every(c=>c.ok),userAgent:navigator.userAgent}));
   })().catch(()=>ReactNativeWebView.postMessage(JSON.stringify({kind:'vf-detail-http-synthetic-v1',passed:false,checks:[],samples:[]})));
   </script></body>`;

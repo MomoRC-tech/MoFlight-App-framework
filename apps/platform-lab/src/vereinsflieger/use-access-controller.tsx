@@ -1,6 +1,6 @@
 import { ActivityRequest } from './activity-request';
 import React, { useEffect, useRef, useState } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import * as Crypto from 'expo-crypto';
 import { startFlightSpan } from './flight-diagnostics';
@@ -10,6 +10,7 @@ import { clearOriginalView, latestCapture, readOriginalView, saveCapture, saveOr
 import { loginPage } from './login';
 import { useSavedLogin } from './use-saved-login';
 import { acceptExportMessage, exportProgress, beginExport, calendarYearRequest, recentCaptureRequest, exportScript, type ExportRun } from './export';
+import { HTTP_FLIGHT_READ_ENABLED, decodeHttpExportReply, exportHttpScript } from './export-http';
 import { decodeView, VIEW_PHASES, viewScript, viewProtectionMessage, type ViewPhase, type ViewPreferences } from './view';
 import { canonical } from '@moflight/flight-logbook';
 import { legacyViewNeedsChoice, type LegacyRecoveryCopy } from './legacy-recovery-store';
@@ -85,6 +86,13 @@ export function useAccessController(product = false, localOwner?: string, develo
   function stopDiagnosticLogin(succeeded=false) { loginPageTiming.current?.(succeeded);loginPageTiming.current=null;userWaitTiming.current?.(succeeded);userWaitTiming.current=null;contextTiming.current?.(succeeded);contextTiming.current=null; }
   useEffect(()=>()=>stopDiagnosticLogin(false),[]);
   const run = useRef<ExportRun | null>(null), command = useRef(''), reading = useRef(false);
+  const httpRead = useRef<{ token: string; anchor: string; target: string; expected: ObservedContext; owner: string; nonce: string; epoch: number } | null>(null);
+  const httpNext = useRef<string | null>(null), httpFallback = useRef(false);
+  function abortHttpRead() {
+    if (httpRead.current) web.current?.injectJavaScript('window.__moflightExportHttpAbort?.();true;');
+    httpRead.current = null; httpNext.current = null;
+  }
+  useEffect(() => () => abortHttpRead(), []);
   const original = useRef<ViewPreferences | null>(null), viewPhase = useRef<ViewPhase | null>(null), restoring = useRef(false), restoreSteps = useRef(0), outcome = useRef('');
   const restorationOnly = useRef(false);
   const [recovery, setRecovery] = useState(false), [viewReady, setViewReady] = useState(false);
@@ -218,6 +226,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   })().catch(() => { if(active) { information.initialLoadFailed(initialInformationRequest); setCaptureLoadState(state => state === 'ready' ? state : 'failed'); setViewReadFailed(true);setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, [localOwner]);
   useEffect(() => {
     if (!product || localOwner === owner.current) return;
+    abortHttpRead();
     activityRequest.current?.abandon();
     clearDevelopmentCheckpoints();
     endGuidedFlightConnection();
@@ -722,6 +731,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   function stop(message: string, nonce?: string) {
     const state = retrieval.current.state;
     if (nonce ? !retrieval.current.finish(nonce) : state.phase === 'saving') return;
+    abortHttpRead(); httpFallback.current = false;
     clearDevelopmentCheckpoints();
     bridgeTiming.current?.(false);bridgeTiming.current=null;
     if (!nonce && state.phase === 'loading') retrieval.current.finish(state.nonce);
@@ -813,7 +823,12 @@ export function useAccessController(product = false, localOwner?: string, develo
   }
   function armTimeout(nonce: string) {
     if (timeout.current) clearTimeout(timeout.current);
-    timeout.current = setTimeout(() => finish('Export step timed out. Previous captures preserved; retry after checking provider login.', nonce), 30_000);
+    timeout.current = setTimeout(() => {
+      if (httpRead.current?.nonce === nonce) {
+        session.current.invalidate(); syncConnection();
+        stop('HTTP flight read timed out. Saved data and original-view recovery retained; verify the account before retrying.', nonce);
+      } else finish('Export step timed out. Previous captures preserved; retry after checking provider login.', nonce);
+    }, 30_000);
   }
   function extract() {
     const state = retrieval.current.state, active = run.current;
@@ -831,6 +846,14 @@ export function useAccessController(product = false, localOwner?: string, develo
     armTimeout(state.nonce);
     setStatus(`Verifying export: ${active.phase}; ${active.pages.length} pages read.`);
     bridgeTiming.current?.(false);bridgeTiming.current=startFlightSpan(`provider-export-${active.phase}`);
+    const attempt = flightSourceAttempt.current;
+    if (product && Platform?.OS === 'android' && (HTTP_FLIGHT_READ_ENABLED || developmentAllowed.current) && !httpFallback.current && active.phase === 'read' && attempt) {
+      const target = httpNext.current ?? new URL(FLIGHT_URL).pathname;
+      const absolute = new URL(target, currentUrl.current).href;
+      httpRead.current = { token: command.current, anchor: currentUrl.current, target: absolute, expected: attempt.contextBefore,
+        owner: attempt.owner, nonce: state.nonce, epoch: epoch.current };
+      web.current?.injectJavaScript(exportHttpScript(command.current, active, attempt.contextBefore, currentUrl.current, absolute)); return;
+    }
     web.current?.injectJavaScript(exportScript(command.current, active));
   }
   // Commit the page-scoped bridge before executing the explicit table reader.
@@ -845,6 +868,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   }, [generation]);
   function navigate(uri: string) {
     if (!providerUrl(uri)) return;
+    abortHttpRead();
     recordProviderDocument('command', uri);
     information.navigationStarted();
     signInDocument.current = null; loginObservation.current = null;
@@ -886,6 +910,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     }
     const nonce = Crypto.randomUUID();
     if (!retrieval.current.start(nonce)) return;
+    httpFallback.current = false; httpNext.current = null;
     flightSourceAttempt.current = product && contextBefore ? {
       owner: owner.current!, contextBefore,
       requestedWindow: { from: prepared.request.from, to: prepared.request.to, participation: 'Pilot oder Fluglehrer' },
@@ -985,7 +1010,12 @@ export function useAccessController(product = false, localOwner?: string, develo
         setStatus('Test checkpoint: export reset verified; original view recovery is pending. Continue or cancel, or force-stop to test recovery.');
         return;
       }
-      if (result.nextUrl) { armTimeout(nonce); navigate(result.nextUrl); return; }
+      if (result.nextUrl) {
+        armTimeout(nonce);
+        if (product && Platform?.OS === 'android' && (HTTP_FLIGHT_READ_ENABLED || developmentAllowed.current) && !httpFallback.current) { httpNext.current = result.nextUrl; extract(); }
+        else navigate(result.nextUrl);
+        return;
+      }
       if (!result.complete) { extract(); return; }
       const data = result.complete;
       if (product) { pendingCapture.current = data; checkConnection('capture'); return; }
@@ -995,6 +1025,35 @@ export function useAccessController(product = false, localOwner?: string, develo
       const stage = viewPhase.current ? `view-${viewPhase.current}` : run.current ? `export-${run.current.phase}` : 'capture';
       finish(viewPhase.current === 'snapshot' ? viewProtectionMessage(error) ?? 'Original view could not be protected because provider settings are unsupported. No export settings changed.' : `Retrieval validation failed at ${stage}. Previous captures preserved.`, nonce);
     }
+  }
+  function receiveHttpExport(event: WebViewMessageEvent): boolean {
+    let kind: unknown;
+    try { if (event.nativeEvent.data.length > 2100000) return false; kind = JSON.parse(event.nativeEvent.data)?.kind; } catch { return false; }
+    if (kind !== 'vf-export-http-v1') return false;
+    const pending = httpRead.current;
+    if (!pending || !mounted.current || !foreground.current || pending.owner !== owner.current || owner.current !== activeOwner.current ||
+      pending.epoch !== epoch.current || pending.token !== command.current || !retrieval.current.owns(pending.nonce) || !reading.current) return true;
+    const reply = decodeHttpExportReply(event.nativeEvent.data, event.nativeEvent.url, currentUrl.current, pending);
+    if (!reply) return true;
+    httpRead.current = null;
+    if (reply.kind === 'page') {
+      recordProviderEvent('provider-flight-http-page');
+      console.info('MOFLIGHT_FLIGHT_HTTP', JSON.stringify({ outcome: 'page', page: (run.current?.pages.length ?? 0) + 1, milliseconds: reply.milliseconds }));
+      void receive({ ...event, nativeEvent: { ...event.nativeEvent, data: reply.payload } }); return true;
+    }
+    if (reply.kind === 'fallback') {
+      recordProviderEvent('provider-flight-http-fallback');
+      console.info('MOFLIGHT_FLIGHT_HTTP', JSON.stringify({ outcome: 'fallback', milliseconds: reply.milliseconds }));
+      bridgeTiming.current?.(false); bridgeTiming.current = null;
+      httpFallback.current = true; reading.current = false; command.current = '';
+      navigate(pending.target); return true;
+    }
+    recordProviderEvent('provider-flight-http-rejected');
+    console.info('MOFLIGHT_FLIGHT_HTTP', JSON.stringify({ outcome: 'rejected', reason: reply.reason, ...(reply.milliseconds === undefined ? {} : { milliseconds: reply.milliseconds }) }));
+    session.current.invalidate(); syncConnection();
+    pendingCapture.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null;
+    stop('HTTP flight read could not confirm the provider context. Saved data and original-view recovery retained; use Sync to verify the account before retrying.', pending.nonce);
+    return true;
   }
   async function completeRestoration() {
     const active = retrieval.current.state;
@@ -1084,6 +1143,7 @@ export function useAccessController(product = false, localOwner?: string, develo
           const observation = readLoginDiagnostic(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data, generation);
           if (observation) { if (diagnosticMessages.current++ < 32) recordProviderEvent(observation); return; }
           if (activityRequest.current?.receive(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data)) return;
+          if (receiveHttpExport(event)) return;
           if (receiveLoginDocument(event)) return;
           if (information.running()) { void information.receiveInformation(event); return; }
           if (product && contextRequest.current) { void receiveContext(event); return; }
