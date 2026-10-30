@@ -1393,3 +1393,8 @@ test('a failed backup after an expected picker round trip does not report interr
   assert.equal(f.closed.length,0);assert.ok(f.calls.includes('release'));
  }finally{f.dispose();}
 });
+
+
+test('financial recovery exposes the retained original provider login surface',async()=>{
+ const f=fixture({destination:'financial',providerAllowed:false});await f.flush();f.render();await f.flush();const panel=f.nodes().find(n=>n.type==='FinancialRetrievalPanel');assert.ok(panel);panel.props.openProvider();f.c.visible=true;f.render();const provider=f.nodes().find(n=>n.type==='ProviderConnection')!;assert.equal(provider.props.open,true);assert.equal(provider.props.minimal,true);
+});
