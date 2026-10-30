@@ -1,0 +1,8 @@
+# Copy the generated machine-specific entry into this project's .codex/config.toml.
+# Use vf:configure to generate real absolute paths; do not commit that file.
+[mcp_servers.moflight_api_anything]
+command = "C:/absolute/path/to/node.exe"
+args = ["C:/absolute/path/to/MoFlight/pocs/vereinsflieger-api-anything/tooling.mjs", "mcp"]
+cwd = "C:/absolute/path/to/MoFlight"
+startup_timeout_sec = 30
+tool_timeout_sec = 60

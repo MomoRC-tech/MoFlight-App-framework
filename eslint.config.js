@@ -5,7 +5,7 @@ import tsParser from '@typescript-eslint/parser';
 export default [
   { ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/android/**', '**/ios/**', '**/.expo/**', 'local-data/**', 'private-data/**', 'docs/**'] },
   {
-    files: ['apps/**/*.{ts,tsx,js,cjs,mjs}', 'packages/**/*.{ts,tsx,js,cjs,mjs}', 'supabase/functions/**/*.{ts,js}', 'tests/mobile/**/*.ts', 'scripts/*.{js,mjs}', '*.js'],
+    files: ['apps/**/*.{ts,tsx,js,cjs,mjs}', 'packages/**/*.{ts,tsx,js,cjs,mjs}', 'supabase/functions/**/*.{ts,js}', 'tests/mobile/**/*.ts', 'scripts/*.{js,mjs}', 'pocs/vereinsflieger-api-anything/*.mjs', '*.js'],
     languageOptions: { parser: tsParser, parserOptions: { ecmaFeatures: { jsx: true } } },
     rules: {
       'constructor-super': 'error',

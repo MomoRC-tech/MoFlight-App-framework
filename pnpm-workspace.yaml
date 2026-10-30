@@ -1,8 +1,11 @@
 packages:
   - apps/*
   - packages/*
+  - pocs/vereinsflieger-api-anything
 # Validation/exec must never reinstall a configured native checkout implicitly.
 # Dependency installation is an explicit frozen-lockfile step.
 verifyDepsBeforeRun: false
 allowBuilds:
   esbuild: true
+patchedDependencies:
+  api-anything@0.3.1: patches/api-anything@0.3.1.patch

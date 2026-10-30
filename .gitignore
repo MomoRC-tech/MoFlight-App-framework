@@ -29,3 +29,6 @@ __pycache__/
 .DS_Store
 # Local chat attachment cache; reviewed design sources are archived under docs/.
 .codex-remote-attachments/
+# Machine-specific project MCP launch paths; portable example lives in the PoC.
+.codex/config.toml
+.codex/config.toml.api-anything-backup

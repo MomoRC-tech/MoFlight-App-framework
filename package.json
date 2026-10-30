@@ -7,6 +7,9 @@
     "node": ">=24.0.0 <25"
   },
   "scripts": {
+    "vf:api": "node pocs/vereinsflieger-api-anything/tooling.mjs",
+    "vf:configure": "node pocs/vereinsflieger-api-anything/tooling.mjs configure",
+    "vf:verify": "pnpm --filter @moflight/api-anything-research run verify",
     "check": "python scripts/verify_host.py",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",

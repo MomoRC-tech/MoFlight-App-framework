@@ -1,0 +1,22 @@
+diff --git a/dist/browser.js b/dist/browser.js
+index cfcdb0dfd6994aabf02972ba33476b94be513c30..55cbf246328f2e9509d44aca2083ec0a2fe5aece 100644
+--- a/dist/browser.js
++++ b/dist/browser.js
+@@ -57,7 +57,7 @@ async function launch(profileDir, options) {
+     const until = Date.now() + LOCK_WAIT_MS;
+     for (;;) {
+         try {
+-            return await chromium.launchPersistentContext(profileDir, options);
++            return await chromium.launchPersistentContext(profileDir, { ...options, chromiumSandbox: true });
+         }
+         catch (e) {
+             if (!LOCKED.test(e.message))
+@@ -177,7 +177,7 @@ export const browserAvailable = () => !!browserChoice();
+ // carries the browser's name, so only the UA string needs the fix.
+ async function probeHeadlessUA() {
+     const { chromium } = await import("playwright-core");
+-    const b = await chromium.launch({ executablePath: browserChoice()?.bin, headless: true });
++    const b = await chromium.launch({ executablePath: browserChoice()?.bin, headless: true, chromiumSandbox: true });
+     try {
+         const p = await b.newPage();
+         return (await p.evaluate(() => navigator.userAgent)).replace("HeadlessChrome", "Chrome");
