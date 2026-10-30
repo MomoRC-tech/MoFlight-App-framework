@@ -77,7 +77,7 @@ test('unobserved detail links, unbilled layouts and foreign targets never reach 
   assert.throws(() => unbilled.accept(unbilled.url, unbilled.url, { ...message(unbilled), page: { ...read(), billedRaw: 'Nein' } }, target, at));
   const foreign = structuredClone(target); foreign.scope.owner = 'other';
   assert.throws(() => run().accept(PROFILE_URL, PROFILE_URL, {}, foreign, at));
-  for (const url of [listUrl + '?token=secret', listUrl.replace('https:', 'http:'), listUrl.replace('vereinsflieger.de', 'evil.test')]) {
+  for (const url of [listUrl + '?token=secret', listUrl + '?_params=observed-preset', listUrl.replace('https:', 'http:'), listUrl.replace('vereinsflieger.de', 'evil.test')]) {
     assert.throws(() => new FinancialCaptureRun(target, 'job', url, detailUrl));
   }
 });

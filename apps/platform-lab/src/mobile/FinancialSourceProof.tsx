@@ -7,11 +7,12 @@ import type { FinancialObservationReceipt } from '../vereinsflieger/expense-obse
 import type { FinancialSourceReadback } from '../development/financial-source-readback';
 
 /** Explicit development harness, separate from ordinary Sync and expense UI. */
-export function FinancialSourceProof({ capture, retrySave, read, cancel, state, saveUncertain, blocked, onBusyChange }: {
+export function FinancialSourceProof({ capture, retrySave, read, cancel, openProvider, state, saveUncertain, blocked, onBusyChange }: {
   capture(list: string, detail: string): Promise<FinancialObservationReceipt>;
   retrySave(): Promise<FinancialObservationReceipt>;
   read(expected?: FinancialObservationReceipt): Promise<FinancialSourceReadback>;
   cancel(): boolean; state: FinancialCaptureState; saveUncertain: boolean; blocked: boolean;
+  openProvider(): void;
   onBusyChange(busy: boolean): void;
 }) {
   const [list, setList] = useState(''), [detail, setDetail] = useState(''), [message, setMessage] = useState<string | null>(null);
@@ -49,6 +50,8 @@ export function FinancialSourceProof({ capture, retrySave, read, cancel, state, 
   return <SettingsContentDisclosure title="Echten Finanzbeleg prüfen" summary="Ein eigener abgerechneter Flug; kein automatischer Sync" testID="development-financial-source-details">
     <Label muted>Nur tatsächlich beobachtete Links aus Eigene Flüge eintragen. Profil, eigener Listenlink und abgerechnete HTML-Detailseite werden erneut geprüft. Der rohe Finanzbeleg wird für das aktuelle Konto lokal gespeichert; keine PDF-Dateien.</Label>
     <Label muted>Kontobewegungen, Pauschale und vollständige Ausgabensummen sind damit nicht erfasst. Lokale Prüfung benötigt keinen Anbieterabruf und legt keine Finanzdatei an.</Label>
+    <Label muted>Die Liste muss die aktuell ausgewählte Anbieteransicht ohne URL-Parameter sein. Dieser Nachweis ändert keine Zeitraum-Voreinstellung.</Label>
+    <Action secondary disabled={locked || saveUncertain} onPress={() => { if (!running.current && !blocked && !saveUncertain && AppState.currentState === 'active') openProvider(); }}>Anbieteranmeldung für Finanznachweis öffnen</Action>
     <Label>Beobachtete Eigene-Flüge-Liste</Label>
     <TextInput accessibilityLabel="Beobachtete Eigene-Flüge-Liste" value={list} onChangeText={setList} editable={!locked && !saveUncertain} autoCorrect={false} autoCapitalize="none" keyboardType="url" maxLength={2048} style={{ ...ui.text, minHeight: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 10, padding: 10, backgroundColor: colors.background }} />
     <Label>Beobachteter Flugdetail-Link</Label>
@@ -58,6 +61,7 @@ export function FinancialSourceProof({ capture, retrySave, read, cancel, state, 
     <Action secondary disabled={locked || saveUncertain} onPress={() => void run('read')}>Lokale Finanzbelege prüfen</Action>
     {state.phase === 'reading' && <Action secondary onPress={cancel}>Finanzabruf abbrechen</Action>}
     {state.phase !== 'idle' && <Label>{state.phase === 'reading' ? 'Einzelbeleg wird geprüft …' : state.phase === 'saving' ? 'Einzelbeleg wird gespeichert …' : 'Speicherbestätigung ist unklar. Ursprünglichen Auftrag abgleichen.'}</Label>}
+    {state.phase === 'idle' && state.failure && <Label>Finanznachweis gestoppt: {state.failure === 'source' ? 'Quelle oder Anmeldung nicht bestätigt.' : state.failure === 'access' ? 'Zugriff derzeit nicht verfügbar.' : state.failure === 'timeout' ? 'Zeitlimit erreicht.' : 'Abgebrochen.'}</Label>}
     {message && <Label selectable>{message}</Label>}
   </SettingsContentDisclosure>;
 }

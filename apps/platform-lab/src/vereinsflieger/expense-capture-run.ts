@@ -64,7 +64,7 @@ export class FinancialCaptureRun {
     const list = new URL(observedListUrl), detail = new URL(observedDetailUrl), origin = new URL(PROFILE_URL).origin;
     if (list.origin !== origin || detail.origin !== origin || list.username || list.password || list.hash || list.port ||
         list.pathname !== '/member/profile/flightlog.php' || list.href !== observedListUrl || observedListUrl.length > 2048 ||
-        list.search && ([...list.searchParams.keys()].join(',') !== '_params' || !list.searchParams.get('_params'))) throw Error('Unobserved financial list route.');
+        list.search) throw Error('Financial capture requires the current query-free own-list view.');
     this.detailUrl = observedDetailUrl; this.listUrl = observedListUrl;
   }
   get target(): FinancialObservationTarget { return JSON.parse(this.identity) as FinancialObservationTarget; }

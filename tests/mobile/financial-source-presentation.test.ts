@@ -37,6 +37,7 @@ function fixture() {
   modules['./settings-secondary-content'] = load('settings-secondary-content');
   const { FinancialSourceProof } = load('FinancialSourceProof');
   const props = { blocked: false, saveUncertain: false, state: { phase: 'idle', failure: null },
+    openProvider() { calls.push('open-provider'); },
     async capture(list: string, detail: string) { calls.push(`capture:${list}:${detail}`); return capture(); },
     async retrySave() { calls.push('retry'); return capture(); },
     async read(expected?: any) { calls.push(expected ? 'read-exact' : 'read-local'); return read(); },
@@ -60,6 +61,15 @@ test('opening/disclosing performs no work; explicit local read never captures', 
   f.button('Lokale Finanzbelege').props.onPress(); await f.settle();
   assert.deepEqual(f.calls, ['busy:true', 'read-local', 'busy:false']);
   assert.match(f.text(), /Lokale Finanzbelege geprüft/);
+});
+
+test('explicit login handoff does no capture and respects blocked/uncertain/background admission', () => {
+  const f = fixture(); f.open();
+  f.button('Anbieteranmeldung für Finanznachweis').props.onPress(); assert.deepEqual(f.calls, ['open-provider']);
+  f.props.blocked = true; f.render(); f.button('Anbieteranmeldung für Finanznachweis').props.onPress();
+  f.props.blocked = false; f.props.saveUncertain = true; f.render(); f.button('Anbieteranmeldung für Finanznachweis').props.onPress();
+  f.props.saveUncertain = false; f.background(); f.render(); f.button('Anbieteranmeldung für Finanznachweis').props.onPress();
+  assert.deepEqual(f.calls, ['open-provider', 'cancel']);
 });
 
 test('capture passes exact observed links once, then verifies exact receipt', async () => {

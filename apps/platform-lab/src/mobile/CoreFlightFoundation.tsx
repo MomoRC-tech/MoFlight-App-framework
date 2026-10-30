@@ -1073,6 +1073,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       </Card>}
       {developmentRecoveryCheckpoints&&destination==='sources'&&open&&<FinancialSourceProof key={`${lease.ownerId}:${lease.storeId}:${requestId}`}
         capture={(list,detail)=>c.captureFinancialDetail(scope,list,detail)} retrySave={c.retryFinancialSave} cancel={c.cancelFinancialCapture}
+        openProvider={()=>{if(lock.current||!foreground.current||!panelActive.current||c.financialSaveUncertain)return;setProviderOpen(true);c.connect();}}
         read={expected=>{const current=async()=>{if(!alive.current||!foreground.current||!panelActive.current)throw Error('Financial proof closed.');await gate();};
           return readFinancialSourceProof({gate:current,exportSection:()=>financialNative.exportSection(scope,current),hash},expected);}}
         state={c.financialState} saveUncertain={c.financialSaveUncertain} blocked={busy||!entryReady||restoreReadOnly||c.recovery}
@@ -1156,7 +1157,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     {destination==='backup'&&open&&confirmRestore&&<BackupRestoreConfirmationDialog onCancel={()=>{restoreConfirmation.current=null;setConfirmRestore(false);}} onConfirm={()=>{if(!restoreTicket||restoreConfirmation.current!==restoreTicket||restoreTicket.requestId!==requestId||lock.current||!panelActive.current||!foreground.current)return;restoreConfirmation.current=null;setConfirmRestore(false);void run(restoreWholeUserBackup,'library-operation',false,()=>true,'restore');}}/>}
     {/* Android's credential dialogs pause the app. Keep their original login target visible;
         foreground guards still suspend verification, retrieval and writes until return. */}
-    <ProviderConnection minimal={!providerRecoveryPage&&(syncEntry||destination==='settings')} administration={destination==='settings'} dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={open&&providerOpen&&(providerEntryAllowed||destination==='settings'&&c.visible)} development={intent==='development'} guided={syncEntry||automatic.current} title={syncEntry?'Daten synchronisieren':undefined} progress={providerRecoveryPage?undefined:progress??preparationProgress} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current)} purpose="own-flight-library" close={()=>{
+    <ProviderConnection minimal={!providerRecoveryPage&&(syncEntry||destination==='settings')} administration={destination==='settings'} dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} controller={c} open={open&&providerOpen&&(providerEntryAllowed||developmentRecoveryCheckpoints||destination==='settings'&&c.visible)} development={intent==='development'} guided={syncEntry||automatic.current} title={syncEntry?'Daten synchronisieren':undefined} progress={providerRecoveryPage?undefined:progress??preparationProgress} closeDisabled={automatic.current&&busy&&(loadStage==='save'||c.saving||c.restoring.current)} purpose="own-flight-library" close={()=>{
       if(automatic.current){
         if(waiting.current){cancelSync();return;}
         if(busy){

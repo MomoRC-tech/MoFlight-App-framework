@@ -529,35 +529,35 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `6b1a50f0992afdb2de97b6bbeb5c168a17c0a6e2835965a8cd7428125fa6dfe9`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `963dee38815b7e5cb1c1e181e37da5541ab058c03843641ed3b2a23667525c0b`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 1141 |
-| `fontSize: 16` | 1141, 1146, 1150 |
-| `fontSize: 22` | 1146, 1150 |
-| `fontWeight: '600'` | 1141, 1146, 1150 |
-| `fontWeight: '700'` | 1141 |
-| `letterSpacing: .6` | 1141 |
-| `lineHeight: 24` | 1141, 1146, 1150 |
+| `fontSize: 12` | 1142 |
+| `fontSize: 16` | 1142, 1147, 1151 |
+| `fontSize: 22` | 1147, 1151 |
+| `fontWeight: '600'` | 1142, 1147, 1151 |
+| `fontWeight: '700'` | 1142 |
+| `letterSpacing: .6` | 1142 |
+| `lineHeight: 24` | 1142, 1147, 1151 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 1145, 1150 |
-| `borderWidth: 1` | 1145, 1150 |
-| `gap: 10` | 71, 221, 229, 230, 1062, 1147 |
-| `gap: 12` | 1146, 1150 |
-| `gap: 8` | 1089, 1096, 1123, 1133, 1141 |
+| `borderRadius: 16` | 1146, 1151 |
+| `borderWidth: 1` | 1146, 1151 |
+| `gap: 10` | 71, 221, 229, 230, 1062, 1148 |
+| `gap: 12` | 1147, 1151 |
+| `gap: 8` | 1090, 1097, 1124, 1134, 1142 |
 | `maxWidth: 520` | 71, 221, 230, 1062 |
 | `minHeight: 0` | 1061 |
-| `minHeight: 56` | 1146, 1150 |
-| `padding: 16` | 1146, 1150 |
+| `minHeight: 56` | 1147, 1151 |
+| `padding: 16` | 1147, 1151 |
 | `padding: 18` | 71 |
-| `paddingHorizontal: 16` | 1147 |
+| `paddingHorizontal: 16` | 1148 |
 | `width: '100%'` | 71, 221, 230, 1062 |
 
 ## Dashboard.tsx
@@ -739,16 +739,16 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](.
 
 ## FinancialSourceProof.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FinancialSourceProof.tsx](../../../apps/platform-lab/src/mobile/FinancialSourceProof.tsx); normalized SHA-256 `4765b79e323779fa5ae14fe5dd32118d2fb8e6fa85187087894c6beaf2e98af1`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/FinancialSourceProof.tsx](../../../apps/platform-lab/src/mobile/FinancialSourceProof.tsx); normalized SHA-256 `74099eace22f0a492f28e90ce8fbb534e5fc7e16e24de1c8b162e423121c04e0`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 53, 55 |
-| `borderWidth: 1` | 53, 55 |
-| `minHeight: 48` | 53, 55 |
-| `padding: 10` | 53, 55 |
+| `borderRadius: 10` | 56, 58 |
+| `borderWidth: 1` | 56, 58 |
+| `minHeight: 48` | 56, 58 |
+| `padding: 10` | 56, 58 |
 
 ## FlightCard.tsx
 
