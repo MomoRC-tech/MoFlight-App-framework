@@ -10,6 +10,8 @@
     "vf:api": "node pocs/vereinsflieger-api-anything/tooling.mjs",
     "vf:login": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File pocs/vereinsflieger-api-anything/dpapi-login.ps1",
     "vf:study": "node --import tsx pocs/vereinsflieger-api-anything/study.mjs",
+    "vf:discover": "node pocs/vereinsflieger-api-anything/request-discovery.mjs",
+    "vf:learn": "node pocs/vereinsflieger-api-anything/learn-high-level.mjs",
     "vf:configure": "node pocs/vereinsflieger-api-anything/tooling.mjs configure",
     "vf:verify": "pnpm --filter @moflight/api-anything-research run verify",
     "check": "python scripts/verify_host.py",

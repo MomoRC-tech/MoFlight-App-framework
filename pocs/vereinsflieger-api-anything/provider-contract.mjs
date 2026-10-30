@@ -10,6 +10,17 @@ export async function waitForLoginReady(page, timeout = 15000) {
     undefined, { timeout });
 }
 
+export function compareCoreValues(expected, actual) {
+  const normalize = value => value.replace(/\s+/g, ' ').trim();
+  const flatten = value => typeof value === 'string' ? [normalize(value)]
+    : Array.isArray(value) ? value.flatMap(flatten)
+      : value && typeof value === 'object' ? Object.values(value).flatMap(flatten) : [];
+  const strings = flatten(actual);
+  const values = Object.values(expected).map(normalize);
+  const valuesMatched = values.filter(value => strings.includes(value)).length;
+  return { expectedFields: values.length, valuesMatched, matched: values.length > 0 && valuesMatched === values.length };
+}
+
 export function authenticatedFlightPage(url, observation, expectedDigest) {
   if (url !== flightUrl || observation.loginControls !== 0 || observation.tables !== 1 ||
       typeof observation.accountLabel !== 'string' || !observation.accountLabel.trim() ||

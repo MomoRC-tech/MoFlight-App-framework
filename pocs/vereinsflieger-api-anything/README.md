@@ -26,6 +26,18 @@ pnpm vf:study
 
 `vf:study` learns a current-visible-list operation and a restricted detail projection from observed own-flight references, compares them with the app readers and writes private evidence below `vereinsflieger-study/`. Two references train the detail operation; the third is held out. The saved detail operation allows only those three observed references. `pnpm vf:study --boundaries` rechecks input refusal and the private MCP result without repeating learning. These are explicit developer runs, not polling. Raw captures may include other content of the permitted own source pages; all raw HTML, identifiers, field values and learned specs remain ignored locally. Only sanitized results below are tracked.
 
+For further request discovery and the owner-selected high-level learning workflow:
+
+```powershell
+pnpm vf:discover
+pnpm vf:learn
+pnpm vf:learn --configured
+```
+
+`vf:discover` uses the tool's request-interception engine to inspect three date-form submissions **without sending them**. `vf:learn` invokes the real `api-anything learn` CLI with two observed references and a third holdout; automatic request/recipe selection is inspected first. The helper supplies the verified session and captures raw CLI output locally. `--fresh` plus the explicit local site bypasses catalog reuse/name lookup, and sharing remains off. It never installs another agent or starts a separate AI/model job.
+
+If automatic extraction fails the independent comparison, it is rejected and that new operation is removed; existing accepted operations are preserved. `--configured` keeps the same high-level command and supplies the established five-field recipe, reusing the automatic run's two captures. This refinement requires matching references, the same session token and captures younger than 30 minutes. It retains the original manual study as a comparison baseline; it does not claim autonomous field interpretation. Both modes retain raw evidence outside the expiring cache and restrict the accepted new detail operation to three observed references.
+
 This adapts the upstream [AI installation guide](https://github.com/goodnight000/api-anything/blob/main/INSTALL.md) and [setup options](https://github.com/goodnight000/api-anything/blob/main/docs/QUICKSTART.md). It uses the installed, pinned CLI instead of unpinned npx and changes only project configuration. Dependency installation deliberately skips lifecycle scripts; the published package contains compiled JavaScript. Existing app dependencies/linker and provider profiles must be preserved.
 
 `vf:configure` writes the uniquely named server to ignored `.codex/config.toml` using absolute Node/launcher paths. It preserves unrelated entries, backs up an existing config before first addition, and refuses a conflicting existing server. A [portable template](config.example.toml) is tracked. Restart the Codex session to load the tools. Project configuration requires a trusted project; [official MCP guidance](https://learn.chatgpt.com/docs/extend/mcp?surface=cli). The launcher computes its private home from the checkout, including when started over MCP; no global skill or other agent configuration is installed.
@@ -94,6 +106,26 @@ Private raw/DOM/HTTP evidence, source identity digest, append-only session obser
 The selected flight requests are **server-rendered HTML**, not a discovered supported JSON API. API Anything can replay them over plain HTTP, which makes it useful for investigation and a candidate for an independently reviewed retrieval adapter. Keep it as research tooling for now. The list's single-example learning warning means nonce/parameter variation was not learned for that fixed-page operation; the parameterized detail operation produced no learning warnings. HTML line-break whitespace differs between raw and DOM headings and was normalized only for structural comparison; original values remain in private evidence.
 
 No existing-reader `a.pagebrowser` controls were exposed in the inspected view. Requested date-window variation, paging, authenticated empty periods/accounts, actual expiry/renewal, other accounts/clubs and platform behavior remain unverified. The current session proof requires a nonempty list through the existing bounded reader. No source IDs were guessed and no filters were changed to manufacture those cases. Browser and HTTP timing samples are retained as unmatched desktop observations; **no speedup is established**. These results approve no mobile transport replacement, complete-history claim, role interpretation, canonical promotion or cost parsing.
+
+## Request discovery and high-level learning — 30 October 2026
+
+Baseline `5ff4c71`; same desktop environment. The owner selected high-level `learn` as the default orchestration for ordinary read discovery. Low-level capture remains for guarded inspection, login integration and independent verification. This package does not change application retrieval or activate the separately documented REST interface.
+
+| Trial | Result and limit |
+| --- | --- |
+| Fresh loaded own-flight page | Six observed requests: the HTML document and five CSS/JS/image/font assets. No JSON XHR/fetch flight-data response appeared in this view; this is not a site-wide absence claim |
+| Date-filter action | Original UI emits `POST /member/profile/flightlog.php?_params=...` with URL-encoded `startdate`, `enddate`, `daterange=date`; nine period options were observed |
+| Opaque command | `_params` differed across fresh page loads. Each intercepted request was validated against the exact action in its **own** captured document; no value was decoded, guessed or published |
+| Three monthly input examples | Three outgoing request bodies captured and aborted by API Anything's `writeGuard`; both date fields varied as expected. No filter request was replayed, and no result-window/empty-result server behavior is established |
+| Preservation | Fresh protected account and view-control/column snapshots before and after matched. No known `a.pagebrowser` controls appeared in this view |
+| Fully automatic high-level `learn` | Real CLI exit 0 and built-in holdout pass, but its `tr.alternative` recipe selected zero fields and returned 12 empty objects. Independent first-example/holdout comparison matched 0/5 expected values in each. Rejected; the incorrect new operation was removed |
+| Configured high-level `learn` | Same command with the existing verified HTML recipe, reusing the same two captures: one structured result, built-in holdout pass, no learning warnings, and 5/5 independently checked values in both the first case and holdout at HTTP tier 1. Accepted within this bounded research scope |
+| Authentication/sharing | Both high-level runs' cookie-free replay failed as expected for private data. Nothing was shared; only known own-flight references were used. The accepted new operation has the same three-reference allowlist |
+| Regression | 12 focused checks pass, including malformed/foreign/duplicate form rejection, rotating-action/view-state handling, automatic-empty-object rejection, and an actual API Anything interception trial where a synthetic loopback server received zero POSTs. Focused lint passes |
+
+Private evidence is retained in per-run `request-discovery/` and `high-level-learn/` directories plus their latest report JSON files under `private-data/api-anything/vereinsflieger-study/`. All raw HTML, command values, source references, CLI results, recipes and session evidence remain ignored. The initial strict action check rejected the real `_params` query; the next attempt caught a stale action from a different page load. Both attempts confirmed unchanged before/after view state. Matching the same-run action resolved the discovery checks without sending any filter request. The initial synthetic-test lint found two returning Promise executors; block bodies fixed them.
+
+Use high-level `learn` for orchestration, with independently verified extraction and explicit own-source scope. Its built-in success/holdout flags are not sufficient evidence of correct flight fields. Date/paging execution with reliable preservation, authenticated empty windows/accounts, actual expiry/renewal, other accounts/clubs and app/native adoption still require their separate checks and decisions. No speedup or complete-history claim follows.
 
 ## Rollback
 

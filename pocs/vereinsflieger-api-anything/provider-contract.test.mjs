@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { requireTool, toolEnv } from './tooling.mjs';
-import { authenticatedFlightPage, flightUrl, readCredentialPacket, waitForLoginReady } from './provider-contract.mjs';
+import { authenticatedFlightPage, flightUrl, readCredentialPacket, waitForLoginReady, compareCoreValues } from './provider-contract.mjs';
 
 const valid = { loginControls: 0, tables: 1, accountLabel: 'Synthetic owner',
   headers: ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit'] };
@@ -30,6 +30,13 @@ test('credential input accepts only bounded synthetic username/password packets'
     '{"username":"fixture","password":"fixture","url":"https://foreign.invalid"}', 'x'.repeat(8193)]) {
     assert.throws(() => readCredentialPacket(text));
   }
+});
+
+test('a nonempty automatic extraction of empty objects is not accepted as flight evidence', () => {
+  const expected = { reference: 'synthetic-record', date: '01.01.2026', duration: '15 min' };
+  assert.equal(compareCoreValues(expected, Array.from({ length: 12 }, () => ({}))).matched, false);
+  assert.equal(compareCoreValues(expected, [{ reference: 'synthetic-record' }]).matched, false);
+  assert.deepEqual(compareCoreValues(expected, [expected]), { expectedFields: 3, valuesMatched: 3, matched: true });
 });
 
 const executable = toolEnv().API_ANYTHING_BROWSER;
