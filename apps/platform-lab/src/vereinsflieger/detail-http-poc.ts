@@ -17,7 +17,7 @@ export const DETAIL_HTTP_SOURCE = String.raw`async function(nonce,expected,allow
   const context=d=>{
     if(d.querySelector('input#pwinput[name="pwinput"]'))throw Error('session-required');
     const rows=all(d,'table.tablelist.alternative tr').filter(r=>clean(r.cells[0])==='Benutzernummer');
-    const clubs=all(d,'#topnavi a[href]').filter(a=>{const u=new URL(a.getAttribute('href'),origin);return u.origin===origin&&u.pathname==='/member/community/main'&&!u.search&&!u.hash;});
+    const clubs=all(d,'#topnavi a[href]').filter(a=>{const u=new URL(a.getAttribute('href'),original);return u.origin===origin&&u.pathname==='/member/community/main'&&!u.search&&!u.hash;});
     if(rows.length!==1||rows[0].cells.length!==2||clubs.length!==1||clean(rows[0].cells[1])!==expected.accountNumber||clean(clubs[0])!==expected.clubLabel)throw Error('context-changed');
   };
   const get=async path=>{
@@ -42,7 +42,7 @@ export const DETAIL_HTTP_SOURCE = String.raw`async function(nonce,expected,allow
     const width=heads[0].cells.length,rows=Array.from(t.rows).filter(r=>r!==heads[0]&&r.parentElement?.tagName!=='THEAD'&&r.parentElement?.tagName!=='TFOOT'&&r.querySelector('td')&&!(r.cells.length===1&&r.cells[0].colSpan>=width));
     listShape.rows=rows.length;listShape.columns=width;listShape.invalidRows=rows.filter(r=>r.cells.length!==width).length;
     if(!rows.length||rows.length>2000||listShape.invalidRows)throw Error('list-unsupported');
-    const links=rows.flatMap(r=>all(r,'a[href]')).map(a=>new URL(a.getAttribute('href'),origin));
+    const links=rows.flatMap(r=>all(r,'a[href]')).map(a=>new URL(a.getAttribute('href'),origin+'/member/profile/flightlog.php'));
     const ref=links.find(u=>u.origin===origin&&u.pathname==='/member/profile/viewflight.php'&&!u.hash&&Array.from(u.searchParams.keys()).length===1&&/^\d{1,20}$/.test(u.searchParams.get('flid')||''));
     if(!ref)throw Error('list-unsupported');
     const detailStarted=performance.now(),d=await get(ref.pathname+ref.search);

@@ -14,7 +14,7 @@ export function detailHttpFixtureHtml() {
   return `<!doctype html><meta name="viewport" content="width=device-width"><title>Synthetic HTTP proof</title><body><p>Synthetic WebView proof; no provider network.</p><script>
   (async()=>{
     const data=${JSON.stringify(data)},checks=[],samples=[],origin='https://vereinsflieger.de';
-    const scenarios=['success','larger-list','foreign-before','foreign-after','foreign-club','login-at-200','network','redirect','mime','oversize','charset','foreign-link','missing-list','cancel'];
+    const scenarios=['success','relative-link','larger-list','foreign-before','foreign-after','foreign-club','login-at-200','network','redirect','mime','oversize','charset','foreign-link','missing-list','cancel'];
     for(const scenario of scenarios){
       const calls=[],started=performance.now();let profiles=0,message=null;
       const document=new DOMParser().parseFromString(data.profile,'text/html'),location=new URL(origin+'/member/profile/viewprofile');
@@ -29,6 +29,7 @@ export function detailHttpFixtureHtml() {
         else if(path.endsWith('viewflight.php'))html=data.detail;
         else throw Error('unexpected synthetic request');
         if(scenario==='larger-list'&&path.endsWith('flightlog.php')){const row=data.list.slice(data.list.indexOf('<tbody>')+7,data.list.indexOf('</tbody>'));html=html.replace(row,row.repeat(25));}
+        if(scenario==='relative-link'&&path.endsWith('flightlog.php'))html=html.replace('/member/profile/viewflight.php?flid=123','viewflight.php?flid=123');
         if(scenario==='login-at-200')html='<input id="pwinput" name="pwinput">';
         if(scenario==='oversize')html='x'.repeat(1000001);
         const response=new Response(html,{headers:{'content-type':scenario==='mime'?'application/json':scenario==='charset'?'text/html; charset=unsupported':'text/html; charset=utf-8'}});
@@ -36,7 +37,7 @@ export function detailHttpFixtureHtml() {
         return response;
       };
       await (${DETAIL_HTTP_SOURCE})('synthetic-'+scenario,{accountNumber:'100',clubLabel:'Synthetic club'},${JSON.stringify(DETAIL_LABELS)},${JSON.stringify(REQUIRED_HEADERS)},${INERT_DETAIL_READER});
-      const success=scenario==='success'||scenario==='larger-list';
+      const success=scenario==='success'||scenario==='relative-link'||scenario==='larger-list';
       const fields=message?.result?.fields;
       const ok=success?!!(fields?.length===4&&fields[0].raw==='123'&&fields[1].raw==='D-TEST'&&calls.length===4&&message.detailUrl===origin+'/member/profile/viewflight.php?flid=123'):!!message?.error;
       checks.push({scenario,ok,requests:calls.length});samples.push({scenario,elapsedMs:performance.now()-started,outcome:ok?'passed':'failed'});
