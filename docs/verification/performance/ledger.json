@@ -35647,6 +35647,145 @@
           }
         }
       ]
+    },
+    {
+      "id": "mobile-detail-http-synthetic-30oct",
+      "recorded_date": "2026-10-30",
+      "kind": "emulator-synthetic",
+      "source_commit": "a4c0810066b5b330d98c8963e0716982c800ca97",
+      "apk_sha256": "dd4d7f7c3dd107667de9674c55f48983c508186a6d6179bec8408644877f7a2a",
+      "device": "MoFlight_Synthetic_API37; Android API 37 x86_64; 1080x1920 px / 420 dpi (411.43x731.43 dp); font scale 1.0; WebView Chrome 155.0.8059.43",
+      "input": "One self-contained fixed synthetic profile/list/detail fixture; two account numbers, one club variation and no private/provider data; 13 scenario executions in one WebView",
+      "conditions": "Airplane mode enabled, original radio state preserved; no provider traffic; fetch replaced lexically by Response-stream fixture; no cookie/storage operations in fixture; foreground Release",
+      "method": "WebView performance.now from each scenario start through script completion/error, excluding renderer creation/native bridge/evidence persistence; GET request counters separately recorded",
+      "limits": [
+        "Single sequential synthetic run, no performance comparison or live-network/session claim.",
+        "Failure scenarios pass when the expected rejection is observed; timing records outcome of the verification case.",
+        "UI completion and local save confirmed separately; screenshot inspected for this affected screen only."
+      ],
+      "evidence": [
+        "docs/verification/2026-10-30-mobile-detail-http-poc.md"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "success",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 21.599999999976717,
+          "outcome": "success",
+          "details": {
+            "requests": 4
+          }
+        },
+        {
+          "id": "foreign-before",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 3.8999999999068677,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "foreign-after",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 15.400000000023283,
+          "outcome": "success",
+          "details": {
+            "requests": 4
+          }
+        },
+        {
+          "id": "foreign-club",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 2.400000000023283,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "login-at-200",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 3.400000000023283,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "network",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 1,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "redirect",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 1.099999999976717,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "mime",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 0.9000000000232831,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "oversize",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 7.300000000046566,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "charset",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 1.2999999999301508,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "foreign-link",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 2.800000000046566,
+          "outcome": "success",
+          "details": {
+            "requests": 2
+          }
+        },
+        {
+          "id": "missing-list",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 1.7000000000698492,
+          "outcome": "success",
+          "details": {
+            "requests": 2
+          }
+        },
+        {
+          "id": "cancel",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 0.5999999999767169,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        }
+      ]
     }
   ]
 }

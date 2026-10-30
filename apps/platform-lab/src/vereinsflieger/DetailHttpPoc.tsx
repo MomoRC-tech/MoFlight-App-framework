@@ -6,7 +6,7 @@ import * as SQLite from 'expo-sqlite';
 import { Action, Card, Label } from '../mobile/theme';
 import { providerUrl } from './probe';
 import type { ObservedContext } from './context';
-import { DetailHttpTrial, type DetailHttpState } from './detail-http-trial';
+import { DetailHttpTrial, summarizeDetailHttpEvidence, type DetailHttpState } from './detail-http-trial';
 import { detailHttpFixtureHtml } from './detail-http-fixture';
 
 async function saveEvidence(ownerId: string, id: string, value: unknown) {
@@ -27,7 +27,10 @@ export function DetailHttpPoc({ close, expected, ownerId }: { ownerId: string; c
   const [trial] = useState(() => new DetailHttpTrial({ uuid: Crypto.randomUUID, now: Date.now, active: () => mounted.current && foreground.current && !synthetic.current,
     navigate: url => { currentUrl.current = url; epoch.current++; setPage({ url, epoch: epoch.current }); },
     inject: script => web.current?.injectJavaScript(script), revoke,
-    changed: value => { if (mounted.current) setState(value); }, save: evidence => saveEvidence(ownerId, evidence.id, evidence),
+    changed: value => { if (mounted.current) setState(value); }, save: async evidence => {
+      console.info('MOFLIGHT_DETAIL_HTTP_TRIAL', JSON.stringify(summarizeDetailHttpEvidence(evidence)));
+      await saveEvidence(ownerId, evidence.id, evidence);
+    },
   }, expected));
   function stopSynthetic() {
     const owner = synthetic.current; if (!owner) return; synthetic.current = null; revoke();

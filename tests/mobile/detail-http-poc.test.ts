@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runInNewContext } from 'node:vm';
-import { DetailHttpTrial, type DetailHttpEvidence, type DetailHttpState } from '../../apps/platform-lab/src/vereinsflieger/detail-http-trial.ts';
+import { DetailHttpTrial, summarizeDetailHttpEvidence, type DetailHttpEvidence, type DetailHttpState } from '../../apps/platform-lab/src/vereinsflieger/detail-http-trial.ts';
 import { PROFILE_URL, type ObservedContext } from '../../apps/platform-lab/src/vereinsflieger/context.ts';
 import { compareDetailReads, decodeHttpDetail, detailHttpScript } from '../../apps/platform-lab/src/vereinsflieger/detail-http-poc.ts';
 import { decodeDetail } from '../../apps/platform-lab/src/vereinsflieger/details.ts';
@@ -87,6 +87,18 @@ test('failed evidence writes are visible; stale completions cannot overwrite a n
   assert.match(h.state.message, /nicht gespeichert/);
   const next = new Harness(); next.begin(); next.trial.stop(); next.trial.start(); await flush();
   assert.equal(next.state.phase, 'running');
+});
+test('sanitized native diagnostics contain fixed failure stages and timings, never private context or fields', () => {
+  const h = new Harness(); h.begin(); h.now += 40;
+  h.receive('vf-detail-http-v1', 3, { error: 'list-unsupported' });
+  const summary = summarizeDetailHttpEvidence(h.saves[0]!);
+  assert.deepEqual(summary.failure, { stage: 'http', reason: 'list-unsupported' });
+  assert.equal(summary.stages.http, 40);
+  assert.equal(summary.contextVerified, true);
+  const text = JSON.stringify(summary);
+  for (const privateValue of [context.accountNumber, context.clubLabel, detailUrl, 'D-TEST']) assert.ok(!text.includes(privateValue));
+  const raw = new Harness(); raw.begin(); raw.fetched(); raw.trial.stop();
+  assert.equal(JSON.stringify(summarizeDetailHttpEvidence(raw.saves[0]!)).includes('D-TEST'), false);
 });
 test('decoder rejects foreign URLs/accounts, malformed durations and mismatched IDs', () => {
   for (const changed of [{ context: { ...context, accountNumber: '200' } }, { detailUrl: detailUrl.replace('123', '999') },
