@@ -53,7 +53,8 @@ import {createSyncEstimate,confirmSyncEstimateContext,reduceSyncEstimate,learnSy
 import {readSyncEstimateHistory,saveSyncEstimateHistory} from './sync-estimate-native';
 
 // Workload changes invalidate older disposable timing hints.
-const ESTIMATE_CONTEXT='sync-detached-graph-json-v8';
+// Reuse and local-planning phase boundaries supersede the old v8 hints.
+const ESTIMATE_CONTEXT='sync-attempt-verification-v9';
 const optionalEstimateStages=['medical','duties','events','documents','work-summary','work-hours','tasks'] as const;
 const sourceEstimateStages={medical:'medical',duties:'duties',events:'events',documentNotices:'documents',workSummary:'work-summary',workHours:'work-hours',tasks:'tasks'} as const;
 const remainingEstimateStages=(sources:SyncRecoveryRecord['sources'])=>Object.entries(sourceEstimateStages).filter(([key])=>!['updated','empty','partial'].includes(sources[key as keyof typeof sources]??'')).map(([,stage])=>stage);

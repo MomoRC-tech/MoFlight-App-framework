@@ -955,6 +955,21 @@ test('a complete sync learns local stage hints and the next comparable attempt h
  }finally{second.dispose();}
 });
 
+test('old preparation/account timing hints are discarded after the Sync boundary change',async()=>{
+ const first=fixture({initialFlightsSaved:true,intent:'update'});let history:syncEstimate.SyncEstimateHistory;
+ try{first.render();await first.flush();first.complete();await first.flush();history=first.estimateHistory() as syncEstimate.SyncEstimateHistory;}finally{first.dispose();}
+ const old={...history!,scope:'sync-detached-graph-json-v8'};
+ const second=fixture({initialFlightsSaved:true,intent:'update',initialEstimateHistory:old});
+ try{
+  second.render();await second.flush();
+  const estimates=second.progressUpdates.map(p=>p.estimate).filter((p):p is syncEstimate.SyncEstimateState=>!!p);
+  assert.ok(estimates.length);assert.ok(estimates.every(p=>p.units.every(unit=>unit.expectedMs===null)));
+  second.complete();await second.flush();
+  assert.equal(second.estimateSaves()[0]!.scope,'sync-attempt-verification-v9');
+  assert.ok(second.estimateSaves()[0]!.samples.every(sample=>sample.durationsMs.length===1));
+ }finally{second.dispose();}
+});
+
 test('failed and background-interrupted sync attempts never train duration hints',async()=>{
  for(const mode of ['failure','background'] as const){
   const f=fixture({intent:'update',medicalFailure:mode==='failure'});
