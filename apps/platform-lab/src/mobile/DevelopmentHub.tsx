@@ -1,11 +1,23 @@
-import React, { useRef, useState } from 'react';
-import { View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { AppState, View } from 'react-native';
 import { Action, Card, Label } from './theme';
 import { SettingsContentDisclosure, SettingsContentGroup, SettingsContentRow, settingsContentStyles } from './settings-secondary-content';
 
 export function DevelopmentHub({ onDetailHttpPoc, onFlights, onBooks, onImportPreview, onCoreFlights, profileTools, onSelectBook, onBackup, onPaper, onDesignPreview, onBusyChange }: { onDetailHttpPoc?:()=>void; onBusyChange?: (busy:boolean)=>void; onDesignPreview?: () => void; onPaper: () => void; profileTools?: React.ReactNode; onSelectBook: () => void; onBackup: () => void; onFlights: () => void; onBooks: () => void; onProvider?: () => void; onImportPreview: () => void; onCoreFlights: () => void }) {
   const [targetProof,setTargetProof]=useState<string|null>(null),[proofBusy,setProofBusy]=useState(false);
   const running=useRef(false);
+  const active=useRef(true),[financialProof,setFinancialProof]=useState<string|null>(null);
+  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
+  const runFinancialProof=async(reopen=false)=>{
+    if(running.current)return;
+    running.current=true;setProofBusy(true);onBusyChange?.(true);setFinancialProof(null);
+    try {
+      const proof=await import('../development/financial-native-proof-native');
+      const result=await (reopen?proof.reopenFinancialNativeProofNative:proof.runFinancialNativeProofNative)(()=>active.current&&AppState.currentState==='active');
+      if(active.current)setFinancialProof(result.state==='passed'?`Finanzdatei-Nachweis bestanden (${result.checks.length}). Synthetische Daten; kein Anbieter- oder Dateiauswahl-Nachweis.`:'Finanzdatei-Nachweis fehlgeschlagen. Vorhandene Testdateien bleiben erhalten.');
+    }catch{if(active.current)setFinancialProof('Finanzdatei-Nachweis nicht verfügbar. Vorhandene Daten bleiben erhalten.');}
+    finally{running.current=false;if(active.current)setProofBusy(false);onBusyChange?.(false);}
+  };
   const runTargetProof=async()=>{
     if(running.current)return;
     running.current=true;setProofBusy(true);onBusyChange?.(true);setTargetProof(null);
@@ -23,6 +35,12 @@ export function DevelopmentHub({ onDetailHttpPoc, onFlights, onBooks, onImportPr
       <Label muted>Diese Seite ist keine Zugriffssperre und keine Freigabe für eine spätere Produktversion.</Label>
     </Card>
     <SettingsContentGroup title="Vorschau & lokale Nachweise">
+      <SettingsContentDisclosure title="Finanzdatei-Nachweis" summary="Getrennte synthetische Dateien; kein Anbieterzugriff" testID="development-financial-proof-details">
+        <Label muted>Prüft native SQLite-Belege, Version 4 und Wiederaufnahme nach unterbrochener Bestätigung. Bestehende Konten, Belege und Anmeldungen bleiben unverändert.</Label>
+        <Action disabled={proofBusy} onPress={()=>void runFinancialProof()}>Finanzdatei-Nachweis starten</Action>
+        <Action secondary disabled={proofBusy} onPress={()=>void runFinancialProof(true)}>Finanznachweis offline wieder öffnen</Action>
+        {financialProof&&<View accessibilityLiveRegion="polite"><Label selectable>{financialProof}</Label></View>}
+      </SettingsContentDisclosure>
       {onDesignPreview && <SettingsContentRow title="Designvorschau" summary="Fiktive Flüge, leere Listen und Fehlerzustände. Keine Speicherung und kein Anbieterzugriff." onPress={onDesignPreview} />}
       <SettingsContentDisclosure title="Sollstunden-Dateinachweis" summary="Nur fest abgegrenzte synthetische Konten" testID="development-target-proof-details">
         <Label muted>Prüft lokale Dateien und stellt deren vorherigen Inhalt wieder her; keine Anbieterabfrage.</Label>

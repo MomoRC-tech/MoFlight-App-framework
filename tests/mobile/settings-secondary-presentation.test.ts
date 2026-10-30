@@ -12,11 +12,12 @@ function fixture(file: string, component: string, props: Record<string, any> = {
     createElement: (type: any, props: any, ...children: any[]): Element => typeof type === 'function' ? type({ ...props, children: children.flat(Infinity) }) : ({ type, props: props ?? {}, children: children.flat(Infinity) }),
     useState(initial: unknown) { const i = cursor++; if (!(i in state)) state[i] = initial; return [state[i], (next: any) => { state[i] = typeof next === 'function' ? next(state[i]) : next; }]; },
     useRef: (value: unknown) => ({ current: value }),
+    useEffect() {},
   };
   const leaves = (names: string[]) => Object.fromEntries(names.map(name => [name, name]));
   const modules: Record<string, any> = {
     react: { default: react, ...react },
-    'react-native': { ...leaves(['View', 'Text', 'Pressable']), StyleSheet: { create: (value: unknown) => value }, Linking: { openURL: async (url: string) => { if (failLinks) throw new Error('Private native failure'); links.push(url); } } },
+    'react-native': { ...leaves(['View', 'Text', 'Pressable']), AppState: { currentState: 'active' }, StyleSheet: { create: (value: unknown) => value }, Linking: { openURL: async (url: string) => { if (failLinks) throw new Error('Private native failure'); links.push(url); } } },
     './theme': { ...leaves(['Action', 'Card', 'Label']), colors: {} },
   };
   function load(name: string) {
@@ -56,5 +57,8 @@ test('Development preserves every destination and does no work when opening or d
   for (const title of ['Designvorschau', 'Eigene Flugbibliothek', 'Synthetische Importvorschau', 'Datensätze & Flugworkflow', 'Synthetischen Papierstand', 'Synthetisches Flugbuch', 'Sichern & wiederherstellen', 'Flugbücher & Papierexperimente']) f.pressTitle(title);
   assert.deepEqual(calls, ['onDesignPreview', 'onCoreFlights', 'onImportPreview', 'onFlights', 'onPaper', 'onSelectBook', 'onBackup', 'onBooks']);
   f.pressTitle('Sollstunden-Dateinachweis'); f.render(); assert.equal(calls.length, 8);
+  f.pressTitle('Finanzdatei-Nachweis'); f.render(); assert.equal(calls.length, 8);
+  assert.match(f.text(), /Finanzdatei-Nachweis starten/); assert.match(f.text(), /Finanznachweis offline wieder öffnen/);
+  assert.match(f.text(), /Bestehende Konten, Belege und Anmeldungen bleiben unverändert/);
   assert.match(f.text(), /stellt deren vorherigen Inhalt wieder her/); assert.match(f.text(), /keine eigenen Vereinsflieger-Flüge oder Medical-Angaben/);
 });
