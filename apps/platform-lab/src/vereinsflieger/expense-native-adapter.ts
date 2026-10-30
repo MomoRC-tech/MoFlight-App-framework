@@ -3,6 +3,7 @@ import type { Driver, Hash } from '@moflight/local-data';
 import type { UserFinancialBackup } from '../user-backup';
 import type { FinancialObservationTarget } from './expense-ledger-observation';
 import { FinancialObservationStore, validateFinancialObservationBackup, validateFinancialObservationTarget } from './expense-observation-store';
+import { FinancialEvidenceStore, decodeFinancialEvidence } from './expense-evidence-store';
 import type { RealFlightNativeScope } from './real-flight-native';
 import type { ProviderScope } from './scope-store';
 
@@ -86,7 +87,7 @@ export function createFinancialNativeAdapter(deps: FinancialNativeDependencies) 
         if (v?.user_version === 0) {
           if (!create || (await tx.all("SELECT name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'")).length) throw Error('Uninitialized or nonempty financial selection.');
           await tx.exec(schema); await tx.run('INSERT INTO financial_selection_manifest VALUES (1,?)', canonical(selected));
-        } else if (v?.user_version !== 1) throw Error('Unsupported financial selection.');
+        } else if (v?.user_version !== 1 && v?.user_version !== 2) throw Error('Unsupported financial selection.');
         const m = await tx.first<{ target: string }>('SELECT target FROM financial_selection_manifest WHERE singleton=1');
         if (m?.target !== canonical(selected)) throw Error('Foreign financial selection.');
         await allowed();
@@ -109,12 +110,13 @@ export function createFinancialNativeAdapter(deps: FinancialNativeDependencies) 
       const pending = await db.first<Preparation>('SELECT * FROM financial_restore_preparations WHERE operation_id NOT IN (SELECT operation_id FROM financial_store_selections) LIMIT 1');
       if (pending) { validPrep(pending); throw Error('Financial restore selection is pending.'); }
       const row = await db.first<Selection>('SELECT * FROM financial_store_selections ORDER BY seq DESC LIMIT 1');
-      if (!row) return n.initial;
+      const checked = async(name:string)=>{const table=await db.first("SELECT name FROM sqlite_master WHERE type='table' AND name='financial_evidence_presence'");if(table&&await db.first('SELECT raw_file FROM financial_evidence_presence WHERE raw_file=?',name)&&!deps.file(name+'-evidence.sqlite').exists)throw Error('Selected financial evidence is missing; originals are retained.');return name;};
+      if (!row) return await checked(n.initial);
       const prep = await db.first<Preparation>('SELECT * FROM financial_restore_preparations WHERE operation_id=?', validRow(row).operation_id);
       if (!prep || validPrep(prep).archive_sha256 !== row.archive_sha256 || prep.previous_sequence >= row.seq) throw Error('Financial selection preparation is inconsistent.');
       const name = n.candidate(validRow(row).operation_id);
       if (!deps.file(name).exists) throw Error('Selected financial store is missing; preserved for recovery.');
-      return name;
+      return await checked(name);
     } finally { await db.close(); }
   }
   async function openStore(scope: RealFlightNativeScope, selected: FinancialObservationTarget, name: string, create: boolean, gate: Gate) {
@@ -127,17 +129,22 @@ export function createFinancialNativeAdapter(deps: FinancialNativeDependencies) 
       await store.initialize(create); return store;
     } catch (error) { await db.close(); throw error; }
   }
-  async function section(selected: FinancialObservationTarget, archive: string): Promise<Section> {
+  async function evidenceStore(scope:RealFlightNativeScope,selected:FinancialObservationTarget,name:string,create:boolean,gate:Gate){
+    await guard(scope,selected,gate,create);const file=name+'-evidence.sqlite';if(!deps.file(file).exists&&!create)return null;if(create)reserve(file);
+    const db=await deps.openDriver(file);try{const store=new FinancialEvidenceStore(db,selected,deps.hash,()=>guard(scope,selected,gate,create));await store.initialize(create);if(create){const selection=await selectionDb(selected,true,()=>guard(scope,selected,gate,true));if(!selection)throw Error('Financial evidence selection unavailable.');try{await selection.transaction(async tx=>{await guard(scope,selected,gate,true);await tx.exec('CREATE TABLE IF NOT EXISTS financial_evidence_presence(raw_file TEXT PRIMARY KEY); PRAGMA user_version=2;');await tx.run('INSERT OR IGNORE INTO financial_evidence_presence VALUES (?)',name);});}finally{await selection.close();}}return store;}catch(error){await db.close();throw error;}
+  }
+  async function section(selected: FinancialObservationTarget, archive: string, evidence?:Section['evidence']): Promise<Section> {
     const graph = await validateFinancialObservationBackup(archive, selected, deps.hash);
-    return { state: graph.receipts.length ? 'present' : 'empty', target: selected, archive };
+    if(evidence&&evidence.state!=='absent'){const values=await decodeFinancialEvidence(evidence.archive,selected,deps.hash);if((evidence.state==='empty')!==(values.length===0))throw Error('Financial evidence state differs.');}
+    return { state: graph.receipts.length ? 'present' : 'empty', target: selected, archive, ...(evidence?{evidence}:{}) };
   }
   async function validateSection(input: Section, selected: FinancialObservationTarget) {
-    if (canonical(input.target) !== canonical(selected) || canonical(await section(selected, input.archive)) !== canonical(input)) throw Error('Foreign or inconsistent financial section.');
+    if (canonical(input.target) !== canonical(selected) || canonical(await section(selected, input.archive,input.evidence)) !== canonical(input)) throw Error('Foreign or inconsistent financial section.');
   }
   return {
     currentTarget: (scope: RealFlightNativeScope, gate: Gate) => target(pin(scope), gate, false),
     async withCurrentStore<T>(scope: RealFlightNativeScope, input: FinancialObservationTarget, gate: Gate,
-      work: (store: FinancialObservationStore) => Promise<T>): Promise<T> {
+      work: (store: FinancialObservationStore, fileName:string) => Promise<T>): Promise<T> {
       const selected = validateFinancialObservationTarget(input);
       scope = pin(scope);
       if (scope.backupRestoreOperationId) throw Error('Capture cannot use a financial restore permit.');
@@ -148,9 +155,13 @@ export function createFinancialNativeAdapter(deps: FinancialNativeDependencies) 
         // An already selected restore candidate must retain its valid manifest.
         const store = await openStore(scope, selected, name, name === n.initial, gate);
         if (!store) throw Error('Financial store is unavailable.');
-        try { const result = await work(store); await allowed(); return result; } finally { await store.db.close(); }
+        try { const result = await work(store,name); await allowed(); return result; } finally { await store.db.close(); }
       });
     },
+    async withEvidence<T>(scope:RealFlightNativeScope,input:FinancialObservationTarget,gate:Gate,create:boolean,work:(store:FinancialEvidenceStore|null)=>Promise<T>):Promise<T>{
+      scope=pin(scope);const selected=validateFinancialObservationTarget(input);return locked(async()=>{await guard(scope,selected,gate,create);const name=await selectedName(selected,()=>guard(scope,selected,gate,create));const store=await evidenceStore(scope,selected,name,create,gate);try{const value=await work(store);await guard(scope,selected,gate,create);return value;}finally{await store?.db.close();}});
+    },
+    async inventory(scope:RealFlightNativeScope,input:FinancialObservationTarget,gate:Gate){scope=pin(scope);const selected=validateFinancialObservationTarget(input);return locked(async()=>{const allowed=()=>guard(scope,selected,gate,false);const name=await selectedName(selected,allowed);const raw=await openStore(scope,selected,name,false,gate);if(!raw)return null;try{const evidence=await evidenceStore(scope,selected,name,false,gate);try{const result={raw:await raw.inventory(),evidence:evidence?await evidence.inventory():null};await allowed();return result;}finally{await evidence?.db.close();}}finally{await raw.db.close();}});},
     async exportSection(scope: RealFlightNativeScope, gate: Gate): Promise<UserFinancialBackup> {
       scope = pin(scope);
       return locked(async () => {
@@ -158,7 +169,7 @@ export function createFinancialNativeAdapter(deps: FinancialNativeDependencies) 
         const allowed = () => guard(scope, selected, gate, false);
         const name = await selectedName(selected, allowed), store = await openStore(scope, selected, name, false, gate);
         if (!store) { await allowed(); return { state: 'absent' }; }
-        try { const result = await section(selected, await store.exportBackup()); await allowed(); return result; }
+        try { const evidence=await evidenceStore(scope,selected,name,false,gate);try{const evidenceArchive=evidence?await evidence.exportBackup():null;const values=evidenceArchive?await decodeFinancialEvidence(evidenceArchive,selected,deps.hash):null;const result = await section(selected, await store.exportBackup(),evidenceArchive?{state:values!.length?'present':'empty',archive:evidenceArchive}:undefined); await allowed(); return result;}finally{await evidence?.db.close();} }
         finally { await store.db.close(); }
       });
     },
@@ -170,15 +181,15 @@ export function createFinancialNativeAdapter(deps: FinancialNativeDependencies) 
     },
     async restore(scope: RealFlightNativeScope, input: Section, permit: Permit, gate: Gate): Promise<void> {
       // Detach the caller's text/target before the first asynchronous boundary.
-      const selected = validateFinancialObservationTarget(input.target), archive = input.archive;
+      const selected = validateFinancialObservationTarget(input.target), archive = input.archive, incomingEvidence=input.evidence?JSON.parse(canonical(input.evidence)) as Section['evidence']:undefined;
       const held = { ...permit };
       if (!uuid.test(held.operationId) || held.ownerId !== selected.scope.owner || held.storeId !== selected.storeId ||
           scope.backupRestoreOperationId && scope.backupRestoreOperationId !== held.operationId) throw Error('Foreign financial restore permit.');
       const internal = { ...pin(scope), backupRestoreOperationId: held.operationId };
       return locked(async () => {
         const allowed = () => guard(internal, selected, gate, true);
-        await allowed(); await validateSection({ ...input, target: selected, archive }, selected); await allowed();
-        const sha = await deps.hash(archive); if (!digest.test(sha)) throw Error('Invalid financial archive digest.');
+        await allowed(); await validateSection({ ...input, target: selected, archive, ...(incomingEvidence?{evidence:incomingEvidence}:{}) }, selected); await allowed();
+        const sha = await deps.hash(incomingEvidence?canonical({archive,evidence:incomingEvidence}):archive); if (!digest.test(sha)) throw Error('Invalid financial archive digest.');
         const n = await names(selected), candidate = n.candidate(held.operationId);
         const db = await selectionDb(selected, true, allowed); if (!db) throw Error('Financial selection unavailable.');
         try {
@@ -204,6 +215,17 @@ export function createFinancialNativeAdapter(deps: FinancialNativeDependencies) 
             if (!existing) await store.restoreBackup(archive);
             if (await store.exportBackup() !== archive) throw Error('Financial candidate verification failed.');
           } finally { await store.db.close(); }
+          const preparation=await db.first<Preparation>('SELECT * FROM financial_restore_preparations WHERE operation_id=?',held.operationId);if(!preparation)throw Error('Financial preparation unavailable.');
+          let evidenceArchive=incomingEvidence&&incomingEvidence.state!=='absent'?incomingEvidence.archive:null;
+          if(!incomingEvidence||incomingEvidence.state==='absent'){
+            const previous=preparation.previous_sequence?await db.first<Selection>('SELECT * FROM financial_store_selections WHERE seq=?',preparation.previous_sequence):null;
+            const previousName=previous?n.candidate(previous.operation_id):n.initial;
+            const priorEvidence=await evidenceStore(internal,selected,previousName,false,gate);try{if(priorEvidence)evidenceArchive=await priorEvidence.exportBackup();}finally{await priorEvidence?.db.close();}
+          }
+          if(evidenceArchive!==null){
+            const evidence=await evidenceStore(internal,selected,candidate,!existing,gate);if(!evidence)throw Error('Financial evidence candidate missing.');
+            try{if(!existing)await evidence.restoreBackup(evidenceArchive);if(await evidence.exportBackup()!==evidenceArchive)throw Error('Financial evidence candidate readback failed.');}finally{await evidence.db.close();}
+          }
           await allowed();
           await db.transaction(async tx => {
             await allowed();

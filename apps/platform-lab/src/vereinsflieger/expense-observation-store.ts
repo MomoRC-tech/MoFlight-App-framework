@@ -274,4 +274,9 @@ export class FinancialObservationStore {
       return { state: total > 20 ? 'history-limit' : !total ? 'missing' : variants.size === 1 ? 'consistent' : 'conflict', total, variants: [...variants.values()] };
     });
   }
+  /** A fresh immutable-receipt inventory gates a previously validated graph.
+   * It is not an independent payload-integrity or source-authentication proof. */
+  async inventory():Promise<Pick<FinancialObservationReceipt,'id'|'sequence'|'checksum'>[]>{
+    return this.serial(async()=>{await this.allowed('read');await this.manifest(this.db);const rows=await this.db.all<{id:string;seq:number;checksum:string}>('SELECT id,seq,checksum FROM financial_observations ORDER BY seq');if(rows.length>MAX_RECEIPTS)throw Error('Financial inventory limit exceeded.');let prior=0;for(const row of rows){receiptId(row.id);if(!Number.isSafeInteger(row.seq)||row.seq<=prior||!/^[0-9a-f]{64}$/.test(row.checksum))throw Error('Corrupt financial receipt inventory.');prior=row.seq;}await this.allowed('read');return rows.map(({id,seq,checksum})=>({id,sequence:seq,checksum}));});
+  }
 }

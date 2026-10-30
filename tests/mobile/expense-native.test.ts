@@ -15,6 +15,7 @@ import { createFinancialNativeAdapter } from '../../apps/platform-lab/src/verein
 import { FinancialObservationStore, validateFinancialObservationTarget } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
 import { FinancialCaptureRun } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-run.ts';
 import { nodeDriver } from './sqlite-driver.ts';
+import { evidenceSnapshot,evidenceBilled } from './fixtures/expense-evidence.ts';
 import { financialTarget as target, financialHash as hash, financialObservation as observation, financialAt as at,
   financialListUrl as listUrl, financialDetailUrl as detailUrl, financialProfile as profile, financialRead as read } from './fixtures/expense-capture.ts';
 
@@ -40,7 +41,7 @@ async function fixture() {
     candidateName: 'synthetic-financial-owner.sqlite' }, authorize: () => state.authorized ? { ...current } : null,
     registry: { async assertCurrent(held: { leaseId: string }) { if (!state.registry || held.leaseId !== current.leaseId) throw Error('Expired registry lease'); } } };
   const deps = {
-    file(name: string) { assert.match(name, /^moflight-financial-[0-9a-f]{64}(?:-selection|-restore-[0-9a-f-]{36})?\.sqlite$/);
+    file(name: string) { assert.match(name, /^moflight-financial-[0-9a-f]{64}(?:-selection|-restore-[0-9a-f-]{36})?\.sqlite(?:-evidence\.sqlite)?$/);
       const path = join(directory, name); return { get exists() { return existsSync(path); }, create() { closeSync(openSync(path, 'wx')); } }; },
     async openDriver(name: string): Promise<Driver> {
       state.opens++; const db = nodeDriver(join(directory, name));
@@ -72,6 +73,19 @@ async function fixture() {
     assert.equal(state.opens, state.closes, 'all database handles are closed'); await rm(directory, { recursive: true, force: true });
   } };
 }
+
+test('v5 sidecar follows raw restore selection and older v4 restore preserves own evidence',async()=>{
+ const f=await fixture();try{
+ await f.adapter.withCurrentStore(f.scope,target,noop,store=>store.save('billed-evidence','billed-flight',evidenceBilled()));
+ await f.adapter.withEvidence(f.scope,target,noop,true,async store=>{if(!store)throw Error('missing');await store.save(await evidenceSnapshot());});
+ const current=await f.adapter.exportSection(f.scope,noop);if(current.state==='absent'||current.evidence?.state!=='present')throw Error('evidence absent');
+ const old:Section={state:current.state,target,archive:current.archive};f.state.pending=permit;
+ await f.adapter.restore(f.scope,old,permit,noop);f.state.pending=null;
+ const restored=await f.adapter.exportSection(f.scope,noop);assert.deepEqual(restored,current);
+ const second={...permit,operationId:'66666666-6666-4666-8666-666666666666'};f.state.pending=second;
+ await f.adapter.restore(f.scope,current,second,noop);f.state.pending=null;assert.deepEqual(await f.adapter.exportSection(f.scope,noop),current);
+ }finally{await f.cleanup();}
+});
 
 test('financial native absence reads create no files; explicit save survives fresh adapter and database reopen', async () => {
   const f = await fixture();
@@ -258,7 +272,7 @@ test('native restore wrapper requires actual matching durable pending operation 
   const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/expense-native.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
   let captured!: Parameters<typeof createFinancialNativeAdapter>[0]; let closed = 0, pending: typeof permit | null = null;
   const modules: Record<string, unknown> = {
-    'expo-file-system': {}, 'expo-sqlite': {}, '../storage': {}, './scoped-storage': {},
+    'expo-file-system': {}, 'expo-sqlite': {}, '../storage': {}, './scoped-storage': {}, './real-flight-native': {}, './expense-collection-run': {},
     '@moflight/flight-logbook': { canonical }, './expense-observation-store': { validateFinancialObservationTarget },
     './expense-native-adapter': { createFinancialNativeAdapter(deps: typeof captured) { captured = deps; return {}; } },
     '../user-backup-restore-journal-native': { assertNoPendingUserBackupRestore: noop, async openUserBackupRestoreJournal() {
@@ -276,7 +290,7 @@ test('native capture options bind the original lease and save the guarded run th
   const f = await fixture(); try {
     const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/expense-native.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
     const modules: Record<string, unknown> = {
-      'expo-file-system': {}, 'expo-sqlite': {}, '../storage': {}, './scoped-storage': {}, '../user-backup-restore-journal-native': {},
+      'expo-file-system': {}, 'expo-sqlite': {}, '../storage': {}, './scoped-storage': {}, './real-flight-native': {}, './expense-collection-run': {}, '../user-backup-restore-journal-native': {},
       '@moflight/flight-logbook': { canonical }, './expense-observation-store': { validateFinancialObservationTarget },
       './expense-native-adapter': { createFinancialNativeAdapter() { return f.adapter; } },
     };

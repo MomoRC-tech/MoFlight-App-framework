@@ -84,12 +84,12 @@ export async function restoreUserBackup(ownerId: string, storeId: string, gate: 
   let needsFinancialTarget = false;
   try {
     const envelope = JSON.parse(text);
-    needsFinancialTarget = envelope?.version === 4 && JSON.parse(envelope.payload)?.financial?.state !== 'absent';
+    needsFinancialTarget = [4,5].includes(envelope?.version) && JSON.parse(envelope.payload)?.financial?.state !== 'absent';
   } catch { /* Full validator supplies the format verdict. */ }
   const financialTarget = needsFinancialTarget ? await ports.financial?.currentTarget(ownerId, storeId) ?? null : undefined;
   await gate();
   const payload = await validateUserBackup(text, { ownerId, storeId, informationScope, financialTarget }, ports.hash);
-  const financial = payload.version === 4 && payload.financial.state !== 'absent' ? payload.financial : null;
+  const financial = (payload.version === 4 || payload.version === 5) && payload.financial.state !== 'absent' ? payload.financial : null;
   const archiveSha256 = await ports.hash(text);
   const aiArchive = payload.version >= 2 && 'ai' in payload ? decodeChatArchive(payload.ai.archive, ownerId, { interruptActive: true }) : emptyUserChatArchive(ownerId);
   if (!/^[0-9a-f]{64}$/.test(archiveSha256)) throw new Error('Invalid user backup archive digest.');

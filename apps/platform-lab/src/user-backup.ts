@@ -11,11 +11,13 @@ import { latestRealFlightValues, type StoredBinding } from './vereinsflieger/rea
 import { validateRealFlightBackup } from './vereinsflieger/real-flight-library-model';
 import { validateFinancialObservationBackup, validateFinancialObservationTarget } from './vereinsflieger/expense-observation-store';
 import type { FinancialObservationTarget } from './vereinsflieger/expense-ledger-observation';
+import { decodeFinancialEvidence } from './vereinsflieger/expense-evidence-store';
 
 export const USER_BACKUP_FORMAT = 'moflight-supported-user-backup';
 export const USER_BACKUP_VERSION = 3;
 /** Selected when a native raw financial store exists; legacy default remains v3. */
 export const USER_BACKUP_FINANCIAL_VERSION = 4;
+export const USER_BACKUP_FINANCIAL_EVIDENCE_VERSION = 5;
 export const USER_BACKUP_LIMIT = 260 * 1024 * 1024;
 export const USER_BACKUP_INCLUDED_V1 = [
   'the synthetic pilot library: books, sources, memberships, writing state and snapshots',
@@ -43,6 +45,7 @@ export const USER_BACKUP_EXCLUSIONS = USER_BACKUP_EXCLUSIONS_V2;
 export const USER_BACKUP_INCLUDED_V4 = [...USER_BACKUP_INCLUDED, 'attributed own raw financial ledger and billed-flight observation receipts'] as const;
 export const USER_BACKUP_EXCLUSIONS_V4 = USER_BACKUP_EXCLUSIONS.map(value => value === 'billing/member-account captures and training captures that can name instructors'
   ? 'unattributed historical billing/member-account captures and instructor-naming training captures' : value);
+export const USER_BACKUP_INCLUDED_V5 = [...USER_BACKUP_INCLUDED_V4, 'checksummed own invoice, account links and financial source-selection evidence'] as const;
 
 export function selectedPilotBookForBackup(books: readonly { id: string }[], remembered: string | null): string | null {
   if (!books.length) return null;
@@ -64,10 +67,12 @@ export interface UserBackupInputV2 extends UserBackupInputV1 { ai: { archive: st
 export interface UserBackupPayloadV2 extends UserBackupInputV2 { version: 2 }
 export interface UserBackupInputV3 extends UserBackupInputV2 { dutyTargets: DutyTargetArchive }
 export interface UserBackupPayloadV3 extends UserBackupInputV3 { version: 3 }
-export type UserFinancialBackup = { state: 'absent' } | { state: 'empty' | 'present'; target: FinancialObservationTarget; archive: string };
+export type UserFinancialEvidenceBackup = {state:'absent'} | {state:'empty'|'present';archive:string};
+export type UserFinancialBackup = { state: 'absent' } | { state: 'empty' | 'present'; target: FinancialObservationTarget; archive: string; evidence?:UserFinancialEvidenceBackup };
 export interface UserBackupInputV4 extends UserBackupInputV3 { financial: UserFinancialBackup }
 export interface UserBackupPayloadV4 extends UserBackupInputV4 { version: 4 }
-export type UserBackupPayload = UserBackupPayloadV1 | UserBackupPayloadV2 | UserBackupPayloadV3 | UserBackupPayloadV4;
+export interface UserBackupPayloadV5 extends UserBackupInputV4 { version: 5 }
+export type UserBackupPayload = UserBackupPayloadV1 | UserBackupPayloadV2 | UserBackupPayloadV3 | UserBackupPayloadV4 | UserBackupPayloadV5;
 export function emptyUserChatArchive(ownerId: string): ChatArchive {
   return { version: 1, ownerId, activitySequence: 0, identity: null, conversations: [] };
 }
@@ -124,8 +129,9 @@ export async function createUserBackup(input: UserBackupInputV1 | UserBackupInpu
 export async function createUserBackupV4(input: UserBackupInputV4, hash: Hash): Promise<string> {
   return createAtVersion(input, hash, 4);
 }
+export async function createUserBackupV5(input:UserBackupInputV4,hash:Hash):Promise<string>{return createAtVersion(input,hash,5);}
 async function createAtVersion(input: UserBackupInputV1 | UserBackupInputV2 | UserBackupInputV3 | UserBackupInputV4, hash: Hash, version: number): Promise<string> {
-  exact(input, ['createdAt', 'ownerId', 'storeId', 'pilot', 'realFlights', 'information', ...(version >= 2 ? ['ai'] : []), ...(version >= 3 ? ['dutyTargets'] : []), ...(version === 4 ? ['financial'] : [])], 'user backup input');
+  exact(input, ['createdAt', 'ownerId', 'storeId', 'pilot', 'realFlights', 'information', ...(version >= 2 ? ['ai'] : []), ...(version >= 3 ? ['dutyTargets'] : []), ...(version >= 4 ? ['financial'] : [])], 'user backup input');
   timestamp(input.createdAt); uuid(input.ownerId, 'owner'); uuid(input.storeId, 'store');
   exact(input.pilot, ['ownerId', 'backup', 'displayName', 'selectedBookId'], 'pilot backup section');
   exact(input.realFlights, ['backup'], 'real flight backup section');
@@ -157,9 +163,9 @@ async function createAtVersion(input: UserBackupInputV1 | UserBackupInputV2 | Us
   const dutyTargets = version >= 3 ? await validateDutySection((input as UserBackupInputV3).dutyTargets, input.ownerId, input.storeId, input.realFlights.backup, hash) : null;
   const financialInput = (input as UserBackupInputV4).financial;
   const financialTarget = financialInput && financialInput.state !== 'absent' ? financialInput.target : null;
-  const financial = version === 4 ? await validateFinancialSection(financialInput, financialTarget, input.ownerId, input.storeId, input.realFlights.backup, hash) : null;
-  const payload = canonical({ version, includes: version === 1 ? USER_BACKUP_INCLUDED_V1 : version === 2 ? USER_BACKUP_INCLUDED_V2 : version === 4 ? USER_BACKUP_INCLUDED_V4 : USER_BACKUP_INCLUDED,
-    excludes: version === 1 ? USER_BACKUP_EXCLUSIONS_V1 : version === 4 ? USER_BACKUP_EXCLUSIONS_V4 : USER_BACKUP_EXCLUSIONS,
+  const financial = version >= 4 ? await validateFinancialSection(financialInput, financialTarget, input.ownerId, input.storeId, input.realFlights.backup, hash, version) : null;
+  const payload = canonical({ version, includes: version === 1 ? USER_BACKUP_INCLUDED_V1 : version === 2 ? USER_BACKUP_INCLUDED_V2 : version === 5 ? USER_BACKUP_INCLUDED_V5 : version === 4 ? USER_BACKUP_INCLUDED_V4 : USER_BACKUP_INCLUDED,
+    excludes: version === 1 ? USER_BACKUP_EXCLUSIONS_V1 : version >= 4 ? USER_BACKUP_EXCLUSIONS_V4 : USER_BACKUP_EXCLUSIONS,
     informationCategories: { included: informationBackupCategories, excluded: informationBackupExcludedCategories },
     createdAt: input.createdAt, ownerId: input.ownerId, storeId: input.storeId,
     pilot: { ownerId: input.pilot.ownerId, backup: input.pilot.backup,
@@ -179,14 +185,14 @@ export async function validateUserBackup(text: string, target: { ownerId: string
   const envelope: unknown = JSON.parse(text);
   exact(envelope, ['format', 'version', 'payload', 'checksum'], 'user backup envelope');
   const e = envelope as Record<string, unknown>;
-  if (e.format !== USER_BACKUP_FORMAT || !([1, 2, 3, USER_BACKUP_FINANCIAL_VERSION] as unknown[]).includes(e.version) || typeof e.payload !== 'string' ||
+  if (e.format !== USER_BACKUP_FORMAT || !([1, 2, 3, USER_BACKUP_FINANCIAL_VERSION, USER_BACKUP_FINANCIAL_EVIDENCE_VERSION] as unknown[]).includes(e.version) || typeof e.payload !== 'string' ||
       typeof e.checksum !== 'string' || !/^[0-9a-f]{64}$/.test(e.checksum) || await hash(e.payload) !== e.checksum ||
       bytes(e.payload) > USER_BACKUP_LIMIT || canonical(e) !== text) throw new Error('Unsupported or corrupt user backup.');
   const value: unknown = JSON.parse(e.payload);
-  exact(value, ['version', 'includes', 'excludes', 'informationCategories', 'createdAt', 'ownerId', 'storeId', 'pilot', 'realFlights', 'information', ...((e.version as number) >= 2 ? ['ai'] : []), ...((e.version as number) >= 3 ? ['dutyTargets'] : []), ...(e.version === 4 ? ['financial'] : [])], 'user backup payload');
+  exact(value, ['version', 'includes', 'excludes', 'informationCategories', 'createdAt', 'ownerId', 'storeId', 'pilot', 'realFlights', 'information', ...((e.version as number) >= 2 ? ['ai'] : []), ...((e.version as number) >= 3 ? ['dutyTargets'] : []), ...((e.version as number) >= 4 ? ['financial'] : [])], 'user backup payload');
   const p = value as Record<string, unknown>;
-  if (p.version !== e.version || canonical(p) !== e.payload || canonical(p.includes) !== canonical(e.version === 1 ? USER_BACKUP_INCLUDED_V1 : e.version === 2 ? USER_BACKUP_INCLUDED_V2 : e.version === 4 ? USER_BACKUP_INCLUDED_V4 : USER_BACKUP_INCLUDED) ||
-      canonical(p.excludes) !== canonical(e.version === 1 ? USER_BACKUP_EXCLUSIONS_V1 : e.version === 4 ? USER_BACKUP_EXCLUSIONS_V4 : USER_BACKUP_EXCLUSIONS)) throw new Error('Unsupported user backup payload version or coverage.');
+  if (p.version !== e.version || canonical(p) !== e.payload || canonical(p.includes) !== canonical(e.version === 1 ? USER_BACKUP_INCLUDED_V1 : e.version === 2 ? USER_BACKUP_INCLUDED_V2 : e.version === 5 ? USER_BACKUP_INCLUDED_V5 : e.version === 4 ? USER_BACKUP_INCLUDED_V4 : USER_BACKUP_INCLUDED) ||
+      canonical(p.excludes) !== canonical(e.version === 1 ? USER_BACKUP_EXCLUSIONS_V1 : (e.version as number) >= 4 ? USER_BACKUP_EXCLUSIONS_V4 : USER_BACKUP_EXCLUSIONS)) throw new Error('Unsupported user backup payload version or coverage.');
   exact(p.informationCategories, ['included', 'excluded'], 'information category coverage');
   const categoryCoverage = p.informationCategories as Record<string, unknown>;
   if (canonical(categoryCoverage.included) !== canonical(informationBackupCategories) ||
@@ -219,14 +225,14 @@ export async function validateUserBackup(text: string, target: { ownerId: string
     pilot: { ownerId: 'synthetic-pilot', backup: pilot.backup, displayName: normalizedDisplayName(pilot.displayName),
       selectedBookId: pilot.selectedBookId as string | null },
     realFlights: { backup: realFlights.backup }, information };
-  if (e.version === 2 || e.version === 3 || e.version === 4) {
+  if (e.version === 2 || e.version === 3 || e.version === 4 || e.version === 5) {
     exact(p.ai, ['archive'], 'AI backup section');
     const section = p.ai as Record<string, unknown>;
     if (typeof section.archive !== 'string') throw new Error('Invalid AI backup archive');
     await validateAiSection(section.archive, target.ownerId, target.storeId, realFlights.backup, hash);
-    if (e.version === 4) return { ...base, version: 4, ai: { archive: section.archive },
+    if (e.version === 4 || e.version === 5) return { ...base, version: e.version, ai: { archive: section.archive },
       dutyTargets: await validateDutySection(p.dutyTargets, target.ownerId, target.storeId, realFlights.backup, hash),
-      financial: await validateFinancialSection(p.financial, target.financialTarget, target.ownerId, target.storeId, realFlights.backup, hash) };
+      financial: await validateFinancialSection(p.financial, target.financialTarget, target.ownerId, target.storeId, realFlights.backup, hash, e.version) };
     if (e.version === 3) return { ...base, version: 3, ai: { archive: section.archive }, dutyTargets: await validateDutySection(p.dutyTargets, target.ownerId, target.storeId, realFlights.backup, hash) };
     return { ...base, version: 2, ai: { archive: section.archive } };
   }
@@ -234,11 +240,11 @@ export async function validateUserBackup(text: string, target: { ownerId: string
 }
 
 async function validateFinancialSection(value: unknown, expected: FinancialObservationTarget | null | undefined,
-  ownerId: string, storeId: string, realBackup: string, hash: Hash): Promise<UserFinancialBackup> {
+  ownerId: string, storeId: string, realBackup: string, hash: Hash, version=4): Promise<UserFinancialBackup> {
   if (value && typeof value === 'object' && (value as { state?: unknown }).state === 'absent') {
     exact(value, ['state'], 'absent financial section'); return { state: 'absent' };
   }
-  exact(value, ['state', 'target', 'archive'], 'financial section');
+  exact(value, ['state', 'target', 'archive', ...(version === 5 ? ['evidence'] : [])], 'financial section');
   const p = value as Record<string, unknown>;
   if (!expected || !['empty', 'present'].includes(p.state as string) || typeof p.archive !== 'string') throw new Error('Unavailable financial restore target.');
   const selected = validateFinancialObservationTarget(expected), observed = validateFinancialObservationTarget(p.target as FinancialObservationTarget);
@@ -248,7 +254,9 @@ async function validateFinancialSection(value: unknown, expected: FinancialObser
   const graph = await validateRealFlightBackup(realBackup, ownerId, storeId, hash);
   const binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
   if (binding && binding.accountRef !== selected.scope.context.accountNumber) throw new Error('Financial backup differs from the saved provider binding.');
-  return { state: p.state as 'empty' | 'present', target: selected, archive: p.archive };
+  let evidence:UserFinancialEvidenceBackup|undefined;
+  if(version===5){const e=p.evidence as UserFinancialEvidenceBackup;if(e?.state==='absent'){exact(e,['state'],'absent financial evidence');evidence={state:'absent'};}else{exact(e,['state','archive'],'financial evidence');if(!['empty','present'].includes(e.state))throw Error('Invalid financial evidence state.');const snapshots=await decodeFinancialEvidence(e.archive,selected,hash);if((e.state==='empty')!==(snapshots.length===0))throw Error('Financial evidence empty/present mismatch.');evidence={state:e.state,archive:e.archive};}}
+  return { state: p.state as 'empty' | 'present', target: selected, archive: p.archive, ...(evidence?{evidence}:{}) };
 }
 
 async function validateAiSection(text: string, ownerId: string, storeId: string, realBackup: string, hash: Hash): Promise<void> {

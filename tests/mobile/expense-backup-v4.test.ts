@@ -9,7 +9,7 @@ import { PilotBooks } from '../../packages/local-data/src/books.ts';
 import { RealFlightLibrary } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library.ts';
 import { FinancialObservationStore, validateFinancialObservationBackup } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
 import type { FinancialLedgerObservation } from '../../apps/platform-lab/src/vereinsflieger/expense-ledger-observation.ts';
-import { createUserBackup, createUserBackupV4, emptyUserChatArchive, USER_BACKUP_VERSION, validateUserBackup,
+import { createUserBackup, createUserBackupV4, createUserBackupV5, emptyUserChatArchive, USER_BACKUP_VERSION, validateUserBackup,
   type UserBackupInputV3, type UserFinancialBackup } from '../../apps/platform-lab/src/user-backup.ts';
 import { encodeChatArchive } from '../../apps/platform-lab/src/ai/chat-model.ts';
 import { FinancialCaptureRun } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-run.ts';
@@ -18,6 +18,8 @@ import type { RealFlightNativeScope } from '../../apps/platform-lab/src/vereinsf
 import { restoreUserBackup, type UserBackupServicePorts } from '../../apps/platform-lab/src/user-backup-service.ts';
 import { UserBackupRestoreJournal, assertUserBackupReadAllowed } from '../../apps/platform-lab/src/user-backup-restore-journal.ts';
 import { nodeDriver } from './sqlite-driver.ts';
+import { encodeFinancialEvidence,decodeFinancialEvidence } from '../../apps/platform-lab/src/vereinsflieger/expense-evidence-store.ts';
+import { evidenceSnapshot } from './fixtures/expense-evidence.ts';
 import { financialAt as at, financialHash as hash, financialTarget as target, financialObservation as observation,
   financialListUrl as listUrl, financialDetailUrl as detailUrl, financialProfile as profile, financialRead as read } from './fixtures/expense-capture.ts';
 
@@ -137,6 +139,18 @@ test('foreign, reordered, duplicate, future and smuggled financial archives reje
     await assert.rejects(validateFinancialObservationBackup(canonical(envelope), target, hash));
     assert.equal((await f.store.history()).total, 2);
   } finally { await f.db.close(); }
+});
+
+test('explicit v5 financial evidence round-trips while issued v4 rejects new fields',async()=>{
+ const input=await base(),f=await finance();try{const evidenceArchive=await encodeFinancialEvidence(target,[await evidenceSnapshot()],hash);
+ const financial={state:'present' as const,target,archive:await f.store.exportBackup(),evidence:{state:'present' as const,archive:evidenceArchive}};
+ const text=await createUserBackupV5({...input,financial},hash),decoded=await validateUserBackup(text,{ownerId,storeId,informationScope:null,financialTarget:target},hash);
+ assert.equal(decoded.version,5);if(decoded.version!==5||decoded.financial.state==='absent'||decoded.financial.evidence?.state!=='present')throw Error('v5 required');
+ assert.deepEqual(await decodeFinancialEvidence(decoded.financial.evidence.archive,target,hash),[await evidenceSnapshot()]);
+ await assert.rejects(()=>createUserBackupV4({...input,financial},hash));
+ const corrupted=await rehash(text,p=>{const section=p.financial as typeof financial;section.evidence.archive=section.evidence.archive.replace('6,40','9,99');});
+ await assert.rejects(()=>validateUserBackup(corrupted,{ownerId,storeId,informationScope:null,financialTarget:target},hash));
+ }finally{await f.db.close();}
 });
 
 test('explicit aggregate v4 distinguishes absent, empty and present while legacy export remains v3', async () => {

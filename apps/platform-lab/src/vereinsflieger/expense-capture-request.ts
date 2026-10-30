@@ -4,19 +4,27 @@ import type { FinancialObservationTarget } from './expense-ledger-observation';
 import type { FinancialObservationReceipt } from './expense-observation-store';
 
 type Gate = () => Promise<void>;
+export type FinancialCaptureWorkflow = Pick<FinancialCaptureRun,'id'|'target'|'url'|'script'|'accept'|'observeNavigation'|'cancel'|'save'|'markSaveAcknowledgementUncertain'> & {
+  prepare?(gate:Gate):Promise<void>;
+  progress?:{processed:number;total:number;billed:number};
+};
 export interface FinancialCaptureOptions {
   target: FinancialObservationTarget;
   observedListUrl: string;
   observedDetailUrl: string;
   authorize(gate: Gate): Promise<void>;
-  save(run: FinancialCaptureRun, gate: Gate): Promise<FinancialObservationReceipt>;
+  save(run: FinancialCaptureWorkflow, gate: Gate): Promise<FinancialObservationReceipt>;
+  createRun?(id:string):FinancialCaptureWorkflow;
+  timeoutMs?:number;
+  messageLimit?:number;
 }
 export interface FinancialCaptureState {
   phase: 'idle' | 'reading' | 'saving' | 'save-uncertain';
   failure: 'source' | 'access' | 'cancelled' | 'timeout' | 'save-uncertain' | null;
+  progress?:{processed:number;total:number;billed:number};
 }
 interface Pending {
-  run: FinancialCaptureRun; options: FinancialCaptureOptions; epoch: number;
+  run: FinancialCaptureWorkflow; options: FinancialCaptureOptions; epoch: number;
   navigation: boolean; injected: boolean; injecting: boolean; processing: boolean; revoked: boolean; saving: boolean;
   timer: ReturnType<typeof setTimeout> | null;
   resolve(receipt: FinancialObservationReceipt): void; reject(error: Error): void;
@@ -41,14 +49,14 @@ export interface FinancialCaptureRequestPorts {
  * A dispatched write holds the reservation until its acknowledgement settles. */
 export class FinancialCaptureRequest {
   private pending: Pending | null = null;
-  private uncertain: { run: FinancialCaptureRun; options: FinancialCaptureOptions } | null = null;
+  private uncertain: { run: FinancialCaptureWorkflow; options: FinancialCaptureOptions } | null = null;
   constructor(private readonly ports: FinancialCaptureRequestPorts) {}
   active() { return this.pending !== null; }
   hasUncertainSave() { return this.uncertain !== null; }
   start(input: FinancialCaptureOptions): Promise<FinancialObservationReceipt> {
     if (this.pending || this.uncertain || !this.ports.canStart()) return Promise.reject(Error('Financial capture is unavailable.'));
-    let run: FinancialCaptureRun;
-    try { run = new FinancialCaptureRun(input.target, this.ports.uuid(), input.observedListUrl, input.observedDetailUrl); }
+    let run: FinancialCaptureWorkflow;
+    try { run = input.createRun?input.createRun(this.ports.uuid()):new FinancialCaptureRun(input.target, this.ports.uuid(), input.observedListUrl, input.observedDetailUrl);if(canonical(run.target)!==canonical(input.target))throw Error('Foreign financial workflow.'); }
     catch { return Promise.reject(Error('Financial source request could not be verified.')); }
     return this.reserve(run, { ...input, target: run.target }, false);
   }
@@ -59,13 +67,13 @@ export class FinancialCaptureRequest {
     this.uncertain = null;
     return this.reserve(prior.run, prior.options, true);
   }
-  private reserve(run: FinancialCaptureRun, options: FinancialCaptureOptions, saving: boolean): Promise<FinancialObservationReceipt> {
+  private reserve(run: FinancialCaptureWorkflow, options: FinancialCaptureOptions, saving: boolean): Promise<FinancialObservationReceipt> {
     return new Promise((resolve, reject) => {
       const p: Pending = { run, options, epoch: this.ports.epoch(), navigation: false, injected: false, injecting: false,
         processing: false, revoked: false, saving, timer: null, resolve, reject };
       this.pending = p;
       this.ports.changed({ phase: saving ? 'saving' : 'reading', failure: null });
-      p.timer = (this.ports.schedule ?? setTimeout)(() => { if (this.pending === p) this.interrupt('timeout'); }, 90_000);
+      p.timer = (this.ports.schedule ?? setTimeout)(() => { if (this.pending === p) this.interrupt('timeout'); }, Math.max(90_000,Math.min(300_000,options.timeoutMs??90_000)));
       void (async () => {
         try { if (saving) await this.save(p); else await this.advance(p); }
         catch { this.fail(p, 'access'); }
@@ -82,6 +90,7 @@ export class FinancialCaptureRequest {
   }
   private async advance(p: Pending) {
     await this.gate(p);
+    await p.run.prepare?.(()=>this.gate(p)); await this.gate(p);
     p.navigation = false; p.injected = false; p.injecting = false;
     this.ports.navigate(p.run.url); p.epoch = this.ports.epoch();
     if (!this.current(p)) throw Error('Expired financial navigation.');
@@ -120,13 +129,14 @@ export class FinancialCaptureRequest {
   async receive(sender: string, document: string, raw: string, epoch: number): Promise<boolean> {
     const p = this.pending;
     if (!p) return false;
-    if (epoch !== p.epoch || epoch !== this.ports.epoch() || p.saving || p.processing || !p.injected || raw.length > 300_000) return true;
+    if (epoch !== p.epoch || epoch !== this.ports.epoch() || p.saving || p.processing || !p.injected || raw.length > Math.min(5_000_000,p.options.messageLimit??300_000)) return true;
     let packet: unknown;
     try { packet = JSON.parse(raw); } catch { return true; }
     p.processing = true;
     try {
       await this.gate(p);
       const action = p.run.accept(sender, document, packet, p.run.target, this.ports.now());
+      if(p.run.progress)this.ports.changed({phase:'reading',failure:null,progress:{...p.run.progress}});
       if (action === 'navigate') await this.advance(p);
       else if (action === 'save') await this.save(p);
     } catch { this.fail(p, 'source'); }

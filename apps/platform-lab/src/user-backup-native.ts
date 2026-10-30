@@ -8,7 +8,7 @@ import { readLocalDisplayName, saveLocalDisplayName } from './mobile/local-profi
 import { createRealFlightBackupDependencies, restoreRealFlightBackup, type RealFlightBackupService } from './vereinsflieger/real-flight-backup-native';
 import { loadProviderScope } from './vereinsflieger/scoped-storage';
 import { exportInformationBackup, restoreInformationBackupNative } from './vereinsflieger/information-native';
-import { USER_BACKUP_LIMIT, createUserBackup, createUserBackupV4, selectedPilotBookForBackup, type UserBackupInputV3 } from './user-backup';
+import { USER_BACKUP_LIMIT, createUserBackup, createUserBackupV4, createUserBackupV5, selectedPilotBookForBackup, type UserBackupInputV3 } from './user-backup';
 import { financialNative } from './vereinsflieger/expense-native';
 import { restoreUserBackup, type UserBackupGate, type UserBackupServicePorts } from './user-backup-service';
 import { openUserBackupRestoreJournal } from './user-backup-restore-journal-native';
@@ -61,7 +61,7 @@ export async function exportUserBackupNative(scope: RealFlightNativeScope, servi
     pilot, realFlights: { backup: realFlights },
     information: selectedScope && informationBackup !== null ? { scope: selectedScope, backup: informationBackup } : null,
     ai: { archive: encodeChatArchive(aiArchive) }, dutyTargets };
-  const text = await (financial.state === 'absent' ? createUserBackup(input, hash) : createUserBackupV4({ ...input, financial }, hash));
+  const text = await (financial.state === 'absent' ? createUserBackup(input, hash) : ('evidence' in financial ? createUserBackupV5({ ...input, financial }, hash) : createUserBackupV4({ ...input, financial }, hash)));
   await gate(); sameOwnerScope(scope, false); await assertNoPendingUserBackupRestore();
   return text;
   });

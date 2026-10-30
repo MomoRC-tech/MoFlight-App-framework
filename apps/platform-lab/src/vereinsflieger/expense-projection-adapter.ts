@@ -1,7 +1,7 @@
 import { canonical } from '@moflight/flight-logbook';
 import type { Hash } from '@moflight/local-data';
 import { projectExpenses } from '../expenses/expense-projection';
-import type { ExpensePeriod, ExpenseScope, UnversionedBilledFlightFact, UnversionedExpenseProjection } from '../expenses/expense-types';
+import type { ExpensePeriod, ExpenseScope, UnversionedBilledFlightFact, UnversionedExpenseProjection,UnversionedExpenseSnapshot } from '../expenses/expense-types';
 import type { FlightBillingObservation } from './expense-flight-billing';
 import { validateFinancialLedgerObservation, type FinancialLedgerObservation, type FinancialObservationTarget } from './expense-ledger-observation';
 import { parseObservedFinancialDate } from './expense-money-observation';
@@ -21,7 +21,7 @@ export interface DurableInvoiceBookingEvidence {
   summary: {
     evidenceRef: string;
     sourceUrl: string;
-    rows: { position: number; numberRaw: string; recipientRaw: string; url: string; dateRaw: string; amountRaw: string }[];
+    rows: { position: number; numberRaw: string; recipientRaw: string; url: string; dateRaw: string; amountRaw: string; titleRaw?:string }[];
     coverage: { kind: 'visible-page'; truncated: boolean; pagination: 'unverified' };
   };
   ledgers: {
@@ -65,11 +65,19 @@ function scopeOf(target: FinancialObservationTarget): ExpenseScope {
     accountRef: target.scope.context.accountNumber, clubContext: target.scope.context.clubLabel };
 }
 
-function checkedProof(input: DurableInvoiceBookingEvidence, receipt: FinancialObservationReceipt, target: FinancialObservationTarget): DurableInvoiceBookingEvidence {
+export function validateDurableInvoiceBookingEvidence(input: DurableInvoiceBookingEvidence, receipt: FinancialObservationReceipt, target: FinancialObservationTarget): DurableInvoiceBookingEvidence {
   exact(input, ['version', 'target', 'billedReceiptId', 'billedChecksum', 'sourceFlightRef', 'summary', 'ledgers']);
   const billed = receipt.value as FlightBillingObservation;
   if (input.version !== 1 || canonical(validateFinancialObservationTarget(input.target)) !== canonical(target) ||
       input.billedReceiptId !== receipt.id || input.billedChecksum !== receipt.checksum || input.sourceFlightRef !== billed.source.sourceFlightId) throw Error('Foreign or stale financial link evidence.');
+  validateFinancialSourcePages(input, billed.ownRecipientLabel, target);
+  return clone(input);
+}
+
+/** Raw own invoice/ledger pages, including explicitly empty views. No invoice
+ * URL is fetched: print URLs are retained only as observed identity evidence. */
+export function validateFinancialSourcePages(input: Pick<DurableInvoiceBookingEvidence, 'summary' | 'ledgers'>,
+  ownRecipientLabel: string, target: FinancialObservationTarget) {
   exact(input.summary, ['evidenceRef', 'sourceUrl', 'rows', 'coverage']); ref(input.summary.evidenceRef);
   raw(input.summary.sourceUrl, 512);
   const url = new URL(input.summary.sourceUrl);
@@ -80,11 +88,12 @@ function checkedProof(input: DurableInvoiceBookingEvidence, receipt: FinancialOb
       !Array.isArray(input.summary.rows) || input.summary.rows.length > 20 || !Array.isArray(input.ledgers) || input.ledgers.length > 20) throw Error('Invalid financial link coverage.');
   let previous = -1;
   for (const row of input.summary.rows) {
-    exact(row, ['position', 'numberRaw', 'recipientRaw', 'url', 'dateRaw', 'amountRaw']);
+    exact(row, ['position', 'numberRaw', 'recipientRaw', 'url', 'dateRaw', 'amountRaw', ...(Object.hasOwn(row,'titleRaw')?['titleRaw']:[])]);
     if (!Number.isSafeInteger(row.position) || row.position <= previous || row.position > 100_000) throw Error('Invalid invoice source row.');
     previous = row.position;
     raw(row.numberRaw); raw(row.recipientRaw); raw(row.dateRaw, 128); raw(row.amountRaw, 128); invoiceUrl(row.url);
-    if (!/^\d{1,20}$/.test(row.numberRaw.trim()) || row.recipientRaw.trim() !== billed.ownRecipientLabel || new URL(row.url).origin !== url.origin) throw Error('Foreign or unsupported own invoice row.');
+    if(row.titleRaw!==undefined)raw(row.titleRaw,2048);
+    if (!/^\d{1,20}$/.test(row.numberRaw.trim()) || row.recipientRaw.trim() !== ownRecipientLabel || new URL(row.url).origin !== url.origin) throw Error('Foreign or unsupported own invoice row.');
   }
   const evidenceRefs = new Set<string>([input.summary.evidenceRef]);
   for (const ledger of input.ledgers) {
@@ -133,9 +142,9 @@ function linkFact(proof: DurableInvoiceBookingEvidence, receipt: FinancialObserv
 /** Read-only bridge: validated exact raw archive + required durable-link port →
  * explicit v2 provisional projection. Missing evidence never falls back to a
  * text candidate/service date. This does not enable ordinary app retrieval. */
-export async function projectCapturedFinancialArchive(archiveText: string, selected: FinancialObservationTarget,
-  requested: ExpensePeriod, ports: CapturedExpenseProjectionPorts): Promise<UnversionedExpenseProjection> {
-  const target = validateFinancialObservationTarget(selected), period = clone(requested), scope = scopeOf(target);
+export async function readCapturedFinancialSnapshot(archiveText: string, selected: FinancialObservationTarget,
+  ports: CapturedExpenseProjectionPorts): Promise<{snapshot:UnversionedExpenseSnapshot;checkCurrent:()=>Promise<void>}> {
+  const target = validateFinancialObservationTarget(selected), scope = scopeOf(target);
   if (typeof ports.readInvoiceBookingEvidence !== 'function') throw Error('Durable financial link reader unavailable.');
   await ports.gate(clone(target), null);
   const archive = await validateFinancialObservationBackup(archiveText, target, ports.hash);
@@ -151,18 +160,16 @@ export async function projectCapturedFinancialArchive(archiveText: string, selec
     if (new TextEncoder().encode(canonical(input)).length > 1_000_000) throw Error('Financial link evidence exceeds its bound.');
     const receipt = billed.find(receipt => receipt.id === input.billedReceiptId);
     if (!receipt || proofs.has(receipt.id)) throw Error('Unknown or repeated financial evidence binding.');
-    proofs.set(receipt.id, checkedProof(input, receipt, target));
+    proofs.set(receipt.id, validateDurableInvoiceBookingEvidence(input, receipt, target));
   }
-  const facts: UnversionedBilledFlightFact[] = [], hashes = new Map<string, string>();
+  const facts: UnversionedBilledFlightFact[] = [];
+  const texts=[...new Set(billed.map(receipt=>canonical((receipt.value as FlightBillingObservation).source)))];
+  const entries=await Promise.all(texts.map(async text=>{const value=await ports.hash(text);if(!/^[0-9a-f]{64}$/.test(value))throw Error('Financial source integrity calculation unavailable.');return [text,value] as const;}));
+  await gate();const hashes=new Map<string,string>(entries);
   for (const receipt of billed) {
     const observation = receipt.value as FlightBillingObservation, source = assessBilledFlightSource(observation, target);
     const sourceText = canonical(observation.source);
-    let sourceHash = hashes.get(sourceText);
-    if (!sourceHash) {
-      sourceHash = await ports.hash(sourceText); await gate();
-      if (!/^[0-9a-f]{64}$/.test(sourceHash)) throw Error('Financial source integrity calculation unavailable.');
-      hashes.set(sourceText, sourceHash);
-    }
+    const sourceHash = hashes.get(sourceText)!;
     const proof = proofs.get(receipt.id), link = proof ? linkFact(proof, receipt, target) : null;
     facts.push({ scope: { ...scope }, sourceFlightRef: observation.source.sourceFlightId, sourceHash, revision: null, supersedes: null,
       invoiceIdentity: link?.invoiceIdentity ?? null, invoiceReference: link?.invoiceReference ?? null,
@@ -174,8 +181,12 @@ export async function projectCapturedFinancialArchive(archiveText: string, selec
       blockingIssues: source.reconciliation.state === 'match' ? [] : [`source-amount-${source.reconciliation.state}`],
       evidenceRefs: [`bill:${receipt.id}`, ...(link?.evidenceRefs ?? [])] });
   }
-  const result = projectExpenses({ version: 2, sourceBasis: 'unversioned-billed-flight', scope,
-    coverage: { state: 'partial', from: null, through: null, evidenceRefs: [] }, facts }, scope, period);
+  const snapshot:UnversionedExpenseSnapshot={ version: 2, sourceBasis: 'unversioned-billed-flight', scope,
+    coverage: { state: 'partial', from: null, through: null, evidenceRefs: [] }, facts };
   await gate();
-  return result;
+  return {snapshot,checkCurrent:gate};
+}
+export async function projectCapturedFinancialArchive(archiveText:string,selected:FinancialObservationTarget,requested:ExpensePeriod,ports:CapturedExpenseProjectionPorts):Promise<UnversionedExpenseProjection>{
+ const period=clone(requested),read=await readCapturedFinancialSnapshot(archiveText,selected,ports);
+ const result=projectExpenses(read.snapshot,read.snapshot.scope,period);await read.checkCurrent();return result;
 }

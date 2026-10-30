@@ -25,7 +25,7 @@ import { useInformationController, type FeatureInformationCategory } from './use
 import type { RealFlightSourceInput } from './real-flight-source';
 import { rememberAuthenticatedProfileNative } from '../ai/historical-provider-identity-native';
 import { FinancialCaptureRequest, type FinancialCaptureState } from './expense-capture-request';
-import { nativeFinancialCaptureOptions } from './expense-native';
+import { nativeFinancialCaptureOptions, nativeFinancialCollectionOptions } from './expense-native';
 import type { RealFlightNativeScope } from './real-flight-native';
 
 type FlightSourceAttempt = {
@@ -59,7 +59,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     navigate: uri => financialNavigate.current(uri),
     inject: script => { if (!web.current) throw new Error('Provider renderer unavailable.'); web.current.injectJavaScript(script); },
     revoke: () => {
-      pendingNavigation.current = null; web.current?.stopLoading(); epoch.current++;
+      pendingNavigation.current = null; web.current?.injectJavaScript('window.__moflightFinancialAbort?.();true;'); web.current?.stopLoading(); epoch.current++;
       if (mounted.current) { setGeneration(epoch.current); setLoaded(false); }
     },
     changed: state => {
@@ -234,6 +234,11 @@ export function useAccessController(product = false, localOwner?: string, develo
     const selected = { storeId: nativeScope.lease.storeId, scope: requireScope() };
     try { return await financial.current!.start(nativeFinancialCaptureOptions(nativeScope, selected, observedListUrl, observedDetailUrl)); }
     catch (error) { if (mounted.current && owner.current === activeOwner.current) { session.current.invalidate(); syncConnection(); } throw error; }
+  }
+  async function captureFinancialAnalysis(nativeScope:RealFlightNativeScope){
+    const selected={storeId:nativeScope.lease.storeId,scope:requireScope()};
+    try{return await financial.current!.start(await nativeFinancialCollectionOptions(nativeScope,selected));}
+    catch(error){if(mounted.current&&owner.current===activeOwner.current){session.current.invalidate();syncConnection();}throw error;}
   }
   useEffect(() => { let active = true; mounted.current = true; if (!product) void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; financial.current?.interrupt(); epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
   useEffect(() => { let active = true; const initialInformationRequest = information.beginInitialLoad(); void (async () => {
@@ -1265,7 +1270,7 @@ export function useAccessController(product = false, localOwner?: string, develo
         onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (financial.current?.active()) { financial.current.interrupt('source'); return; } if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
         onRenderProcessGone={() => { if (generation !== epoch.current) return; if (financial.current?.active()) { financial.current.interrupt('source'); return; } if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { captureFinancialDetail, retryFinancialSave: () => financial.current!.retrySave(), cancelFinancialCapture: () => financial.current!.cancel(), financialState: owner.current === localOwner ? financialState : { phase: 'idle' as const, failure: null }, financialSaveUncertain: owner.current === localOwner && financial.current!.hasUncertainSave(), flightProgress: product && owner.current === localOwner && !financial.current?.active() && busy && run.current ? flightProgress : null, ...information.public, retrieveFeatureInformation: async (category:FeatureInformationCategory) => {
+  return { captureFinancialDetail, captureFinancialAnalysis, retryFinancialSave: () => financial.current!.retrySave(), cancelFinancialCapture: () => financial.current!.cancel(), financialState: owner.current === localOwner ? financialState : { phase: 'idle' as const, failure: null }, financialSaveUncertain: owner.current === localOwner && financial.current!.hasUncertainSave(), flightProgress: product && owner.current === localOwner && !financial.current?.active() && busy && run.current ? flightProgress : null, ...information.public, retrieveFeatureInformation: async (category:FeatureInformationCategory) => {
     try { return await information.public.retrieveFeatureInformation(category); }
     catch(error) { session.current.invalidate(); syncConnection(); throw error; }
   }, retrieveDutyPage: async (source:'own'|'club') => {
