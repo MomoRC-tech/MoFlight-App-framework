@@ -45,9 +45,9 @@ function fixture(width = 390, fontScale = 1, root = false) {
   const calls: string[] = [];
   const coreRoutes: {intent:string;developmentRecoveryCheckpoints:boolean}[] = [];
   const destinations:string[]=[];
-  const readEnabled:boolean[]=[];
+  const readEnabled:boolean[]=[],retainedReads:boolean[]=[];
   let persistedHelp = true, failHelpSave = false;
-  let suspended = false, coreOpen = false;
+  let suspended = false, coreOpen = false,financialOpen=false;
   let clockNow=Date.UTC(2026,9,22,12),clockDeadlines:readonly number[]=[];
   let providerStatus:any=unknownProviderStatus, lastLoad:any=null, ownView:any=null, ownPreview:any=null, appStateListener:((state:string)=>void)|undefined;
   Object.assign(controller, { connect: () => calls.push('connect'), checkConnection: () => calls.push('check'), retrieve: () => calls.push('retrieve') });
@@ -88,7 +88,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './ImportPreview': leaves(['ImportPreview']),
     './CoreFlightFoundation': leaves(['CoreFlightFoundation']),
     './OwnFlights': leaves(['OwnFlights']),
-    './use-own-flights': { useOwnFlights: (_ports:unknown,active:boolean) => {readEnabled.push(active);return { preview:ownPreview, view: ownView, phase: ownView?'ready':'missing', detail:null, detailBusy:false, detailError:null, openDetail:async()=>{}, clearDetail:()=>calls.push('clear-own-flight-detail'), reload:async()=>{} };} },
+    './use-own-flights': { useOwnFlights: (_ports:unknown,active:boolean,_reload:unknown,retained:boolean) => {readEnabled.push(active);retainedReads.push(retained);return { preview:ownPreview, view: ownView, phase: ownView?'ready':'missing', detail:null, detailBusy:false, detailError:null, openDetail:async()=>{}, clearDetail:()=>calls.push('clear-own-flight-detail'), reload:async()=>{} };} },
     './own-flight-reader-native': { ownFlightReadPorts: {} },
     './UpdateResult':leaves(['UpdateResult']), './ClubInformation':leaves(['ClubEvents','ClubDocumentNotices']),
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
@@ -105,7 +105,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     assert.ok(name in modules, name); return modules[name];
   } });
   let tree: Element;
-  function render() { index = 0; tree = root?(exports as any).default():(exports.Shell as (props:unknown)=>Element)({coreFlightsOpen:coreOpen,lastLoad,providerStatus,onCoreFlights:(intent='connect',developmentRecoveryCheckpoints=false,destination='settings')=>{destinations.push(destination);coreRoutes.push({intent,developmentRecoveryCheckpoints});calls.push(intent==='update'?'core-load':intent==='development'?'core-development-route':intent==='options'?'core-library-route':'core-connect');}}); effects.splice(0).forEach(effect => effect()); return tree; }
+  function render() { index = 0; tree = root?(exports as any).default():(exports.Shell as (props:unknown)=>Element)({coreFlightsOpen:coreOpen,financialFlowOpen:financialOpen,lastLoad,providerStatus,onCoreFlights:(intent='connect',developmentRecoveryCheckpoints=false,destination='settings')=>{destinations.push(destination);coreRoutes.push({intent,developmentRecoveryCheckpoints});calls.push(intent==='update'?'core-load':intent==='development'?'core-development-route':intent==='options'?'core-library-route':'core-connect');}}); effects.splice(0).forEach(effect => effect()); return tree; }
   function nodes() {
     const found: Element[] = [];
     const visit = (value: unknown) => { if (value && typeof value === 'object' && 'children' in value) { const node = value as Element; found.push(node); node.children.forEach(visit); if (node.type === 'AppHeader') visit(node.props.profile); if (node.type === 'FlatList') visit(node.props.ListHeaderComponent); } };
@@ -124,7 +124,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     render();
   }
   render(); render();
-  return { setCoreOpen:(open:boolean)=>{coreOpen=open;render();}, confirm:()=>{nodes().find(n=>n.type==='SyncConfirmationDialog')?.props.onConfirm();render();}, render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
+  return { retainedReads,setFinancialOpen:(open:boolean)=>{coreOpen=open;financialOpen=open;render();},setCoreOpen:(open:boolean)=>{coreOpen=open;render();}, confirm:()=>{nodes().find(n=>n.type==='SyncConfirmationDialog')?.props.onConfirm();render();}, render, nodes, find, resize:(nextWidth:number,nextFontScale:number)=>{width=nextWidth;fontScale=nextFontScale;render();}, headers, parent, press, openOwnDetail, flight, library, controller, calls, coreRoutes,destinations, readEnabled, suspended: () => suspended, hardwareBack: () => hardwareBack!(),
     helpPreference:()=>persistedHelp, failHelpSaving:(value:boolean)=>{failHelpSave=value;},
     showLoad:(result:any,view:any)=>{providerStatus=result?.verifiedConnection?{...unknownProviderStatus,ownerId:result.verifiedConnection.ownerId,connection:result.verifiedConnection.state}:unknownProviderStatus;lastLoad=result;ownView=view;render();render();},
     setProviderStatus:(status:any)=>{providerStatus=status;render();render();},
@@ -951,4 +951,12 @@ test('detail HTTP development trial releases the idle provider before mounting a
   assert.equal(f.find('DetailHttpPoc').props.expected.accountNumber,'100');
   f.find('DetailHttpPoc').props.close();f.render();
   assert.ok(f.find('CoreFlightFoundation'));assert.equal(f.parent(shell()).props.accessibilityElementsHidden,false);
+});
+
+
+test('financial retrieval pauses the reader while retaining the same Statistics owner key, then resumes locally',()=>{
+ const f=fixture();f.render();assert.equal(f.retainedReads.at(-1),false);f.setFinancialOpen(true);assert.equal(f.readEnabled.at(-1),false);assert.equal(f.retainedReads.at(-1),true);f.setFinancialOpen(false);assert.equal(f.readEnabled.at(-1),true);assert.equal(f.retainedReads.at(-1),false);
+});
+test('financial root entry retains caller state and its header Sync action uses the ordinary update coordinator',()=>{
+ const f=fixture(390,1,true),shell=()=>f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!;shell().props.onCoreFlights('options',false,'financial');f.render();assert.equal(shell().props.financialFlowOpen,true);f.find('CoreFlightFoundation').props.onRequestSync();f.render();assert.equal(f.find('CoreFlightFoundation').props.intent,'update');assert.equal(shell().props.financialFlowOpen,false);
 });

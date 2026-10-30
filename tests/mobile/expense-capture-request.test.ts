@@ -196,3 +196,11 @@ test('scope revocation before save dispatch retains a retryable original capture
     await f.request.retrySave(); assert.equal((await f.store.history()).total, 1);
   } finally { await f.close(); }
 });
+
+
+test('collection final packet survives a progress guard await without provider replay or a second save',async()=>{
+ const f=await fixture();let hold=false,paused=false;const barrier=deferred();try{
+  const pending=f.start({async authorize(gate){await gate();if(hold){paused=true;await barrier.promise;}},createRun:id=>({id,target,url:PROFILE_URL,script:'noop',progress:{processed:0,total:1,billed:0},observeNavigation(){},accept(_sender,_doc,input){return (input as {result?:boolean}).result?'save':'ignored';},cancel(){return true;},markSaveAcknowledgementUncertain(){},save:store=>store.save(id,'billed-flight',observation())})});
+  await f.ready();await f.loaded();hold=true;const first=f.request.receive(PROFILE_URL,PROFILE_URL,JSON.stringify({progress:true}),f.state.generation);await until(()=>paused);await f.request.receive(PROFILE_URL,PROFILE_URL,JSON.stringify({result:true}),f.state.generation);hold=false;barrier.resolve();await first;await until(()=>f.state.saveCalls===1);assert.equal((await pending).id,'capture-1');assert.equal(f.state.saveCalls,1);assert.equal(f.navigations.length,1);
+ }finally{barrier.resolve();await f.close();}
+});

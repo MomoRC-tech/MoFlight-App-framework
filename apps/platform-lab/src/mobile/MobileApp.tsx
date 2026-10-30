@@ -101,13 +101,13 @@ export default function MobileApp() {
       if(syncLock.current||entry?.open||!providerStatus.ownerId||!providerStatus.releaseForDevelopment?.()){Alert.alert('Test noch nicht bereit','Bitte laufende Anbieter- oder Speichervorgänge abschließen und erneut versuchen.');return;}
       const expected=providerStatus.connection.confirmed?providerStatus.connection.observed??undefined:undefined;
       setEntry(null);setSyncControls(null);setProviderStatus(unknownProviderStatus);setDetailPoc({ownerId:providerStatus.ownerId,expected});
-    }} syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false,destination='settings')=>{
+    }} financialFlowOpen={!!entry?.open&&entry.destination==='financial'} syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false,destination='settings')=>{
       if(syncLock.current){diagnosticJournal.record('sync','sync-duplicate-ignored');return;}
       syncLock.current=intent==='update';if(intent==='update'){diagnosticJournal.record('sync','sync-requested');setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});}if(intent==='update')setLastLoad(null);setEntry(previous=>({intent:intent==='update'?'update':'options',development,destination,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
     {detailPoc&&<SafeAreaView style={{flex:1,backgroundColor:colors.background}}><DetailHttpPoc ownerId={detailPoc.ownerId} close={closeDetailPoc} expected={detailPoc.expected}/></SafeAreaView>}
     {entry&&<UpdateDialog open={modalOpen} expanded={entry.intent!=='update'||!!providerStatus.loginVisible||syncProgress.state==='waiting'&&!!providerStatus.recovery} fullPage={maintenancePage}>{windowTop=><CoreFlightFoundation destination={entry.destination} dialogTop={windowTop} providerEntryAllowed={entry.intent==='update'} open={entry.open} requestId={entry.requestId} intent={entry.intent} onProgress={setSyncProgress} onControls={setSyncControls} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} onRequestSync={()=>{
       const current=activeEntry.current;
-      if(!current?.open||current.intent!=='options'||!['backup','settings'].includes(current.destination)||current.destination!==entry.destination||current.requestId!==entry.requestId||syncLock.current)return;
+      if(!current?.open||current.intent!=='options'||!['backup','settings','financial'].includes(current.destination)||current.destination!==entry.destination||current.requestId!==entry.requestId||syncLock.current)return;
       diagnosticJournal.record('sync','sync-requested');diagnosticJournal.record('action','update-flights');
       syncLock.current=true;setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});setLastLoad(null);
       setEntry({...current,intent:'update',destination:'settings',requestId:current.requestId+1});
@@ -118,7 +118,7 @@ export default function MobileApp() {
       setEntry(previous=>previous?{...previous,open:false}:null);if(result)setLastLoad(result);setFlightReload(value=>value+1);}}/>}</UpdateDialog>}
   </View></SafeAreaProvider>;
 }
-function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus,syncRunning=false,syncControls=null,syncProgress=idleSyncProgress}:{onDetailHttpPoc?:()=>void;onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean,destination?:OptionsDestination)=>void;coreFlightsOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus;syncRunning?:boolean;syncControls?:SyncControls|null;syncProgress?:SyncProgressState}={}) {
+function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,financialFlowOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus,syncRunning=false,syncControls=null,syncProgress=idleSyncProgress}:{onDetailHttpPoc?:()=>void;onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean,destination?:OptionsDestination)=>void;coreFlightsOpen?:boolean;financialFlowOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus;syncRunning?:boolean;syncControls?:SyncControls|null;syncProgress?:SyncProgressState}={}) {
   const [tab, setTab] = useState<Tab>('home');
   const [statisticsContributors,setStatisticsContributors]=useState<ChartContributors|undefined>(undefined);
   const [statisticsChart,setStatisticsChart]=useState<ChartKind|undefined>(undefined);
@@ -199,7 +199,7 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,fligh
   activeTab.current = tab;
   const toolsOpen = sheet === 'bookLab' || sheet === 'flightLab';
   const library = useLibrary(coreFlightsOpen || toolsOpen || sheet === 'backup');
-  const ownFlights = useOwnFlights(ownFlightReadPorts, !coreFlightsOpen, flightReload,syncRunning,tab==='home'&&sheet===null&&!coreFlightsOpen);
+  const ownFlights = useOwnFlights(ownFlightReadPorts, !coreFlightsOpen, flightReload,syncRunning||financialFlowOpen,tab==='home'&&sheet===null&&!coreFlightsOpen);
   const updateForOwner=(lastLoad?.ownerId??lastLoad?.verifiedConnection?.ownerId)===ownFlights.view?.snapshot.ownerId && !!ownFlights.view?.snapshot.ownerId &&
     (!lastLoad?.storeId || lastLoad.storeId===ownFlights.view?.snapshot.storeId) &&
     (!lastLoad?.accountRef || lastLoad.accountRef===ownFlights.view?.snapshot.account?.accountRef) ? lastLoad : null;

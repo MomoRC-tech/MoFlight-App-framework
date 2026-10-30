@@ -27,6 +27,7 @@ interface Pending {
   run: FinancialCaptureWorkflow; options: FinancialCaptureOptions; epoch: number;
   navigation: boolean; injected: boolean; injecting: boolean; processing: boolean; revoked: boolean; saving: boolean;
   timer: ReturnType<typeof setTimeout> | null;
+  queued?: { sender:string; document:string; raw:string; epoch:number };
   resolve(receipt: FinancialObservationReceipt): void; reject(error: Error): void;
 }
 export interface FinancialCaptureRequestPorts {
@@ -129,7 +130,11 @@ export class FinancialCaptureRequest {
   async receive(sender: string, document: string, raw: string, epoch: number): Promise<boolean> {
     const p = this.pending;
     if (!p) return false;
-    if (epoch !== p.epoch || epoch !== this.ports.epoch() || p.saving || p.processing || !p.injected || raw.length > Math.min(5_000_000,p.options.messageLimit??300_000)) return true;
+    if (epoch !== p.epoch || epoch !== this.ports.epoch() || p.saving || !p.injected || raw.length > Math.min(5_000_000,p.options.messageLimit??300_000)) return true;
+    // A collection can send its final result while the preceding progress
+    // message is awaiting native guards. Coalesce to its latest packet; the
+    // source sends the result last. Recheck every guard when draining it.
+    if(p.processing){if(p.run.progress)p.queued={sender,document,raw,epoch};return true;}
     let packet: unknown;
     try { packet = JSON.parse(raw); } catch { return true; }
     p.processing = true;
@@ -140,7 +145,7 @@ export class FinancialCaptureRequest {
       if (action === 'navigate') await this.advance(p);
       else if (action === 'save') await this.save(p);
     } catch { this.fail(p, 'source'); }
-    finally { p.processing = false; }
+    finally { p.processing = false; const queued=p.queued;p.queued=undefined;if(queued&&this.pending===p)void this.receive(queued.sender,queued.document,queued.raw,queued.epoch); }
     return true;
   }
   private async save(p: Pending) {
