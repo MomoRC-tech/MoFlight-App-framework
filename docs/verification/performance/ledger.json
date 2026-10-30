@@ -35786,6 +35786,42 @@
           }
         }
       ]
+    },
+    {
+      "id": "mobile-detail-http-live-30oct-rejected",
+      "recorded_date": "2026-10-30",
+      "kind": "emulator-live",
+      "source_commit": "081dcb4788f7b8e8a32137bb6350af01f005451d",
+      "apk_sha256": "42e13e3b7a9e7b64ad8ea5447fc504da8fb30250c7a0bcc7d0df18eb0987ab3f",
+      "device": "MoFlight_API37; Android API 37 x86_64; existing 480x800 px / 160 dpi override (480x800 dp); font scale 1.0; WebView 156.0.8078.47",
+      "input": "Retained authenticated own-provider session; one protected profile and an attempted one-detail sequence; no library/book writes or provider filter changes",
+      "conditions": "Foreground online emulator; retained session, airplane mode off and Wi-Fi on; pre-existing display/radio settings preserved. UI automation outside timing endpoints.",
+      "method": "Native controller Date.now from each stage request to matching accepted bridge response; HTTP starts only after explicit account confirmation. Includes renderer creation for the profile stage and native bridge overhead.",
+      "limits": [
+        "One rejected live attempt; not a transport performance comparison.",
+        "The earlier uninstrumented Release rejected its attempt without a captured duration; it is documented separately rather than assigning an invented latency.",
+        "HTTP sequence stopped at list-unsupported; no accepted detail or navigation baseline."
+      ],
+      "evidence": [
+        "docs/verification/2026-10-30-mobile-detail-http-poc.md"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "protected-profile",
+          "metric": "detail-trial-protected-profile",
+          "milliseconds": 817,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "http-rejected",
+          "metric": "detail-trial-guarded-http",
+          "milliseconds": 473,
+          "outcome": "failed",
+          "details": {}
+        }
+      ]
     }
   ]
 }

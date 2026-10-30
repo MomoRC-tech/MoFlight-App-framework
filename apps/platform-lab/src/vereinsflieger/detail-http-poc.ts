@@ -32,22 +32,24 @@ export const DETAIL_HTTP_SOURCE = String.raw`async function(nonce,expected,allow
     const d=new DOMParser().parseFromString(new TextDecoder(charset).decode(bytes),'text/html');
     if(d.querySelector('input#pwinput[name="pwinput"]'))throw Error('session-required');guard();return d;
   };
+  let listShape;
   try{
     context(document);context(await get('/member/profile/viewprofile'));
     const list=await get('/member/profile/flightlog.php'),tables=all(list,'table#tablelist_20');
-    if(tables.length!==1)throw Error('list-unsupported');
+    listShape={tables:tables.length};if(tables.length!==1)throw Error('list-unsupported');
     const t=tables[0],heads=Array.from(t.rows).filter(r=>headers.every(h=>Array.from(r.cells).some(c=>clean(c)===h)));
-    if(heads.length!==1)throw Error('list-unsupported');
+    listShape.headerMatches=heads.length;if(heads.length!==1)throw Error('list-unsupported');
     const width=heads[0].cells.length,rows=Array.from(t.rows).filter(r=>r!==heads[0]&&r.parentElement?.tagName!=='THEAD'&&r.parentElement?.tagName!=='TFOOT'&&r.querySelector('td')&&!(r.cells.length===1&&r.cells[0].colSpan>=width));
-    if(!rows.length||rows.length>20||rows.some(r=>r.cells.length!==width))throw Error('list-unsupported');
+    listShape.rows=rows.length;listShape.columns=width;listShape.invalidRows=rows.filter(r=>r.cells.length!==width).length;
+    if(!rows.length||rows.length>2000||listShape.invalidRows)throw Error('list-unsupported');
     const links=rows.flatMap(r=>all(r,'a[href]')).map(a=>new URL(a.getAttribute('href'),origin));
     const ref=links.find(u=>u.origin===origin&&u.pathname==='/member/profile/viewflight.php'&&!u.hash&&Array.from(u.searchParams.keys()).length===1&&/^\d{1,20}$/.test(u.searchParams.get('flid')||''));
     if(!ref)throw Error('list-unsupported');
     const detailStarted=performance.now(),d=await get(ref.pathname+ref.search);
     const result=readDetail(d,ref.href,allowed);guard();const detailMs=performance.now()-detailStarted;
     context(await get('/member/profile/viewprofile'));context(document);guard();
-    send({context:expected,detailUrl:ref.href,result,detailMs,totalMs:performance.now()-started});
-  }catch(error){send({error:['session-required','context-changed','response-rejected','list-unsupported','cancelled'].includes(error.message)?error.message:'unavailable'});}
+    send({context:expected,detailUrl:ref.href,result,detailMs,totalMs:performance.now()-started,listShape});
+  }catch(error){send({error:['session-required','context-changed','response-rejected','list-unsupported','cancelled'].includes(error.message)?error.message:'unavailable',...(listShape?{listShape}:{})});}
   finally{clearTimeout(timer);controller.abort();if(window.__moflightDetailHttpAbort===cancel)delete window.__moflightDetailHttpAbort;}
 }`;
 
@@ -58,6 +60,13 @@ export function detailHttpScript(nonce: string, expected: ObservedContext) {
   return `(${DETAIL_HTTP_SOURCE})(${JSON.stringify(nonce)},${JSON.stringify(validateContext(expected))},${JSON.stringify(DETAIL_LABELS)},${JSON.stringify(REQUIRED_HEADERS)},${INERT_DETAIL_READER});true;`;
 }
 export interface HttpDetailRead { context: ObservedContext; detailUrl: string; observation: DetailObservation; detailMs: number; totalMs: number }
+export function detailListShape(value: unknown): Partial<Record<'tables' | 'headerMatches' | 'rows' | 'columns' | 'invalidRows', number>> | undefined {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  return Object.fromEntries(['tables','headerMatches','rows','columns','invalidRows'].flatMap(key => {
+    const number = (value as Record<string, unknown>)[key];
+    return typeof number === 'number' && Number.isSafeInteger(number) && number >= 0 && number <= 100000 ? [[key, number]] : [];
+  }));
+}
 export function decodeHttpDetail(value: unknown, expected: ObservedContext, at: string): HttpDetailRead {
   const p = value as Record<string, unknown>;
   const context = validateContext(p?.context);

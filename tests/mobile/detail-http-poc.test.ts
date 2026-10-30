@@ -90,11 +90,12 @@ test('failed evidence writes are visible; stale completions cannot overwrite a n
 });
 test('sanitized native diagnostics contain fixed failure stages and timings, never private context or fields', () => {
   const h = new Harness(); h.begin(); h.now += 40;
-  h.receive('vf-detail-http-v1', 3, { error: 'list-unsupported' });
+  h.receive('vf-detail-http-v1', 3, { error: 'list-unsupported', listShape: { rows: 25, username: 'private-credential', columns: 'private-column' } });
   const summary = summarizeDetailHttpEvidence(h.saves[0]!);
   assert.deepEqual(summary.failure, { stage: 'http', reason: 'list-unsupported' });
   assert.equal(summary.stages.http, 40);
   assert.equal(summary.contextVerified, true);
+  assert.deepEqual(summary.listShape, { rows: 25 });
   const text = JSON.stringify(summary);
   for (const privateValue of [context.accountNumber, context.clubLabel, detailUrl, 'D-TEST']) assert.ok(!text.includes(privateValue));
   const raw = new Harness(); raw.begin(); raw.fetched(); raw.trial.stop();
@@ -122,12 +123,12 @@ const header = { cells: ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit'].map(ce
 const row = { cells: ['01.01.2026', 'D-TEST', '10:00', '10:30', '00:30'].map(cell), parentElement: { tagName: 'TBODY' }, querySelector: () => ({}), querySelectorAll: () => [link] };
 const list = { querySelector: () => null, querySelectorAll: () => [{ rows: [header, row] }] };
 test('HTTP script uses only fresh observed IDs and GET policy; login, context and response failures stop', async () => {
-  for (const scenario of ['ok', 'foreign-before', 'foreign-after', 'login', 'network', 'mime', 'oversize', 'redirect', 'cancel', 'deadline']) {
+  for (const scenario of ['ok', 'larger-list', 'oversized-list', 'foreign-before', 'foreign-after', 'login', 'network', 'mime', 'oversize', 'redirect', 'cancel', 'deadline']) {
     let reply: Record<string, unknown> | null = null, profiles = 0; const urls: string[] = [], timers: (() => void)[] = [];
     const window: Record<string, unknown> = { ReactNativeWebView: { postMessage: (s: string) => { reply = JSON.parse(s); } } }; window.top = window;
     const sandbox = { window, document: profile(), location: new URL(PROFILE_URL), URL, AbortController, TextDecoder, Uint8Array, performance: { now: () => 1 },
       setTimeout: (fn: () => void) => { timers.push(fn); return 1; }, clearTimeout: () => {},
-      DOMParser: class { parseFromString(value: string) { return value === 'list' ? list : profile(value === 'foreign' ? '200' : '100'); } },
+      DOMParser: class { parseFromString(value: string) { return value === 'list' ? scenario === 'larger-list' || scenario === 'oversized-list' ? { ...list, querySelectorAll: () => [{ rows: [header, ...Array(scenario === 'larger-list' ? 25 : 2001).fill(row)] }] } : list : profile(value === 'foreign' ? '200' : '100'); } },
       fetch: async (url: string, options: RequestInit) => {
         urls.push(url); assert.equal(options.method, 'GET'); assert.equal(options.credentials, 'same-origin'); assert.equal(options.redirect, 'error');
         if (scenario === 'network') throw Error('synthetic');
@@ -144,7 +145,7 @@ test('HTTP script uses only fresh observed IDs and GET policy; login, context an
     const script = detailHttpScript('synthetic', context).replace(/function\(document,url,allowed\)\{const location=[\s\S]*\}\);true;$/, 'function(){return '+JSON.stringify(result)+';});');
     await runInNewContext(script.replace(/;true;$/, ''), sandbox);
     const received = reply as unknown as Record<string, unknown>;
-    if (scenario === 'ok') { assert.equal(received.detailUrl, detailUrl); assert.equal(urls.length, 4); }
+    if (scenario === 'ok' || scenario === 'larger-list') { assert.equal(received.detailUrl, detailUrl); assert.equal(urls.length, 4); }
     else assert.ok(received.error, scenario);
     if (scenario === 'foreign-before' || scenario === 'login') assert.equal(urls.some(u => u.includes('viewflight')), false);
   }

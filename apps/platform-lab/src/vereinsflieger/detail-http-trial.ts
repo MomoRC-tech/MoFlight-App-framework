@@ -1,12 +1,13 @@
 import { PROFILE_URL, contextScript, sameContext, scopedBridge, validateContext, type ObservedContext } from './context';
 import { DETAIL_LABELS, DETAIL_READER_SOURCE, decodeDetail, type DetailObservation } from './details';
-import { compareDetailReads, decodeHttpDetail, detailHttpScript, type HttpDetailRead } from './detail-http-poc';
+import { compareDetailReads, decodeHttpDetail, detailHttpScript, detailListShape, type HttpDetailRead } from './detail-http-poc';
 
 export interface DetailHttpEvidence {
   version: 1; id: string; startedAt: string; outcome: 'complete' | 'stopped';
   context?: ObservedContext; http?: HttpDetailRead; navigation?: DetailObservation;
   navigationMs?: number; comparison?: ReturnType<typeof compareDetailReads>;
   stages: Partial<Record<'profile' | 'http' | 'navigation' | 'verify', number>>;
+  listShape?: ReturnType<typeof detailListShape>;
   failure?: { stage: 'profile' | 'http' | 'navigation' | 'verify' | 'confirmation'; reason: 'context-changed' | 'session-required' | 'response-rejected' | 'list-unsupported' | 'cancelled' | 'unavailable' | 'invalid-response' | 'stopped' };
   limit: 'development-only; visible-own-list; navigation-includes-renderer-creation; no-speedup-claim';
 }
@@ -49,6 +50,7 @@ export class DetailHttpTrial {
     if (p.kind !== kind) return;
     this.clearTimer(); this.step = null;
     this.evidence.stages[step.kind] = Math.max(0, this.ports.now() - step.started);
+    if (step.kind === 'http') this.evidence.listShape = detailListShape(p.listShape);
     try {
       if (step.kind === 'profile' || step.kind === 'verify') {
         const context = validateContext(p.context), previous = this.evidence.context ?? this.expected;
@@ -108,6 +110,7 @@ export function summarizeDetailHttpEvidence(e: DetailHttpEvidence) {
   return { kind: 'vf-detail-http-summary-v1', outcome: e.outcome,
     contextVerified: !!e.context, httpCaptured: !!e.http, navigationCaptured: !!e.navigation,
     ...(e.failure ? { failure: e.failure } : {}), stages: { ...e.stages },
+    ...(e.listShape ? { listShape: e.listShape } : {}),
     ...(e.http ? { detailMs: e.http.detailMs, httpTotalMs: e.http.totalMs } : {}),
     ...(e.navigationMs !== undefined ? { navigationMs: e.navigationMs } : {}),
     ...(e.comparison ? { comparison: e.comparison } : {}),
