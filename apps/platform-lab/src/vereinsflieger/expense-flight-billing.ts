@@ -146,3 +146,16 @@ export function decodeFlightBillingObservation(
       billingModeRaw: p.billingModeRaw, billedRaw: 'Ja', clubLabel: scope.context.clubLabel, lines, statedTotalRaw: p.statedTotalRaw },
     coverage: 'single-flight', interpretation: 'raw-source-only' };
 }
+
+/** Revalidate a saved raw observation; this does not attest its collection. */
+export function validateFlightBillingObservation(input: unknown, selected: Pick<FlightBillingTarget, 'storeId' | 'scope'>): FlightBillingObservation {
+  const p = object(input, ['version', 'storeId', 'scope', 'contextBefore', 'contextAfter', 'ownRecipientLabel',
+    'retrievedAt', 'source', 'coverage', 'interpretation']);
+  if (p.version !== 1 || p.coverage !== 'single-flight' || p.interpretation !== 'raw-source-only' ||
+      !p.source || typeof p.source !== 'object') throw new Error('Unsupported saved flight billing observation.');
+  const value = decodeFlightBillingObservation(p.source, { storeId: p.storeId as string, scope: p.scope as ProviderScope,
+    ownRecipientLabel: p.ownRecipientLabel as string, observedDetailUrl: (p.source as FlightBillingRead).url },
+  selected, p.contextBefore, p.contextAfter, p.retrievedAt as string);
+  if (canonical(value) !== canonical(p)) throw new Error('Changed saved flight billing observation.');
+  return value;
+}
