@@ -1,5 +1,7 @@
 # Vereinsflieger verified retrieval and local import contract
 
+**30 October desktop transport investigation (#10):** [bounded API Anything evidence](../../pocs/vereinsflieger-api-anything/README.md#live-continuation--30-october-2026) verifies secure existing-DPAPI/original-form login, returning-session reuse and plain-HTTP HTML retrieval matching 20 visible own-flight rows plus three details with holdout/repeat. Protected-page/account-continuity validation precedes session promotion; HTTP 200, URL or `PHPSESSID` presence alone is insufficient. This is research outside the app. Requested-window/paging/empty/expiry, real account boundaries and platform acceptance remain open; no canonical identity/schema or mobile transport decision follows.
+
 ## Fresh-fetch sync amendment — 23 October 2026
 
 Manuel explicitly selected the reviewed [#42 sync repair](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/42#issuecomment-6372797891), including local file diagnostics. The [interaction contract](../product/design/alternative-ui.md#header-sync-progress--planned-amendment-23-october-2026) replaces ordinary all-purpose popup/progress/return-to-Start descriptions below: root-owned work continues across tabs; only necessary manual login opens the retained WebView frame, which auto-hides after matching proof. Source integration is implemented; [evidence and limits](../verification/2026-10-21-simple-flight-loading.md#fresh-fetch-header-progress-and-minimal-login--23-october-2026) govern acceptance.

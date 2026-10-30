@@ -7,7 +7,7 @@
     "api": "node tooling.mjs",
     "configure": "node tooling.mjs configure",
     "verify": "node verify.mjs",
-    "test": "node --test tooling.test.mjs"
+    "test": "node --test tooling.test.mjs provider-contract.test.mjs"
   },
   "devDependencies": {
     "api-anything": "0.3.1"

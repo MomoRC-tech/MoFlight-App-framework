@@ -212,7 +212,7 @@ Additional product shells and infrastructure are proposals, not empty directorie
 
 ## Development tools and environment
 
-[API Anything research tooling](pocs/vereinsflieger-api-anything/README.md) is installed as a pinned project-local CLI/MCP tool under #10. Use `pnpm vf:api` from this checkout; setup, private-state rules and Windows sign-in limitations are in its runbook. Public CLI/browser/MCP checks pass; live provider comparison remains pending.
+[API Anything research tooling](pocs/vereinsflieger-api-anything/README.md) is installed as a pinned project-local CLI/MCP tool under #10. `pnpm vf:login` securely consumes the existing desktop credential; `pnpm vf:study` runs the bounded own-flight comparison. Live plain-HTTP/MCP list and detail checks pass; requested-window/paging/account/platform acceptance remains separate.
 
 This repository is for development, not an app-store installation. Use Node 24 and the pinned pnpm version in [package.json](package.json). Android native work needs the configured SDK/JDK; iOS native work needs compatible macOS/Xcode tooling. The [Windows setup guide](docs/development/windows-local-setup.md) covers local builds, emulator isolation and Windows path-length handling.
 
