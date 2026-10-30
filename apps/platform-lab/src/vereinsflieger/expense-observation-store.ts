@@ -26,18 +26,35 @@ CREATE TRIGGER financial_manifest_no_delete BEFORE DELETE ON financial_manifest 
 PRAGMA user_version=1;`;
 const FAMILY = 'moflight-raw-financial-observations';
 const MAX_BYTES = 256_000;
+export const FINANCIAL_BACKUP_FORMAT = 'moflight-financial-observations-backup';
+export const FINANCIAL_BACKUP_LIMIT = 64 * 1024 * 1024;
+const MAX_RECEIPTS = 10_000;
 const bytes = (text: string) => new TextEncoder().encode(text).length;
 const flightKey = (id: string) => canonical({ sourceFlightId: id });
 function receiptId(id: unknown): asserts id is string {
   if (typeof id !== 'string' || !/^[a-zA-Z0-9_-]{1,100}$/.test(id)) throw new Error('Invalid financial receipt identity.');
 }
 function sourceFlightId(id: string) { if (typeof id !== 'string' || !/^\d{1,20}$/.test(id)) throw new Error('Invalid observed flight reference.'); }
-function target(input: FinancialObservationTarget): FinancialObservationTarget {
+export function validateFinancialObservationTarget(input: FinancialObservationTarget): FinancialObservationTarget {
   if (!input || canonical(Object.keys(input).sort()) !== canonical(['scope', 'storeId']) ||
       typeof input.storeId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(input.storeId)) throw new Error('Invalid financial store target.');
   const scope = validateScope(input.scope);
   if (canonical(scope) !== canonical(input.scope)) throw new Error('Unsupported financial scope.');
   return { storeId: input.storeId, scope };
+}
+function exact(value: unknown, keys: readonly string[]): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value) ||
+      canonical(Object.keys(value).sort()) !== canonical([...keys].sort())) throw new Error('Unsupported financial archive fields.');
+  return value as Record<string, unknown>;
+}
+function parse(text: string): unknown {
+  try { return JSON.parse(text); } catch { throw new Error('Corrupt financial observation payload.'); }
+}
+async function checkedHash(hash: Hash, text: string): Promise<string> {
+  let value: string;
+  try { value = await hash(text); } catch { throw new Error('Financial integrity calculation unavailable.'); }
+  if (typeof value !== 'string' || !/^[0-9a-f]{64}$/.test(value)) throw new Error('Invalid financial integrity hash.');
+  return value;
 }
 function timestamp(at: string) {
   if (!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(at) || !Number.isFinite(Date.parse(at)) || new Date(at).toISOString() !== at) throw new Error('Invalid financial observation time.');
@@ -56,6 +73,33 @@ function prepare(kind: FinancialObservationKind, input: unknown, selected: Finan
   if (bytes(payload) > MAX_BYTES) throw new Error('Financial observation size limit exceeded.');
   return { kind, sourceKey, retrievedAt, value, payload };
 }
+async function receiptDigest(hash: Hash, id: string, p: Prepared): Promise<string> {
+  return checkedHash(hash, canonical({ id, kind: p.kind, sourceKey: p.sourceKey, retrievedAt: p.retrievedAt, value: p.value }));
+}
+export interface FinancialObservationBackup {
+  version: 1; target: FinancialObservationTarget; receipts: FinancialObservationReceipt[];
+}
+export async function validateFinancialObservationBackup(text: string, selected: FinancialObservationTarget, hash: Hash): Promise<FinancialObservationBackup> {
+  if (typeof text !== 'string' || bytes(text) > FINANCIAL_BACKUP_LIMIT) throw new Error('Financial archive size limit exceeded.');
+  const expected = validateFinancialObservationTarget(selected), e = exact(parse(text), ['format', 'version', 'payload', 'checksum']);
+  if (e.format !== FINANCIAL_BACKUP_FORMAT || e.version !== 1 || typeof e.payload !== 'string' || typeof e.checksum !== 'string' || !/^[0-9a-f]{64}$/.test(e.checksum) ||
+      bytes(e.payload) > FINANCIAL_BACKUP_LIMIT || canonical(e) !== text || await checkedHash(hash, e.payload) !== e.checksum) throw new Error('Unsupported or corrupt financial archive.');
+  const p = exact(parse(e.payload), ['version', 'target', 'receipts']);
+  if (p.version !== 1 || canonical(p) !== e.payload || canonical(validateFinancialObservationTarget(p.target as FinancialObservationTarget)) !== canonical(expected) ||
+      !Array.isArray(p.receipts) || p.receipts.length > MAX_RECEIPTS) throw new Error('Foreign or unsupported financial archive.');
+  let last = 0; const ids = new Set<string>(), receipts: FinancialObservationReceipt[] = [];
+  for (const input of p.receipts) {
+    const r = exact(input, ['id', 'sequence', 'kind', 'sourceKey', 'retrievedAt', 'checksum', 'value']); receiptId(r.id);
+    if (typeof r.sequence !== 'number' || !Number.isSafeInteger(r.sequence) || r.sequence <= last || ids.has(r.id)) throw new Error('Invalid financial archive receipt order.');
+    const prepared = prepare(r.kind as FinancialObservationKind, r.value, expected);
+    if (canonical(prepared.value) !== canonical(r.value) || r.sourceKey !== prepared.sourceKey || r.retrievedAt !== prepared.retrievedAt ||
+        r.checksum !== await receiptDigest(hash, r.id, prepared)) throw new Error('Corrupt financial archive receipt.');
+    receipts.push({ id: r.id, sequence: r.sequence, kind: prepared.kind, sourceKey: prepared.sourceKey,
+      retrievedAt: prepared.retrievedAt, checksum: r.checksum as string, value: prepared.value });
+    last = r.sequence; ids.add(r.id);
+  }
+  return { version: 1, target: expected, receipts };
+}
 
 /** Existing Driver/Hash contracts only. The caller supplies its current owner
  * lease guard, including writable/pending-recovery checks. An authorization
@@ -66,7 +110,7 @@ export class FinancialObservationStore {
   private queue: Promise<void> = Promise.resolve();
   constructor(readonly db: Driver, selected: FinancialObservationTarget, private readonly hash: Hash,
     private readonly authorize: (mode: 'read' | 'write', held: FinancialObservationTarget) => Promise<void>) {
-    this.identity = canonical(target(selected));
+    this.identity = canonical(validateFinancialObservationTarget(selected));
   }
   get target(): FinancialObservationTarget { return JSON.parse(this.identity) as FinancialObservationTarget; }
   private serial<T>(work: () => Promise<T>): Promise<T> {
@@ -98,11 +142,7 @@ export class FinancialObservationStore {
     });
   }
   private async digest(id: string, p: Prepared): Promise<string> {
-    let value: string;
-    try { value = await this.hash(canonical({ id, kind: p.kind, sourceKey: p.sourceKey, retrievedAt: p.retrievedAt, value: p.value })); }
-    catch { throw new Error('Financial integrity calculation unavailable.'); }
-    if (typeof value !== 'string' || !/^[0-9a-f]{64}$/.test(value)) throw new Error('Invalid financial integrity hash.');
-    return value;
+    return receiptDigest(this.hash, id, p);
   }
   private async decode(row: SavedRow): Promise<FinancialObservationReceipt> {
     receiptId(row.id);
@@ -159,6 +199,54 @@ export class FinancialObservationStore {
         await this.allowed('read');
       });
       await this.allowed('read'); return { total, receipts };
+    });
+  }
+  private async allReceipts(tx: Connection): Promise<FinancialObservationReceipt[]> {
+    const count = await tx.first<{ total: number }>('SELECT count(*) total FROM financial_observations');
+    if (!count || !Number.isSafeInteger(count.total) || count.total < 0 || count.total > MAX_RECEIPTS) throw new Error('Financial archive record limit exceeded.');
+    const receipts: FinancialObservationReceipt[] = []; let size = 0;
+    for (let offset = 0; offset < count.total; offset += 20) {
+      const rows = await tx.all<SavedRow>('SELECT * FROM financial_observations ORDER BY seq LIMIT 20 OFFSET ?', offset);
+      if (rows.length !== Math.min(20, count.total - offset)) throw new Error('Incomplete financial archive read.');
+      for (const row of rows) {
+        const receipt = await this.decode(row); size += bytes(canonical(receipt));
+        if (size > FINANCIAL_BACKUP_LIMIT) throw new Error('Financial archive size limit exceeded.');
+        receipts.push(receipt);
+      }
+      await this.allowed('read');
+    }
+    return receipts;
+  }
+  async exportBackup(): Promise<string> {
+    return this.serial(async () => {
+      await this.allowed('read'); let receipts: FinancialObservationReceipt[] = [];
+      await this.db.transaction(async tx => { await this.manifest(tx); receipts = await this.allReceipts(tx); await this.allowed('read'); });
+      const payload = canonical({ version: 1, target: this.target, receipts });
+      const text = canonical({ format: FINANCIAL_BACKUP_FORMAT, version: 1, payload, checksum: await checkedHash(this.hash, payload) });
+      await validateFinancialObservationBackup(text, this.target, this.hash); await this.allowed('read'); return text;
+    });
+  }
+  /** Empty candidate only; identical replay is safe after a lost acknowledgement.
+   * The original file is never overwritten or selected by this method. */
+  async restoreBackup(text: string, fault: (stage: 'before-receipt' | 'after-receipt', sequence: number) => Promise<void> = async () => {}): Promise<void> {
+    return this.serial(async () => {
+      await this.allowed('write'); const archive = await validateFinancialObservationBackup(text, this.target, this.hash); await this.allowed('write');
+      await this.db.transaction(async tx => {
+        await this.manifest(tx); const original = await this.allReceipts(tx);
+        if (original.length) {
+          if (canonical(original) !== canonical(archive.receipts)) throw new Error('Financial restore requires an empty candidate.');
+        } else {
+          for (const receipt of archive.receipts) {
+            await this.allowed('write'); await fault('before-receipt', receipt.sequence);
+            await tx.run('INSERT INTO financial_observations(seq,id,kind,source_key,retrieved_at,payload,checksum) VALUES (?,?,?,?,?,?,?)',
+              receipt.sequence, receipt.id, receipt.kind, receipt.sourceKey, receipt.retrievedAt, canonical(receipt.value), receipt.checksum);
+            await fault('after-receipt', receipt.sequence); await this.allowed('write');
+          }
+        }
+        if (canonical(await this.allReceipts(tx)) !== canonical(archive.receipts)) throw new Error('Financial candidate verification failed.');
+        await this.allowed('write');
+      });
+      await this.allowed('write');
     });
   }
   /** Compare complete bounded local observations, not source revisions or a

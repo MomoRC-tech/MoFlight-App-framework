@@ -6,6 +6,8 @@ import { USER_BACKUP_LIMIT, validateUserBackup, emptyUserChatArchive } from './u
 import { decodeChatArchive, type ChatArchive } from './ai/chat-model';
 import { USER_BACKUP_RESTORE_PHASES, UserBackupRestoreJournal, type PrepareUserBackupRestore, type UserBackupRestoreOperation } from './user-backup-restore-journal';
 import type { ProviderScope } from './vereinsflieger/scope-store';
+import type { UserFinancialBackup } from './user-backup';
+import type { FinancialObservationTarget } from './vereinsflieger/expense-ledger-observation';
 
 export type UserBackupGate = () => Promise<void>;
 
@@ -16,6 +18,12 @@ export type UserBackupRestoreResult =
   | { state: 'recovery-required'; operationId: string; phase: UserBackupRestoreOperation['phase'] };
 
 export interface UserBackupServicePorts {
+  /** Required for non-absent v4 input; unavailable runtimes stop before staging. */
+  financial?: {
+    currentTarget(ownerId: string, storeId: string): Promise<FinancialObservationTarget | null>;
+    preflight(section: Exclude<UserFinancialBackup, { state: 'absent' }>, gate: UserBackupGate): Promise<void>;
+    restore(input: { section: Exclude<UserFinancialBackup, { state: 'absent' }>; permit: { operationId: string; ownerId: string; storeId: string } }, gate: UserBackupGate): Promise<void>;
+  };
   io: Pick<RealFlightBackupIo, 'pickBackup' | 'readPickedFile'>;
   hash: Hash;
   uuid(): string;
@@ -73,12 +81,24 @@ export async function restoreUserBackup(ownerId: string, storeId: string, gate: 
   await gate();
   if (byteLength(text) > USER_BACKUP_LIMIT) throw new Error('User backup size limit exceeded.');
   const informationScope = await ports.currentInformationScope(ownerId);
-  const payload = await validateUserBackup(text, { ownerId, storeId, informationScope }, ports.hash);
+  let needsFinancialTarget = false;
+  try {
+    const envelope = JSON.parse(text);
+    needsFinancialTarget = envelope?.version === 4 && JSON.parse(envelope.payload)?.financial?.state !== 'absent';
+  } catch { /* Full validator supplies the format verdict. */ }
+  const financialTarget = needsFinancialTarget ? await ports.financial?.currentTarget(ownerId, storeId) ?? null : undefined;
+  await gate();
+  const payload = await validateUserBackup(text, { ownerId, storeId, informationScope, financialTarget }, ports.hash);
+  const financial = payload.version === 4 && payload.financial.state !== 'absent' ? payload.financial : null;
   const archiveSha256 = await ports.hash(text);
   const aiArchive = payload.version >= 2 && 'ai' in payload ? decodeChatArchive(payload.ai.archive, ownerId, { interruptActive: true }) : emptyUserChatArchive(ownerId);
   if (!/^[0-9a-f]{64}$/.test(archiveSha256)) throw new Error('Invalid user backup archive digest.');
   if (prior && (prior.archiveSha256 !== archiveSha256 || canonical(prior.informationScope) !== canonical(payload.information?.scope ?? null))) {
     throw new Error('Selected archive differs from the pending aggregate restore.');
+  }
+  if (financial) {
+    if (!ports.financial) throw new Error('Financial restore support is unavailable.');
+    await gate(); await ports.financial.preflight(financial, gate); await gate();
   }
 
   const operation: PrepareUserBackupRestore = prior ? {
@@ -109,7 +129,7 @@ export async function restoreUserBackup(ownerId: string, storeId: string, gate: 
     permit: { operationId: operation.operationId, ownerId, storeId } });
   await gate();
 
-  if (!prior && payload.version === 3) { await ports.preflightDutyTargets(payload.dutyTargets, gate); await gate(); }
+  if (!prior && 'dutyTargets' in payload) { await ports.preflightDutyTargets(payload.dutyTargets, gate); await gate(); }
 
   journal = await ports.openJournal(true);
   if (!journal) throw new Error('Aggregate user restore journal is unavailable.');
@@ -146,9 +166,13 @@ export async function restoreUserBackup(ownerId: string, storeId: string, gate: 
     // The aggregate read gate blocks all stores until pilot + completion commit.
     await gate();
     await ports.restoreAi({ archive: aiArchive, permit }, gate);
-    if (payload.version === 3) {
+    if ('dutyTargets' in payload) {
       await gate();
       await ports.restoreDutyTargets({ archive: payload.dutyTargets, permit }, gate);
+    }
+    if (financial) {
+      if (!ports.financial) throw new Error('Financial restore support is unavailable.');
+      await gate(); await ports.financial.restore({ section: financial, permit }, gate); await gate();
     }
     await recordPhase(ports, prepared.operationId, 'information');
     await gate();
