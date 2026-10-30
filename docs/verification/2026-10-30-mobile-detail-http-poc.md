@@ -2,6 +2,8 @@
 
 M2 / R10/R12 / FL-03 / E07, [#10](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10), following the owner's approval to test one detail behind the existing provider boundary. [Desktop discovery and high-level learning](../../pocs/vereinsflieger-api-anything/README.md) supply the request/reader evidence; API Anything remains a development dependency.
 
+**Result:** the bounded Android live trial passes on Release `c9776e2`: all 20 captured fields match exactly, and the final account check passes. All 15 final native synthetic cases pass. This establishes this one-detail WebView-fetch route; production Sync, real expiry/account-switch/complete-window coverage, physical phone and iOS acceptance remain separate. [Download experimental APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-detail-http-poc-2026-10-30/MoFlight-detail-http-poc-c9776e2.zip).
+
 ## Implemented boundary
 
 Open **Profil → Entwicklung → HTTP-Flugdetail vergleichen**. Opening this tool first asks the existing provider controller to release its idle browser, then unmounts that controller. Active Sync, account changes, storage, information requests and activity checks prevent release. The main Shell and its drafts remain mounted. Closing remounts the ordinary controller against its existing persisted store; cookies, saved credentials, flight library and books are not cleared.
@@ -46,3 +48,25 @@ The original 20-row assumption is a potential mismatch for retained provider vie
 ### Relative-link correction
 
 Release `805827a29cd1f7ab455ad5ea91d52a0cd239d1c1`, APK SHA-256 `4c95e6bb5b27c481343937cbbbb908cdb277fa0baf941f4a4fd8d24957b9a985`, still rejects the list (profile 589 ms, HTTP 472 ms). Its fixed shape counters show one table/header, 20 rows, 28 columns and zero invalid row widths. The previous row-cap hypothesis was not the live cause. Inspection found the PoC resolving list-relative detail hrefs against the origin root instead of the source flight-list URL; the original app reader correctly uses its document URL. The correction binds list/profile links to their corresponding source URL and adds relative-link fixtures. The 2,000-row bound remains a separately tested robustness improvement, not an explanation of this failure. Both measured rejected stages and all shape counters are retained under `mobile-detail-http-live-30oct-relative-link-rejected`. Types, lint, ten focused contracts and all 15 real Chromium fixture scenarios pass before the next native checkpoint. No provider state, filter or credential was changed to manufacture a passing case.
+
+
+## Final bounded acceptance
+
+Release source **`c9776e2a5a5ad4821cb5cb8f274d765afcca4ee2`**, APK SHA-256 **`7af2b6a345df1c0c5d14dee1a6626af0c39433ed62c2bfa8b8418902ac3dc0a8`**. This source excludes the later, separate expense-observation work. Local metadata: ignored `build/detail-http-poc-links/android/build.json`; the experimental GitHub Release ZIP contains only this APK and sanitized build metadata.
+
+On `MoFlight_API37` / API 37 / x86_64 / WebView 156.0.8078.47, with the original 480×800 px / 160 dpi / font 1.0 and online radio settings, the retained session passes the fresh protected-profile proof and explicit existing-account check. The fresh list has 20 rows/28 columns. One list-relative own-flight detail is fetched, decoded with the original reader and compared with normal top-level navigation; **20/20 fields match exactly**, including the separate whitespace-normalized comparison. A final protected profile confirms the same account/club before completion. The UI confirms local evidence persistence. Back restores the Development page and authenticated ordinary controller, showing the same latest saved flight-retrieval timestamp as before the trial. No fresh flight import, provider filter change, cookie export, credential retrieval or library/book write was performed by the PoC. Raw flight observations remain in its separate owner-scoped app-private database; no privileged database export was available or attempted after Android refused `adb root`.
+
+The same final Release then passes **all 15 native mocked-network cases**, including source-relative links and the larger-list case. This is a non-destructive self-contained proof on the named provider emulator: fetch is replaced lexically, with no real network request, cookie or WebStorage operation, and only separate PoC evidence persistence. It is recorded as `emulator-synthetic`, distinct from the live trial. Both native proofs report saved evidence; the final ordinary controller returns authenticated. The task-started synthetic and provider AVDs were stopped after verification, preserving their data, sessions and original radio/display settings.
+
+| Live timing endpoint | Recorded value | Limit |
+| --- | ---: | --- |
+| Initial native protected-profile stage | 623 ms | Includes renderer creation and native bridge |
+| Native guarded HTTP stage | 868 ms | Includes bridge overhead; confirmation wait excluded |
+| WebView guarded HTTP sequence | 849.1000000000931 ms | Profile/list/detail/profile; inclusive of detail |
+| WebView detail fetch/parse only | 193.89999999990687 ms | Different boundary from navigation |
+| Native navigation and original reader | 501 ms | Includes renderer creation |
+| Final native protected-profile stage | 564 ms | Required before accepting comparison |
+
+These are one flight/one successful comparison, not matched performance distributions; **no speedup is established**. All available stages, shape/field/request counters and failures are retained in the ledger (`mobile-detail-http-live-30oct-matched`, `mobile-detail-http-synthetic-30oct-relative-final` and the earlier rejected source runs). Sanitized local reports: `build/detail-http-poc/emulator-5560/live-summaries-links.json` and `synthetic-links-reports.json`. No personal field or identity is included in committed evidence.
+
+Verification reuse: the initial package’s full five-group host checkpoint passes (1,852 mobile tests passed/two skipped; 154 Python tests/16 skipped), plus focused types/lint/ten trial contracts after each material follow-up and all 15 final real Chromium cases. Android/iOS JS export evidence is retained from the initial package; each corrected Android Release embeds the committed JS and passes APK/architecture checks. The final ledger generator/freshness and all ten ledger tests pass. No paid API/CI/service was used. Physical phone, iOS native, actual expiry/MFA/CAPTCHA, second real account, full date-window/paging/empty periods, independent native HTTP cookie handling and production Sync activation remain unaccepted. Bounded foreground one-detail feasibility is complete under #10; those broader gates keep the research Issue open.

@@ -35863,6 +35863,225 @@
           }
         }
       ]
+    },
+    {
+      "id": "mobile-detail-http-live-30oct-matched",
+      "recorded_date": "2026-10-30",
+      "kind": "emulator-live",
+      "source_commit": "c9776e2a5a5ad4821cb5cb8f274d765afcca4ee2",
+      "apk_sha256": "7af2b6a345df1c0c5d14dee1a6626af0c39433ed62c2bfa8b8418902ac3dc0a8",
+      "device": "MoFlight_API37; Android API 37 x86_64; existing 480x800 px / 160 dpi override (480x800 dp); font scale 1.0; WebView 156.0.8078.47",
+      "input": "Retained authenticated own-provider session; one fresh 20-row/28-column list and one first observed flight detail; 20/20 allowlisted fields match exactly with normal navigation; no library/book writes or provider filter changes",
+      "conditions": "Foreground online emulator; retained session, airplane mode off and Wi-Fi on; pre-existing display/radio settings preserved. UI automation outside timing endpoints.",
+      "method": "Native stage Date.now endpoints include bridge overhead; HTTP detailMs/httpTotalMs use WebView performance.now around detail fetch/parse and full guarded fetch sequence. Normal navigation includes renderer creation/reader; final profile is separate. Human confirmation wait excluded.",
+      "limits": [
+        "One live comparison of one flight; unequal timing boundaries and no speedup claim.",
+        "HTTP total includes fresh profile/list/detail/profile requests; initial and final native profile checks are separate stages.",
+        "Foreground Android emulator only; no physical phone, iOS, real expiry or second real account acceptance."
+      ],
+      "evidence": [
+        "docs/verification/2026-10-30-mobile-detail-http-poc.md"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "profile",
+          "metric": "detail-trial-profile",
+          "milliseconds": 623,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "http",
+          "metric": "detail-trial-http",
+          "milliseconds": 868,
+          "outcome": "success",
+          "details": {
+            "webview.detailMs": 193.89999999990687,
+            "webview.totalMs": 849.1000000000931,
+            "list.tables": 1,
+            "list.headerMatches": 1,
+            "list.rows": 20,
+            "list.columns": 28,
+            "list.invalidRows": 0
+          }
+        },
+        {
+          "id": "navigation",
+          "metric": "detail-trial-navigation",
+          "milliseconds": 501,
+          "outcome": "success",
+          "details": {
+            "comparison.fields": 20,
+            "comparison.exact": 20,
+            "comparison.normalized": 20
+          }
+        },
+        {
+          "id": "verify",
+          "metric": "detail-trial-verify",
+          "milliseconds": 564,
+          "outcome": "success",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "id": "mobile-detail-http-synthetic-30oct-relative-final",
+      "recorded_date": "2026-10-30",
+      "kind": "emulator-synthetic",
+      "source_commit": "c9776e2a5a5ad4821cb5cb8f274d765afcca4ee2",
+      "apk_sha256": "7af2b6a345df1c0c5d14dee1a6626af0c39433ed62c2bfa8b8418902ac3dc0a8",
+      "device": "MoFlight_API37; Android API 37 x86_64; existing 480x800 px / 160 dpi override (480x800 dp); font scale 1.0; WebView 156.0.8078.47",
+      "input": "Self-contained fixed synthetic profile/list/detail fixture; 15 cases including list-relative detail href and 25-row list. Lexically replaced fetch; no private/provider inputs.",
+      "conditions": "Foreground Release on named provider emulator after the live trial; original online/radio/display state preserved. This proof performs no real network, cookie or WebStorage operation and writes only its separate owner-scoped lab evidence.",
+      "method": "WebView performance.now from each scenario start through script completion/error, excluding renderer creation/native bridge/evidence persistence; GET request counters separately recorded",
+      "limits": [
+        "Single sequential synthetic run, no performance comparison or live-network/session claim.",
+        "Failure scenarios pass when the expected rejection is observed; timing records outcome of the verification case.",
+        "UI completion and local save confirmed separately; screenshot inspected for this affected screen only."
+      ],
+      "evidence": [
+        "docs/verification/2026-10-30-mobile-detail-http-poc.md"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "success",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 6.800000000046566,
+          "outcome": "success",
+          "details": {
+            "requests": 4
+          }
+        },
+        {
+          "id": "relative-link",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 5.100000000093132,
+          "outcome": "success",
+          "details": {
+            "requests": 4
+          }
+        },
+        {
+          "id": "larger-list",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 3.699999999953434,
+          "outcome": "success",
+          "details": {
+            "requests": 4
+          }
+        },
+        {
+          "id": "foreign-before",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 1.0999999998603016,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "foreign-after",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 3,
+          "outcome": "success",
+          "details": {
+            "requests": 4
+          }
+        },
+        {
+          "id": "foreign-club",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 0.9000000001396984,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "login-at-200",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 1.6999999999534339,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "network",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 1.1999999999534339,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "redirect",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 0.5,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "mime",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 0.6000000000931323,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "oversize",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 8,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "charset",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 0.6999999999534339,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "foreign-link",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 2.0999999998603016,
+          "outcome": "success",
+          "details": {
+            "requests": 2
+          }
+        },
+        {
+          "id": "missing-list",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 1.1999999999534339,
+          "outcome": "success",
+          "details": {
+            "requests": 2
+          }
+        },
+        {
+          "id": "cancel",
+          "metric": "synthetic-detail-http-scenario",
+          "milliseconds": 0.6999999999534339,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        }
+      ]
     }
   ]
 }
