@@ -1394,7 +1394,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `2339fb8bfb514080fcac53307d0e3d0915d10197a216c16e5944677298c82cab`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `da2183b9b6e2e52ea34d9a6af139ccce70b936d0e284d255b6ba298e7ebc3fa8`.
 
 ### Typography declarations
 

@@ -150,7 +150,7 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
       if((intent==='update'||intent==='connect')&&AppState.currentState==='active')verification=new SyncVerificationScope(selected);
       setSyncVerification(verification??null);
       const unused=takeInitialRepository();await unused?.close();
-      const pending=await getPendingUserBackupRestoreNative({registry:opened,lease:selected,authorize:()=>alive.current?{...selected,writable:false}:null});
+      const pending=await getPendingUserBackupRestoreNative({registry:opened,lease:selected,authorize:()=>alive.current?{ownerId:selected.ownerId,storeId:selected.storeId,leaseId:selected.leaseId,writable:false}:null});
       if(!current)return;
       setPendingUserRestore(pending);
       if(pending){setSetupLease(selected);setLease(null);return;}
@@ -199,7 +199,7 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
     const selected=setupLease,current=registry.current,pending=pendingUserRestore;
     if(lock.current||!selected||!current||!pending)return;
     lock.current=true;setLoading(true);setError(false);
-    const scope:RealFlightNativeScope={registry:current,lease:selected,authorize:()=>alive.current?{...selected,writable:AppState.currentState==='active'}:null};
+    const scope:RealFlightNativeScope={registry:current,lease:selected,authorize:()=>alive.current?{ownerId:selected.ownerId,storeId:selected.storeId,leaseId:selected.leaseId,writable:AppState.currentState==='active'}:null};
     let release:(()=>void)|null=null;
     try {
       if(localPageOnly)release=await ownFlightReadPorts.suspend();

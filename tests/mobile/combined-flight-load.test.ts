@@ -152,7 +152,12 @@ function fixture({verificationScope=undefined as syncVerification.SyncVerificati
     '../ai/backup-notice':{AI_BACKUP_NOTICE},
     '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>{pendingRestoreChecks++;return pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null;},
       saveUserBackupToFolder:async()=>{calls.push('backup-save');if(backupAttempt)return backupAttempt();if(backupFails)throw new Error('Synthetic backup failure');return {state:'saved'};},
-      restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id?:string)=>{calls.push(id?'resume-'+id:'restore-whole');if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
+      restoreUserBackupFromPickerNative:async(_scope:any,_gate:any,id?:string)=>{calls.push(id?'resume-'+id:'restore-whole');
+        // Native access rejects owner-record metadata such as selectionSeq.
+        // Exercise the recovery caller against that exact permit contract.
+        assert.deepEqual(Object.keys(_scope.authorize()).sort(),['leaseId','ownerId','storeId','writable']);
+        assert.equal(_scope.authorize().writable,true);
+        if(cancelRestore)return {state:'cancelled'};pendingRestore=false;return {state:'restored'};}},
     './sync-progress':syncProgress,'./session-monitor':{startSessionMonitor},
     './sync-estimate':{...syncEstimate,syncEstimateNow:()=>{estimateClock+=10;return estimateClock;}},
     './sync-estimate-native':{
