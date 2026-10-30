@@ -8,7 +8,7 @@ export interface DetailHttpEvidence {
   navigationMs?: number; comparison?: ReturnType<typeof compareDetailReads>;
   stages: Partial<Record<'profile' | 'http' | 'navigation' | 'verify', number>>;
   listShape?: ReturnType<typeof detailListShape>;
-  failure?: { stage: 'profile' | 'http' | 'navigation' | 'verify' | 'confirmation'; reason: 'context-changed' | 'session-required' | 'response-rejected' | 'list-unsupported' | 'cancelled' | 'unavailable' | 'invalid-response' | 'stopped' };
+  failure?: { stage: 'profile' | 'http' | 'navigation' | 'verify' | 'confirmation'; reason: 'context-changed' | 'session-required' | 'profile-number-unavailable' | 'profile-club-unavailable' | 'response-rejected' | 'list-unsupported' | 'cancelled' | 'unavailable' | 'invalid-response' | 'stopped' };
   limit: 'development-only; visible-own-list; navigation-includes-renderer-creation; no-speedup-claim';
 }
 type Step = { kind: 'profile' | 'http' | 'navigation' | 'verify'; url: string; nonce: string; started: number };
@@ -53,6 +53,8 @@ export class DetailHttpTrial {
     if (step.kind === 'http') this.evidence.listShape = detailListShape(p.listShape);
     try {
       if (step.kind === 'profile' || step.kind === 'verify') {
+        const contextError = p.context && typeof p.context === 'object' ? (p.context as Record<string, unknown>).error : undefined;
+        if (typeof contextError === 'string' && ['session-required','profile-number-unavailable','profile-club-unavailable'].includes(contextError)) throw new Error(contextError);
         const context = validateContext(p.context), previous = this.evidence.context ?? this.expected;
         if (previous && !sameContext(previous, context)) throw new Error('context-changed');
         if (step.kind === 'profile') {
@@ -74,9 +76,13 @@ export class DetailHttpTrial {
         this.request('verify', PROFILE_URL);
       }
     } catch(error) {
-      const reason = ['context-changed','session-required','response-rejected','list-unsupported','cancelled','unavailable'].find(reason => reason === p.error || error instanceof Error && reason === error.message) as NonNullable<DetailHttpEvidence['failure']>['reason'] | undefined;
+      const reason = ['context-changed','session-required','profile-number-unavailable','profile-club-unavailable','response-rejected','list-unsupported','cancelled','unavailable'].find(reason => reason === p.error || error instanceof Error && reason === error.message) as NonNullable<DetailHttpEvidence['failure']>['reason'] | undefined;
       this.evidence.failure = { stage: step.kind, reason: reason ?? 'invalid-response' };
-      this.stop(`Versuch abgebrochen (${step.kind}: ${this.evidence.failure.reason}). Sitzung, Konto oder Antwort nicht bestätigt. Bibliothek bleibt erhalten.`);
+      const hint = reason === 'session-required' ? 'Vereinsflieger verlangt in dieser App eine Anmeldung. Über „Zurück“ zum Sync im Kopfbereich gehen, anmelden und danach erneut vergleichen.'
+        : reason === 'profile-number-unavailable' ? 'Die Benutzernummer fehlt im unterstützten Anbieterprofil. Bitte erneut versuchen; bleibt der Fehler, muss das Profilformat geprüft werden.'
+        : reason === 'profile-club-unavailable' ? 'Der aktuelle Verein fehlt im unterstützten Anbieterprofil. Bitte erneut versuchen; bleibt der Fehler, muss die Vereinsanzeige geprüft werden.'
+        : 'Sitzung, Konto oder Antwort nicht bestätigt.';
+      this.stop(`Versuch abgebrochen (${step.kind}: ${this.evidence.failure.reason}). ${hint} Bibliothek bleibt erhalten.`);
     }
   }
   stop(message = 'Versuch gestoppt. Für einen neuen Versuch erneut starten.') {

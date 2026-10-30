@@ -36082,6 +36082,54 @@
           }
         }
       ]
+    },
+    {
+      "id": "mobile-detail-http-owner-phone-30oct",
+      "recorded_date": "2026-10-30",
+      "kind": "phone",
+      "source_commit": null,
+      "apk_sha256": null,
+      "device": "Owner-supplied Android phone screenshot; model, Android API/ABI, logical viewport, density and font scale not supplied. Image pixels are not device dp.",
+      "input": "One own-flight detail; owner reports normal Sync required sign-in, then comparison completed. Screenshot shows 20/20 exact and normalized fields.",
+      "conditions": "Owner-operated installed app after normal Sync/sign-in. Network, cache, thermal and device conditions uncontrolled. Source/hash not shown in screenshot; no build attribution inferred from previous delivery.",
+      "method": "Screenshot UI values: rounded WebView detail fetch/parse 247 ms, rounded guarded HTTP sequence 942 ms, native navigation/reader including renderer creation 617 ms. Underlying unrounded reports unavailable.",
+      "limits": [
+        "One owner-reported phone observation; not independently controlled or a matched performance comparison.",
+        "Different inclusive boundaries: detail is included in HTTP sequence; no additive total or speedup claim.",
+        "Earlier profile invalid-response has no captured duration; old code hides the nested reason. Owner confirms sign-in was needed before success.",
+        "Source commit, APK hash, device configuration and raw stage report unavailable. Original screenshots remain private."
+      ],
+      "evidence": [
+        "docs/verification/2026-10-30-mobile-detail-http-poc.md"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "detail",
+          "metric": "detail-http-ui-detail",
+          "milliseconds": 247,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "guarded-sequence",
+          "metric": "detail-http-ui-sequence",
+          "milliseconds": 942,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "navigation",
+          "metric": "detail-http-ui-navigation",
+          "milliseconds": 617,
+          "outcome": "success",
+          "details": {
+            "comparison.fields": 20,
+            "comparison.exact": 20,
+            "comparison.normalized": 20
+          }
+        }
+      ]
     }
   ]
 }

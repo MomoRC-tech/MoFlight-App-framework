@@ -55,6 +55,30 @@ test('foreign accounts and changed club labels cannot confirm or complete a tria
     final.receive('vf-context-v1', 5, { context: foreign }); assert.equal(final.state.phase, 'stopped'); assert.equal(final.saves[0]?.comparison, undefined);
   }
 });
+test('nested protected-profile failures retain fixed reasons and give sign-in recovery without reading HTTP details', () => {
+  for (const reason of ['session-required', 'profile-number-unavailable', 'profile-club-unavailable']) {
+    const h = new Harness(); h.trial.start(); h.trial.loaded(PROFILE_URL);
+    h.receive('vf-context-v1', 2, { context: { error: reason, privateValue: 'never-display-this' } });
+    assert.equal(h.state.phase, 'stopped');
+    assert.deepEqual(h.saves[0]?.failure, { stage: 'profile', reason });
+    assert.equal(h.saves[0]?.http, undefined);
+    assert.equal(h.scripts.length, 1, 'only the profile reader was injected');
+    assert.ok(!h.state.message.includes('never-display-this'));
+    if (reason === 'session-required') { assert.match(h.state.message, /Zurück.*Sync.*anmelden/); assert.ok(!h.state.message.includes('invalid-response')); }
+    const final = new Harness(); final.begin(); final.fetched(); final.receive('vf-detail-navigation-v1', 4, { result });
+    final.receive('vf-context-v1', 5, { context: { error: reason } });
+    assert.equal(final.state.phase, 'stopped'); assert.equal(final.saves[0]?.outcome, 'stopped');
+    assert.deepEqual(final.saves[0]?.failure, { stage: 'verify', reason });
+    assert.equal(final.saves[0]?.comparison, undefined); assert.equal(final.saves[0]?.http?.observation.sourceFlightId, '123');
+  }
+});
+test('unknown nested error text stays private and a signed-out attempt can retry with a fresh account proof', () => {
+  const unknown = new Harness(); unknown.trial.start(); unknown.receive('vf-context-v1', 2, { context: { error: 'private-provider-text' } });
+  assert.equal(unknown.saves[0]?.failure?.reason, 'invalid-response'); assert.ok(!unknown.state.message.includes('private-provider-text'));
+  const h = new Harness(); h.trial.start(); h.receive('vf-context-v1', 2, { context: { error: 'session-required' } });
+  h.trial.start(); h.receive('vf-context-v1', 2, { context }); assert.equal(h.state.phase, 'running', 'old response cannot confirm retry');
+  h.receive('vf-context-v1', 4, { context }); assert.equal(h.state.phase, 'confirm');
+});
 test('wrong nonce, document, origin, bridge kind and malformed JSON do not advance the job', () => {
   const h = new Harness(); h.begin();
   h.receive('vf-detail-http-v1', 99, http); h.receive('vf-context-v1', 3, http);

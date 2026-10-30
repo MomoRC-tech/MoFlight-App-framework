@@ -28009,3 +28009,9 @@ mobile-detail-http-synthetic-30oct-relative-final,2026-10-30,emulator-synthetic,
 mobile-detail-http-synthetic-30oct-relative-final,2026-10-30,emulator-synthetic,c9776e2a5a5ad4821cb5cb8f274d765afcca4ee2,missing-list,synthetic-detail-http-scenario,success,requests,2,count,docs/verification/2026-10-30-mobile-detail-http-poc.md
 mobile-detail-http-synthetic-30oct-relative-final,2026-10-30,emulator-synthetic,c9776e2a5a5ad4821cb5cb8f274d765afcca4ee2,cancel,synthetic-detail-http-scenario,success,milliseconds,0.6999999999534339,ms,docs/verification/2026-10-30-mobile-detail-http-poc.md
 mobile-detail-http-synthetic-30oct-relative-final,2026-10-30,emulator-synthetic,c9776e2a5a5ad4821cb5cb8f274d765afcca4ee2,cancel,synthetic-detail-http-scenario,success,requests,1,count,docs/verification/2026-10-30-mobile-detail-http-poc.md
+mobile-detail-http-owner-phone-30oct,2026-10-30,phone,,detail,detail-http-ui-detail,success,milliseconds,247,ms,docs/verification/2026-10-30-mobile-detail-http-poc.md
+mobile-detail-http-owner-phone-30oct,2026-10-30,phone,,guarded-sequence,detail-http-ui-sequence,success,milliseconds,942,ms,docs/verification/2026-10-30-mobile-detail-http-poc.md
+mobile-detail-http-owner-phone-30oct,2026-10-30,phone,,navigation,detail-http-ui-navigation,success,milliseconds,617,ms,docs/verification/2026-10-30-mobile-detail-http-poc.md
+mobile-detail-http-owner-phone-30oct,2026-10-30,phone,,navigation,detail-http-ui-navigation,success,comparison.fields,20,count,docs/verification/2026-10-30-mobile-detail-http-poc.md
+mobile-detail-http-owner-phone-30oct,2026-10-30,phone,,navigation,detail-http-ui-navigation,success,comparison.exact,20,count,docs/verification/2026-10-30-mobile-detail-http-poc.md
+mobile-detail-http-owner-phone-30oct,2026-10-30,phone,,navigation,detail-http-ui-navigation,success,comparison.normalized,20,count,docs/verification/2026-10-30-mobile-detail-http-poc.md
