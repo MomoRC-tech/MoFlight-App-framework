@@ -12,9 +12,11 @@ import type { Driver } from '../../packages/local-data/src/index.ts';
 import type { RealFlightNativeScope } from '../../apps/platform-lab/src/vereinsflieger/real-flight-native.ts';
 import type { UserFinancialBackup } from '../../apps/platform-lab/src/user-backup.ts';
 import { createFinancialNativeAdapter } from '../../apps/platform-lab/src/vereinsflieger/expense-native-adapter.ts';
-import { FinancialObservationStore } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
+import { FinancialObservationStore, validateFinancialObservationTarget } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
+import { FinancialCaptureRun } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-run.ts';
 import { nodeDriver } from './sqlite-driver.ts';
-import { financialTarget as target, financialHash as hash, financialObservation as observation } from './fixtures/expense-capture.ts';
+import { financialTarget as target, financialHash as hash, financialObservation as observation, financialAt as at,
+  financialListUrl as listUrl, financialDetailUrl as detailUrl, financialProfile as profile, financialRead as read } from './fixtures/expense-capture.ts';
 
 const noop = async () => {};
 const leaseId = '44444444-4444-4444-8444-444444444444';
@@ -257,6 +259,7 @@ test('native restore wrapper requires actual matching durable pending operation 
   let captured!: Parameters<typeof createFinancialNativeAdapter>[0]; let closed = 0, pending: typeof permit | null = null;
   const modules: Record<string, unknown> = {
     'expo-file-system': {}, 'expo-sqlite': {}, '../storage': {}, './scoped-storage': {},
+    '@moflight/flight-logbook': { canonical }, './expense-observation-store': { validateFinancialObservationTarget },
     './expense-native-adapter': { createFinancialNativeAdapter(deps: typeof captured) { captured = deps; return {}; } },
     '../user-backup-restore-journal-native': { assertNoPendingUserBackupRestore: noop, async openUserBackupRestoreJournal() {
       return { async pending() { return pending ? { ...pending, status: 'pending' } : null; }, async close() { closed++; } };
@@ -267,4 +270,32 @@ test('native restore wrapper requires actual matching durable pending operation 
   await assert.rejects(captured.assertRecovery(permit), /Foreign or completed/);
   pending = { ...permit, storeId: leaseId }; await assert.rejects(captured.assertRecovery(permit), /Foreign or completed/);
   pending = permit; await captured.assertRecovery(permit); assert.equal(closed, 3);
+});
+
+test('native capture options bind the original lease and save the guarded run through the actual file adapter', async () => {
+  const f = await fixture(); try {
+    const source = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/expense-native.ts', import.meta.url), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
+    const modules: Record<string, unknown> = {
+      'expo-file-system': {}, 'expo-sqlite': {}, '../storage': {}, './scoped-storage': {}, '../user-backup-restore-journal-native': {},
+      '@moflight/flight-logbook': { canonical }, './expense-observation-store': { validateFinancialObservationTarget },
+      './expense-native-adapter': { createFinancialNativeAdapter() { return f.adapter; } },
+    };
+    const exports = {} as typeof import('../../apps/platform-lab/src/vereinsflieger/expense-native.ts');
+    runInNewContext(source, { exports, Object, JSON, require: (name: string) => { assert.ok(name in modules, name); return modules[name]; } });
+    assert.throws(() => exports.nativeFinancialCaptureOptions(f.scope, { ...target, storeId: leaseId }, listUrl, detailUrl), /Foreign/);
+    const options = exports.nativeFinancialCaptureOptions(f.scope, target, listUrl, detailUrl);
+    await options.authorize(noop);
+    const run = new FinancialCaptureRun(target, 'native-bound', listUrl, detailUrl);
+    for (let i = 0; i < 4; i++) {
+      const isProfile = run.stage === 'before' || run.stage === 'after';
+      const packet = { kind: isProfile ? 'vf-financial-profile-v1' : run.stage === 'list' ? 'vf-financial-link-v1' : 'vf-financial-billing-v1',
+        nonce: run.messageNonce, url: run.url, ...(isProfile ? { profile: profile() } : { page: run.stage === 'list' ? { url: listUrl, detailUrl } : read() }) };
+      run.observeNavigation(run.url); run.accept(run.url, run.url, packet, target, at);
+    }
+    assert.deepEqual((await options.save(run, noop)).value, observation());
+    assert.equal((await f.adapter.exportSection(f.scope, noop)).state, 'present');
+    f.current.writable = false; await assert.rejects(options.authorize(noop), /unavailable/);
+    f.current.writable = true; f.current.leaseId = operationId; f.scope.lease = { ...f.scope.lease, leaseId: operationId };
+    await assert.rejects(options.authorize(noop), /lease/);
+  } finally { await f.cleanup(); }
 });

@@ -26,6 +26,13 @@ import * as providerDiagnostics from '../../apps/platform-lab/src/vereinsflieger
 import { InformationRun } from '../../apps/platform-lab/src/vereinsflieger/information-run.ts';
 import { ActivityRequest } from '../../apps/platform-lab/src/vereinsflieger/activity-request.ts';
 import * as activityProbe from '../../apps/platform-lab/src/vereinsflieger/activity-probe.ts';
+import { FinancialCaptureRequest } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-request.ts';
+import type { FinancialCaptureOptions } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-request.ts';
+import { FinancialObservationStore } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
+import type { FinancialObservationTarget } from '../../apps/platform-lab/src/vereinsflieger/expense-ledger-observation.ts';
+import type { RealFlightNativeScope } from '../../apps/platform-lab/src/vereinsflieger/real-flight-native.ts';
+import { nodeDriver } from './sqlite-driver.ts';
+import { financialTarget, financialHash, financialListUrl, financialDetailUrl, financialProfile, financialRead } from './fixtures/expense-capture.ts';
 const { FLIGHT_URL } = probe;
 
 const original: ViewPreferences = {
@@ -52,7 +59,9 @@ const savedLoginSource = ts.transpileModule(readFileSync(new URL('../../apps/pla
 const informationControllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-information-controller.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: false },
 }).outputText;
-function fixture(options: { http?:boolean; deferIdentity?: boolean; failIdentity?: boolean; panel?:boolean; deferViewSupersession?:boolean; failViewSupersession?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+function fixture(options: { localOwner?: string; deferFinancialAck?: boolean; http?:boolean; deferIdentity?: boolean; failIdentity?: boolean; panel?:boolean; deferViewSupersession?:boolean; failViewSupersession?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+  let financialStore: FinancialObservationStore | null = null, finishFinancialAck!: () => void;
+  const financialAck = new Promise<void>(resolve => { finishFinancialAck = resolve; });
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
   let finishViewSupersession!:()=>void;
   const viewSupersession=new Promise<void>(resolve=>{finishViewSupersession=resolve;});
@@ -72,6 +81,14 @@ function fixture(options: { http?:boolean; deferIdentity?: boolean; failIdentity
       super({ ...ports,
         schedule: callback => { const id = ++activityTimerId as unknown as ReturnType<typeof setTimeout>; activityTimers.set(id, callback); return id; },
         clear: id => { activityTimers.delete(id); },
+      });
+    }
+  }
+  class FixtureFinancialRequest extends FinancialCaptureRequest {
+    constructor(ports: ConstructorParameters<typeof FinancialCaptureRequest>[0]) {
+      super({ ...ports,
+        schedule: callback => { const id = ++timerId; timers.set(id, callback); return id as unknown as ReturnType<typeof setTimeout>; },
+        clear: id => { timers.delete(id as unknown as number); },
       });
     }
   }
@@ -140,6 +157,23 @@ function fixture(options: { http?:boolean; deferIdentity?: boolean; failIdentity
     'react-native-webview': { WebView: 'WebView' }, 'expo-crypto': { randomUUID: () => { const nonce = `fixture-${++nextId}`; issuedNonces.push(nonce); return nonce; } },
     './probe': probe,
     './activity-request': { ActivityRequest: FixtureActivityRequest },
+    './expense-capture-request': { FinancialCaptureRequest: FixtureFinancialRequest },
+    './expense-native': { nativeFinancialCaptureOptions(native: RealFlightNativeScope, target: FinancialObservationTarget, observedListUrl: string, observedDetailUrl: string): FinancialCaptureOptions {
+      if (native.lease.ownerId !== target.scope.owner || native.lease.storeId !== target.storeId) throw new Error('Foreign financial capture owner');
+      return { target, observedListUrl, observedDetailUrl, async authorize(gate) {
+        await gate(); const permit = native.authorize();
+        if (!permit || !permit.writable || permit.ownerId !== target.scope.owner || permit.storeId !== target.storeId) throw new Error('Expired financial lease');
+        await native.registry.assertCurrent(native.lease); await gate();
+      }, async save(run, gate) {
+        await gate();
+        const existed = !!financialStore;
+        financialStore = new FinancialObservationStore(financialStore?.db ?? nodeDriver(':memory:'), target, financialHash, async () => { await gate(); });
+        await financialStore.initialize(!existed);
+        const receipt = await run.save(financialStore, () => target, gate); writes.push('financial-saved');
+        if (options.deferFinancialAck) await financialAck;
+        await gate(); return receipt;
+      } };
+    } },
     './activity-probe': activityProbe,
     './storage': {
       readOriginalView: () => journal, latestCapture: async () => savedCapture,
@@ -223,7 +257,7 @@ function fixture(options: { http?:boolean; deferIdentity?: boolean; failIdentity
     runInNewContext(panelSource,{exports:panelExports,...runtime});
   }
   let panelOpen=true;
-  let localOwner = 'synthetic-pilot';
+  let localOwner = options.localOwner ?? 'synthetic-pilot';
   let controller: ReturnType<typeof useAccessController>;
   function render() {
     index = 0;
@@ -340,6 +374,8 @@ function fixture(options: { http?:boolean; deferIdentity?: boolean; failIdentity
     return flush();
   }
   return { identities, finishIdentity, finishViewSupersession, setPanelOpen:(value:boolean)=>{panelOpen=value;render();}, diagnosticPhases, providerEvents, verificationDiagnostics, render, button, press, settle, find, flush, loadPage, loadFlight, message, currentCommand, writes, injections,
+    finishFinancialAck, financialStore: () => financialStore, closeFinancial: async () => { await financialStore?.db.close(); },
+    financialSnapshot: async () => { if (!financialStore) return null; const readable = new FinancialObservationStore(financialStore.db, financialStore.target, financialHash, async () => {}); await readable.initialize(); return readable.history(); },
     setInformationReader: (reader: typeof informationReader) => { informationReader = reader; }, informationReads: () => informationReads, savedInformation: () => savedInformation,
     setInformationCaptureReader: (reader: typeof informationCaptureReader) => { informationCaptureReader = reader; },
     setInformationHistoryReader: (reader: typeof informationHistoryReader) => { informationHistoryReader = reader; },
@@ -362,6 +398,149 @@ function fixture(options: { http?:boolean; deferIdentity?: boolean; failIdentity
 }
 
 const observedContext = { accountNumber: '123', clubLabel: 'Synthetic Club', clubIdentity: 'display-label-only', verification: 'observed-profile-number' } as const;
+
+function financialNativeScope(): RealFlightNativeScope {
+  const lease = { version: 1 as const, ownerId: financialTarget.scope.owner, storeId: financialTarget.storeId,
+    leaseId: '44444444-4444-4444-8444-444444444444', selectionSeq: 1, selectedAt: '2026-10-30T12:00:00.000Z',
+    createdAt: '2026-10-30T12:00:00.000Z', candidateName: 'synthetic-owner.sqlite' };
+  return { lease, registry: { async assertCurrent() {} }, authorize: () => ({ ...lease, writable: true }) };
+}
+async function financialFixture(deferFinancialAck = false) {
+  const f = fixture({ product: true, localOwner: financialTarget.scope.owner, persistedScope: financialTarget.scope, deferFinancialAck });
+  f.render(); await f.settle(null); await f.flush(); return f;
+}
+function startFinancial(f: ReturnType<typeof fixture>, native = financialNativeScope()) {
+  const promise = f.controller().captureFinancialDetail(native, financialListUrl, financialDetailUrl); void promise.catch(() => {}); return promise;
+}
+async function financialStep(f: ReturnType<typeof fixture>, extra: Record<string, unknown> = {}) {
+  const page = f.controller().currentUrl.current;
+  await f.loadPage(page);
+  const script = [...f.injections].reverse().find(value => value.includes('kind:"vf-financial-')); assert.ok(script);
+  const kind = JSON.parse(script.match(/kind:("[^"]+")/)![1]!), nonce = JSON.parse(script.match(/nonce:("[^"]+")/)![1]!);
+  const packet = { kind, nonce, url: page, ...(kind === 'vf-financial-profile-v1' ? { profile: financialProfile() }
+    : { page: kind === 'vf-financial-link-v1' ? { url: financialListUrl, detailUrl: financialDetailUrl } : financialRead() }), ...extra };
+  const web = f.find(f.render(), element => element.type === 'WebView'); assert.ok(web);
+  (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: page, data: JSON.stringify(packet) } }); await f.flush();
+}
+
+test('financial access controller uses the sole renderer for fresh profile/list/billed detail/profile and durable receipt', async () => {
+  const f = await financialFixture(); try {
+    const pending = startFinancial(f); await f.flush();
+    assert.equal(f.controller().financialState.phase, 'reading'); assert.equal(f.controller().busy, true);
+    for (let i = 0; i < 4; i++) await financialStep(f);
+    const receipt = await pending;
+    assert.deepEqual(receipt.value.scope, financialTarget.scope); assert.ok('source' in receipt.value); assert.deepEqual(receipt.value.source, financialRead());
+    assert.equal((await f.financialSnapshot())?.total, 1); assert.equal(f.controller().financialState.phase, 'idle');
+    assert.equal(f.controller().busy, false); assert.equal(f.controller().financialSaveUncertain, false);
+    assert.equal(f.writes.filter(value => value === 'financial-saved').length, 1);
+    assert.equal(f.writes.includes('capture-saved'), false); assert.equal(f.writes.includes('information-saved'), false);
+  } finally { f.unmount(); await f.closeFinancial(); }
+});
+
+test('financial reservation immediately excludes flights, information, activity, login, logout, clearing and navigation', async () => {
+  const f = await financialFixture(); try {
+    const pending = startFinancial(f), c = f.controller();
+    assert.equal(c.checkSession(), false); assert.equal(c.checkConnection(), false); assert.equal(c.suspendBrowserForOwnerSwitch(), false);
+    c.retrieve(); c.connect(); c.startDisconnect(); c.useLogin(); c.forgetLogin(); await c.clearLocalSession();
+    assert.equal(await c.checkActivity(), null); await assert.rejects(c.retrieveMedical()); await assert.rejects(c.retrieveFeatureInformation('events'));
+    await f.flush(); const generation = c.epoch.current;
+    c.navigate(probe.LOGIN_URL); assert.equal(c.epoch.current, generation); assert.equal(f.controller().currentUrl.current, context.PROFILE_URL);
+    assert.equal(f.clearCalls(), 0); assert.equal(f.loginStorage().forgets, 0);
+    c.cancelFinancialCapture(); await assert.rejects(pending); assert.equal(f.controller().busy, false);
+  } finally { f.unmount(); await f.closeFinancial(); }
+});
+
+test('financial capture of a retained loaded profile requests native reload and rejects old same-URL handlers', async () => {
+  const f = await financialFixture(); try {
+    f.controller().navigate(context.PROFILE_URL); await f.flush(); await f.loadPage(context.PROFILE_URL);
+    const prior = f.find(f.render(), element => element.type === 'WebView'); assert.ok(prior);
+    const pending = startFinancial(f); await f.flush(); assert.equal(f.nativeReloads(), 1);
+    (prior.props.onLoadEnd as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL } }); await f.flush();
+    assert.equal(f.injections.some(script => script.includes('kind:"vf-financial-profile-v1"')), false);
+    await f.loadPage(context.PROFILE_URL);
+    assert.equal(f.injections.filter(script => script.includes('kind:"vf-financial-profile-v1"')).length, 1);
+    f.controller().cancelFinancialCapture(); await assert.rejects(pending);
+  } finally { f.unmount(); await f.closeFinancial(); }
+});
+
+test('financial capture cannot replace an already owned optional-source or sign-in request', async () => {
+  const f = await financialFixture(); try {
+    const medical = f.controller().retrieveMedical(); void medical.catch(() => {}); await f.flush();
+    const before = [...f.injections], generation = f.controller().epoch.current;
+    await assert.rejects(startFinancial(f), /unavailable/); assert.equal(f.controller().epoch.current, generation);
+    assert.deepEqual(f.injections, before); assert.equal(f.controller().informationBusy, true);
+    f.controller().dismissLogin(); await assert.rejects(medical);
+    f.controller().connect(); await f.flush(); await f.loadPage(probe.LOGIN_URL);
+    f.controller().setEditingLogin(true); await f.flush();
+    await assert.rejects(startFinancial(f), /unavailable/); assert.equal(f.writes.includes('financial-saved'), false);
+  } finally { f.unmount(); await f.closeFinancial(); }
+});
+
+for (const interruption of ['background', 'owner', 'unmount', 'dismiss', 'timeout', 'renderer'] as const) {
+  test(`financial ${interruption} interruption invalidates native events without saving source data`, async () => {
+    const f = await financialFixture(); try {
+      const pending = startFinancial(f); await f.flush(); await f.loadPage(context.PROFILE_URL);
+      const web = f.find(f.render(), element => element.type === 'WebView'); assert.ok(web); const priorGeneration = f.controller().epoch.current;
+      if (interruption === 'background') f.appState('background');
+      else if (interruption === 'owner') f.changeOwner('other-owner');
+      else if (interruption === 'unmount') f.unmount();
+      else if (interruption === 'dismiss') f.controller().dismissLogin();
+      else if (interruption === 'timeout') f.fireTimeout();
+      else (web.props.onRenderProcessGone as () => void)();
+      await assert.rejects(pending, /stopped/); await f.flush();
+      assert.ok(f.controller().epoch.current > priorGeneration);
+      (web.props.onMessage as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL,
+        data: JSON.stringify({ kind: 'vf-financial-profile-v1', nonce: 'fixture-1-before', url: context.PROFILE_URL, profile: financialProfile() }) } });
+      await f.flush(); assert.equal(f.writes.includes('financial-saved'), false); assert.equal(await f.financialSnapshot(), null);
+    } finally { f.unmount(); await f.closeFinancial(); }
+  });
+}
+
+test('financial native HTTP errors, foreign top-level navigation and changed charged recipient stop capture', async () => {
+  for (const failure of ['http', 'navigation', 'external-navigation', 'recipient']) {
+    const f = await financialFixture(); try {
+      const pending = startFinancial(f); await f.flush();
+      if (failure === 'navigation') assert.equal(f.allowNavigation(probe.LOGIN_URL), false);
+      else if (failure === 'external-navigation') assert.equal(f.allowNavigation('https://example.invalid/'), false);
+      else if (failure === 'http') {
+        const web = f.find(f.render(), element => element.type === 'WebView'); assert.ok(web);
+        (web.props.onHttpError as (event: unknown) => void)({ nativeEvent: { url: context.PROFILE_URL } });
+      } else {
+        for (let i = 0; i < 3; i++) await financialStep(f);
+        await financialStep(f, { profile: { ...financialProfile(), ownRecipientLabel: 'Foreign, Person' } });
+      }
+      await assert.rejects(pending); assert.equal(f.writes.includes('financial-saved'), false);
+    } finally { f.unmount(); await f.closeFinancial(); }
+  }
+});
+
+test('financial save remains reserved through background acknowledgement loss and reconciles the same SQLite receipt', async () => {
+  const f = await financialFixture(true); try {
+    const pending = startFinancial(f); await f.flush(); for (let i = 0; i < 4; i++) await financialStep(f);
+    assert.equal(f.writes.includes('financial-saved'), true); assert.equal(f.controller().financialState.phase, 'saving');
+    assert.equal(f.controller().cancelFinancialCapture(), false); f.controller().dismissLogin();
+    assert.equal(f.controller().financialState.phase, 'saving');
+    f.appState('background'); assert.equal(f.controller().busy, true);
+    f.finishFinancialAck(); await assert.rejects(pending, /acknowledgement unavailable/); await f.flush();
+    assert.equal(f.controller().financialSaveUncertain, true); assert.equal((await f.financialSnapshot())?.total, 1);
+    f.appState('active'); await f.flush(); const injections = [...f.injections];
+    const receipt = await f.controller().retryFinancialSave(); await f.flush();
+    assert.equal(receipt.id, (await f.financialSnapshot())?.receipts[0]?.id); assert.equal((await f.financialSnapshot())?.total, 1);
+    assert.deepEqual(f.injections, injections, 'same-receipt reconciliation does not read the provider again');
+    assert.equal(f.controller().financialSaveUncertain, false); assert.equal(f.controller().busy, false);
+  } finally { f.finishFinancialAck(); await f.flush(); f.unmount(); await f.closeFinancial(); }
+});
+
+test('foreign or expired native financial ownership cannot navigate or publish a source', async () => {
+  const f = await financialFixture(); try {
+    const foreign = financialNativeScope(); foreign.lease = { ...foreign.lease, storeId: financialTarget.scope.connectionId };
+    // A foreign store cannot be passed off as the caller's selected store.
+    foreign.authorize = () => ({ ownerId: foreign.lease.ownerId, storeId: financialTarget.storeId, leaseId: foreign.lease.leaseId, writable: true });
+    await assert.rejects(startFinancial(f, foreign));
+    const expired = financialNativeScope(); expired.authorize = () => null; await assert.rejects(startFinancial(f, expired));
+    assert.equal(f.writes.includes('financial-saved'), false);
+  } finally { f.unmount(); await f.closeFinancial(); }
+});
 
 async function prepareHttpRead(f: ReturnType<typeof fixture>) {
   f.render(); await f.settle(null); await establishProductAssociation(f);

@@ -133,4 +133,9 @@ export class FinancialCaptureRun {
       this.stage = 'done'; return receipt;
     } catch { this.stage = 'save-uncertain'; this.failure = 'save-uncertain'; throw Error('Financial save acknowledgement unavailable; reconcile the original receipt before retrying.'); }
   }
+  /** The native adapter/caller may lose acknowledgement after this inner save
+   * completed. Reconciliation still uses this original value/ID, never recapture. */
+  markSaveAcknowledgementUncertain(): void {
+    if (this.stage === 'done') { this.stage = 'save-uncertain'; this.failure = 'save-uncertain'; }
+  }
 }

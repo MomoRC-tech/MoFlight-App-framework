@@ -24,6 +24,9 @@ import type { ProviderScope } from './scope-store';
 import { useInformationController, type FeatureInformationCategory } from './use-information-controller';
 import type { RealFlightSourceInput } from './real-flight-source';
 import { rememberAuthenticatedProfileNative } from '../ai/historical-provider-identity-native';
+import { FinancialCaptureRequest, type FinancialCaptureState } from './expense-capture-request';
+import { nativeFinancialCaptureOptions } from './expense-native';
+import type { RealFlightNativeScope } from './real-flight-native';
 
 type FlightSourceAttempt = {
   owner: string;
@@ -44,6 +47,26 @@ export function useAccessController(product = false, localOwner?: string, develo
     uuid: Crypto.randomUUID, now: Date.now, changed: active => { if (mounted.current) setActivityChecking(active); },
   });
   useEffect(() => () => activityRequest.current?.abandon(), []);
+  const [financialState, setFinancialState] = useState<FinancialCaptureState>({ phase: 'idle', failure: null });
+  const financialAdmission = useRef<() => boolean>(() => false), financialNavigate = useRef<(url: string) => void>(() => {});
+  const financial = useRef<FinancialCaptureRequest | null>(null);
+  if (!financial.current) financial.current = new FinancialCaptureRequest({
+    canStart: () => financialAdmission.current(),
+    current: selected => mounted.current && foreground.current && owner.current === activeOwner.current &&
+      selected.scope.owner === owner.current && canonical(selected.scope) === canonical(scope.current),
+    epoch: () => epoch.current, uuid: Crypto.randomUUID, now: () => new Date().toISOString(),
+    navigate: uri => financialNavigate.current(uri),
+    inject: script => { if (!web.current) throw new Error('Provider renderer unavailable.'); web.current.injectJavaScript(script); },
+    revoke: () => {
+      pendingNavigation.current = null; web.current?.stopLoading(); epoch.current++;
+      if (mounted.current) { setGeneration(epoch.current); setLoaded(false); }
+    },
+    changed: state => {
+      if (mounted.current && owner.current === activeOwner.current) {
+        setFinancialState(state); setBusy(state.phase === 'reading' || state.phase === 'saving');
+      }
+    },
+  });
   const clearingStore = useRef(false), documentDetached = useRef<(() => void) | null>(null);
   const [clearing, setClearing] = useState(false), [clearNotice, setClearNotice] = useState<'none' | 'cleared' | 'failed'>('none');
   const [proofNotice, setProofNotice] = useState<'none' | 'passed' | 'failed'>('none');
@@ -160,7 +183,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   const [captureLoadState, setCaptureLoadState] = useState<'loading' | 'ready' | 'failed'>('loading');
   const login = useSavedLogin({
     product,
-    canStart: action => owner.current === activeOwner.current && !clearingStore.current && !bindingBusy.current &&
+    canStart: action => !financial.current?.active() && owner.current === activeOwner.current && !clearingStore.current && !bindingBusy.current &&
       !activityRequest.current?.active() && !contextRequest.current && !disconnectMode.current && retrieval.current.state.phase === 'idle' &&
       (action !== 'forget' || !busy && !saving) && (action !== 'use' || foreground.current && !busy),
     isCurrent: pageEpoch => mounted.current && pageEpoch === epoch.current,
@@ -174,12 +197,12 @@ export function useAccessController(product = false, localOwner?: string, develo
   const information = useInformationController({
     product, mounted: () => mounted.current, foreground: () => foreground.current,
     ownerCurrent: () => owner.current === activeOwner.current, scope: requireScope,
-    canStart: retry => !activityRequest.current?.active() && product && visible && (loaded || retry) && foreground.current && !busyRef.current && !savingRef.current && !loginBusy &&
+    canStart: retry => !financial.current?.active() && !activityRequest.current?.active() && product && visible && (loaded || retry) && foreground.current && !busyRef.current && !savingRef.current && !loginBusy &&
       !contextRequest.current && !recovery && viewReady && !disconnectMode.current,
     // A failed optional source invalidates the cached session observation. Each
     // independent job must still be allowed to obtain its own fresh profile
     // proof; InformationRun verifies the saved scope before and after reading.
-    canStartMedical: () => !activityRequest.current?.active() && product && mounted.current && owner.current===activeOwner.current && foreground.current &&
+    canStartMedical: () => !financial.current?.active() && !activityRequest.current?.active() && product && mounted.current && owner.current===activeOwner.current && foreground.current &&
       !!scope.current && scope.current.owner===owner.current && !busyRef.current && !savingRef.current && !loginBusy && !loginStorageBusy.current && !loginAttempt.current &&
       !contextRequest.current && !recovery && viewReady && !disconnectMode.current && !clearingStore.current && !bindingBusy.current &&
       retrieval.current.state.phase==='idle',
@@ -189,7 +212,23 @@ export function useAccessController(product = false, localOwner?: string, develo
     setBusy, setVisible, navigate, loadPage: loadedPage, inject: script => web.current?.injectJavaScript(script),
     requestNativeReload: url => { if (pendingNavigation.current?.url === url) pendingNavigation.current.nativeReload = true; },
   });
-  useEffect(() => { let active = true; mounted.current = true; if (!product) void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
+  financialAdmission.current = () => product && mounted.current && foreground.current && owner.current === activeOwner.current &&
+    !!scope.current && scope.current.owner === owner.current && recoveryKnown.current && viewReady && !recovery && !original.current &&
+    !legacyPending.current && !restoring.current && !busyRef.current && !savingRef.current && !activityRequest.current?.active() &&
+    !information.active() && !loginBusy && !loginStorageBusy.current && !loginAttempt.current && !editingLogin &&
+    !guidedFlightLogin.current && !guidedLoginResume.current && !contextRequest.current && !disconnectMode.current &&
+    !clearingStore.current && !bindingBusy.current && retrieval.current.state.phase === 'idle';
+  financialNavigate.current = uri => {
+    const reloadProfile = browserActive && loaded && uri === PROFILE_URL && currentUrl.current === PROFILE_URL;
+    navigateProviderDocument(uri);
+    if (reloadProfile && pendingNavigation.current?.url === PROFILE_URL) pendingNavigation.current.nativeReload = true;
+  };
+  async function captureFinancialDetail(nativeScope: RealFlightNativeScope, observedListUrl: string, observedDetailUrl: string) {
+    const selected = { storeId: nativeScope.lease.storeId, scope: requireScope() };
+    try { return await financial.current!.start(nativeFinancialCaptureOptions(nativeScope, selected, observedListUrl, observedDetailUrl)); }
+    catch (error) { if (mounted.current && owner.current === activeOwner.current) { session.current.invalidate(); syncConnection(); } throw error; }
+  }
+  useEffect(() => { let active = true; mounted.current = true; if (!product) void latestCapture().then(s => { if (active) setSnapshot(old => old ?? s); }).catch(() => { if (active && retrieval.current.state.phase === 'idle') setStatus('Saved capture could not be opened. Synthetic logbook remains separate.'); }); return () => { active = false; mounted.current = false; financial.current?.interrupt(); epoch.current++; if (timeout.current) clearTimeout(timeout.current); retrieval.current.dispose(); }; }, []);
   useEffect(() => { let active = true; const initialInformationRequest = information.beginInitialLoad(); void (async () => {
     if (product && owner.current !== activeOwner.current) throw new Error('Owner changed; create a new controller.');
     if (product && !owner.current) throw new Error('Explicit local owner required.');
@@ -226,6 +265,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   })().catch(() => { if(active) { information.initialLoadFailed(initialInformationRequest); setCaptureLoadState(state => state === 'ready' ? state : 'failed'); setViewReadFailed(true);setRecovery(true); setStatus('Original view recovery could not be opened. Exports are blocked to preserve preferences.'); } }); return () => { active = false; }; }, [localOwner]);
   useEffect(() => {
     if (!product || localOwner === owner.current) return;
+    financial.current?.interrupt();
     abortHttpRead();
     activityRequest.current?.abandon();
     clearDevelopmentCheckpoints();
@@ -289,6 +329,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     disconnectMode.current = false; setDisconnecting(false);
   }
   async function clearLocalSession(proof = false) {
+    if (financial.current?.active()) return;
     if (owner.current !== activeOwner.current || !product || !foreground.current || clearingStore.current || bindingBusy.current || !recoveryKnown.current || !viewReady || recovery || original.current ||
       retrieval.current.state.phase !== 'idle' || busy || saving || loginBusy || loginStorageBusy.current || loginAttempt.current || contextRequest.current || disconnectMode.current ||
       (proof ? !sessionProofAvailable : !sessionClearingAvailable)) return;
@@ -312,6 +353,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     }
   }
   function startDisconnect() {
+    if (financial.current?.active()) return;
     // Never end the provider session while its original view may still need it.
     // A save is uncancellable; cancel/restore first, then explicitly retry here.
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !product || !foreground.current || !recoveryKnown.current || !viewReady || recovery || original.current ||
@@ -350,6 +392,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (active.phase === 'loading') stop('Provider context unavailable. Earlier captures and recovery journal retained.', active.nonce);
   }
   function checkConnection(action: 'status' | 'check' | 'retrieve' | 'capture' | 'recover' | 'restored' | 'disconnect' | 'legacy' = 'check') {
+    if (financial.current?.active()) return false;
     if (activityRequest.current?.active() || owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || loginBusy || loginStorageBusy.current || loginAttempt.current || disconnectMode.current !== (action === 'disconnect') || contextRequest.current || !viewReady || saving || busy && action !== 'capture' && action !== 'restored') return false;
     // An already observed, loaded profile needs a real new native request.
     // Android may not produce fresh document callbacks for same-URL JS assign.
@@ -368,7 +411,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   }
   function checkActivity(beforeStart?: () => Promise<void>) {
     const bound = scope.current, ownedEpoch = epoch.current;
-    const current = () => !!bound && scope.current === bound && epoch.current === ownedEpoch && product && mounted.current &&
+    const current = () => !financial.current?.active() && !!bound && scope.current === bound && epoch.current === ownedEpoch && product && mounted.current &&
       owner.current === activeOwner.current && bound.owner === owner.current && foreground.current && recoveryKnown.current &&
       viewReady && browserActive && loaded && currentUrl.current === PROFILE_URL && !pendingNavigation.current &&
       !visible && !guidedFlightLogin.current && !guidedLoginResume.current && !recovery && !original.current && !restoring.current &&
@@ -385,11 +428,13 @@ export function useAccessController(product = false, localOwner?: string, develo
     } });
   }
   function checkSession() {
+    if (financial.current?.active()) return false;
     if(activityRequest.current?.active()||!product||!mounted.current||!scope.current||!recoveryKnown.current||visible||guidedFlightLogin.current||guidedLoginResume.current||
       recovery||original.current||restoring.current||information.active()||editingLogin||retrieval.current.state.phase!=='idle')return false;
     return checkConnection('status');
   }
   function connect() {
+    if (financial.current?.active()) return;
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || disconnectMode.current || retrieval.current.state.phase !== 'idle' || loginBusy || loginStorageBusy.current || loginAttempt.current || busy || contextRequest.current || saving) return;
     recordProviderEvent('provider-connect');
     afterConfirmation.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null; setLoginNotice('none');
@@ -400,6 +445,7 @@ export function useAccessController(product = false, localOwner?: string, develo
   // First use follows the same visible login route as Connect. A saved
   // association uses the protected profile to check retained cookies first.
   function beginGuidedFlightConnection() {
+    if (financial.current?.active()) return;
     // Explicit interaction takes priority over a quiet status request.
     if(contextRequest.current?.action==='status'){
       clearContextRequest();pendingNavigation.current=null;web.current?.stopLoading();epoch.current++;setGeneration(epoch.current);
@@ -412,6 +458,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     else connect();
   }
   function beginFreshFlightConnection() {
+    if (financial.current?.active()) return false;
     if(!product||!recoveryKnown.current||!viewReady||!foreground.current||busy||saving||bindingBusy.current||clearingStore.current||disconnectMode.current)return false;
     freshFlightAttempt.current=true;
     recordProviderEvent('provider-fresh-attempt');
@@ -461,6 +508,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     return true;
   }
   function suspendBrowserForOwnerSwitch(): boolean {
+    if (financial.current?.active()) return false;
     const retrievalActive = retrieval.current.state.phase !== 'idle' || busy || saving || restoring.current;
     const informationActive = information.active();
     if (!product || owner.current !== activeOwner.current || !foreground.current || clearingStore.current || clearing ||
@@ -493,6 +541,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     return true;
   }
   function backWithinProvider() {
+    if (financial.current?.active()) return false;
     // Browser history is an explicit navigation action, never an interrupt for
     // a session check, saved-login submission, capture, save or restoration.
     if (generation !== epoch.current || owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current ||
@@ -501,6 +550,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     information.navigationStarted(); session.current.invalidate(); syncConnection(); web.current.goBack(); return true;
   }
   function dismissLogin() {
+    if (!financial.current?.cancel()) return;
     // A held development run must end through the normal guarded interruption
     // path; merely hiding its marker would leave an unresumable operation.
     const held = developmentCheckpointRef.current?.endsWith('-paused');
@@ -671,6 +721,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     const listener = AppState.addEventListener('change', state => {
       foreground.current = state === 'active';
       if (state === 'active') { if(guidedLoginResume.current)resumeConnection.current(); return; }
+      financial.current?.interrupt();
       clearDevelopmentCheckpoints();
       // Credential pickers/authentication activities background Android. Leave
       // the passive sign-in document AND any automatic submission/redirect alone.
@@ -703,6 +754,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if(loginPage(page)){loginPageTiming.current?.(true);loginPageTiming.current=null;if(!userWaitTiming.current)userWaitTiming.current=startFlightSpan('user-sign-in-wait');}else{userWaitTiming.current?.(true);userWaitTiming.current=null;}
     const pageEpoch = epoch.current;
     phase.current.loaded = true; currentUrl.current = page; setUrl(page); setLoaded(true);
+    if (financial.current?.pageLoaded(page, epoch.current)) return;
     if (information.pageLoaded(page)) return;
     if (product && contextRequest.current) {
       if (!contextRequest.current.navigationObserved) { contextFailed(false, 'navigation-unobserved'); return; }
@@ -773,6 +825,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     stop(message, nonce);
   }
   function recoverView() {
+    if (financial.current?.active()) return;
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || legacyPending.current || disconnectMode.current || product && !session.current.state.confirmed || !original.current || !viewReady || busy || loginBusy || loginAttempt.current) return;
     const nonce = Crypto.randomUUID(); if (!retrieval.current.start(nonce)) return;
     restorationOnly.current = true;
@@ -780,6 +833,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     startRestoration('Earlier export recovery.', nonce, developmentPause);
   }
   function requestLegacyRecovery(fingerprint: string, acceptedCurrent: ViewPreferences | null = null) {
+    if (financial.current?.active()) return;
     if (!product || !legacyRecoveryAvailable || !legacyPending.current || fingerprint !== legacyFingerprint.current ||
       owner.current !== activeOwner.current || !foreground.current || clearingStore.current || bindingBusy.current || !viewReady ||
       contextRequest.current || disconnectMode.current || busy || saving || loginBusy || loginStorageBusy.current || loginAttempt.current ||
@@ -813,6 +867,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (kind === 'run') setShowRun(true); else setShowWindow(true);
   }
   function cancelRetrieval() {
+    if (financial.current?.active()) { financial.current.cancel(); return; }
     const state = retrieval.current.state;
     if (state.phase !== 'loading' || restoring.current) return;
     cancelled.current = true; clearContextRequest(); pendingCapture.current = null;
@@ -867,6 +922,10 @@ export function useAccessController(product = false, localOwner?: string, develo
     }
   }, [generation]);
   function navigate(uri: string) {
+    if (financial.current?.active()) return;
+    navigateProviderDocument(uri);
+  }
+  function navigateProviderDocument(uri: string) {
     if (!providerUrl(uri)) return;
     abortHttpRead();
     recordProviderDocument('command', uri);
@@ -900,6 +959,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     setProviderExpanded(expanded => !expanded);
   }
   function retrieve() {
+    if (financial.current?.active()) return;
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || legacyPending.current || disconnectMode.current || contextRequest.current || loginAttempt.current || loginBusy || !viewReady || recovery || product && !session.current.state.confirmed) return;
     let prepared: ExportRun;
     try { prepared = beginExport({ from, to }); } catch { setStatus('Use valid inclusive dates in YYYY-MM-DD order.'); if (product) setResult('failed'); return; }
@@ -1121,9 +1181,9 @@ export function useAccessController(product = false, localOwner?: string, develo
         cacheEnabled={false} cacheMode="LOAD_NO_CACHE"
         allowFileAccess={false} allowFileAccessFromFileURLs={false} allowUniversalAccessFromFileURLs={false} mixedContentMode="never"
         javaScriptCanOpenWindowsAutomatically={false} setSupportMultipleWindows={true}
-        onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const allowed = providerUrl(request.url); if (allowed && request.isTopFrame !== false && request.url !== PROFILE_URL) information.navigationStarted(); if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
-        onOpenWindow={() => { if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
-        onLoadStart={event => { if (generation !== epoch.current) return; signInDocument.current=null; loginObservation.current=null; failedDocument.current=null; diagnosticMessages.current = 0; recordProviderDocument('start', event.nativeEvent.url); phase.current.loaded = false; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
+        onShouldStartLoadWithRequest={request => { if (generation !== epoch.current) return false; const financialOwned = financial.current!.active(); const allowed = (request.isTopFrame === false || financial.current!.allowNavigation(request.url, generation)) && providerUrl(request.url); if (allowed && request.isTopFrame !== false && request.url !== PROFILE_URL) information.navigationStarted(); if (product && contextRequest.current && request.isTopFrame !== false && request.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (!allowed && !financialOwned && request.isTopFrame !== false) finish('External navigation blocked. Previous captures preserved.'); return allowed; }}
+        onOpenWindow={() => { if (generation === epoch.current && financial.current?.active()) { financial.current.interrupt('source'); return; } if (generation === epoch.current) finish('New browser window blocked in this bounded PoC.'); }}
+        onLoadStart={event => { if (generation !== epoch.current) return; if (financial.current?.active()) { financial.current.navigationStarted(event.nativeEvent.url, generation); if (generation !== epoch.current) return; } signInDocument.current=null; loginObservation.current=null; failedDocument.current=null; diagnosticMessages.current = 0; recordProviderDocument('start', event.nativeEvent.url); phase.current.loaded = false; information.loadStarted(event.nativeEvent.url); if (product && contextRequest.current && event.nativeEvent.url === PROFILE_URL) contextRequest.current.navigationObserved = true; if (retrieval.current.state.phase === 'loading') {
           // Native load-start can beat the bridge acknowledgement. Advance only
           // a still-owned, outstanding save/load command; acknowledged commands
           // already cleared their token and must not advance a second time.
@@ -1140,6 +1200,7 @@ export function useAccessController(product = false, localOwner?: string, develo
         onLoadEnd={event => { if (generation === epoch.current) void loadedPage(event.nativeEvent.url); }}
         onMessage={event => {
           if (generation !== epoch.current) return;
+          if (financial.current?.active()) { void financial.current.receive(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data, generation); return; }
           const observation = readLoginDiagnostic(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data, generation);
           if (observation) { if (diagnosticMessages.current++ < 32) recordProviderEvent(observation); return; }
           if (activityRequest.current?.receive(event.nativeEvent.url, currentUrl.current, event.nativeEvent.data)) return;
@@ -1150,12 +1211,12 @@ export function useAccessController(product = false, localOwner?: string, develo
           if (login.receiveMessage(event.nativeEvent)) return;
           if(flightUrl(url))void receive(event);
         }}
-        onError={event => { if (generation !== epoch.current) return;failedDocument.current=event?.nativeEvent.url??currentUrl.current;stopDiagnosticLogin(false); if (information.pageFailed(event?.nativeEvent.url, true)) return; setFlow(previous=>connectionFlow(previous,{type:'page-error'})); if (product && contextRequest.current) { contextFailed(false, 'page-error'); return; } if (product) { endGuidedFlightConnection(); endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
-        onHttpError={event => { if (generation !== epoch.current || event?.nativeEvent?.url&&event.nativeEvent.url!==currentUrl.current) return;failedDocument.current=event?.nativeEvent?.url??currentUrl.current;stopDiagnosticLogin(false); if (information.pageFailed()) return; setFlow(previous=>connectionFlow(previous,{type:'page-error'})); if (product && contextRequest.current) { contextFailed(false, 'http-error'); return; } if (product) { endGuidedFlightConnection(); endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
-        onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
-        onRenderProcessGone={() => { if (generation !== epoch.current) return; if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
+        onError={event => { if (generation !== epoch.current) return; if (financial.current?.active()) { financial.current.interrupt('source'); return; } failedDocument.current=event?.nativeEvent.url??currentUrl.current;stopDiagnosticLogin(false); if (information.pageFailed(event?.nativeEvent.url, true)) return; setFlow(previous=>connectionFlow(previous,{type:'page-error'})); if (product && contextRequest.current) { contextFailed(false, 'page-error'); return; } if (product) { endGuidedFlightConnection(); endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login page failed to load. Saved login and captures preserved.') : finish('Provider page failed to load. Previous captures preserved.'); }}
+        onHttpError={event => { if (generation !== epoch.current || event?.nativeEvent?.url&&event.nativeEvent.url!==currentUrl.current) return; if (financial.current?.active()) { financial.current.interrupt('source'); return; } failedDocument.current=event?.nativeEvent?.url??currentUrl.current;stopDiagnosticLogin(false); if (information.pageFailed()) return; setFlow(previous=>connectionFlow(previous,{type:'page-error'})); if (product && contextRequest.current) { contextFailed(false, 'http-error'); return; } if (product) { endGuidedFlightConnection(); endDisconnect('failed'); afterConfirmation.current = null; session.current.invalidate(); syncConnection(); } loginAttempt.current ? endLogin('Provider login returned an HTTP error. Saved login and captures preserved.') : finish('Provider returned an HTTP error. Previous captures preserved.'); }}
+        onContentProcessDidTerminate={() => { if (generation !== epoch.current) return; if (financial.current?.active()) { financial.current.interrupt('source'); return; } if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
+        onRenderProcessGone={() => { if (generation !== epoch.current) return; if (financial.current?.active()) { financial.current.interrupt('source'); return; } if (information.pageFailed()) return; if (loginAttempt.current) endLogin('Provider renderer stopped. Saved sign-in cancelled.', 'cancelled'); if (product) contextFailed(); finish('Provider renderer stopped. Recovery journal retained.'); }}
       />;
-  return { flightProgress: product && owner.current === localOwner && busy && run.current ? flightProgress : null, ...information.public, retrieveFeatureInformation: async (category:FeatureInformationCategory) => {
+  return { captureFinancialDetail, retryFinancialSave: () => financial.current!.retrySave(), cancelFinancialCapture: () => financial.current!.cancel(), financialState: owner.current === localOwner ? financialState : { phase: 'idle' as const, failure: null }, financialSaveUncertain: owner.current === localOwner && financial.current!.hasUncertainSave(), flightProgress: product && owner.current === localOwner && !financial.current?.active() && busy && run.current ? flightProgress : null, ...information.public, retrieveFeatureInformation: async (category:FeatureInformationCategory) => {
     try { return await information.public.retrieveFeatureInformation(category); }
     catch(error) { session.current.invalidate(); syncConnection(); throw error; }
   }, retrieveDutyPage: async (source:'own'|'club') => {
