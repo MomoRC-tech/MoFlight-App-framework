@@ -1382,36 +1382,36 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ConnectionSummary
 
 ## CoreFlightFoundation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `963dee38815b7e5cb1c1e181e37da5541ab058c03843641ed3b2a23667525c0b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundation.tsx](../../../apps/platform-lab/src/mobile/CoreFlightFoundation.tsx); normalized SHA-256 `a4d9dc00fbe89dc3504b332b959156e43fa5116cc3fe01cb38d5d3acd8d8552d`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 1142 |
-| `fontSize: 16` | 1142, 1147, 1151 |
-| `fontSize: 22` | 1147, 1151 |
-| `fontWeight: '600'` | 1142, 1147, 1151 |
-| `fontWeight: '700'` | 1142 |
-| `letterSpacing: .6` | 1142 |
-| `lineHeight: 24` | 1142, 1147, 1151 |
+| `fontSize: 12` | 1153 |
+| `fontSize: 16` | 1153, 1158, 1162 |
+| `fontSize: 22` | 1158, 1162 |
+| `fontWeight: '600'` | 1153, 1158, 1162 |
+| `fontWeight: '700'` | 1153 |
+| `letterSpacing: .6` | 1153 |
+| `lineHeight: 24` | 1153, 1158, 1162 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 1146, 1151 |
-| `borderWidth: 1` | 1146, 1151 |
-| `gap: 10` | 71, 221, 229, 230, 1062, 1148 |
-| `gap: 12` | 1147, 1151 |
-| `gap: 8` | 1090, 1097, 1124, 1134, 1142 |
-| `maxWidth: 520` | 71, 221, 230, 1062 |
-| `minHeight: 0` | 1061 |
-| `minHeight: 56` | 1147, 1151 |
-| `padding: 16` | 1147, 1151 |
-| `padding: 18` | 71 |
-| `paddingHorizontal: 16` | 1148 |
-| `width: '100%'` | 71, 221, 230, 1062 |
+| `borderRadius: 16` | 1157, 1162 |
+| `borderWidth: 1` | 1157, 1162 |
+| `gap: 10` | 72, 230, 238, 239, 1073, 1159 |
+| `gap: 12` | 1158, 1162 |
+| `gap: 8` | 1101, 1108, 1135, 1145, 1153 |
+| `maxWidth: 520` | 72, 230, 239, 1073 |
+| `minHeight: 0` | 1072 |
+| `minHeight: 56` | 1158, 1162 |
+| `padding: 16` | 1158, 1162 |
+| `padding: 18` | 72 |
+| `paddingHorizontal: 16` | 1159 |
+| `width: '100%'` | 72, 230, 239, 1073 |
 
 ## Dashboard.tsx
 
@@ -1517,15 +1517,15 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx
 
 ## DevelopmentHub.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `2708059231488f75131d04813e9ead4b51ea04533ee336ea955eede36d762c3a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DevelopmentHub.tsx](../../../apps/platform-lab/src/mobile/DevelopmentHub.tsx); normalized SHA-256 `fe0b584a90919a19275494e413cbe5f99aa027e4c45490ca61db9d644ab48641`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `maxWidth: 720` | 69 |
-| `padding: 10` | 69 |
-| `width: '100%'` | 69 |
+| `maxWidth: 720` | 85 |
+| `padding: 10` | 85 |
+| `width: '100%'` | 85 |
 
 ## Diagnostics.tsx
 

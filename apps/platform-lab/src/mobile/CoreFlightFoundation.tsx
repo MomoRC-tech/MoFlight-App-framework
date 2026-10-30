@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
 import { timeFlightStage } from '../vereinsflieger/flight-diagnostics';
+import { SyncVerificationScope } from '../vereinsflieger/sync-verification-scope';
 import { diagnosticJournal, type DiagnosticOperation, type DiagnosticAction } from '../diagnostics';
 import { useAccessController } from '../vereinsflieger/use-access-controller';
 import { FinancialSourceProof } from './FinancialSourceProof';
@@ -88,16 +89,18 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
   const localPageOnly=intent==='options'&&(destination==='settings'||destination==='backup');
   const setupStarted = useRef(false);
   const [admitted,setAdmitted] = useState(false);
+  const [syncVerification,setSyncVerification] = useState<SyncVerificationScope|null>(null);
   const [pendingUserRestore,setPendingUserRestore] = useState<UserBackupRestoreOperation|null>(null);
 
   useEffect(()=>{
     if(onProgress&&open&&(intent==='update'||intent==='connect')&&(!lease||loading))onProgress({state:error||pendingUserRestore?'failed':'active',last:null,current:'prepare',message:error?'Gespeicherte Daten konnten nicht sicher geöffnet werden.':pendingUserRestore?'Eine begonnene Datensicherung muss in den Einstellungen geprüft werden.':undefined});
   },[onProgress,open,intent,lease,loading,error,pendingUserRestore]);
 
-  async function finishOwnerSetup(selected: RealOwnerLease, current: RealOwnerRegistry, createMissing: boolean, retainReader = true) {
+  async function finishOwnerSetup(selected: RealOwnerLease, current: RealOwnerRegistry, createMissing: boolean, retainReader = true, verification?:SyncVerificationScope) {
     const scope: RealFlightNativeScope = {
       registry: current,
       lease: selected,
+      verification,
       authorize: () => alive.current ? {ownerId:selected.ownerId,storeId:selected.storeId,leaseId:selected.leaseId,writable:createMissing && AppState.currentState==='active'} : null,
     };
     return continueRealFlightOwnerSetup<RealFlightLibrary>(selected, {
@@ -131,6 +134,8 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
     setLoading(true);setAdmitted(false);setError(false);setSetupLease(null);setPendingUserRestore(null);setupStarted.current=false;setRequestedUpdate(intent!=='options');
     diagnosis.current = diagnosticJournal.begin(intent==='update' ? 'update-flights' : 'open-flight-tools');
     let release:(()=>void)|null=null;
+    let verification:SyncVerificationScope|undefined;
+    const verificationLifecycle=AppState.addEventListener('change',state=>{if(state!=='active')verification?.close();});
     const startup = (async()=>{
       if(!localPageOnly)release=await ownFlightReadPorts.suspend();
       if(!current){release?.();release=null;return;}
@@ -140,6 +145,8 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
       const selected=await timeFlightStage('owner-selection',async()=>opened?.currentOwner());
       if(!current)return;
       if(!selected||!opened){setLease(null);return;}
+      if((intent==='update'||intent==='connect')&&AppState.currentState==='active')verification=new SyncVerificationScope(selected);
+      setSyncVerification(verification??null);
       const unused=takeInitialRepository();await unused?.close();
       const pending=await getPendingUserBackupRestoreNative({registry:opened,lease:selected,authorize:()=>alive.current?{...selected,writable:false}:null});
       if(!current)return;
@@ -149,7 +156,7 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
       // validate the flight graph under a reader reservation when requested.
       if(localPageOnly){await opened.assertCurrent(selected);if(current)setLease(selected);return;}
       let ready=false;
-      try{ready=await timeFlightStage('owner-setup',()=>finishOwnerSetup(selected,opened,false));}catch{/* Preserve existing files and offer recovery. */}
+      try{ready=await timeFlightStage('owner-setup',()=>finishOwnerSetup(selected,opened,false,true,verification));}catch{/* Preserve existing files and offer recovery. */}
       if(!current)return;
       if(ready)setLease(selected);
       else{diagnosis.current?.finish('blocked','owner-setup');setSetupLease(selected);setLease(null);setError(true);}
@@ -157,6 +164,8 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
       .finally(()=>{if(current){setLoading(false);setAdmitted(true);}});
     return()=>{
       current=false;
+      verificationLifecycle.remove();
+      verification?.close();
       void startup.then(async()=>{const unused=takeInitialRepository();try{await unused?.close();}finally{release?.();release=null;}})
         .catch(()=>console.warn('Connection read reservation cleanup could not be confirmed.'));
     };
@@ -217,7 +226,7 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
     if(open&&admitted&&requestedUpdate&&!loading&&!lease&&!error&&!setupLease&&!setupStarted.current){setupStarted.current=true;void createFreshOwner();}
   },[open,admitted,requestedUpdate,loading,lease,error,setupLease]);
   const maintenancePage=intent==='options'&&(destination==='backup'||destination==='settings');
-  if(lease&&registry.current)return <OwnerFlightLibrary syncStartedAt={requestClock.current.at} onRequestSync={onRequestSync} destination={destination} providerEntryAllowed={providerEntryAllowed} dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} key={`${lease.ownerId}:${lease.storeId}:${lease.selectionSeq}`} lease={lease} registry={registry.current} close={close} open={open&&admitted} preparing={open&&!admitted} requestId={requestId} intent={intent} onStatus={onStatus} onProgress={onProgress} onControls={onControls} startUpdate={intent==='update'} prepareSelectedLibrary={prepareBackupLibrary} takeInitialRepository={takeInitialRepository} diagnosis={diagnosis}/>;
+  if(lease&&registry.current)return <OwnerFlightLibrary verificationScope={syncVerification??undefined} syncStartedAt={requestClock.current.at} onRequestSync={onRequestSync} destination={destination} providerEntryAllowed={providerEntryAllowed} dialogTop={dialogTop} developmentRecoveryCheckpoints={developmentRecoveryCheckpoints} key={`${lease.ownerId}:${lease.storeId}:${lease.selectionSeq}`} lease={lease} registry={registry.current} close={close} open={open&&admitted} preparing={open&&!admitted} requestId={requestId} intent={intent} onStatus={onStatus} onProgress={onProgress} onControls={onControls} startUpdate={intent==='update'} prepareSelectedLibrary={prepareBackupLibrary} takeInitialRepository={takeInitialRepository} diagnosis={diagnosis}/>;
   if(pendingUserRestore)return <SafeAreaView edges={dialogTop===undefined?undefined:[]} style={{flex:1,backgroundColor:maintenancePage?colors.background:colors.raised}}>{maintenancePage&&<MaintenancePageHeader title={destination==='backup'?'Datensicherung':'Vereinsflieger'} open={open} requestKey={String(requestId)} busy={lock.current} syncDisabled={loading||!!pendingUserRestore} onBack={close} onRequestSync={onRequestSync} verifySync={async()=>{if(!alive.current||lock.current||AppState.currentState!=='active')throw new Error('Inactive maintenance.');if(setupLease&&registry.current)await registry.current.assertCurrent(setupLease);}}/>}<ScrollView contentContainerStyle={{padding:maintenancePage?18:12,gap:10}}><View style={{width:'100%',maxWidth:520,alignSelf:'center',gap:10}}>
     {!maintenancePage&&<Section title="Wiederherstellung fortsetzen" icon="book"/>}
     <Card><Label>Eine Datensicherung wird noch wiederhergestellt.</Label><Label muted>Wähle dieselbe Sicherungsdatei erneut. Bis alle Teile geprüft und aktiviert sind, bleibt der Zugriff auf die Bibliotheken gesperrt. Vorherige Dateien bleiben erhalten.</Label></Card>
@@ -243,7 +252,7 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
 
 type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;checking:boolean;seenBusy:boolean;paused:boolean;resumeRequired:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>|null;signal:AbortSignal;abort:()=>void};
 type LoadStage = 'sign-in'|'verify'|'flights'|'save'|'medical'|'done';
-function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open=true,preparing=false,requestId=0,intent=startUpdate?'update':'options',onStatus,prepareSelectedLibrary,takeInitialRepository,diagnosis,developmentRecoveryCheckpoints,providerEntryAllowed=false,dialogTop,onProgress,onControls,onRequestSync,destination='sources'}:{syncStartedAt?:number;destination?:OptionsDestination;developmentRecoveryCheckpoints:boolean;lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;open?:boolean;preparing?:boolean;requestId?:number;intent?:ConnectionIntent;onStatus?:(status:ProviderStatus)=>void;onProgress?:(progress:SyncProgress)=>void;onControls?:(controls:SyncControls|null)=>void;prepareSelectedLibrary:()=>Promise<boolean>;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>;providerEntryAllowed?:boolean;dialogTop?:number;onRequestSync?:()=>void}) {
+function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,close,startUpdate,open=true,preparing=false,requestId=0,intent=startUpdate?'update':'options',onStatus,prepareSelectedLibrary,takeInitialRepository,diagnosis,developmentRecoveryCheckpoints,providerEntryAllowed=false,dialogTop,onProgress,onControls,onRequestSync,destination='sources'}:{verificationScope?:SyncVerificationScope;syncStartedAt?:number;destination?:OptionsDestination;developmentRecoveryCheckpoints:boolean;lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;open?:boolean;preparing?:boolean;requestId?:number;intent?:ConnectionIntent;onStatus?:(status:ProviderStatus)=>void;onProgress?:(progress:SyncProgress)=>void;onControls?:(controls:SyncControls|null)=>void;prepareSelectedLibrary:()=>Promise<boolean>;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>;providerEntryAllowed?:boolean;dialogTop?:number;onRequestSync?:()=>void}) {
   const c=useAccessController(true,lease.ownerId,developmentRecoveryCheckpoints), controller=useRef(c);controller.current=c;
   useEffect(()=>{
     if(open||!c.viewReady)return;
@@ -363,15 +372,15 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     estimate.current=value;
     setSyncProgress(previous=>({...previous,state:'active',current:'prepare'}));
   }
-  function beginEstimate(mode:SyncEstimateMode,remaining:readonly SyncEstimateStage[]=['flights','review','save',...optionalEstimateStages]){
+  function beginEstimate(mode:SyncEstimateMode,remaining:readonly SyncEstimateStage[]=['flights','review','save',...optionalEstimateStages],localPlanning=false){
     const now=syncEstimateNow();
     if(!estimate.current||!['active','paused'].includes(estimate.current.status)){
       prepareEstimate(mode,syncEstimateVolume(null,flights.length),estimate.current!==null?now:preparationStarted.current);
     }
     estimate.current=confirmSyncEstimateContext(estimate.current!,{mode,volume:storedEstimateContext.current?.volume??syncEstimateVolume(null,flights.length)},remaining);
     if(estimate.current.status==='paused')estimateEvent({type:'resume'});
-    estimateEvent({type:'finish',stage:'prepare'});
-    startStage('account');
+    if(localPlanning)startStage('prepare');
+    else{estimateEvent({type:'finish',stage:'prepare'});startStage('account');}
   }
   useEffect(()=>{
     if(!c.flightProgress||!open||!foreground.current)return;
@@ -428,7 +437,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       setProviderOpen(syncEntry&&!!savedSync);
   },[destination,c.visible,c.disconnecting,syncEntry,savedSync]);
   useEffect(()=>{if(!onStatus)return;onStatus({releaseForDevelopment:()=>!lock.current&&!activityLock.current&&!activityWrites.current.size&&!controller.current.activityChecking&&controller.current.suspendBrowserForOwnerSwitch(),activity:{storeId:lease.storeId,accountRef:c.activityScope?.context.accountNumber??null,changed:activityChanged},loginVisible:c.visible,ownerId:lease.ownerId,connection:c.connection,browserActive:c.browserActive,clearing:c.clearing,binding:c.binding,busy:c.busy,loginBusy:c.loginBusy,disconnecting:c.disconnecting,saving:c.saving,recovery:c.recovery,restoring:{current:c.restoring.current}});},[onStatus,lease.ownerId,activityChanged,c.activityScope,c.visible,c.connection,c.browserActive,c.clearing,c.binding,c.busy,c.loginBusy,c.disconnecting,c.saving,c.recovery,c.restoring.current]);
-  const scope=useMemo<RealFlightNativeScope>(()=>({registry,lease,authorize:()=>alive.current ? {ownerId:lease.ownerId,storeId:lease.storeId,leaseId:lease.leaseId,writable:foreground.current&&panelActive.current} : null}),[registry,lease]);
+  const scope=useMemo<RealFlightNativeScope>(()=>({registry,lease,verification:verificationScope,authorize:()=>alive.current ? {ownerId:lease.ownerId,storeId:lease.storeId,leaseId:lease.leaseId,writable:foreground.current&&panelActive.current} : null}),[registry,lease,verificationScope]);
   function finishSource(error?:Error,source?:RealFlightSourceInput) {
     const pending=waiting.current;if(!pending)return;waiting.current=null;if(pending.timer)clearTimeout(pending.timer);pending.signal.removeEventListener('abort',pending.abort);
     if(error)pending.reject(error);else if(source)pending.resolve(source);
@@ -451,6 +460,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     journal:async()=>{const journal=await openRealFlightCommandJournal(scope);if(!journal)throw new Error('Prepared-save journal unavailable.');return journal;},
     retrieve:async(request,signal)=>new Promise((resolve,reject)=>{
       if(!providerEntryAllowed||waiting.current||signal.aborted||automatic.current&&stopRemainingJobs.current){reject(new Error('Source request unavailable.'));return;}
+      if(automatic.current){finishStage('prepare');startStage('account');setStep('Anmeldung wird geprüft …');}
       let pending:WaitingSource|null=null;
       const abort=()=>{
         if(!pending)return;pending.suppressReview=true;
@@ -469,6 +479,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     }),
   }),[lease,scope,providerEntryAllowed]);
   function abandonSource(reason:string) {
+    verificationScope?.close();
     const verification=jobVerification.current;jobVerification.current=null;verification?.reject(new Error('Verification cancelled.'));
     diagnosis.current?.finish('cancelled','cancelled');
     controller.current.endGuidedFlightConnection();
@@ -668,9 +679,9 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     if(!providerEntryAllowed)return;
     if(lock.current)return;
     if(!foreground.current)return;
-    setSyncProgress(previous=>({state:'active',last:previous.last,current:'account'}));automatic.current=true;returnedResult.current=false;stopRemainingJobs.current=false;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);setLoadStage('verify');setProviderOpen(true);setStep('Anmeldung wird geprüft …');
+    setSyncProgress(previous=>({state:'active',last:previous.last,current:'prepare'}));automatic.current=true;returnedResult.current=false;stopRemainingJobs.current=false;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);setLoadStage('verify');setProviderOpen(true);setStep('Gespeicherte Daten und Abrufzeitraum werden geprüft …');
     void run(async()=>{
-      beginEstimate(snapshot?.account?'repeat':'first');
+      beginEstimate(snapshot?.account?'repeat':'first',undefined,true);
       const record:SyncRecoveryRecord={version:1,ownerId:lease.ownerId,storeId:lease.storeId,accountRef:snapshot?.account?.accountRef??null,
         clubLabel:null,startedAt:new Date().toISOString(),flightCaptureId:null,sources:{}};
       await saveSyncRecovery(scope,record);syncRecord.current=record;setSavedSync(record);
@@ -683,7 +694,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
   }
   function continueSync() {
     if(lock.current||!foreground.current||!savedSync||!providerEntryAllowed)return;
-    setSyncProgress(previous=>({state:'active',last:previous.last,current:'account'}));automatic.current=true;returnedResult.current=false;
+    setSyncProgress(previous=>({state:'active',last:previous.last,current:'prepare'}));automatic.current=true;returnedResult.current=false;
     stopRemainingJobs.current=false;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);
     setLoadStage('verify');setStep('Gespeicherten Fortschritt und Anmeldung prüfen …');setProviderOpen(true);
     void run(async()=>{
@@ -698,7 +709,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       const stored=refreshed.snapshot;
       const flight=recoveredFlight(record,stored);
       if(!flight){
-        beginEstimate('resume');
+        beginEstimate('resume',undefined,true);
         const restart={...record,accountRef:stored.account?.accountRef??null,clubLabel:null,flightCaptureId:null,sources:{}};
         await saveSyncRecovery(scope,restart);syncRecord.current=restart;setSavedSync(restart);
         assertSyncActive();
@@ -763,12 +774,13 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
       setMessage(error instanceof PendingRealFlightOperation?'Der gespeicherte Auftrag muss zuerst über seinen Beleg geprüft werden. Kein neuer Auftrag wurde gestartet.':backupPage?'Dieser Schritt wurde nicht bestätigt. Bitte erneut versuchen. Gespeicherte Daten und Belege bleiben erhalten.':accountBlocked?'Das bisherige Vereinsflieger-Konto konnte nicht bestätigt werden. Bitte mit dem bisherigen Konto anmelden. Gespeicherte Daten bleiben erhalten.':interruption.current==='background'?'Abruf unterbrochen, weil die App verlassen wurde. Nach der Rückkehr kannst du gespeicherten Fortschritt fortsetzen.':interruption.current==='cancelled'?'Vorgang abgebrochen. Gespeicherte Daten bleiben erhalten. Über Sync kannst du später erneut beginnen.':interruption.current==='timeout'?'Der Datenabruf hat zu lange gedauert. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':controller.current.connection.phase==='error'?'Die Anmeldung konnte nicht bestätigt werden. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':controller.current.result==='failed'?retrievalFailureHint(controller.current.status):'Dieser Schritt wurde nicht bestätigt. Bitte erneut versuchen. Gespeicherte Daten und Belege bleiben erhalten.');
       if(error instanceof PendingRealFlightOperation){try{await refresh();}catch{/* Keep the failure and original journal visible. */}}
     }}
-    finally{lock.current=false;if(alive.current)setBusy(false);}
+    finally{if(action==='update-flights')verificationScope?.close();lock.current=false;if(alive.current)setBusy(false);}
   }
   useEffect(()=>{
     alive.current=true;
     const subscription=AppState.addEventListener('change',state=>{
       foreground.current=state==='active';if(state!=='active'){
+        verificationScope?.close();
         restoreConfirmation.current=null;setConfirmRestore(false);
         preparationInterrupted.current=true;estimateEvent({type:'pause',reason:'background'});
         setCompleted(current=>current?{...current,verifiedConnection:undefined}:null);
@@ -794,7 +806,7 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     });
     return()=>{
       estimateEvent({type:'terminal',outcome:'cancelled'});stageTiming.current?.end(false);stageTiming.current=null;
-      alive.current=false;const verification=jobVerification.current;jobVerification.current=null;verification?.reject(new Error('Owner closed.'));const pending=waiting.current;if(pending)pending.suppressReview=true;service.dispose();
+      alive.current=false;verificationScope?.close();const verification=jobVerification.current;jobVerification.current=null;verification?.reject(new Error('Owner closed.'));const pending=waiting.current;if(pending)pending.suppressReview=true;service.dispose();
       const current=controller.current,state=current.retrieval.current.state;
       if(waiting.current&& !shouldDeferCoreFlightSourceRejection(state.phase,current.saving,current.restoring.current))finishSource(new Error('Library closed.'));
       subscription.remove();
@@ -867,7 +879,6 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
     }
     if(savedSync){estimateEvent({type:'terminal',outcome:'cancelled'});estimate.current=null;finishStage('prepare');setSyncProgress(previous=>({...previous,state:'waiting',current:null,message:'Synchronisierung unterbrochen. Fortsetzen oder alle Daten erneut abrufen.'}));return;}
     if(estimate.current)estimate.current=confirmSyncEstimateContext(estimate.current,{mode:snapshot.account?'repeat':'first',volume:syncEstimateVolume(null,flights.length)});
-    finishStage('prepare');
     loadFlights();
   },[open,entryReady,intent,requestId,busy,snapshot,c.viewReady,c.recovery,restoreReadWarning,restorePreparations,recovery,savedSync]);
   useEffect(()=>{

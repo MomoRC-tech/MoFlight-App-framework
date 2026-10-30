@@ -13,6 +13,27 @@ import * as journal from '../../apps/platform-lab/src/vereinsflieger/real-flight
 import * as service from '../../apps/platform-lab/src/vereinsflieger/real-flight-service.ts';
 import * as fixture from '../../apps/platform-lab/src/development/android-core-recovery-fixture.ts';
 import * as responsiveness from '../../apps/platform-lab/src/development/android-flight-responsiveness.ts';
+import * as verification from '../../apps/platform-lab/src/vereinsflieger/sync-verification-scope.ts';
+
+test('verification reuse benchmark compares ten identical synthetic SQLite trials and independent readback',async()=>{
+  const directory=mkdtempSync(join(tmpdir(),'moflight-verification-benchmark-'));
+  class Directory{uri:string;constructor(parent:string|Directory,name:string){this.uri=join(typeof parent==='string'?parent:parent.uri,name);}create(){mkdirSync(this.uri,{recursive:true});}}
+  class File{path:string;constructor(parent:Directory,name:string){this.path=join(parent.uri,name);}get exists(){return existsSync(this.path);}async copy(target:File){copyFileSync(this.path,target.path);}async base64(){return readFileSync(this.path).toString('base64');}write(value:string){writeFileSync(this.path,value);}}
+  const code=ts.transpileModule(readFileSync('apps/platform-lab/src/development/sync-verification-benchmark.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+  const exports:{runSyncVerificationBenchmark?:(active:()=>boolean,update:(value:string)=>void,count:number)=>Promise<{samples:{variant:string;openReplays:number;graphSha256:string;graphHits:number}[]}>}={};
+  const modules:Record<string,unknown>={'expo-file-system':{Directory,File,Paths:{cache:directory}},'@moflight/flight-logbook':domain,
+    'expo-sqlite':{openDatabaseAsync:async(name:string,_options:unknown,root:string)=>nodeDriver(join(root,name))},
+    '../vereinsflieger/real-flight-native-driver':{openRealFlightNativeDriver:async(name:string,opener:(name:string)=>Promise<unknown>)=>opener(name)},
+    '../storage':{hash:async(value:string)=>createHash('sha256').update(value).digest('hex')},
+    '../vereinsflieger/real-flight-library':library,'../vereinsflieger/real-flight-command-journal':journal,'../vereinsflieger/real-flight-service':service,
+    '../vereinsflieger/sync-verification-scope':verification,'./android-core-recovery-fixture':fixture,'./android-flight-responsiveness':responsiveness};
+  try{
+    runInNewContext(code,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},performance,console:{info:()=>{}},Date});
+    const report=await exports.runSyncVerificationBenchmark!(()=>true,()=>{},3);
+    assert.equal(report.samples.length,10);assert.equal(new Set(report.samples.map(s=>s.graphSha256)).size,1);
+    for(const sample of report.samples){assert.equal(sample.openReplays,sample.variant==='control'?3:1);assert.equal(sample.graphHits,sample.variant==='control'?0:2);}
+  }finally{assert.equal(dirname(directory),tmpdir());rmSync(directory,{recursive:true,force:true});}
+});
 
 test('native fixed-state benchmark preserves complete graphs across five independent clones per scenario',async()=>{
   const directory=mkdtempSync(join(tmpdir(),'moflight-native-benchmark-'));

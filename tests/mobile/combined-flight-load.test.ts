@@ -1,4 +1,19 @@
 import { AI_BACKUP_NOTICE } from '../../apps/platform-lab/src/ai/backup-notice';
+import * as syncVerification from '../../apps/platform-lab/src/vereinsflieger/sync-verification-scope';
+
+test('a Sync verification scope is discarded on background and after completed Sync',async()=>{
+  const identity={ownerId:'11111111-1111-4111-8111-111111111111',storeId:'22222222-2222-4222-8222-222222222222',leaseId:'test'};
+  for(const outcome of ['background','complete']){
+    const scope=new syncVerification.SyncVerificationScope(identity);scope.rememberGraph(identity,'validated');
+    const f=fixture({intent:'update',verificationScope:scope});
+    try{
+      f.render();await f.flush();
+      assert.equal(scope.hasGraph(identity,'validated'),true);
+      if(outcome==='background')f.background();else{f.verify();await f.flush();f.complete();await f.flush();}
+      assert.equal(scope.hasGraph(identity,'validated'),false);
+    }finally{f.dispose();}
+  }
+});
 import * as syncProgress from '../../apps/platform-lab/src/mobile/sync-progress.ts';
 import * as syncEstimate from '../../apps/platform-lab/src/mobile/sync-estimate.ts';
 import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics';
@@ -51,7 +66,7 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({failRestoreMetadata=false,deferGraph=false,graphReady=true,admissionPending=false,entryProofFails=false,backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({verificationScope=undefined as syncVerification.SyncVerificationScope|undefined,failRestoreMetadata=false,deferGraph=false,graphReady=true,admissionPending=false,entryProofFails=false,backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
   let backupAttempt: (() => Promise<{state:'saved'|'cancelled'}>) | null = null;
   let finishGraph!:()=>void;const graphPreparation=new Promise<void>(resolve=>{finishGraph=resolve;});
@@ -162,6 +177,7 @@ function fixture({failRestoreMetadata=false,deferGraph=false,graphReady=true,adm
     'react-native':{...leaves(['ActivityIndicator','KeyboardAvoidingView','Pressable','ScrollView','Text','View']),Platform:{OS:'android'},AppState:{currentState:'active',addEventListener:(_:string,f:(state:string)=>void)=>{listeners.add(f);return {remove:()=>listeners.delete(f)};}},BackHandler:{addEventListener:(_:string,f:()=>boolean)=>{backListeners.add(f);return {remove:()=>backListeners.delete(f)};}}},
     'react-native-safe-area-context':leaves(['SafeAreaView']), 'expo-crypto':{randomUUID:()=> 'uuid'},'../storage':{hash:async()=>''},
     '../vereinsflieger/flight-diagnostics':{timeFlightStage:(_:string,work:()=>unknown)=>work()},
+    '../vereinsflieger/sync-verification-scope':syncVerification,
     '../vereinsflieger/use-access-controller':{useAccessController:()=>({...c})},
     '../vereinsflieger/real-flight-native':{openOwnerRegistry:async()=>{calls.push('registry');if(failStartup)throw new Error('Startup interrupted');return registry;},openRealFlightSelection:async()=>({listRestorePreparations:async()=>{if(failRestoreMetadata)throw new Error('Unreadable restore metadata');return unactivatedPreparation?[{operationId:"prepared",status:"pending"}]:[];},close:async()=>{}})},
     '../vereinsflieger/real-flight-owner-setup':{continueRealFlightOwnerSetup:async()=>{activityOrder.push('owner-setup');return true;}},
@@ -175,7 +191,7 @@ function fixture({failRestoreMetadata=false,deferGraph=false,graphReady=true,adm
   c.beginFreshFlightConnection=()=>{c.beginGuidedFlightConnection();return true;};
   const progressUpdates:syncProgress.SyncProgress[]=[];
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];},setTimeout:(fn:()=>void)=>{timers.set(++timerId,fn);return timerId;},clearTimeout:(id:number)=>timers.delete(id),console,Error});
-  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({destination,providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({destination,prepareSelectedLibrary:async()=>{activityOrder.push('graph-preparation');if(deferGraph)await graphPreparation;return graphReady;},preparing:admissionPending,providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
+  function render(){dirty=false;index=0;tree=root?exports.CoreFlightFoundation({destination,providerEntryAllowed:providerAllowed,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:statusCallback}):exports.OwnerFlightLibrary({verificationScope,destination,prepareSelectedLibrary:async()=>{activityOrder.push('graph-preparation');if(deferGraph)await graphPreparation;return graphReady;},preparing:admissionPending,providerEntryAllowed:providerAllowed,lease,registry,startUpdate,intent:requestedIntent,open:panelOpen,requestId,onProgress:(value:syncProgress.SyncProgress)=>progressUpdates.push(value),close:(v:any)=>closed.push(v),onStatus:(status:any)=>{statusUpdates.push(cloneJson(status));statusCallback?.(status);},takeInitialRepository:()=>null,diagnosis});while(effects.length)effects.shift()!();return tree;}
   async function flush(){for(let n=0;n<12;n++){if(dirty)render();await new Promise<void>(resolve=>{setImmediate(resolve);});}if(dirty)render();}
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';

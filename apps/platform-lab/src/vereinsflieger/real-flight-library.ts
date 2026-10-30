@@ -1,4 +1,5 @@
 import { canonical } from '@moflight/flight-logbook';
+import type { SyncVerificationScope } from './sync-verification-scope';
 import type { Connection, Driver, Hash } from '../../../../packages/local-data/src/index';
 import { REAL_HISTORY_BACKUP_LIMIT, REAL_HISTORY_SCHEMA, realHistoryUuid, validateRealHistoryManifest,
   type RealHistoryManifest } from './real-history-contract';
@@ -202,26 +203,32 @@ export class RealFlightLibrary {
   }
 
   static async open(db: Driver, ownerId: string, storeId: string, hash: Hash, authorize: RealFlightAuthorization,
-    fault: RealFlightFault = async () => {}, gate: RealFlightAccessGate = async () => {}, timing?: RealFlightTiming): Promise<RealFlightLibrary> {
+    fault: RealFlightFault = async () => {}, gate: RealFlightAccessGate = async () => {}, timing?: RealFlightTiming, verification?: SyncVerificationScope): Promise<RealFlightLibrary> {
     const initial = this.permit(authorize, ownerId, storeId);
     await gate(false);
     const permit = this.permit(authorize, ownerId, storeId);
     realFlightRequire(permit.leaseId === initial.leaseId, 'Real flight history lease changed before open.');
     await configure(db);
-    let graph!: RealFlightGraph;
+    let graph!: RealFlightGraph, text: string|null=null;
     await db.transaction(async tx => {
       await gate(false);
       const current = this.permit(authorize, ownerId, storeId);
       realFlightRequire(current.leaseId === permit.leaseId, 'Real flight history lease changed during open.');
       graph = await measured('graph-read',timing,async()=>{await checkSchema(tx);return authorizedGraph(tx,current);});
-      await measured('graph-validation',timing,()=>validateRealFlightGraph(graph,hash));
+      // Oversized/unknown content keeps the original validate-before-serialise
+      // path. A bounded candidate still needs exact text equality, never just
+      // a matching generation, count or timestamp.
+      if(verification?.canCompareGraph(current,graph))text=measuredValue('graph-canonicalization',timing,()=>canonical(graph));
+      if (text===null||!verification?.hasGraph(current,text)) await measured('graph-validation',timing,()=>validateRealFlightGraph(graph,hash));
     });
     realFlightRequire(graph.manifest.owner_id === ownerId && graph.manifest.store_id === storeId, 'Foreign real flight history file.');
     const library = new RealFlightLibrary(db, Object.freeze(realFlightClone(graph.manifest)), hash, authorize, permit.leaseId, fault, gate,timing);
-    library.validatedGraphText = measuredValue('graph-canonicalization',timing,()=>canonical(graph));
+    const validatedText=text??measuredValue('graph-canonicalization',timing,()=>canonical(graph));
+    library.validatedGraphText = validatedText;
     await gate(false);
     const afterReplay = library.allowed();
     realFlightRequire(afterReplay.leaseId === permit.leaseId, 'Real flight history lease changed after open.');
+    verification?.rememberGraph(afterReplay,validatedText);
     return library;
   }
 

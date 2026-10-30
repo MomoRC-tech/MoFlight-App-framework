@@ -6,6 +6,7 @@ import { canonical } from '@moflight/flight-logbook';
 import { hash, openDriver } from '../storage';
 import { flightDiagnostics, captureFlightTiming } from './flight-diagnostics';
 import { RealFlightCommandJournal } from './real-flight-command-journal';
+import type { SyncVerificationScope } from './sync-verification-scope';
 import { RealFlightLibrary, type RealFlightAccessGate, type RealFlightAuthorization, type RealFlightFault, type RealFlightTiming } from './real-flight-library';
 import { validateRealFlightBackup } from './real-flight-library-model';
 import { realHistoryUuid, validateRealHistoryCandidateName, validateRealHistoryManifest,
@@ -46,6 +47,8 @@ export interface RealFlightNativeScope {
   selectionGate?: RealSelectionGate;
   /** Internal aggregate restore permit, bound to its durable pending journal row. */
   backupRestoreOperationId?: string;
+  /** One live Sync's exact-content proof reuse; never authorizes access. */
+  verification?: SyncVerificationScope;
 }
 
 export interface RealFlightNativeFile {
@@ -261,7 +264,7 @@ export function createRealFlightNativeAdapter(
       const gate = candidateGate(scope, authorize, selectionGate);
       const permit = readPermit(scope, authorize, false);
       library = await RealFlightLibrary.open(db, permit.ownerId, permit.storeId, dependencies.hash,
-        authorize as RealFlightAuthorization, async () => {}, gate, timing);
+        authorize as RealFlightAuthorization, async () => {}, gate, timing, scope.verification);
       await assertScope(scope, authorize, false, selectionGate);
       return library;
     } catch (error) {
@@ -390,7 +393,7 @@ export function createRealFlightNativeAdapter(
       journal = await RealFlightCommandJournal.open(db, permit.ownerId, permit.storeId,
         scope.authorize, dependencies.hash,
         await initializeMode(db, REAL_FLIGHT_COMMAND_JOURNAL_FILE_NAME, existed, createExplicitly),
-        candidateGate(scope, scope.authorize, scope.selectionGate));
+        candidateGate(scope, scope.authorize, scope.selectionGate),scope.verification);
       await assertScope(scope, scope.authorize, createExplicitly, scope.selectionGate);
       return journal;
     } catch (error) {

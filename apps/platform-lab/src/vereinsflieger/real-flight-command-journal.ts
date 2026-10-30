@@ -3,6 +3,7 @@
 // it does not authenticate a provider account or prove that a receipt exists.
 import { canonical } from '@moflight/flight-logbook';
 import type { Driver, Connection, Hash } from '../../../../packages/local-data/src/index';
+import type { SyncVerificationScope } from './sync-verification-scope';
 import { REAL_HISTORY_COMMAND_LIMIT, realHistoryUuid } from './real-history-contract';
 import { createRealFlightSourceObservation, type RealFlightSourceInput } from './real-flight-source';
 import { realFlightBoundedJson, realFlightExactKeys, realFlightRequire, realFlightSha, realFlightTime,
@@ -131,7 +132,7 @@ export class RealFlightCommandJournal {
 
   private constructor(private readonly db: Driver, private readonly ownerId: string, private readonly storeId: string,
     private readonly leaseId: string, private readonly authorize: RealFlightCommandJournalAuthorization,
-    private readonly hash: Hash, private readonly gate: RealFlightCommandJournalGate) {}
+    private readonly hash: Hash, private readonly gate: RealFlightCommandJournalGate, private readonly verification?: SyncVerificationScope) {}
 
   private allowed(write = false): RealFlightCommandJournalPermit {
     realFlightRequire(!this.closed, 'Closed real flight command journal.');
@@ -152,13 +153,13 @@ export class RealFlightCommandJournal {
   }
 
   static async open(db: Driver, ownerId: string, storeId: string, authorize: RealFlightCommandJournalAuthorization,
-    hash: Hash, create = false, gate: RealFlightCommandJournalGate = async () => {}): Promise<RealFlightCommandJournal> {
+    hash: Hash, create = false, gate: RealFlightCommandJournalGate = async () => {}, verification?: SyncVerificationScope): Promise<RealFlightCommandJournal> {
     realHistoryUuid(ownerId); realHistoryUuid(storeId);
     const initial = authorize(); realFlightExactKeys(initial, ['ownerId','storeId','leaseId','writable']);
     realFlightRequire(initial.ownerId === ownerId && initial.storeId === storeId && typeof initial.leaseId === 'string' &&
       initial.leaseId.length > 0 && typeof initial.writable === 'boolean' && (!create || initial.writable),
       'Unauthorized real flight command journal access.');
-    const journal = new RealFlightCommandJournal(db, ownerId, storeId, initial.leaseId, authorize, hash, gate);
+    const journal = new RealFlightCommandJournal(db, ownerId, storeId, initial.leaseId, authorize, hash, gate, verification);
     try {
       await journal.access(create);
       await db.exec('PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL;');
@@ -258,12 +259,18 @@ export class RealFlightCommandJournal {
       else {
         let parsed: unknown;
         try { parsed = JSON.parse(row.request_json); } catch { throw new Error('Invalid real flight command request JSON.'); }
-        validated = await validateCommand(parsed, this.ownerId, this.storeId, this.hash);
+        const identity=this.allowed(writeAccess), text=this.verification?.activeFor(identity)?canonical(row):null;
+        if (text!==null&&this.verification?.hasCommand(identity,text)) {
+          validated={command:validateCommandShape(parsed,this.ownerId,this.storeId),request:row.request_json,requestSha256:row.request_sha256};
+        } else {
+          validated = await validateCommand(parsed, this.ownerId, this.storeId, this.hash);
+        }
         // validateCommand already hashed this exact canonical request.
         realFlightRequire(validated.command.commandId === row.command_id && validated.command.kind === row.kind &&
           validated.request === row.request_json && validated.requestSha256 === row.request_sha256,
           'Real flight command request hash or identity mismatch.');
         realFlightSha(row.request_sha256);
+        if(text!==null)this.verification?.rememberCommand(this.allowed(writeAccess),text);
       }
       validatedCommands.set(row.command_id, {row: {...row}, value: validated});
       commands.push({ row, ...validated, latestOutcome: null });

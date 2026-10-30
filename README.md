@@ -226,6 +226,8 @@ The approved staged own-flight migration [#112](https://github.com/MomoRC-tech/M
 
 ## Runnable first milestone
 
+The approved [Sync verification optimization and runtime-check review](docs/verification/2026-10-30-sync-verification-review.md) under [#113](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/113) replaces repeated validation of identical history/command content with bounded reuse during one Sync. Fresh ownership, actual database reads, recovery and post-write verification remain. Native matched measurements and final package acceptance are pending at this source checkpoint; no phone speedup is claimed.
+
 ```bash
 npm install --global pnpm@11.25.0
 pnpm install --frozen-lockfile

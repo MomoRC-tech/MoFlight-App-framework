@@ -7,7 +7,18 @@ export function DevelopmentHub({ onDetailHttpPoc, onFlights, onBooks, onImportPr
   const [targetProof,setTargetProof]=useState<string|null>(null),[proofBusy,setProofBusy]=useState(false);
   const running=useRef(false);
   const active=useRef(true),[financialProof,setFinancialProof]=useState<string|null>(null);
+  const [syncProof,setSyncProof]=useState<string|null>(null);
   useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
+  const runSyncProof=async()=>{
+    if(running.current)return;
+    running.current=true;setProofBusy(true);onBusyChange?.(true);setSyncProof('Lokaler Vergleich wird vorbereitet …');
+    try{
+      const {runSyncVerificationBenchmark}=await import('../development/sync-verification-benchmark');
+      await runSyncVerificationBenchmark(()=>active.current&&AppState.currentState==='active',value=>{if(active.current)setSyncProof(value);});
+      if(active.current)setSyncProof('Sync-Prüfvergleich bestanden: 5 identische Testpaare. Kein Anbieter- oder Telefon-Geschwindigkeitsnachweis.');
+    }catch{if(active.current)setSyncProof('Sync-Prüfvergleich unterbrochen. Synthetische Dateien bleiben erhalten.');}
+    finally{running.current=false;if(active.current)setProofBusy(false);onBusyChange?.(false);}
+  };
   const runFinancialProof=async(reopen=false)=>{
     if(running.current)return;
     running.current=true;setProofBusy(true);onBusyChange?.(true);setFinancialProof(null);
@@ -35,6 +46,11 @@ export function DevelopmentHub({ onDetailHttpPoc, onFlights, onBooks, onImportPr
       <Label muted>Diese Seite ist keine Zugriffssperre und keine Freigabe für eine spätere Produktversion.</Label>
     </Card>
     <SettingsContentGroup title="Vorschau & lokale Nachweise">
+      <SettingsContentDisclosure title="Sync-Prüfvergleich" summary="Lokale Prüfung mit und ohne Wiederverwendung; nur synthetische Daten" testID="development-sync-verification-details">
+        <Label muted>Vergleicht fünf identische lokale Teststände. Kein Anbieterzugriff; eigene Konten und Anmeldungen bleiben erhalten.</Label>
+        <Action disabled={proofBusy} onPress={()=>void runSyncProof()}>Sync-Prüfvergleich starten</Action>
+        {syncProof&&<View accessibilityLiveRegion="polite"><Label selectable>{syncProof}</Label></View>}
+      </SettingsContentDisclosure>
       <SettingsContentDisclosure title="Finanzdatei-Nachweis" summary="Getrennte synthetische Dateien; kein Anbieterzugriff" testID="development-financial-proof-details">
         <Label muted>Prüft native SQLite-Belege, Version 4 und Wiederaufnahme nach unterbrochener Bestätigung. Bestehende Konten, Belege und Anmeldungen bleiben unverändert.</Label>
         <Action disabled={proofBusy} onPress={()=>void runFinancialProof()}>Finanzdatei-Nachweis starten</Action>
