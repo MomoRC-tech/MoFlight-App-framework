@@ -37349,6 +37349,142 @@
           }
         }
       ]
+    },
+    {
+      "id": "financial-native-proof-30oct-1c5d859",
+      "recorded_date": "2026-10-30",
+      "kind": "emulator-synthetic",
+      "source_commit": "1c5d85932f0951600ebe157bc5bc4aa18182dad7",
+      "apk_sha256": "8876e66c744665a6cd94f799bd252e1bcc2e1378281ef84d8f0d045194b44386",
+      "device": "MoFlight_Synthetic_API37 / sdk_gphone64_x86_64 / Android API37 x86_64; physical1080x1920 density420, actual411.43x731.43dp/font1/dark",
+      "input": "One synthetic billed receipt restored; original has two conflicting receipts. One pilot book with pending draft, empty real-flight graph. Per-run isolated native files; no provider session.",
+      "conditions": "Airplane1/wifi0/data0 before and after; app foreground for code stages; force-stop/fresh-process reopen; native events from app logs. No reset/seed or provider AVD action.",
+      "method": "performance.now around named JS/native SQLite/file/codec/journal stages. total is inclusive, individual stages overlap it. process-reopen measures file validation inside a newly started app process, excludes process launch/UI navigation. Observer failures have no gathered duration. The three untimed observer failures remain in the linked evidence; no zero-duration performance samples are invented.",
+      "limits": [
+        "Synthetic native file/codec/financial-selector/journal only; injected owner registry and non-financial restore ports.",
+        "No live financial source/WebView/capture activation, actual SAF/full-user restore/update, phone or iOS runtime.",
+        "Observers1/2 stopped before proof; observer3 failed log parsing after native8-check pass; corrected observer4 reused that same run for process restart.",
+        "Observer Python fixes did not change the tested application APK.",
+        "Inclusive JS-stage times are not pixel-render times or a speed comparison."
+      ],
+      "evidence": [
+        "docs/verification/2026-10-30-financial-native-proof.json",
+        "docs/verification/2026-10-28-expense-source-contract.md#native-financial-preservation-proof--30-october-2026"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "run-raw-save-reopen",
+          "metric": "financial-proof-raw-save-reopen",
+          "milliseconds": 139.2548999999417,
+          "outcome": "success",
+          "details": {
+            "native_checks": 8,
+            "native_run": 1
+          }
+        },
+        {
+          "id": "run-fixture-libraries",
+          "metric": "financial-proof-fixture-libraries",
+          "milliseconds": 136.91079999995418,
+          "outcome": "success",
+          "details": {
+            "native_checks": 8,
+            "native_run": 1
+          }
+        },
+        {
+          "id": "run-archive-file-roundtrip",
+          "metric": "financial-proof-archive-file-roundtrip",
+          "milliseconds": 28.709100000094622,
+          "outcome": "success",
+          "details": {
+            "native_checks": 8,
+            "native_run": 1
+          }
+        },
+        {
+          "id": "run-restore-interrupted-ack",
+          "metric": "financial-proof-restore-interrupted-ack",
+          "milliseconds": 1037.152999999933,
+          "outcome": "success",
+          "details": {
+            "native_checks": 8,
+            "native_run": 1
+          }
+        },
+        {
+          "id": "run-pending-read-gate",
+          "metric": "financial-proof-pending-read-gate",
+          "milliseconds": 11.532200000016019,
+          "outcome": "success",
+          "details": {
+            "native_checks": 8,
+            "native_run": 1
+          }
+        },
+        {
+          "id": "run-restore-identical-retry",
+          "metric": "financial-proof-restore-identical-retry",
+          "milliseconds": 672.014899999951,
+          "outcome": "success",
+          "details": {
+            "native_checks": 8,
+            "native_run": 1
+          }
+        },
+        {
+          "id": "run-legacy-absence",
+          "metric": "financial-proof-legacy-absence",
+          "milliseconds": 700.2039000000805,
+          "outcome": "success",
+          "details": {
+            "native_checks": 8,
+            "native_run": 1
+          }
+        },
+        {
+          "id": "run-foreign-archive",
+          "metric": "financial-proof-foreign-archive",
+          "milliseconds": 4.099099999992177,
+          "outcome": "success",
+          "details": {
+            "native_checks": 8,
+            "native_run": 1
+          }
+        },
+        {
+          "id": "run-offline-reopen",
+          "metric": "financial-proof-offline-reopen",
+          "milliseconds": 498.093499999959,
+          "outcome": "success",
+          "details": {
+            "native_checks": 8,
+            "native_run": 1
+          }
+        },
+        {
+          "id": "run-total",
+          "metric": "financial-proof-total",
+          "milliseconds": 3746.464200000046,
+          "outcome": "success",
+          "details": {
+            "native_checks": 8,
+            "native_run": 1,
+            "untimed_observer_failures": 3
+          }
+        },
+        {
+          "id": "reopen-process-reopen",
+          "metric": "financial-proof-process-reopen",
+          "milliseconds": 356.8669000000227,
+          "outcome": "success",
+          "details": {
+            "native_checks": 1,
+            "native_reopen": 1
+          }
+        }
+      ]
     }
   ]
 }

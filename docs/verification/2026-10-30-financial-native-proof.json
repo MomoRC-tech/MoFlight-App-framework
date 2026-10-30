@@ -1,0 +1,244 @@
+{
+  "version": 1,
+  "source_commit": "1c5d85932f0951600ebe157bc5bc4aa18182dad7",
+  "apk_sha256": "8876e66c744665a6cd94f799bd252e1bcc2e1378281ef84d8f0d045194b44386",
+  "configuration": "Release",
+  "embedded_source_verified": true,
+  "architectures": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "device": {
+    "ro.build.version.sdk": "37",
+    "ro.product.model": "sdk_gphone64_x86_64",
+    "ro.product.cpu.abi": "x86_64"
+  },
+  "avd": "MoFlight_Synthetic_API37",
+  "logical_dp": {
+    "width": 411.42857142857144,
+    "height": 731.4285714285714
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "observer_outcome": "failed",
+      "error": "Visible UI did not contain 'Papierstand ansehen'",
+      "checks": [],
+      "before": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font_scale": "1.0",
+        "airplane_mode_on": "1",
+        "wifi_on": "0",
+        "mobile_data": "0"
+      },
+      "after": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font_scale": "1.0",
+        "airplane_mode_on": "1",
+        "wifi_on": "0",
+        "mobile_data": "0"
+      },
+      "reused_native_run": false
+    },
+    {
+      "attempt": 2,
+      "observer_outcome": "failed",
+      "error": "Visible UI did not contain 'Profil & Einstellungen öffnen'",
+      "checks": [],
+      "before": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font_scale": "1.0",
+        "airplane_mode_on": "1",
+        "wifi_on": "0",
+        "mobile_data": "0"
+      },
+      "after": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font_scale": "1.0",
+        "airplane_mode_on": "1",
+        "wifi_on": "0",
+        "mobile_data": "0"
+      },
+      "reused_native_run": false
+    },
+    {
+      "attempt": 3,
+      "observer_outcome": "failed",
+      "error": "",
+      "checks": [],
+      "before": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font_scale": "1.0",
+        "airplane_mode_on": "1",
+        "wifi_on": "0",
+        "mobile_data": "0"
+      },
+      "after": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font_scale": "1.0",
+        "airplane_mode_on": "1",
+        "wifi_on": "0",
+        "mobile_data": "0"
+      },
+      "reused_native_run": false
+    },
+    {
+      "attempt": 4,
+      "observer_outcome": "passed",
+      "error": null,
+      "checks": [
+        {
+          "name": "native-files-v4-interrupted-retry-and-preserved-originals",
+          "status": "passed"
+        },
+        {
+          "name": "offline-new-process-reopens-identical-candidate-archive-journal",
+          "status": "passed"
+        }
+      ],
+      "before": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font_scale": "1.0",
+        "airplane_mode_on": "1",
+        "wifi_on": "0",
+        "mobile_data": "0"
+      },
+      "after": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font_scale": "1.0",
+        "airplane_mode_on": "1",
+        "wifi_on": "0",
+        "mobile_data": "0"
+      },
+      "reused_native_run": true
+    }
+  ],
+  "native_records": [
+    {
+      "record": "summary",
+      "kind": "run",
+      "state": "passed",
+      "checks": 8
+    },
+    {
+      "record": "sample",
+      "kind": "run",
+      "stage": "raw-save-reopen",
+      "elapsedMs": 139.2548999999417,
+      "outcome": "passed"
+    },
+    {
+      "record": "sample",
+      "kind": "run",
+      "stage": "fixture-libraries",
+      "elapsedMs": 136.91079999995418,
+      "outcome": "passed"
+    },
+    {
+      "record": "sample",
+      "kind": "run",
+      "stage": "archive-file-roundtrip",
+      "elapsedMs": 28.709100000094622,
+      "outcome": "passed"
+    },
+    {
+      "record": "sample",
+      "kind": "run",
+      "stage": "restore-interrupted-ack",
+      "elapsedMs": 1037.152999999933,
+      "outcome": "passed"
+    },
+    {
+      "record": "sample",
+      "kind": "run",
+      "stage": "pending-read-gate",
+      "elapsedMs": 11.532200000016019,
+      "outcome": "passed"
+    },
+    {
+      "record": "sample",
+      "kind": "run",
+      "stage": "restore-identical-retry",
+      "elapsedMs": 672.014899999951,
+      "outcome": "passed"
+    },
+    {
+      "record": "sample",
+      "kind": "run",
+      "stage": "legacy-absence",
+      "elapsedMs": 700.2039000000805,
+      "outcome": "passed"
+    },
+    {
+      "record": "sample",
+      "kind": "run",
+      "stage": "foreign-archive",
+      "elapsedMs": 4.099099999992177,
+      "outcome": "passed"
+    },
+    {
+      "record": "sample",
+      "kind": "run",
+      "stage": "offline-reopen",
+      "elapsedMs": 498.093499999959,
+      "outcome": "passed"
+    },
+    {
+      "record": "sample",
+      "kind": "run",
+      "stage": "total",
+      "elapsedMs": 3746.464200000046,
+      "outcome": "passed"
+    },
+    {
+      "record": "summary",
+      "kind": "reopen",
+      "state": "passed",
+      "checks": 1
+    },
+    {
+      "record": "sample",
+      "kind": "reopen",
+      "stage": "process-reopen",
+      "elapsedMs": 356.8669000000227,
+      "outcome": "passed"
+    }
+  ],
+  "visual_check": "Affected expanded Development proof controls/status: readable, scrolling/reachability pass at actual 411.43 x 731.43 dp, density420/font1, dark. No full matrix/light/spoken claim.",
+  "preservation": {
+    "reset_or_seed": false,
+    "production_registry_or_provider_write": false,
+    "provider_avd_touched": false,
+    "fixture_files_retained": true,
+    "radios_display_font_restored": true,
+    "old_synthetic_apk_copy": "Failed before in-place update due PowerShell single-line indexing; no pre-update APK rollback copy. install -r retained app data; no complete prior-database byte proof."
+  },
+  "limits": [
+    "Synthetic native file/codec/financial-selector/journal only; injected owner registry and non-financial restore ports.",
+    "No live financial source/WebView/capture activation, actual SAF/full-user restore/update, phone or iOS runtime.",
+    "Observers1/2 stopped before proof; observer3 failed log parsing after native8-check pass; corrected observer4 reused that same run for process restart.",
+    "Observer Python fixes did not change the tested application APK.",
+    "Inclusive JS-stage times are not pixel-render times or a speed comparison."
+  ],
+  "publication": {
+    "source_commit": "1c5d85932f0951600ebe157bc5bc4aa18182dad7",
+    "apk_sha256": "8876e66c744665a6cd94f799bd252e1bcc2e1378281ef84d8f0d045194b44386",
+    "zip_sha256": "9e35492757bb6b4b071fdfcdf8e546e0c29a43f92fbad863f2a83ff977834028",
+    "download_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-financial-native-proof-2026-10-30-1c5d859/MoFlight-Financial-Proof-1c5d859.zip",
+    "download_verified": true
+  },
+  "cleanup": {
+    "synthetic_avd": "returned to stopped; initially stopped",
+    "provider_avd": "left running and untouched",
+    "build_checkout": "released clean after committed-source build",
+    "fixture_files": "retained for explicit later reopen"
+  }
+}
