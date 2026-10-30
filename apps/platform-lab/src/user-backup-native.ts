@@ -8,7 +8,8 @@ import { readLocalDisplayName, saveLocalDisplayName } from './mobile/local-profi
 import { createRealFlightBackupDependencies, restoreRealFlightBackup, type RealFlightBackupService } from './vereinsflieger/real-flight-backup-native';
 import { loadProviderScope } from './vereinsflieger/scoped-storage';
 import { exportInformationBackup, restoreInformationBackupNative } from './vereinsflieger/information-native';
-import { USER_BACKUP_LIMIT, createUserBackup, selectedPilotBookForBackup } from './user-backup';
+import { USER_BACKUP_LIMIT, createUserBackup, createUserBackupV4, selectedPilotBookForBackup, type UserBackupInputV3 } from './user-backup';
+import { financialNative } from './vereinsflieger/expense-native';
 import { restoreUserBackup, type UserBackupGate, type UserBackupServicePorts } from './user-backup-service';
 import { openUserBackupRestoreJournal } from './user-backup-restore-journal-native';
 import type { UserBackupRestoreOperation } from './user-backup-restore-journal';
@@ -54,11 +55,15 @@ export async function exportUserBackupNative(scope: RealFlightNativeScope, servi
   if (selectedScope && selectedScope.owner !== scope.lease.ownerId) throw new Error('Foreign selected information scope.');
   const informationBackup = selectedScope ? await exportInformationBackup(selectedScope) : null;
   const aiArchive = await readOwnerChatArchiveNative(scope, gate);
+  const financial = await financialNative.exportSection(scope, gate);
   await gate(); sameOwnerScope(scope, false);
-  return createUserBackup({ createdAt: new Date().toISOString(), ownerId: scope.lease.ownerId, storeId: scope.lease.storeId,
+  const input: UserBackupInputV3 = { createdAt: new Date().toISOString(), ownerId: scope.lease.ownerId, storeId: scope.lease.storeId,
     pilot, realFlights: { backup: realFlights },
     information: selectedScope && informationBackup !== null ? { scope: selectedScope, backup: informationBackup } : null,
-    ai: { archive: encodeChatArchive(aiArchive) }, dutyTargets }, hash);
+    ai: { archive: encodeChatArchive(aiArchive) }, dutyTargets };
+  const text = await (financial.state === 'absent' ? createUserBackup(input, hash) : createUserBackupV4({ ...input, financial }, hash));
+  await gate(); sameOwnerScope(scope, false); await assertNoPendingUserBackupRestore();
+  return text;
   });
 }
 
@@ -87,12 +92,21 @@ export async function saveUserBackupToFolder(scope: RealFlightNativeScope, servi
   return { state: 'saved', fileName, sha256 };
 }
 
-async function createNativeRestorePorts(scope: RealFlightNativeScope, gate: UserBackupGate): Promise<UserBackupServicePorts> {
+async function createNativeRestorePorts(scope: RealFlightNativeScope, gate: UserBackupGate, resumeOperationId?: string): Promise<UserBackupServicePorts> {
   const realDependencies = await createRealFlightBackupDependencies();
+  const financialScope = resumeOperationId ? { ...scope, backupRestoreOperationId: resumeOperationId } : scope;
   const ports: UserBackupServicePorts = {
     io: realDependencies.io, hash, uuid: realDependencies.uuid, now: realDependencies.now,
     openJournal: openUserBackupRestoreJournal,
     currentInformationScope: owner => loadProviderScope(owner),
+    financial: {
+      async currentTarget(ownerId, storeId) {
+        if (ownerId !== scope.lease.ownerId || storeId !== scope.lease.storeId) throw new Error('Foreign financial backup target.');
+        return financialNative.currentTarget(financialScope, gate);
+      },
+      preflight: (section, ownerGate) => financialNative.preflight(financialScope, section, async () => { await ownerGate(); await gate(); }),
+      restore: (input, ownerGate) => financialNative.restore(scope, input.section, input.permit, async () => { await ownerGate(); await gate(); }),
+    },
     async restoreRealFlights(input, ownerGate) {
       const internalScope: RealFlightNativeScope = { ...scope, backupRestoreOperationId: input.permit.operationId };
       sameOwnerScope(internalScope, true);
@@ -192,7 +206,7 @@ export async function getPendingUserBackupRestoreNative(scope: RealFlightNativeS
 export async function restoreUserBackupFromPickerNative(scope: RealFlightNativeScope, gate: UserBackupGate,
   resumeOperationId?: string) {
   await gate(); sameOwnerScope(scope, true);
-  const ports = await createNativeRestorePorts(scope, gate);
+  const ports = await createNativeRestorePorts(scope, gate, resumeOperationId);
   const result = await withDutyTargetLock(() => restoreUserBackup(scope.lease.ownerId, scope.lease.storeId, gate, ports, resumeOperationId));
   if (result.state === 'restored' || result.state === 'already-restored') notifyDutyTargetsChanged();
   return result;

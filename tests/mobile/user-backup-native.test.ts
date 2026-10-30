@@ -13,6 +13,9 @@ import * as realModel from '../../apps/platform-lab/src/vereinsflieger/real-flig
 import * as backup from '../../apps/platform-lab/src/user-backup.ts';
 import { encodeChatArchive, type ChatArchive } from '../../apps/platform-lab/src/ai/chat-model.ts';
 import { nodeDriver } from './sqlite-driver.ts';
+import { FinancialObservationStore } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
+import { financialTarget, financialObservation } from './fixtures/expense-capture.ts';
+import type { UserBackupServicePorts } from '../../apps/platform-lab/src/user-backup-service.ts';
 
 const ownerId = '11111111-1111-4111-8111-111111111111';
 const storeId = '22222222-2222-4222-8222-222222222222';
@@ -74,7 +77,10 @@ async function fixture() {
       activitySequence: 1, updatedAt: at, messages: [] }] };
   const state = { pending: false, authorized: true, permission: true, directoryUri: 'folder:',
     corruptReadback: false, profileFailure: false, closes: 0, loads: 0, realReads: 0, chatReads: 0,
-    selectedBook: 'selected', informationScope: providerScope as ProviderScope | null };
+    selectedBook: 'selected', informationScope: providerScope as ProviderScope | null,
+    financial: { state: 'absent' } as backup.UserFinancialBackup, financialReads: 0, financialFailure: false, revokeOnCodecHash: false,
+    restorePorts: null as UserBackupServicePorts | null, financialScope: null as unknown,
+    financialRestore: null as unknown, financialPreflight: null as unknown };
   const files = new Map<string, string>();
   let nextFile = 0;
   const io = {
@@ -90,7 +96,15 @@ async function fixture() {
     'expo-file-system': { File: class {} }, 'expo-sqlite': { defaultDatabaseDirectory: 'synthetic:' },
     './duty-target-native': { withDutyTargetLock: (work:()=>Promise<unknown>) => work(), async exportDutyTargetsNative(scope:unknown) { return {scope,targets:[{year:2025,hours:0},{year:2026,hours:37.5}]}; } },
     './vereinsflieger/real-flight-library-model': realModel,
-    './storage': { hash }, './user-backup': backup, './user-backup-service': {},
+    './storage': { async hash(text: string) { const value = await hash(text); if (state.financialReads && state.revokeOnCodecHash) state.authorized = false; return value; } }, './user-backup': backup, './user-backup-service': { async restoreUserBackup(_owner: string, _store: string, _gate: unknown, ports: UserBackupServicePorts) {
+      state.restorePorts = ports; return { state: 'cancelled' };
+    } },
+    './vereinsflieger/expense-native': { financialNative: {
+      async exportSection() { state.financialReads++; if (state.financialFailure) throw new Error('Financial file unavailable'); return state.financial; },
+      async currentTarget(scope: unknown) { state.financialScope = scope; return financialTarget; },
+      async preflight(scope: unknown, section: unknown, gate: () => Promise<void>) { await gate(); state.financialScope = scope; state.financialPreflight = section; },
+      async restore(scope: unknown, section: unknown, permit: unknown, gate: () => Promise<void>) { await gate(); state.financialScope = scope; state.financialRestore = { section, permit }; },
+    } },
     './book-storage': {
       async loadBooks() {
         state.loads++;
@@ -214,4 +228,53 @@ test('consecutive external saves preserve every verified archive and the same su
     assert.deepEqual([...f.files.values()], saved);
   }
   assert.equal(f.state.closes, 3);
+});
+
+test('native export selects v4 only for an existing financial store and preserves exact raw receipts', async () => {
+  const f = await fixture(), db = nodeDriver(':memory:'), store = new FinancialObservationStore(db, financialTarget, hash, async () => {});
+  try {
+    await store.initialize(true);
+    for (const populated of [false, true]) {
+      if (populated) await store.save('own-fee', 'billed-flight', financialObservation());
+      f.state.financial = { state: populated ? 'present' : 'empty', target: financialTarget, archive: await store.exportBackup() };
+      const result = await f.api.saveUserBackupToFolder(f.scope, f.service, async () => {});
+      assert.equal(result.state, 'saved'); if (result.state !== 'saved') throw Error('Expected external save');
+      const value = await backup.validateUserBackup(f.files.get(`folder:/${result.fileName}`)!, {
+        ownerId, storeId, informationScope: providerScope, financialTarget,
+      }, hash);
+      assert.equal(value.version, 4);
+      if (value.version === 4) assert.deepEqual(JSON.parse(JSON.stringify(value.financial)), f.state.financial);
+    }
+    f.state.financial = { state: 'absent' };
+    assert.equal((await backup.validateUserBackup(await f.api.exportUserBackupNative(f.scope, f.service, async () => {}), {
+      ownerId, storeId, informationScope: providerScope,
+    }, hash)).version, 3);
+  } finally { await db.close(); }
+});
+
+test('unreadable financial state refuses export rather than silently producing a partial v3 file', async () => {
+  const f = await fixture(); f.state.financialFailure = true;
+  await assert.rejects(f.api.saveUserBackupToFolder(f.scope, f.service, async () => {}), /Financial file unavailable/);
+  assert.equal(f.files.size, 0);
+});
+
+test('owner revocation during aggregate encoding refuses publication and creates no external file', async () => {
+  const f = await fixture(); f.state.revokeOnCodecHash = true;
+  await assert.rejects(f.api.saveUserBackupToFolder(f.scope, f.service, async () => {}), /lease/);
+  assert.equal(f.state.financialReads, 1); assert.equal(f.files.size, 0);
+});
+
+test('native financial restore ports forward the current target, recovery operation and owner gates', async () => {
+  const f = await fixture(); let gates = 0;
+  const operationId = '55555555-5555-4555-8555-555555555555';
+  assert.equal((await f.api.restoreUserBackupFromPickerNative(f.scope, async () => { gates++; }, operationId)).state, 'cancelled');
+  const ports = f.state.restorePorts!.financial!;
+  assert.deepEqual(await ports.currentTarget(ownerId, storeId), financialTarget);
+  assert.equal((f.state.financialScope as { backupRestoreOperationId: string }).backupRestoreOperationId, operationId);
+  await assert.rejects(ports.currentTarget(ownerId, connectionId), /Foreign financial/);
+  const section = { state: 'empty' as const, target: financialTarget, archive: 'validated upstream' };
+  await ports.preflight(section, async () => { gates++; }); assert.equal(f.state.financialPreflight, section);
+  const permit = { operationId, ownerId, storeId };
+  await ports.restore({ section, permit }, async () => { gates++; });
+  assert.equal(JSON.stringify(f.state.financialRestore), JSON.stringify({ section, permit })); assert.ok(gates >= 5);
 });

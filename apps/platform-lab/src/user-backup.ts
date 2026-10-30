@@ -14,7 +14,7 @@ import type { FinancialObservationTarget } from './vereinsflieger/expense-ledger
 
 export const USER_BACKUP_FORMAT = 'moflight-supported-user-backup';
 export const USER_BACKUP_VERSION = 3;
-/** Explicit API only until native financial candidate activation is integrated. */
+/** Selected when a native raw financial store exists; legacy default remains v3. */
 export const USER_BACKUP_FINANCIAL_VERSION = 4;
 export const USER_BACKUP_LIMIT = 260 * 1024 * 1024;
 export const USER_BACKUP_INCLUDED_V1 = [

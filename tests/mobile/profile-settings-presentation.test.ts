@@ -32,7 +32,7 @@ test('ordinary settings exposes real administration and backup exclusions while 
  assert.equal(ordinary.some(n=>n.type==='TextInput'),false);
  const text=f.text(expanded);assert.ok(text.includes('einschließlich Medical'));assert.ok(text.includes('Unverschlüsselt'));assert.ok(text.includes('Dienstpläne und temporäre Dateien sind ausgeschlossen'));
  assert.ok(text.includes(AI_BACKUP_NOTICE));
- for(const term of ['unverschlüsselte','KI-Chats','Entwürfe','Vereinsflieger-Kennungen','Foto- und Anhangdateien werden nicht gesichert','Textverweise darauf können enthalten sein','serverseitige Budget'])assert.ok(AI_BACKUP_NOTICE.includes(term));
+ for(const term of ['unverschlüsselte','KI-Chats','Entwürfe','Vereinsflieger-Kennungen','Version 4','Beträgen, Empfängern und Quelltexten','keine vollständige Abrechnungshistorie','Ältere Sicherungen lassen bestehende Finanzbelege unverändert','dieselbe Installation','Foto- und Anhangdateien werden nicht gesichert','Textverweise darauf können enthalten sein','serverseitige Budget'])assert.ok(AI_BACKUP_NOTICE.includes(term));
  assert.equal(ordinary.some(n=>n.type==='Section'&&n.props.title==='Lokales Demoprofil'),false);
  assert.equal(synthetic.find(n=>n.type==='TextInput')!.props.value,'Retained draft');
  assert.ok(synthetic.some(n=>n.type==='Section'&&n.props.title==='Lokales Demoprofil'));

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { mkdtemp, rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { closeSync, existsSync, openSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
@@ -13,6 +13,8 @@ import { createUserBackup, createUserBackupV4, emptyUserChatArchive, USER_BACKUP
   type UserBackupInputV3, type UserFinancialBackup } from '../../apps/platform-lab/src/user-backup.ts';
 import { encodeChatArchive } from '../../apps/platform-lab/src/ai/chat-model.ts';
 import { FinancialCaptureRun } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-run.ts';
+import { createFinancialNativeAdapter } from '../../apps/platform-lab/src/vereinsflieger/expense-native-adapter.ts';
+import type { RealFlightNativeScope } from '../../apps/platform-lab/src/vereinsflieger/real-flight-native.ts';
 import { restoreUserBackup, type UserBackupServicePorts } from '../../apps/platform-lab/src/user-backup-service.ts';
 import { UserBackupRestoreJournal, assertUserBackupReadAllowed } from '../../apps/platform-lab/src/user-backup-restore-journal.ts';
 import { nodeDriver } from './sqlite-driver.ts';
@@ -268,5 +270,44 @@ test('legacy v1-v3 and explicit v4 absence preserve existing financial records w
       assert.equal((await restoreUserBackup(ownerId, storeId, async () => {}, p.ports)).state, 'restored');
       assert.ok(!p.events.some(v => v.startsWith('finance'))); assert.equal(await f.store.exportBackup(), original);
     }
+  } finally { await f.db.close(); assert.equal(dirname(resolve(directory)), resolve(tmpdir())); await rm(directory, { recursive: true, force: true }); }
+});
+
+test('aggregate recovery journal resumes the native financial selection after a lost activation acknowledgement', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'moflight-financial-native-pipeline-')), f = await finance();
+  try {
+    const financial = { state: 'present' as const, target, archive: await f.store.exportBackup() };
+    const text = await createUserBackupV4({ ...await base('12345'), financial }, hash), p = portsFor(directory, text);
+    const scope: RealFlightNativeScope = { lease: { version: 1, ownerId, storeId, leaseId: uuid(99), selectionSeq: 1,
+      selectedAt: at, createdAt: at, candidateName: 'synthetic-owner.sqlite' }, registry: { async assertCurrent() {} },
+      authorize: () => ({ ownerId, storeId, leaseId: uuid(99), writable: true }) };
+    const deps = {
+      file(name: string) { const path = join(directory, name); return { get exists() { return existsSync(path); }, create() { closeSync(openSync(path, 'wx')); } }; },
+      openDriver: async (name: string) => nodeDriver(join(directory, name)), hash, currentProviderScope: async () => target.scope,
+      async assertRecovery(allowed?: { operationId: string; ownerId: string; storeId: string }) {
+        const journal = await p.ports.openJournal(false);
+        try {
+          const pending = await journal?.pending();
+          if (allowed && (!pending || pending.operationId !== allowed.operationId || pending.ownerId !== allowed.ownerId || pending.storeId !== allowed.storeId) ||
+              pending && !allowed) throw Error('Aggregate read gate');
+        } finally { await journal?.close(); }
+      },
+    };
+    let native = createFinancialNativeAdapter(deps), loseAck = true, resumeOperationId: string | undefined;
+    p.ports.financial = {
+      currentTarget: () => native.currentTarget({ ...scope, backupRestoreOperationId: resumeOperationId }, async () => {}),
+      preflight: (section, gate) => native.preflight({ ...scope, backupRestoreOperationId: resumeOperationId }, section, gate),
+      async restore({ section, permit }, gate) {
+        await native.restore(scope, section, permit, gate);
+        if (loseAck) { loseAck = false; throw Error('Lost activation acknowledgement'); }
+      },
+    };
+    const first = await restoreUserBackup(ownerId, storeId, async () => {}, p.ports);
+    assert.deepEqual(first, { state: 'recovery-required', operationId: uuid(1), phase: 'real-flight' });
+    await assert.rejects(native.exportSection(scope, async () => {}), /Aggregate read gate/);
+    native = createFinancialNativeAdapter(deps); resumeOperationId = uuid(1);
+    assert.equal((await restoreUserBackup(ownerId, storeId, async () => {}, p.ports, resumeOperationId)).state, 'restored');
+    assert.deepEqual(await native.exportSection(scope, async () => {}), financial);
+    await assertUserBackupReadAllowed(() => p.ports.openJournal(false));
   } finally { await f.db.close(); assert.equal(dirname(resolve(directory)), resolve(tmpdir())); await rm(directory, { recursive: true, force: true }); }
 });
