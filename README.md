@@ -220,6 +220,8 @@ The approved [mobile one-detail HTTP PoC](docs/verification/2026-10-30-mobile-de
 
 This repository is for development, not an app-store installation. Use Node 24 and the pinned pnpm version in [package.json](package.json). Android native work needs the configured SDK/JDK; iOS native work needs compatible macOS/Xcode tooling. The [Windows setup guide](docs/development/windows-local-setup.md) covers local builds, emulator isolation and Windows path-length handling.
 
+The approved staged own-flight migration [#112](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/112) now has an [experimental ordinary-Sync Android candidate ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-flight-http-candidate-2026-10-30/MoFlight-flight-http-candidate-ff37ca9.zip), actual source `ff37ca9`. Guarded HTTP page reads retain existing UI configuration/restoration, complete-scope/save checks and safe DOM fallback; iOS stays DOM. [Verification](docs/verification/2026-10-30-mobile-detail-http-poc.md#candidate-verification-and-remaining-live-gate): complete host checkpoint, 30 native fixtures and desktop year/month/empty parity pass. Successful signed-in ordinary Android Sync is still pending after the emulator session expired; this candidate is for that owner trial, with no speedup claim.
+
 ## Runnable first milestone
 
 ```bash

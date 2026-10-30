@@ -36972,6 +36972,383 @@
         }
       ],
       "id": "owner-phone-a765-support-s54-30oct"
+    },
+    {
+      "recorded_date": "2026-10-30",
+      "source_commit": "ff37ca9719e6639936af5b0ef12742ac5c6008b4",
+      "apk_sha256": "593d04ea5b8fe78a9f28d50a83f37cb3610019e51eb627996bc12d8d1ea7f69c",
+      "evidence": [
+        "docs/verification/2026-10-30-mobile-detail-http-poc.md"
+      ],
+      "comparison": null,
+      "id": "own-flight-http-native-fixtures-30oct",
+      "kind": "emulator-synthetic",
+      "device": "MoFlight_API37; Android 17/API37 x86_64; WebView156.0.8078.47; 480x800 px at160dpi, font1.0",
+      "input": "15 original detail and15 export fixtures; includes500+1 rows, empty, account/club/session, cancellation, stale document and text parity",
+      "conditions": "Foreground Release; lexical synthetic fetch replaces real requests; existing cookies untouched. Retained provider AVD, no network request from fixtures.",
+      "method": "Each fixture performance.now elapsed start to assertion completion; bounded console record per case. Requests/rows/pages are synthetic counters, not live throughput.",
+      "limits": [
+        "One pass per case, no performance comparison or provider latency inference.",
+        "Prior312f212 synthetic run passed30 checks, but per-case log was truncated and timings unavailable; not invented.",
+        "Two ordinary-Sync starts preceded fixtures: first returned without accepted capture while initial local data loaded; second reached expired sign-in and was explicitly closed. Neither reached HTTP reads or saved new flights; no operation durations were recovered."
+      ],
+      "samples": [
+        {
+          "id": "success",
+          "metric": "http-synthetic-case",
+          "milliseconds": 7.600000000093132,
+          "outcome": "success",
+          "details": {
+            "requests": 4
+          }
+        },
+        {
+          "id": "relative-link",
+          "metric": "http-synthetic-case",
+          "milliseconds": 5,
+          "outcome": "success",
+          "details": {
+            "requests": 4
+          }
+        },
+        {
+          "id": "larger-list",
+          "metric": "http-synthetic-case",
+          "milliseconds": 3.8999999999068677,
+          "outcome": "success",
+          "details": {
+            "requests": 4
+          }
+        },
+        {
+          "id": "foreign-before",
+          "metric": "http-synthetic-case",
+          "milliseconds": 1.3000000002793968,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "foreign-after",
+          "metric": "http-synthetic-case",
+          "milliseconds": 3.2999999998137355,
+          "outcome": "success",
+          "details": {
+            "requests": 4
+          }
+        },
+        {
+          "id": "foreign-club",
+          "metric": "http-synthetic-case",
+          "milliseconds": 1.2999999998137355,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "login-at-200",
+          "metric": "http-synthetic-case",
+          "milliseconds": 0.8000000002793968,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "network",
+          "metric": "http-synthetic-case",
+          "milliseconds": 3.7999999998137355,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "redirect",
+          "metric": "http-synthetic-case",
+          "milliseconds": 0.6000000000931323,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "mime",
+          "metric": "http-synthetic-case",
+          "milliseconds": 1,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "oversize",
+          "metric": "http-synthetic-case",
+          "milliseconds": 7.899999999906868,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "charset",
+          "metric": "http-synthetic-case",
+          "milliseconds": 1.2999999998137355,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "foreign-link",
+          "metric": "http-synthetic-case",
+          "milliseconds": 2.6000000000931323,
+          "outcome": "success",
+          "details": {
+            "requests": 2
+          }
+        },
+        {
+          "id": "missing-list",
+          "metric": "http-synthetic-case",
+          "milliseconds": 1.3999999999068677,
+          "outcome": "success",
+          "details": {
+            "requests": 2
+          }
+        },
+        {
+          "id": "cancel",
+          "metric": "http-synthetic-case",
+          "milliseconds": 1,
+          "outcome": "success",
+          "details": {
+            "requests": 1
+          }
+        },
+        {
+          "id": "export-single",
+          "metric": "http-synthetic-case",
+          "milliseconds": 15.600000000093132,
+          "outcome": "success",
+          "details": {
+            "requests": 3,
+            "rows": 1,
+            "pages": 1
+          }
+        },
+        {
+          "id": "export-pagination",
+          "metric": "http-synthetic-case",
+          "milliseconds": 59.299999999813735,
+          "outcome": "success",
+          "details": {
+            "requests": 6,
+            "rows": 501,
+            "pages": 2
+          }
+        },
+        {
+          "id": "export-empty",
+          "metric": "http-synthetic-case",
+          "milliseconds": 8.299999999813735,
+          "outcome": "success",
+          "details": {
+            "requests": 3,
+            "rows": 0,
+            "pages": 1
+          }
+        },
+        {
+          "id": "export-text-parity",
+          "metric": "http-synthetic-case",
+          "milliseconds": 7.100000000093132,
+          "outcome": "success",
+          "details": {
+            "requests": 3,
+            "rows": 1,
+            "pages": 1
+          }
+        },
+        {
+          "id": "export-foreign-before",
+          "metric": "http-synthetic-case",
+          "milliseconds": 0.8000000002793968,
+          "outcome": "success",
+          "details": {
+            "requests": 1,
+            "rows": 0,
+            "pages": 0
+          }
+        },
+        {
+          "id": "export-foreign-after",
+          "metric": "http-synthetic-case",
+          "milliseconds": 4.2999999998137355,
+          "outcome": "success",
+          "details": {
+            "requests": 3,
+            "rows": 0,
+            "pages": 0
+          }
+        },
+        {
+          "id": "export-foreign-club",
+          "metric": "http-synthetic-case",
+          "milliseconds": 0.6000000000931323,
+          "outcome": "success",
+          "details": {
+            "requests": 1,
+            "rows": 0,
+            "pages": 0
+          }
+        },
+        {
+          "id": "export-login-at-200",
+          "metric": "http-synthetic-case",
+          "milliseconds": 0.8999999999068677,
+          "outcome": "success",
+          "details": {
+            "requests": 2,
+            "rows": 0,
+            "pages": 0
+          }
+        },
+        {
+          "id": "export-expiry-after",
+          "metric": "http-synthetic-case",
+          "milliseconds": 2.1999999997206032,
+          "outcome": "success",
+          "details": {
+            "requests": 3,
+            "rows": 0,
+            "pages": 0
+          }
+        },
+        {
+          "id": "export-mime",
+          "metric": "http-synthetic-case",
+          "milliseconds": 2.5,
+          "outcome": "success",
+          "details": {
+            "requests": 3,
+            "rows": 0,
+            "pages": 0
+          }
+        },
+        {
+          "id": "export-redirect",
+          "metric": "http-synthetic-case",
+          "milliseconds": 14.100000000093132,
+          "outcome": "success",
+          "details": {
+            "requests": 3,
+            "rows": 0,
+            "pages": 0
+          }
+        },
+        {
+          "id": "export-oversize",
+          "metric": "http-synthetic-case",
+          "milliseconds": 27.200000000186265,
+          "outcome": "success",
+          "details": {
+            "requests": 3,
+            "rows": 0,
+            "pages": 0
+          }
+        },
+        {
+          "id": "export-network",
+          "metric": "http-synthetic-case",
+          "milliseconds": 2,
+          "outcome": "success",
+          "details": {
+            "requests": 3,
+            "rows": 0,
+            "pages": 0
+          }
+        },
+        {
+          "id": "export-cancel",
+          "metric": "http-synthetic-case",
+          "milliseconds": 1.5,
+          "outcome": "success",
+          "details": {
+            "requests": 2,
+            "rows": 0,
+            "pages": 0
+          }
+        },
+        {
+          "id": "export-stale-document",
+          "metric": "http-synthetic-case",
+          "milliseconds": 0.6000000000931323,
+          "outcome": "success",
+          "details": {
+            "requests": 2,
+            "rows": 0,
+            "pages": 0
+          }
+        }
+      ]
+    },
+    {
+      "recorded_date": "2026-10-30",
+      "source_commit": "ff37ca9719e6639936af5b0ef12742ac5c6008b4",
+      "apk_sha256": null,
+      "evidence": [
+        "docs/verification/2026-10-30-mobile-detail-http-poc.md"
+      ],
+      "comparison": null,
+      "id": "own-flight-http-desktop-scopes-30oct",
+      "kind": "host",
+      "device": "Windows x64; local Chrome headless via existing playwright-core; Node24.18.0",
+      "input": "Authorized own-flight year101 rows, month5 rows, future-empty0 rows;48 columns, one page each",
+      "conditions": "Same authenticated desktop research session; sequential original UI configuration, guarded HTTP and fresh DOM reads; original effective view verified restored after each scope.",
+      "method": "HTTP driver elapsed Date.now from request sequence start through profile/list/profile/read. Entire HTTP/DOM payloads and capture headers/rows compared; timings exclude configuration/restoration/navigation.",
+      "limits": [
+        "Desktop live evidence, not Android or iOS Sync acceptance.",
+        "No actual live scope exceeded500 rows;500+1 is synthetic/native/controller evidence.",
+        "Single observations with unequal browser boundaries establish no speedup."
+      ],
+      "samples": [
+        {
+          "id": "observed-year",
+          "metric": "http-flight-page",
+          "milliseconds": 618,
+          "outcome": "success",
+          "details": {
+            "rows": 101,
+            "columns": 48,
+            "pages": 1
+          }
+        },
+        {
+          "id": "observed-month",
+          "metric": "http-flight-page",
+          "milliseconds": 571,
+          "outcome": "success",
+          "details": {
+            "rows": 5,
+            "columns": 48,
+            "pages": 1
+          }
+        },
+        {
+          "id": "future-empty",
+          "metric": "http-flight-page",
+          "milliseconds": 600,
+          "outcome": "success",
+          "details": {
+            "rows": 0,
+            "columns": 48,
+            "pages": 1
+          }
+        }
+      ]
     }
   ]
 }

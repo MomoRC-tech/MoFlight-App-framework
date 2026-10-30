@@ -2,7 +2,7 @@
 
 Maintained under [#90](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/90), with #41 owning Sync investigation and #45 Start/tab/resume responsiveness. Manuel requested permanent tracking on 29 October 2026. This is the single index for recorded runtime timings; package reports retain their source-specific methods and acceptance evidence.
 
-The ledger currently stores **130 run groups, 771 sample/observation records and 28,724 numeric values**, including elapsed durations, inclusive stages, counters, timing offsets and available render proxies. Records include supporting host runs and derived event/prediction observations; this count is not a number of independent device trials. [Complete sample history](history.md) · [Machine-readable ledger](ledger.json) · [All numeric values (CSV)](measurements.csv).
+The ledger currently stores **132 run groups, 804 sample/observation records and 28,826 numeric values**, including elapsed durations, inclusive stages, counters, timing offsets and available render proxies. Records include supporting host runs and derived event/prediction observations; this count is not a number of independent device trials. [Complete sample history](history.md) · [Machine-readable ledger](ledger.json) · [All numeric values (CSV)](measurements.csv).
 
 ## Phone and other supplied Android observations
 
