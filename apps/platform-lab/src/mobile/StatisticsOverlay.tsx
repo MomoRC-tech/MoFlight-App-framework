@@ -5,19 +5,26 @@ import { FlightDetails } from './FlightDetails';
 import { AppHeader } from './AppHeader';
 import { ownFlightCard } from './own-flight-model';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
-import { Action, Card, Empty, Label, colors } from './theme';
+import { Action, Card, Chip, Empty, Label, colors } from './theme';
 import type { useOwnFlights } from './use-own-flights';
 import { selectStatisticsFlights, statisticsPeriodBounds, type StatisticsPeriod, type StatisticsSection } from './statistics-overlay-model';
 import { StatisticsExplorer } from './StatisticsExplorer';
 import type { ChartKind, ChartContributors } from './statistics-charts-model';
 
+import { ExpensesView } from './ExpensesView';
+import type { ExpensePeriod } from '../expenses/expense-types';
+
 type FlightData = ReturnType<typeof useOwnFlights>;
 type Route = { kind:'section'; key:string } | { kind:'flights'; title:string; ids:string[]; scope:StatisticsPeriod; key:string } | { kind:'detail'; flightId:string; title:string; key:string };
-export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClose, headerActions, feedback, helpEnabled=true, onHelp, initialYear, initialSection='overview', initialChart, initialContributors }: {
+export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClose, headerActions, feedback, helpEnabled=true, onHelp, initialYear, initialSection='overview', initialChart, initialContributors, onRefreshFinancial, reloadKey=0 }: {
+  onRefreshFinancial?:()=>void; reloadKey?:number;
   data:FlightData; today:string; fontScale:number; onBackHandler:(handler:()=>boolean)=>void; onClose:()=>void;
   headerActions?:React.ReactNode; feedback?:React.ReactNode; helpEnabled?:boolean; onHelp?:(entryId:string)=>void;
   initialYear?:number; initialSection?:StatisticsSection; initialChart?:ChartKind; initialContributors?:ChartContributors;
 }) {
+  const [mode,setMode]=useState<'flights'|'costs'>('flights');
+  const [expensePeriod,setExpensePeriod]=useState<ExpensePeriod>({mode:'year',year:initialYear??Number(today.slice(0,4))});
+  const expenseBack=useRef<()=>boolean>(()=>false);
   const [period,setPeriod]=useState<StatisticsPeriod>({kind:'year',year:initialYear??Number(today.slice(0,4))});
   const [routes,setRoutes]=useState<Route[]>([{kind:'section',key:'charts'},...(initialContributors?[{kind:'flights' as const,key:'initial-flights',title:initialContributors.title,ids:[...new Set(initialContributors.ids)],scope:initialContributors.scope}]:[])]);
   const [rawFlightId,setRawFlightId]=useState<string|null>(null),[rawPage,setRawPage]=useState(0),[picHelpOpen,setPicHelpOpen]=useState(false);
@@ -28,6 +35,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
   if(data.phase!=='ready'||!data.view?.snapshot.account)explorerBack.current=()=>false;
   const back=()=>{
     Keyboard.dismiss();
+    if(mode==='costs')return expenseBack.current();
     if(route.kind==='section') return explorerBack.current();
     if(route.kind==='detail'){if(picHelpOpen){setPicHelpOpen(false);return true;}if(rawFlightId){setRawFlightId(null);return true;}data.clearDetail();}
     setRoutes(previous=>previous.slice(0,-1));return true;
@@ -49,12 +57,14 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
   const scopeLabel=route.kind==='flights'?(()=>{const b=statisticsPeriodBounds(route.scope,today);return b?`${b.from} bis ${b.to}`:'gesamter gespeicherter Bestand';})():'';
   const defaultChart:ChartKind=initialChart??({overview:'monthly',aircraft:'aircraft',duration:'duration',launch:'launch',roles:'roles'} as const)[initialSection];
   return <View style={styles.content}>
-    <AppHeader variant="page" back={()=>{if(!back())onClose();}} title={route.kind==='section'?'Flugstatistik':route.title}>{headerActions}</AppHeader>
+    <AppHeader variant="page" back={()=>{if(!back())onClose();}} title={mode==='costs'?'Kosten':route.kind==='section'?'Flugstatistik':route.title}>{headerActions}</AppHeader>
     {feedback}
-    <ScrollView ref={scroll} contentOffset={{x:0,y:scrollOffsets.current[route.key]??0}}
-      onScroll={event=>{scrollOffsets.current[route.key]=event.nativeEvent.contentOffset.y;}} scrollEventThrottle={32}
-      onContentSizeChange={()=>scroll.current?.scrollTo({y:scrollOffsets.current[route.key]??0,animated:false})}
+    {(route.kind==='section'||mode==='costs')&&<View style={{flexDirection:'row',gap:8,paddingHorizontal:12,width:'100%',maxWidth:600,alignSelf:'center'}}><Chip title="Flüge" selected={mode==='flights'} onPress={()=>setMode('flights')}/>{onRefreshFinancial&&<Chip title="Kosten" selected={mode==='costs'} onPress={()=>setMode('costs')}/>}</View>}
+    <ScrollView ref={scroll} contentOffset={{x:0,y:scrollOffsets.current[mode==='costs'?'costs':route.key]??0}}
+      onScroll={event=>{scrollOffsets.current[mode==='costs'?'costs':route.key]=event.nativeEvent.contentOffset.y;}} scrollEventThrottle={32}
+      onContentSizeChange={()=>scroll.current?.scrollTo({y:scrollOffsets.current[mode==='costs'?'costs':route.key]??0,animated:false})}
       keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={[styles.canvas,fontScale>1.3&&{paddingHorizontal:10}]}>
+      {mode==='costs'?<ExpensesView expected={data.phase==='ready'&&data.view?.snapshot.account?{ownerId:data.view.snapshot.ownerId,storeId:data.view.snapshot.storeId,accountRef:data.view.snapshot.account.accountRef}:null} reloadKey={reloadKey} period={expensePeriod} onPeriod={setExpensePeriod} onRefresh={onRefreshFinancial??(()=>{})} onBackHandler={handler=>{expenseBack.current=handler;}}/>:<>
       <View style={route.kind==='section'?undefined:{display:'none'}} accessibilityElementsHidden={route.kind!=='section'} importantForAccessibility={route.kind==='section'?'auto':'no-hide-descendants'}>
         {data.phase==='loading'&&<Card><ActivityIndicator color={colors.cyan}/><Label>Gespeicherte Flugstatistik wird geprüft.</Label></Card>}
         {data.phase==='failed'&&<Card><Empty title="Statistik nicht lesbar">Die gespeicherte Auswahl konnte nicht geprüft werden.</Empty><Action secondary onPress={()=>void data.reload()}>Gespeicherte Flüge erneut prüfen</Action></Card>}
@@ -64,6 +74,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
       </View>
       {route.kind==='flights'&&<><Label muted>{items.length} gespeicherte Flugbelege · {scopeLabel}</Label>{!items.length&&<Empty title="Keine passenden Flüge">Die gespeicherten Belege haben sich geändert. Zurück zur Statistik.</Empty>}<View style={{gap:5}}>{items.map(flight=><FlightCard key={`${flight.flightId}:${flight.factsRevision}`} flight={flight} onPress={()=>openFlight(flight)}/>)}</View></>}
       {route.kind==='detail'&&<StatisticsFlightDetails detail={detail} loading={data.detailBusy||data.phase==='loading'} error={!data.detailBusy&&!detail?data.detailError:null} rawPage={rawPage} onRawPage={setRawPage} rawExpanded={!!detail&&rawFlightId===detail.flightId} onToggleRaw={()=>{if(detail)setRawFlightId(current=>current===detail.flightId?null:detail.flightId);}} picHelpOpen={helpEnabled&&picHelpOpen} onTogglePicHelp={helpEnabled?()=>setPicHelpOpen(value=>!value):undefined} onMorePicHelp={helpEnabled&&onHelp?()=>{setPicHelpOpen(false);onHelp('pic');}:undefined} onRetry={()=>{const current=allUnique.find(f=>f.flightId===route.flightId);if(data.phase==='ready'&&current)void data.openDetail(current);else void data.reload();}} retryLabel={data.phase==='ready'&&allUnique.some(f=>f.flightId===route.flightId)?'Flugdetails erneut prüfen':'Gespeicherte Flüge erneut prüfen'}/>}
+      </>}
     </ScrollView>
   </View>;
 }

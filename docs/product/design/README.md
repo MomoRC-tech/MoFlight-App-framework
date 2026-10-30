@@ -88,3 +88,6 @@ Keep **decision status** (approved, proposed, superseded), **implementation stat
 Markdown chapters, [color-roles.json](color-roles.json), [symbols.json](symbols.json), the component illustrations and HTML template are maintained inputs in this directory. Color-role metadata controls semantic usage; source code supplies implemented values. The implementation inventory, HTML guide, plain-text brief and compatibility symbol HTML are generated outputs. Do not hand-edit a generated palette or maintain a second catalogue. Original assets retain their locations/licenses.
 
 The generator uses Python's standard library and repository files only: no network, installs, model calls or app builds. Supported chapter Markdown includes headings, paragraphs, links/images, emphasis, lists, tables and fenced code; unsupported raw HTML is rejected. Examples are assembled from the maintained catalogue/template.
+
+
+The [30 October financial analysis amendment](patterns.md#financial-analysis--authorized-30-october-2026) records Manuel's explicit delegation of layout choice and the scoped Costs retrieval exception. It does not restyle Start or establish native acceptance.

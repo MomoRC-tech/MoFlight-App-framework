@@ -101,7 +101,7 @@ function fixture({verificationScope=undefined as syncVerification.SyncVerificati
   const registry={currentOwner:async()=>existingOwner?{...lease,selectionSeq:selectedHead,leaseId:'proof-'+(++ownerProof)}:null,createFreshOwner:async()=>{calls.push('create');return lease;},assertCurrent:async()=>{if(entryProofFails)throw new Error('Foreign or expired owner lease');},close:async()=>{}};
   const snapshot={account:null,savedRetrievals:[],coverage:[],pending:[],recovery:{readOnly}};
   const input={capture:{captureId:'fresh',rows:[]},requestedWindow:{from:'2025-01-01',to:'2026-10-21'}};
-  const c:any={viewReady:true,browserActive:false,from:sameWindow?'2025-01-01':'',to:sameWindow?'2026-10-21':'',connection:priorConnection==='verified'?{phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}}:{phase:priorConnection,confirmed:false},
+  const c:any={financialState:{phase:'idle',failure:null},cancelFinancialCapture:()=>true,viewReady:true,browserActive:false,from:sameWindow?'2025-01-01':'',to:sameWindow?'2026-10-21':'',connection:priorConnection==='verified'?{phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}}:{phase:priorConnection,confirmed:false},
     activityScope:activityEnabled?fixtureActivityScope:undefined,
     busy:false,saving:false,restoring:{current:false},visible:false,recovery:false,result:'none',completedFlightSource:null,
     retrieval:{current:{state:{phase:'idle'}}},checkSession:()=>calls.push('quiet-session'),
@@ -145,6 +145,7 @@ function fixture({verificationScope=undefined as syncVerification.SyncVerificati
   };
   const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
   const modules:Record<string,any>={react:{default:react,...react},
+    './FinancialRetrievalPanel':{FinancialRetrievalPanel:'FinancialRetrievalPanel'},
     './FinancialSourceProof':{FinancialSourceProof:'FinancialSourceProof'},
     '../development/financial-source-readback':{readFinancialSourceProof:async()=>({state:'absent'})},
     '../vereinsflieger/expense-native':{financialNative:{exportSection:async()=>({state:'absent'})}},

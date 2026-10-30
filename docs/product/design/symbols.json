@@ -535,7 +535,7 @@
     },
     {
       "title": "Data notation and visual state markers",
-      "intro": "These are part of the symbol language too, even where replacing them with pictograms would be unnecessary.",
+      "intro": "These are part of the symbol language too, even where replacing them with pictograms would be unnecessary. Financial amounts use the text suffix € with exact tabular digits. Known zero stays distinct from T01 unknown (—), and negative amounts use T07 (−); this is currency notation, not a new pictogram or proof of payment.",
       "entries": [
         {
           "id": "T01",
