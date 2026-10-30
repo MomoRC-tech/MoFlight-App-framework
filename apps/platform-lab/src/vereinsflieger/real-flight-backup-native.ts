@@ -37,6 +37,7 @@ export interface RealFlightBackupNativePorts {
 }
 
 export interface RealFlightBackupDependencies {
+  onRestoreFailure?(error: unknown): void | Promise<void>;
   io: RealFlightBackupIo;
   native: RealFlightBackupNativePorts;
   hash: Hash;
@@ -353,6 +354,7 @@ export async function restoreRealFlightBackup(scope: RealFlightNativeScope, gate
     return { state: 'restored', fileName, selection: { name: fileName, sequence },
       snapshot: { generation: restoredGraph.generation, flightCount: flights.length }, ...(warning ? {warning} : {}) };
   } catch (error) {
+    try { await deps.onRestoreFailure?.(error); } catch { /* Diagnostics cannot change recovery. */ }
     await restored?.close();
     await writer?.close();
     if (prepared || error instanceof IndeterminateRealRestorePreparation) {

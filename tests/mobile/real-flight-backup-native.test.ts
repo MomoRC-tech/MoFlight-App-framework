@@ -260,7 +260,8 @@ test('restore reopens and reads a fresh candidate before explicit predecessor ac
 
   const failure = new Error('activation transaction failed');
   const failedNative = makeNative(scope, { activationError: failure }); const failedIo = makeIo();
-  const recovery = await restoreRealFlightBackup(scope, allow, dependencies(failedIo.io, failedNative.native));
+  const failedDeps=dependencies(failedIo.io,failedNative.native);let diagnosticError:unknown;failedDeps.onRestoreFailure=error=>{diagnosticError=error;throw Error('Diagnostic sink failed');};
+  const recovery = await restoreRealFlightBackup(scope, allow, failedDeps);assert.equal(diagnosticError,failure);
   assert.equal(recovery.state,'recovery-required');
   if (recovery.state === 'recovery-required') {
     assert.equal(recovery.fileName,failedNative.createdCandidates[0]);

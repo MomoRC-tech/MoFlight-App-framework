@@ -22,6 +22,19 @@ const directory = SQLite.defaultDatabaseDirectory;
 const databaseFile = (name: string) => new File(directory.startsWith('file:') ? directory : 'file://' + directory, name);
 const bytes = (text: string) => new TextEncoder().encode(text).length;
 const digest = /^[0-9a-f]{64}$/;
+/** Fixed diagnostic fields only. Never log the error text, SQL, file names,
+ * scope, archive or personal values. This also survives recovery-only entry. */
+async function reportRestoreFailure(stage: string, error: unknown): Promise<void> {
+  const text = error instanceof Error ? error.message.slice(0, 4096) : '';
+  const code = /supported user restore.*incomplete/i.test(text) ? 'aggregate-gate' :
+    /pending.*(?:command|preparation)|resolve the pending/i.test(text) ? 'pending-operation' :
+    /lease|unauthoriz|foreign|owner.*changed/i.test(text) ? 'owner-gate' :
+    /sqlite|database|no such table|NativeDatabase|constraint/i.test(text) ? 'sqlite' :
+    /reader validation|factsRevision/i.test(text) ? 'reader' :
+    /backup|archive|checksum|graph.*match/i.test(text) ? 'archive' : 'other';
+  try { console.info('MOFLIGHT_USER_RESTORE_FAILURE', JSON.stringify({ stage, code, fingerprint: await hash(text) })); }
+  catch { /* Diagnostics must not change restore/recovery. */ }
+}
 
 function sameOwnerScope(scope: RealFlightNativeScope, writable: boolean): void {
   const permit = scope.authorize();
@@ -117,6 +130,7 @@ async function createNativeRestorePorts(scope: RealFlightNativeScope, gate: User
       let uuidIndex = 0;
       const realDependenciesForRestore = {
         ...realDependencies,
+        onRestoreFailure: (error: unknown) => reportRestoreFailure('real-flight-candidate', error),
         io: {
           ...realDependencies.io,
           async pickBackup() { return { canceled: false as const, assets: [{ uri: 'moflight-user-backup://real-flight', size: bytes(input.backup) }] }; },
@@ -170,7 +184,8 @@ async function createNativeRestorePorts(scope: RealFlightNativeScope, gate: User
     },
     async restoreInformation(input, ownerGate) {
       const result = await restoreInformationBackupNative(input.scope, input.backup,
-        async () => { await ownerGate(); await gate(); }, undefined, ownerGate, input.operationId);
+        async () => { await ownerGate(); await gate(); }, undefined, ownerGate, input.operationId,
+        error => reportRestoreFailure('information-candidate', error));
       if (result.state === 'restored' || result.state === 'already-activated') return 'already-activated';
       throw new Error('Information restore requires recovery.');
     },
@@ -183,7 +198,19 @@ async function createNativeRestorePorts(scope: RealFlightNativeScope, gate: User
         async () => { await ownerGate(); await gate(); });
     },
   };
-  return ports;
+  const traced = async <T>(stage: string, work: () => Promise<T>): Promise<T> => {
+    try { return await work(); } catch (error) { await reportRestoreFailure(stage, error); throw error; }
+  };
+  return { ...ports,
+    restoreRealFlights: (input, ownerGate) => traced('real-flight', () => ports.restoreRealFlights(input, ownerGate)),
+    restoreInformation: (input, ownerGate) => traced('information', () => ports.restoreInformation(input, ownerGate)),
+    restoreAi: (input, ownerGate) => traced('ai', () => ports.restoreAi(input, ownerGate)),
+    restoreDutyTargets: (input, ownerGate) => traced('duty-targets', () => ports.restoreDutyTargets(input, ownerGate)),
+    activatePilot: input => traced('activate-pilot', () => ports.activatePilot(input)),
+    financial: ports.financial ? { ...ports.financial,
+      restore: (input, ownerGate) => traced('financial', () => ports.financial!.restore(input, ownerGate)),
+    } : undefined,
+  };
 }
 
 export async function getPendingUserBackupRestoreNative(scope: RealFlightNativeScope): Promise<UserBackupRestoreOperation | null> {

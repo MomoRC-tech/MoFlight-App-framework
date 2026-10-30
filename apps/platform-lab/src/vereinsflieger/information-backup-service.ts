@@ -11,6 +11,7 @@ export interface InformationBackupPorts {
   /** Trusted aggregate journal identity: create it if absent, otherwise replay
    * only its exact archive/predecessor. Ordinary resume remains strict. */
   requestedOperationId?: string;
+  onRestoreFailure?(error: unknown): void | Promise<void>;
   openSelection(scope: ProviderScope, create: boolean): Promise<InformationStoreSelection | null>;
   informationFileExists(name: string): boolean | Promise<boolean>;
   openInformationStore(scope: ProviderScope, name: string): Promise<InformationStore>;
@@ -116,6 +117,7 @@ export async function restoreInformationBackup(scopeInput: ProviderScope, text: 
       const sequence = await selection.activatePreparedRestore(operationId, ports.now());
       return { state: 'restored', operationId, databaseName, sequence };
     } catch (error) {
+      try { await ports.onRestoreFailure?.(error); } catch { /* Diagnostics cannot change recovery. */ }
       if (!prepared && !knownOperation) throw error;
       if (!operationId) throw error;
       const stale = error instanceof Error && /stale|selected information store changed|changed during restore/i.test(error.message);

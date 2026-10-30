@@ -131,13 +131,14 @@ async function fixture() {
     './ai/chat-native': { async readOwnerChatArchiveNative() { state.chatReads++; return chat; } },
     './ai/chat-model': { encodeChatArchive },
   };
+  const safeLogs:unknown[][]=[];
   const api = {} as typeof import('../../apps/platform-lab/src/user-backup-native.ts');
-  runInNewContext(source, { exports: api, TextEncoder, require: (name: string) => {
+  runInNewContext(source, { exports: api, TextEncoder, Error, console:{info:(...values:unknown[])=>safeLogs.push(values)}, require: (name: string) => {
     assert.ok(name in modules, name); return modules[name];
   } });
   const scope = { lease: permit, authorize: () => state.authorized ? permit : null } as unknown as Parameters<typeof api.exportUserBackupNative>[0];
   const service = { ownerId, storeId, async exportBackup() { state.realReads++; return realBackup; } } as Parameters<typeof api.exportUserBackupNative>[1];
-  return { api, scope, service, state, files, pilotBackup, realBackup, infoBackup, chat, modules };
+  return { api, scope, service, state, files, pilotBackup, realBackup, infoBackup, chat, modules, safeLogs };
 }
 
 test('native aggregate export preserves selected profile/book, pending state, Medical, AI and v3 duty targets', async () => {
@@ -296,4 +297,9 @@ for(const selection of ['absent','empty','stale'] as const)test(`native staging 
 
 test('aggregate information restore starts its fixed operation instead of resuming a nonexistent preparation',async()=>{
  const f=await fixture();let argumentsSeen:unknown[]=[];Object.assign(f.modules['./vereinsflieger/information-native'] as object,{restoreInformationBackupNative:async(...args:unknown[])=>{argumentsSeen=args;return {state:'restored'};}});await f.api.restoreUserBackupFromPickerNative(f.scope,async()=>{});const operationId='55555555-5555-4555-8555-555555555555';await f.state.restorePorts!.restoreInformation({scope:providerScope,backup:f.infoBackup,operationId},async()=>{});assert.equal(argumentsSeen[3],undefined);assert.equal(argumentsSeen[5],operationId);
+});
+
+
+test('native restore failure diagnostics retain only fixed stage/code and a bounded fingerprint',async()=>{
+ const f=await fixture(),message='Synthetic private data must never appear in diagnostic output';Object.assign(f.modules['./ai/chat-native'] as object,{restoreOwnerChatsNative:async()=>{throw Error(message);}});await f.api.restoreUserBackupFromPickerNative(f.scope,async()=>{});await assert.rejects(f.state.restorePorts!.restoreAi({archive:f.chat,permit:{operationId:'55555555-5555-4555-8555-555555555555',ownerId,storeId}},async()=>{}),new RegExp(message));const encoded=JSON.stringify(f.safeLogs);assert.equal(encoded.includes(message),false);const value=JSON.parse(f.safeLogs.at(-1)![1] as string);assert.deepEqual(Object.keys(value).sort(),['code','fingerprint','stage']);assert.equal(value.stage,'ai');assert.equal(value.fingerprint,await hash(message));
 });
