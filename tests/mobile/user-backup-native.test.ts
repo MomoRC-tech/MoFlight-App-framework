@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
+import * as localProfile from '../../apps/platform-lab/src/mobile/local-profile.ts';
 import { PilotBooks } from '../../packages/local-data/src/books.ts';
 import { RealFlightLibrary } from '../../apps/platform-lab/src/vereinsflieger/real-flight-library.ts';
 import { InformationStore } from '../../apps/platform-lab/src/vereinsflieger/information-store.ts';
@@ -136,7 +137,7 @@ async function fixture() {
   } });
   const scope = { lease: permit, authorize: () => state.authorized ? permit : null } as unknown as Parameters<typeof api.exportUserBackupNative>[0];
   const service = { ownerId, storeId, async exportBackup() { state.realReads++; return realBackup; } } as Parameters<typeof api.exportUserBackupNative>[1];
-  return { api, scope, service, state, files, pilotBackup, realBackup, infoBackup, chat };
+  return { api, scope, service, state, files, pilotBackup, realBackup, infoBackup, chat, modules };
 }
 
 test('native aggregate export preserves selected profile/book, pending state, Medical, AI and v3 duty targets', async () => {
@@ -277,4 +278,17 @@ test('native financial restore ports forward the current target, recovery operat
   const permit = { operationId, ownerId, storeId };
   await ports.restore({ section, permit }, async () => { gates++; });
   assert.equal(JSON.stringify(f.state.financialRestore), JSON.stringify({ section, permit })); assert.ok(gates >= 5);
+});
+
+
+for(const selection of ['absent','empty','stale'] as const)test(`native staging of an empty pilot library preserves ${selection} selection metadata safely`,async()=>{
+ const f=await fixture(),db=nodeDriver(':memory:');let closes=0;const lib=new PilotBooks({...db,close:async()=>{closes++;}},'synthetic-pilot',hash);await lib.initialize();const empty=await lib.backup();
+ try{
+  if(selection!=='absent')await db.exec('CREATE TABLE lab_book_selection(id INTEGER PRIMARY KEY CHECK(id=1),book_id TEXT NOT NULL);');if(selection==='stale')await db.run("INSERT INTO lab_book_selection VALUES (1,'stale-book')");
+  const nativeFile=f.modules['expo-file-system'] as {File:{prototype:Record<string,unknown>}};nativeFile.File.prototype.exists=false;nativeFile.File.prototype.create=function(this:{exists:boolean}){this.exists=true;};
+  Object.assign(f.modules['./book-storage'] as object,{openBooks:async()=>lib});Object.assign(f.modules['./mobile/local-profile'] as object,localProfile);
+  await f.api.restoreUserBackupFromPickerNative(f.scope,async()=>{});const stage=f.state.restorePorts!.stagePilot;const input={backup:empty,displayName:'No paper book',selectedBookId:null,candidateName:'pilot-restore-55555555-5555-4555-8555-555555555555.sqlite',permit:{operationId:'55555555-5555-4555-8555-555555555555',ownerId,storeId}};
+  if(selection==='stale')await assert.rejects(stage(input),/selection outside/);else{await stage(input);assert.equal(await localProfile.readLocalDisplayName(db,'synthetic-pilot'),'No paper book');}
+  assert.equal(await lib.backup(),empty);assert.equal((await lib.books()).length,0);assert.equal(closes,1);if(selection==='absent')assert.equal(await db.first("SELECT name FROM sqlite_master WHERE name='lab_book_selection'"),null);
+ }finally{await db.close();}
 });

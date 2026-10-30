@@ -149,7 +149,10 @@ async function createNativeRestorePorts(scope: RealFlightNativeScope, gate: User
           await library.history(book.id); await library.snapshots(book.id); await library.entries(book.id);
         }
         if (input.selectedBookId && !books.some(book => book.id === input.selectedBookId)) throw new Error('Selected pilot book is unavailable.');
-        if (!input.selectedBookId && await library.db.first('SELECT book_id FROM lab_book_selection WHERE id=1')) {
+        // A fresh empty library has no optional UI-selection table. Preserve
+        // that valid absence while still refusing a stale selection on retry.
+        if (!input.selectedBookId && await library.db.first("SELECT name FROM sqlite_master WHERE type='table' AND name='lab_book_selection'") &&
+            await library.db.first('SELECT book_id FROM lab_book_selection WHERE id=1')) {
           throw new Error('Pilot restore candidate has a selection outside the backup.');
         }
         await saveLocalDisplayName(library.db, library.owner, input.displayName);
