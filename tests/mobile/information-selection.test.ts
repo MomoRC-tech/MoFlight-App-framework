@@ -187,3 +187,18 @@ test('process-wide information mutation lock serializes writers and releases aft
   await withInformationMutation(async () => { order.push('after-failure'); });
   assert.equal(order.at(-1), 'after-failure');
 });
+
+
+test('aggregate fixed information operation creates once, survives reopening and never weakens ordinary resume or archive guards',async()=>{
+ const directory=await mkdtemp(join(tmpdir(),'moflight-information-fixed-')),db=nodeDriver(join(directory,informationStoreName(scope)));try{
+  const original=new InformationStore(db,scope,async()=>{});await original.initialize();await original.save(medicalCapture('fixed-source'));const backup=await original.exportBackup(hash),bytes=await readFile(join(directory,informationStoreName(scope)));
+  const strict=await restoreInformationBackup(scope,backup,hash,async()=>{},ports(directory),op2);assert.equal(strict.state,'recovery-required');let selection=await ports(directory).openSelection(scope,false);assert.equal(await selection!.preparation(op2),null);await selection!.close();
+  const deps={...ports(directory),requestedOperationId:op2,uuid:()=>{throw Error('No random operation permitted');}};const first=await restoreInformationBackup(scope,backup,hash,async()=>{deps.requestedOperationId=op1;},deps);assert.equal(first.state,'restored');assert.equal(first.operationId,op2);const again=await restoreInformationBackup(scope,backup,hash,async()=>{},{...ports(directory),requestedOperationId:op2});assert.equal(again.state,'already-activated');assert.deepEqual(await readFile(join(directory,informationStoreName(scope))),bytes);
+  await original.save(medicalCapture('changed-source'));const changed=await original.exportBackup(hash);assert.equal((await restoreInformationBackup(scope,changed,hash,async()=>{},{...ports(directory),requestedOperationId:op2})).state,'recovery-required');selection=await ports(directory).openSelection(scope,false);assert.equal((await selection!.snapshot()).selection?.operationId,op2);await selection!.close();
+  await assert.rejects(restoreInformationBackup(scope,backup,hash,async()=>{},{...ports(directory),requestedOperationId:'bad-id'}),/Invalid requested/);await assert.rejects(restoreInformationBackup(scope,backup,hash,async()=>{},deps,op2),/one information restore/);
+ }finally{await db.close();await rm(directory,{recursive:true,force:true});}
+});
+
+test('aggregate fixed operation cannot adopt a different pending information restore',async()=>{
+ const directory=await mkdtemp(join(tmpdir(),'moflight-information-fixed-pending-')),db=nodeDriver(join(directory,informationStoreName(scope)));try{const original=new InformationStore(db,scope,async()=>{});await original.initialize();await original.save(medicalCapture('pending-source'));const backup=await original.exportBackup(hash);const first=await restoreInformationBackup(scope,backup,hash,async phase=>{if(phase==='before-activation')throw Error('interrupted');},{...ports(directory),requestedOperationId:op1});assert.equal(first.state,'recovery-required');await assert.rejects(restoreInformationBackup(scope,backup,hash,async()=>{},{...ports(directory),requestedOperationId:op2}),/pending information/);const selection=await ports(directory).openSelection(scope,false);assert.equal((await selection!.pending())?.operationId,op1);assert.equal(await selection!.preparation(op2),null);await selection!.close();assert.equal((await restoreInformationBackup(scope,backup,hash,async()=>{},{...ports(directory),requestedOperationId:op1})).state,'restored');}finally{await db.close();await rm(directory,{recursive:true,force:true});}
+});

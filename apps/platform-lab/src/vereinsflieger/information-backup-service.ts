@@ -8,6 +8,9 @@ export type InformationRestorePhase = 'before-restore' | 'after-candidate' | 'be
 export type InformationRestoreGate = (phase: InformationRestorePhase) => Promise<void>;
 
 export interface InformationBackupPorts {
+  /** Trusted aggregate journal identity: create it if absent, otherwise replay
+   * only its exact archive/predecessor. Ordinary resume remains strict. */
+  requestedOperationId?: string;
   openSelection(scope: ProviderScope, create: boolean): Promise<InformationStoreSelection | null>;
   informationFileExists(name: string): boolean | Promise<boolean>;
   openInformationStore(scope: ProviderScope, name: string): Promise<InformationStore>;
@@ -31,29 +34,34 @@ const digestPattern = /^[0-9a-f]{64}$/;
  */
 export async function restoreInformationBackup(scopeInput: ProviderScope, text: string, hash: Hash,
   gate: InformationRestoreGate, ports: InformationBackupPorts, resumeOperationId?: string): Promise<InformationRestoreResult> {
-  const scope = validateScope(scopeInput);
+  const scope = validateScope(scopeInput), requestedOperationId = ports.requestedOperationId;
   await validateInformationBackup(text, scope, hash);
   const backupSha256 = await hash(text);
   if (!digestPattern.test(backupSha256)) throw new Error('Invalid information backup digest.');
   if (resumeOperationId !== undefined && !uuidPattern.test(resumeOperationId)) throw new Error('Invalid information restore operation.');
+  if (requestedOperationId !== undefined && !uuidPattern.test(requestedOperationId)) throw new Error('Invalid requested information restore operation.');
+  if (resumeOperationId !== undefined && requestedOperationId !== undefined) throw new Error('Choose one information restore operation mode.');
+  const selectedOperationId = resumeOperationId ?? requestedOperationId;
 
   return withInformationMutation(async () => {
     await gate('before-restore');
     const selection = await ports.openSelection(scope, true);
     if (!selection) throw new Error('Information selection journal is unavailable.');
     let candidate: InformationStore | null = null;
-    let operationId = resumeOperationId ?? '';
+    let operationId = selectedOperationId ?? '';
     let databaseName = '';
     let prepared = false;
+    let knownOperation = resumeOperationId !== undefined;
     try {
-      let preparation = resumeOperationId ? await selection.preparation(resumeOperationId) : null;
+      let preparation = selectedOperationId ? await selection.preparation(selectedOperationId) : null;
+      knownOperation ||= preparation !== null;
       if (resumeOperationId && !preparation) throw new Error('Unknown information restore preparation.');
       if (preparation?.backupSha256 !== undefined && preparation.backupSha256 !== backupSha256) {
         throw new Error('Selected archive does not match the prepared information restore.');
       }
       if (preparation?.status === 'activated') {
         const active = await selection.snapshot();
-        if (!active.selection || active.selection.operationId !== resumeOperationId || active.selection.backupSha256 !== backupSha256) {
+        if (!active.selection || active.selection.operationId !== selectedOperationId || active.selection.backupSha256 !== backupSha256) {
           throw new Error('Activated information restore is no longer the selected store.');
         }
         if (!await ports.informationFileExists(active.selection.databaseName)) {
@@ -63,12 +71,12 @@ export async function restoreInformationBackup(scopeInput: ProviderScope, text: 
         await initializeCandidate(candidate, false);
         await candidate.verifyBackup(text, hash);
         await candidate.db.close(); candidate = null;
-        return { state: 'already-activated', operationId: resumeOperationId!, databaseName: active.selection.databaseName,
+        return { state: 'already-activated', operationId: selectedOperationId!, databaseName: active.selection.databaseName,
           sequence: active.sequence };
       }
 
       const currentPending = await selection.pending();
-      if (currentPending && currentPending.operationId !== resumeOperationId) {
+      if (currentPending && currentPending.operationId !== selectedOperationId) {
         throw new Error('Resolve the pending information restore first.');
       }
       const current = await selection.snapshot();
@@ -79,7 +87,7 @@ export async function restoreInformationBackup(scopeInput: ProviderScope, text: 
           return { state: 'recovery-required', operationId, databaseName, reason: 'stale-predecessor' };
         }
       } else {
-        operationId = ports.uuid();
+        operationId = selectedOperationId ?? ports.uuid();
         if (!uuidPattern.test(operationId)) throw new Error('Invalid information restore operation identity.');
         databaseName = informationStoreName(scope, operationId);
         try {
@@ -108,7 +116,7 @@ export async function restoreInformationBackup(scopeInput: ProviderScope, text: 
       const sequence = await selection.activatePreparedRestore(operationId, ports.now());
       return { state: 'restored', operationId, databaseName, sequence };
     } catch (error) {
-      if (!prepared && !resumeOperationId) throw error;
+      if (!prepared && !knownOperation) throw error;
       if (!operationId) throw error;
       const stale = error instanceof Error && /stale|selected information store changed|changed during restore/i.test(error.message);
       return { state: 'recovery-required', operationId, databaseName: databaseName || informationStoreName(scope, operationId),

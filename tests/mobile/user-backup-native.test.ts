@@ -292,3 +292,8 @@ for(const selection of ['absent','empty','stale'] as const)test(`native staging 
   assert.equal(await lib.backup(),empty);assert.equal((await lib.books()).length,0);assert.equal(closes,1);if(selection==='absent')assert.equal(await db.first("SELECT name FROM sqlite_master WHERE name='lab_book_selection'"),null);
  }finally{await db.close();}
 });
+
+
+test('aggregate information restore starts its fixed operation instead of resuming a nonexistent preparation',async()=>{
+ const f=await fixture();let argumentsSeen:unknown[]=[];Object.assign(f.modules['./vereinsflieger/information-native'] as object,{restoreInformationBackupNative:async(...args:unknown[])=>{argumentsSeen=args;return {state:'restored'};}});await f.api.restoreUserBackupFromPickerNative(f.scope,async()=>{});const operationId='55555555-5555-4555-8555-555555555555';await f.state.restorePorts!.restoreInformation({scope:providerScope,backup:f.infoBackup,operationId},async()=>{});assert.equal(argumentsSeen[3],undefined);assert.equal(argumentsSeen[5],operationId);
+});

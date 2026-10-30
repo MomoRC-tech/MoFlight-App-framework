@@ -170,7 +170,7 @@ async function createNativeRestorePorts(scope: RealFlightNativeScope, gate: User
     },
     async restoreInformation(input, ownerGate) {
       const result = await restoreInformationBackupNative(input.scope, input.backup,
-        async () => { await ownerGate(); await gate(); }, input.operationId, ownerGate);
+        async () => { await ownerGate(); await gate(); }, undefined, ownerGate, input.operationId);
       if (result.state === 'restored' || result.state === 'already-activated') return 'already-activated';
       throw new Error('Information restore requires recovery.');
     },

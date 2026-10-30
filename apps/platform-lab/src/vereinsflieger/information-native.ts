@@ -91,9 +91,10 @@ export async function exportInformationBackup(scope: ProviderScope, gate: () => 
 
 /** Stage, validate and select a new same-owner information snapshot; resume by reselecting the same archive and operation ID. */
 export async function restoreInformationBackupNative(scopeInput: ProviderScope, text: string, gate: InformationRestoreGate,
-  resumeOperationId?: string, ownerGate: () => Promise<void> = async () => {}): Promise<InformationRestoreResult> {
+  resumeOperationId?: string, ownerGate: () => Promise<void> = async () => {}, requestedOperationId?: string): Promise<InformationRestoreResult> {
   const scope = validateScope(scopeInput);
   return restoreInformationBackupService(scope, text, hash, gate, {
+    requestedOperationId,
     openSelection: (current, create) => openSelection(current, create, () => {}, ownerGate),
     informationFileExists: databaseExists,
     async openInformationStore(current, name) {
