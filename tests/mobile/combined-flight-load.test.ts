@@ -130,6 +130,9 @@ function fixture({failRestoreMetadata=false,deferGraph=false,graphReady=true,adm
   };
   const leaves=(names:string[])=>Object.fromEntries(names.map(name=>[name,name]));
   const modules:Record<string,any>={react:{default:react,...react},
+    './FinancialSourceProof':{FinancialSourceProof:'FinancialSourceProof'},
+    '../development/financial-source-readback':{readFinancialSourceProof:async()=>({state:'absent'})},
+    '../vereinsflieger/expense-native':{financialNative:{exportSection:async()=>({state:'absent'})}},
     '../ai/backup-notice':{AI_BACKUP_NOTICE},
     '../user-backup-native':{getPendingUserBackupRestoreNative:async()=>{pendingRestoreChecks++;return pendingRestore?{operationId:'pending',ownerId:'owner',storeId:'store'}:null;},
       saveUserBackupToFolder:async()=>{calls.push('backup-save');if(backupAttempt)return backupAttempt();if(backupFails)throw new Error('Synthetic backup failure');return {state:'saved'};},

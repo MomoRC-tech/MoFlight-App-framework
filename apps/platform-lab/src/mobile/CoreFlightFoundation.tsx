@@ -7,6 +7,9 @@ import { hash } from '../storage';
 import { timeFlightStage } from '../vereinsflieger/flight-diagnostics';
 import { diagnosticJournal, type DiagnosticOperation, type DiagnosticAction } from '../diagnostics';
 import { useAccessController } from '../vereinsflieger/use-access-controller';
+import { FinancialSourceProof } from './FinancialSourceProof';
+import { readFinancialSourceProof } from '../development/financial-source-readback';
+import { financialNative } from '../vereinsflieger/expense-native';
 import { openOwnerRegistry, openRealFlightCandidate, resumeInitialRealFlightCandidate, openRealFlightSelection,
   openRealFlightCommandJournal, RealFlightCandidateMissingError, RealFlightUninitializedStoreError,
   type RealFlightNativeScope } from '../vereinsflieger/real-flight-native';
@@ -1068,6 +1071,12 @@ function OwnerFlightLibrary({syncStartedAt,lease,registry,close,startUpdate,open
         {busy&&c.informationBusy&&<Action secondary disabled={c.informationSaving} onPress={()=>c.stopInformation()}>Diesen Abruf überspringen</Action>}
         <Action secondary disabled={busy} onPress={()=>setAdvanced(!advanced)}>{advanced ? 'Details schließen' : 'Details & weitere Optionen'}</Action>
       </Card>}
+      {developmentRecoveryCheckpoints&&destination==='sources'&&open&&<FinancialSourceProof key={`${lease.ownerId}:${lease.storeId}:${requestId}`}
+        capture={(list,detail)=>c.captureFinancialDetail(scope,list,detail)} retrySave={c.retryFinancialSave} cancel={c.cancelFinancialCapture}
+        read={expected=>{const current=async()=>{if(!alive.current||!foreground.current||!panelActive.current)throw Error('Financial proof closed.');await gate();};
+          return readFinancialSourceProof({gate:current,exportSection:()=>financialNative.exportSection(scope,current),hash},expected);}}
+        state={c.financialState} saveUncertain={c.financialSaveUncertain} blocked={busy||!entryReady||restoreReadOnly||c.recovery}
+        onBusyChange={value=>{lock.current=value;if(alive.current)setBusy(value);}}/>}
       {destination==='sources'&&advanced&&<><Card><Label>{flights.length} gespeicherte eigene Flüge · ohne Buchzuordnung</Label><Label muted>{snapshot?.account?'Vereinsflieger-Konto lokal verknüpft.':'Das eigene Anbieter-Konto wird nach dem ersten Abruf bestätigt.'}</Label>
         <Label muted>Originalwerte und Änderungen bleiben erhalten. Zeiten, Rollen und unbekannte Angaben werden nicht ergänzt. Statistik findest du auf Übersicht. Buchzuordnung und Papierfortschreibung sind noch nicht verfügbar.</Label>
         <Label muted>{coverage?.displayedWindow?`Letzter gespeicherter Zeitraum: ${coverage.displayedWindow.from} bis ${coverage.displayedWindow.to} · ${coverage.observedRecordCount} Datensätze.`:'Noch kein gespeicherter vollständiger Abrufzeitraum.'} Keine Aussage über die gesamte Fluggeschichte.</Label></Card>

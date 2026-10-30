@@ -210,3 +210,7 @@ See [scope and contracts](../../docs/product/2026-10-16-four-screen-implementati
 
 After the UI trial, `python scripts/android_mobile_scope_smoke.py --serial emulator-5554 --output local-data/android-mobile-scope` checks tab-filter retention, different book totals and remembered book selection after restart. [Recorded native evidence](../../docs/verification/2026-10-16-four-screen-native-ui.md) distinguishes passing local checks from missing live integrations and iOS runtime acceptance.
 
+
+### Development financial source capture
+
+Development → Eigene Flugbibliothek → **Echten Finanzbeleg prüfen** accepts the exact observed own-flight list and billed-detail URLs. Its explicit action uses the shared native owner/session/controller and verifies the exact saved raw receipt. **Lokale Finanzbelege prüfen** validates existing financial receipts locally without provider navigation or creating an absent store. Uncertain writes use the original-request reconciliation action. This [host-tested increment](../../docs/verification/2026-10-28-expense-source-contract.md#actual-source-development-capture-tool--30-october-2026) has no ordinary Sync/expense UI activation; actual native/provider/offline/UI and restore/update acceptance remain open. No PDFs or attachment bytes.
