@@ -70,7 +70,14 @@ export function DetailHttpPoc({ close, expected, ownerId }: { ownerId: string; c
         if (!page.html) { trial.receive(e.nativeEvent.url, currentUrl.current, e.nativeEvent.data); return; }
         const owner = synthetic.current; if (!owner || e.nativeEvent.data.length > 20000) return;
         try { const result = JSON.parse(e.nativeEvent.data); if (result.kind !== 'vf-detail-http-synthetic-v1') return;
-          synthetic.current = null; revoke(); const savedEpoch = epoch.current; console.info('MOFLIGHT_DETAIL_HTTP_SYNTHETIC', JSON.stringify(result));
+          synthetic.current = null; revoke(); const savedEpoch = epoch.current;
+          // Android truncates a large single log record. Keep each synthetic
+          // timing/counter record independently parseable; never log raw data.
+          console.info('MOFLIGHT_HTTP_SYNTHETIC_SUMMARY', JSON.stringify({ passed: result.passed, checks: result.checks.length, userAgent: result.userAgent }));
+          for (const sample of result.samples) {
+            const check = result.checks.find((c: { scenario: string }) => c.scenario === sample.scenario);
+            console.info('MOFLIGHT_HTTP_SYNTHETIC_SAMPLE', JSON.stringify({ ...sample, requests: check?.requests, rows: check?.rows, pages: check?.pages }));
+          }
           void saveEvidence(ownerId, owner.id, result).then(() => { if (mounted.current && epoch.current === savedEpoch) setState({ phase: result.passed ? 'complete' : 'stopped', message: `Synthetischer WebView-Nachweis: ${result.passed ? 'bestanden' : 'fehlgeschlagen'} (${result.checks.length} Prüfungen). Keine Live-Sitzungsprüfung.` }); }, () => { if (mounted.current && epoch.current === savedEpoch) setState({ phase: 'stopped', message: 'Nachweis konnte nicht gespeichert werden.' }); });
         } catch { stopSynthetic(); }
       }} onOpenWindow={() => { if (page.epoch === epoch.current) trial.stop('Neues Fenster blockiert.'); }} onError={() => { if (page.epoch === epoch.current) { trial.stop('Seite konnte nicht geladen werden.'); stopSynthetic(); } }} onHttpError={() => { if (page.epoch === epoch.current) trial.stop('HTTP-Seitenfehler.'); }} />}

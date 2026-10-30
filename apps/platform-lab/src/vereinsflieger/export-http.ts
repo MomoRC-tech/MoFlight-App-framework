@@ -2,8 +2,9 @@ import { sameContext, scopedBridge, validateContext, type ObservedContext } from
 import { EXPORT_DRIVER_SOURCE, EXPORT_ROWS_PER_PAGE, type ExportRun } from './export';
 import { flightUrl } from './probe';
 
-// Development candidate until complete-scope/native checks establish rollout.
-export const HTTP_FLIGHT_READ_ENABLED = false;
+// Android candidate: delivered rollout is gated by the source-specific #112
+// native/live evidence. Other platforms retain the existing DOM path.
+export const HTTP_FLIGHT_READ_ENABLED = true;
 
 export function exportReadTarget(anchor: string, target: string): string {
   if (!flightUrl(anchor) || !flightUrl(target)) throw new Error('Unsupported HTTP export target.');
