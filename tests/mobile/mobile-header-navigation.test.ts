@@ -33,6 +33,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     useRef(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = { current: initial }; return hooks[i]; },
     useState(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = typeof initial==='function'?(initial as ()=>unknown)():initial; return [hooks[i], (value: unknown) => { hooks[i] = typeof value==='function'?(value as (old:unknown)=>unknown)(hooks[i]):value; }]; },
     useMemo(make:()=>unknown,deps:unknown[]) { const i=index++,previous=hooks[i];if(!previous||deps.some((v,n)=>v!==previous.deps[n]))hooks[i]={deps,value:make()};return hooks[i].value; },
+    useCallback(fn:unknown,deps:unknown[]) { const i=index++,previous=hooks[i];if(!previous||deps.some((v,n)=>v!==previous.deps[n]))hooks[i]={deps,value:fn};return hooks[i].value; },
     useEffect(effect: () => void, deps: unknown[]) {
       const i = index++, previous = hooks[i];
       if (!previous || deps.some((v, n) => v !== previous[n])) { hooks[i] = deps; effects.push(effect); }
@@ -55,6 +56,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   const modules: Record<string, unknown> = { '../start-timing': startTiming,
     react: { default: react, ...react },
     'react-native': { ...leaves(['ActivityIndicator', 'FlatList', 'KeyboardAvoidingView', 'Pressable', 'ScrollView', 'StatusBar', 'Text', 'TextInput', 'View']),
+      Alert: { alert: () => calls.push('development-not-ready') },
       Keyboard: { addListener: () => ({ remove() {} }), dismiss() {} },
       AppState: { currentState:'active', addEventListener: (_:string,handler:(state:string)=>void) => {appStateListener=handler;return {remove(){}};} },
       BackHandler: { addEventListener: (_: string, handler: () => boolean) => { hardwareBack = handler; return { remove() {} }; } },
@@ -63,6 +65,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     },
     'react-native-safe-area-context': leaves(['SafeAreaProvider', 'SafeAreaView']),
     '../App': { default: 'LabApp' }, '../BookLab': { BookLab: 'BookLab' },
+    '../vereinsflieger/DetailHttpPoc': { DetailHttpPoc: 'DetailHttpPoc' },
     '@moflight/flight-logbook': { canonical },
     './SyncStatusDetails':{SyncStatusDetails:'SyncStatusDetails'},'./sync-progress':syncProgress,'./SyncProgress':{SyncProgress:'SyncProgress'},
     './SyncKeepAwake':{SyncKeepAwake:'SyncKeepAwake'},
@@ -930,4 +933,22 @@ test('shell uses saved card data only on Start and drops the preview when the ve
   assert.equal(h.find('MedicalDetails').props.capture,null,'cached card is not verified detail data');
   h.showLoad(null,{snapshot:{ownerId:'other',storeId:'other',account:{accountRef:'202'}},sections:{medical:'loading',duties:'loading'}});
   assert.equal(h.find('Dashboard').props.preview,null);assert.equal(h.find('OverviewTiles').props.medical,null);
+});
+
+
+test('detail HTTP development trial releases the idle provider before mounting and retains the Shell',()=>{
+  const f=fixture(390,1,true);
+  const shell=()=>f.nodes().find(n=>typeof n.type==='function'&&(n.type as Function).name==='Shell')!;
+  shell().props.onDetailHttpPoc();f.render();
+  assert.ok(!f.nodes().some(n=>n.type==='DetailHttpPoc'));assert.ok(f.calls.includes('development-not-ready'));
+  let released=0;
+  const core=f.find('CoreFlightFoundation');
+  const context={accountNumber:'100',clubLabel:'Synthetic club',clubIdentity:'display-label-only',verification:'observed-profile-number'};
+  core.props.onStatus({...unknownProviderStatus,ownerId:'synthetic-owner',connection:{...unknownProviderStatus.connection,confirmed:true,observed:context},releaseForDevelopment:()=>{released++;return true;}});f.render();
+  const retained=shell().type;shell().props.onDetailHttpPoc();f.render();
+  assert.equal(released,1);assert.ok(!f.nodes().some(n=>n.type==='CoreFlightFoundation'));
+  assert.equal(shell().type,retained);assert.equal(f.parent(shell()).props.accessibilityElementsHidden,true);
+  assert.equal(f.find('DetailHttpPoc').props.expected.accountNumber,'100');
+  f.find('DetailHttpPoc').props.close();f.render();
+  assert.ok(f.find('CoreFlightFoundation'));assert.equal(f.parent(shell()).props.accessibilityElementsHidden,false);
 });

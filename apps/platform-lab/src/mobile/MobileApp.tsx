@@ -1,9 +1,11 @@
 import { startTiming } from '../start-timing';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, BackHandler, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, AppState, BackHandler, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { canonical, type Flight } from '@moflight/flight-logbook';
 import LabApp from '../App';
+import { DetailHttpPoc } from '../vereinsflieger/DetailHttpPoc';
+import type { ObservedContext } from '../vereinsflieger/context';
 import { BookLab } from '../BookLab';
 import { Action, Card, Chip, ClubMark, Empty, IconLabel, Label, Photo, Section, colors, startSurfaces, ui } from './theme';
 import { useLibrary } from './use-library';
@@ -72,6 +74,8 @@ const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').t
 export default function MobileApp() {
   useEffect(() => { const finish = startTiming.initialization(); try { initializeDiagnostics(); finish(true); } catch { finish(false); } startTiming.shell(); }, []);
   const [entry,setEntry] = useState<{intent:ConnectionIntent;requestId:number;open:boolean;development:boolean;destination:OptionsDestination}|null>({intent:'options',requestId:0,open:false,development:false,destination:'settings'});
+  const [detailPoc,setDetailPoc]=useState<{ownerId:string;expected?:ObservedContext}|null>(null);
+  const closeDetailPoc=useCallback(()=>{setDetailPoc(null);setEntry({intent:'options',requestId:0,open:false,development:false,destination:'settings'});},[]);
   const activeEntry=useRef(entry);activeEntry.current=entry;
   const [lastLoad,setLastLoad] = useState<FlightLoadResult|null>(null);
   const [flightReload,setFlightReload] = useState(0);
@@ -93,9 +97,14 @@ export default function MobileApp() {
   },[syncProgress.state]);
   useEffect(()=>{diagnosticJournal.record('sync',modalOpen?'sync-popup-open':'sync-popup-hidden');},[modalOpen]);
   return <SafeAreaProvider><SyncKeepAwake active={syncProgress.state==='active'||syncProgress.state==='waiting'}/><View style={{flex:1}}>
-    <View style={[{flex:1},maintenancePageOpen&&{display:'none'}]} pointerEvents={modalOpen?'none':'auto'} aria-hidden={modalOpen} accessibilityElementsHidden={modalOpen} importantForAccessibility={modalOpen?'no-hide-descendants':'auto'}><Shell syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false,destination='settings')=>{
+    <View style={[{flex:1},(maintenancePageOpen||!!detailPoc)&&{display:'none'}]} pointerEvents={modalOpen||detailPoc?'none':'auto'} aria-hidden={modalOpen||!!detailPoc} accessibilityElementsHidden={modalOpen||!!detailPoc} importantForAccessibility={modalOpen||detailPoc?'no-hide-descendants':'auto'}><Shell onDetailHttpPoc={()=>{
+      if(syncLock.current||entry?.open||!providerStatus.ownerId||!providerStatus.releaseForDevelopment?.()){Alert.alert('Test noch nicht bereit','Bitte laufende Anbieter- oder Speichervorgänge abschließen und erneut versuchen.');return;}
+      const expected=providerStatus.connection.confirmed?providerStatus.connection.observed??undefined:undefined;
+      setEntry(null);setSyncControls(null);setProviderStatus(unknownProviderStatus);setDetailPoc({ownerId:providerStatus.ownerId,expected});
+    }} syncControls={syncControls} syncRunning={syncRunning} syncProgress={syncProgress} coreFlightsOpen={!!entry?.open} flightReload={flightReload} lastLoad={lastLoad} providerStatus={providerStatus} onCoreFlights={(intent='options',development=false,destination='settings')=>{
       if(syncLock.current){diagnosticJournal.record('sync','sync-duplicate-ignored');return;}
       syncLock.current=intent==='update';if(intent==='update'){diagnosticJournal.record('sync','sync-requested');setSyncProgress({...idleSyncProgress,state:'active',current:'prepare'});}if(intent==='update')setLastLoad(null);setEntry(previous=>({intent:intent==='update'?'update':'options',development,destination,open:true,requestId:(previous?.requestId??0)+1}));}}/></View>
+    {detailPoc&&<SafeAreaView style={{flex:1,backgroundColor:colors.background}}><DetailHttpPoc ownerId={detailPoc.ownerId} close={closeDetailPoc} expected={detailPoc.expected}/></SafeAreaView>}
     {entry&&<UpdateDialog open={modalOpen} expanded={entry.intent!=='update'||!!providerStatus.loginVisible||syncProgress.state==='waiting'&&!!providerStatus.recovery} fullPage={maintenancePage}>{windowTop=><CoreFlightFoundation destination={entry.destination} dialogTop={windowTop} providerEntryAllowed={entry.intent==='update'} open={entry.open} requestId={entry.requestId} intent={entry.intent} onProgress={setSyncProgress} onControls={setSyncControls} onStatus={setProviderStatus} developmentRecoveryCheckpoints={entry.development} onRequestSync={()=>{
       const current=activeEntry.current;
       if(!current?.open||current.intent!=='options'||!['backup','settings'].includes(current.destination)||current.destination!==entry.destination||current.requestId!==entry.requestId||syncLock.current)return;
@@ -109,7 +118,7 @@ export default function MobileApp() {
       setEntry(previous=>previous?{...previous,open:false}:null);if(result)setLastLoad(result);setFlightReload(value=>value+1);}}/>}</UpdateDialog>}
   </View></SafeAreaProvider>;
 }
-function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus,syncRunning=false,syncControls=null,syncProgress=idleSyncProgress}:{onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean,destination?:OptionsDestination)=>void;coreFlightsOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus;syncRunning?:boolean;syncControls?:SyncControls|null;syncProgress?:SyncProgressState}={}) {
+function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus,syncRunning=false,syncControls=null,syncProgress=idleSyncProgress}:{onDetailHttpPoc?:()=>void;onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean,destination?:OptionsDestination)=>void;coreFlightsOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus;syncRunning?:boolean;syncControls?:SyncControls|null;syncProgress?:SyncProgressState}={}) {
   const [tab, setTab] = useState<Tab>('home');
   const [statisticsContributors,setStatisticsContributors]=useState<ChartContributors|undefined>(undefined);
   const [statisticsChart,setStatisticsChart]=useState<ChartKind|undefined>(undefined);
@@ -364,7 +373,7 @@ function Shell({onCoreFlights=()=>{},coreFlightsOpen=false,flightReload=0,lastLo
         {(['diagnostics','development','credits'] as const).map(page => (sheet === page || overlayHistory.current.some(previous => previous.sheet === page)) && <KeyboardAvoidingView key={page} style={[{flex:1},sheet!==page&&s.hidden]} behavior={Platform.OS==='ios'?'padding':'height'} accessibilityElementsHidden={sheet!==page} importantForAccessibility={sheet===page?'auto':'no-hide-descendants'}>
           <ScrollView key={page} contentOffset={{x:0,y:overlayOffsets.current[page]??0}} onScroll={event=>{if(sheet===page)overlayOffsets.current[page]=event.nativeEvent.contentOffset.y;}} scrollEventThrottle={32} contentContainerStyle={[s.canvas,{width:'100%',maxWidth:600,alignSelf:'center'}]} keyboardShouldPersistTaps="handled">
           {page === 'diagnostics' && <Diagnostics />}
-          {page === 'development' && <DevelopmentHub onBusyChange={setScreenBusy} onDesignPreview={()=>openHeaderSheet('designPreview')} onPaper={openBooks} profileTools={<SyntheticProfileSettings displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />} onSelectBook={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => openHeaderSheet('flightLab')} onBooks={() => openHeaderSheet('bookLab')} onImportPreview={() => openHeaderSheet('importPreview')} onCoreFlights={()=>onCoreFlights('options',true,'sources')} />}
+          {page === 'development' && <DevelopmentHub onDetailHttpPoc={onDetailHttpPoc} onBusyChange={setScreenBusy} onDesignPreview={()=>openHeaderSheet('designPreview')} onPaper={openBooks} profileTools={<SyntheticProfileSettings displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />} onSelectBook={() => openHeaderSheet('selectBook')} onBackup={() => openHeaderSheet('backup')} onFlights={() => openHeaderSheet('flightLab')} onBooks={() => openHeaderSheet('bookLab')} onImportPreview={() => openHeaderSheet('importPreview')} onCoreFlights={()=>onCoreFlights('options',true,'sources')} />}
           {page === 'credits' && <AboutCredits />}
           </ScrollView>
         </KeyboardAvoidingView>)}

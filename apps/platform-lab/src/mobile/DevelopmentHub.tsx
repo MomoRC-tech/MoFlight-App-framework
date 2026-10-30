@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Action, Card, Label } from './theme';
 import { SettingsContentDisclosure, SettingsContentGroup, SettingsContentRow, settingsContentStyles } from './settings-secondary-content';
 
-export function DevelopmentHub({ onFlights, onBooks, onImportPreview, onCoreFlights, profileTools, onSelectBook, onBackup, onPaper, onDesignPreview, onBusyChange }: { onBusyChange?: (busy:boolean)=>void; onDesignPreview?: () => void; onPaper: () => void; profileTools?: React.ReactNode; onSelectBook: () => void; onBackup: () => void; onFlights: () => void; onBooks: () => void; onProvider?: () => void; onImportPreview: () => void; onCoreFlights: () => void }) {
+export function DevelopmentHub({ onDetailHttpPoc, onFlights, onBooks, onImportPreview, onCoreFlights, profileTools, onSelectBook, onBackup, onPaper, onDesignPreview, onBusyChange }: { onDetailHttpPoc?:()=>void; onBusyChange?: (busy:boolean)=>void; onDesignPreview?: () => void; onPaper: () => void; profileTools?: React.ReactNode; onSelectBook: () => void; onBackup: () => void; onFlights: () => void; onBooks: () => void; onProvider?: () => void; onImportPreview: () => void; onCoreFlights: () => void }) {
   const [targetProof,setTargetProof]=useState<string|null>(null),[proofBusy,setProofBusy]=useState(false);
   const running=useRef(false);
   const runTargetProof=async()=>{
@@ -31,6 +31,7 @@ export function DevelopmentHub({ onFlights, onBooks, onImportPreview, onCoreFlig
       </SettingsContentDisclosure>
     </SettingsContentGroup>
     <SettingsContentGroup title="Flüge & Import">
+      {onDetailHttpPoc && <SettingsContentRow testID="development-detail-http-poc" title="HTTP-Flugdetail vergleichen" summary="Ein eigenes Detail per HTTP und normaler Seite prüfen; getrennte lokale Testbelege. Unterbricht den Anbieter-Controller, ohne die Bibliothek zu ändern." onPress={onDetailHttpPoc} />}
       <SettingsContentRow testID="development-own-flight-library" title="Eigene Flugbibliothek" summary="Eigene Vereinsflieger-Flüge lokal prüfen, ausdrücklich ohne Buchzuordnung speichern und offline wieder öffnen. Bestehende Belege und Teststände bleiben getrennt." onPress={onCoreFlights} />
       <SettingsContentRow testID="development-import-preview" title="Synthetische Importvorschau" summary="Neue, geänderte und widersprüchliche Testflüge vergleichen und Buchvorschläge korrigieren. Getrennter Teststand ohne Änderungen an deiner Bibliothek." onPress={onImportPreview} />
       <SettingsContentRow testID="development-flight-lab" title="Datensätze & Flugworkflow" summary="Getrennte Datensätze A/B, vorbereitete CSV- und Papierdaten, Abgleich, Abfragen und ältere Schreibnachweise. Englische Lab-Oberfläche; keine Live-Importvorschau." onPress={onFlights} />

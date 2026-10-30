@@ -1,6 +1,7 @@
 """Keep check/exec commands from silently reinstalling native dependencies."""
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -23,7 +24,10 @@ class PnpmLayoutTests(unittest.TestCase):
                 target.write_text(value if isinstance(value, str) else json.dumps(value), encoding='utf-8')
             write('package.json', {'name': 'synthetic-root', 'private': True,
                                   'scripts': {'check': 'node witness.cjs'}})
-            write('pnpm-workspace.yaml', (ROOT / 'pnpm-workspace.yaml').read_text())
+            # Keep workspace/run settings, but exclude patches for tools this
+            # dependency-free fixture intentionally does not install.
+            workspace = (ROOT / 'pnpm-workspace.yaml').read_text()
+            write('pnpm-workspace.yaml', re.sub(r'(?m)^patchedDependencies:\n(?:[ \t].*\n)*', '', workspace))
             for name in ['flight-logbook', 'local-data']:
                 write(f'packages/{name}/package.json', {'name': '@moflight/' + name,
                       'version': '1.0.0', 'main': 'index.js'})

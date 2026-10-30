@@ -1,0 +1,25 @@
+# Mobile own-flight detail HTTP PoC — 30 October 2026
+
+M2 / R10/R12 / FL-03 / E07, [#10](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/10), following the owner's approval to test one detail behind the existing provider boundary. [Desktop discovery and high-level learning](../../pocs/vereinsflieger-api-anything/README.md) supply the request/reader evidence; API Anything remains a development dependency.
+
+## Implemented boundary
+
+Open **Profil → Entwicklung → HTTP-Flugdetail vergleichen**. Opening this tool first asks the existing provider controller to release its idle browser, then unmounts that controller. Active Sync, account changes, storage, information requests and activity checks prevent release. The main Shell and its drafts remain mounted. Closing remounts the ordinary controller against its existing persisted store; cookies, saved credentials, flight library and books are not cleared.
+
+The explicit live action loads the protected profile, checks any already confirmed provider account, and requires confirmation of the observed account/club. Same-origin WebView `fetch` then reads a fresh profile, the visible own-flight list, its first valid observed detail reference, and a final profile. All requests are GET with same-origin credentials, no-store and rejected redirects. Cookies stay inside the WebView. Exact URL/content-type, byte/charset bounds, login forms, list structure, account/club and a 10-second script deadline guard the operation. The existing allowlisted detail reader parses an inert document; billing sections remain excluded. No caller-supplied ID, guessed ID, Node API, API Anything runtime, cookie bridge or native HTTP library is introduced.
+
+Normal detail navigation reads the same reference with the original reader, then a fresh protected profile must confirm the account again before comparison completes. Exact and whitespace-normalized comparisons are distinct; original observations are retained. Native nonce/origin/document guards, foreground ownership, per-navigation epochs, cancellation and watchdog renderer revocation reject stale work. Failures preserve accepted earlier observations and saved library data. Persistence failures are displayed explicitly.
+
+Append-only raw trial evidence is isolated in the app-private SQLite file `vereinsflieger-detail-http-poc-<SHA256-local-owner>.sqlite`, scoped by the local owner and separate from the library and book schemas. It can contain the observed account/club and allowlisted flight fields; it is not exported to logs/GitHub. Synthetic results alone are logged with a fixed prefix for local verification. No secret or personal fixture is committed.
+
+## Verification and acceptance
+
+Windows x64, Node 24.18.0 / pnpm 11.25.0. Nine focused host tests pass, covering two accounts/changed clubs, final account confirmation, origin/document/nonce rejection, cancellation/retry, timeouts, failed navigation, missing anchors, evidence-write failures, field differences and guarded GET execution. The local real Chromium DOMParser/Response fixture passes 13 scenarios: success, foreign account before/after, changed club, login at 200, network error, redirect, MIME, size, charset, foreign link, missing list and cancellation. This fixture replaces network fetch and does not prove live cookie/session behavior. An initial optional desktop fixture launcher used the wrong installed module name (`playwright`); using the already installed `playwright-core` resolved it without adding dependencies.
+
+The first broad check exposed missing new-screen leaves in the navigation mock and a pre-existing fixture that copied project-tool patch declarations into a dependency-free workspace. The updated navigation mock adds a real root-release/retained-Shell regression; the dependency fixture excludes unused tool patches while retaining workspace/run settings. The focused 67 TypeScript and two Python tests pass.
+
+`pnpm check` passes all five host groups (types, lint, mobile tests, Python tests and fixture parity); logs: ignored `build/host-checks/20261030T124115Z-902da955/`. Android/iOS production JS exports pass (`pnpm bundle`); export is not native iOS acceptance. Focused type/navigation/lint checks also cover the final owner-scoped evidence wiring. Android committed-source Release and native synthetic/live observations are recorded below as they finish. iOS and physical-phone acceptance are not tested. This is a development PoC, not production Sync transport acceptance or a complete-history importer. Requested date windows, paging/empty views, real expiry/renewal and independent native HTTP session handling remain separate gates.
+
+## Timing interpretation
+
+HTTP detail fetch/parse, the HTTP sequence including account/list checks, and top-level navigation/reader including renderer creation have separate boundaries. A single comparison cannot establish a speedup. All gathered emulator timings, including failures/interruption and synthetic observations, belong in the [performance ledger](performance/README.md) under #90; no unmatched values are promoted to a performance claim.

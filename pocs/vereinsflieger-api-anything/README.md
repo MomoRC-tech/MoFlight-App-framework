@@ -130,3 +130,7 @@ Use high-level `learn` for orchestration, with independently verified extraction
 ## Rollback
 
 Remove/disable only `[mcp_servers.moflight_api_anything]` in project config and restart the session. Preserve private captures, profile and sessions. If abandoning the tool, remove its package, workspace entry, sandbox patch/mapping and root convenience scripts through a reviewed change and regenerate the pnpm lockfile. No global agent configuration was changed.
+
+## Mobile one-detail continuation
+
+The owner-approved [isolated mobile HTTP PoC](../../docs/verification/2026-10-30-mobile-detail-http-poc.md) reuses this request knowledge and the existing app readers. It uses same-origin fetch in the authenticated WebView with account checks and compares one freshly observed own detail against normal navigation. API Anything stays development-only; native/live and timing limits are explicit in that report.
