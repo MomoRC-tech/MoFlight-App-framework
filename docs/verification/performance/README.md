@@ -2,7 +2,7 @@
 
 Maintained under [#90](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/90), with #41 owning Sync investigation and #45 Start/tab/resume responsiveness. Manuel requested permanent tracking on 29 October 2026. This is the single index for recorded runtime timings; package reports retain their source-specific methods and acceptance evidence.
 
-The ledger currently stores **137 run groups, 834 sample/observation records and 31,740 numeric values**, including elapsed durations, inclusive stages, counters, timing offsets and available render proxies. Records include supporting host runs and derived event/prediction observations; this count is not a number of independent device trials. [Complete sample history](history.md) · [Machine-readable ledger](ledger.json) · [All numeric values (CSV)](measurements.csv).
+The ledger currently stores **140 run groups, 1246 sample/observation records and 38,684 numeric values**, including elapsed durations, inclusive stages, counters, timing offsets and available render proxies. Records include supporting host runs and derived event/prediction observations; this count is not a number of independent device trials. [Complete sample history](history.md) · [Machine-readable ledger](ledger.json) · [All numeric values (CSV)](measurements.csv).
 
 ## Phone and other supplied Android observations
 
@@ -28,6 +28,7 @@ Only the explicitly identified Pixel 6a session is labelled phone. Other supplie
 | [replay-27oct](history.md#replay-27oct-baseline) / unchanged | `35c0dc5` | `d986ac1` | 5 / 5 | 9,007.719 (7,890.5–11,413.225) | 7,044.179 (6,838.538–7,485.004) | -21.8% |
 | [replay-27oct](history.md#replay-27oct-baseline) / changed | `35c0dc5` | `d986ac1` | 5 / 5 | 8,055.743 (7,944.196–8,720.122) | 6,917.657 (6,693.297–7,136.587) | -14.1% |
 | [replay-27oct](history.md#replay-27oct-baseline) / reopened | `35c0dc5` | `d986ac1` | 5 / 5 | 1,181.764 (1,117.969–1,191.279) | 1,054.728 (1,041.164–1,063.733) | -10.7% |
+| [sync-verify-30oct](history.md#sync-verification-control-30oct-e4fb675) / local-update | `e4fb675` | `e4fb675` | 5 / 5 | 11,766.629 (11,453.413–13,866.127) | 6,620.564 (6,546.647–7,379.835) | -43.7% |
 
 These percentages belong to separate experiments; do not add them or treat all baselines as successive releases of one workload. The older constant-lease detail proof missed a production lifecycle regression and remains historical synthetic evidence. Its corrected registry proof is a separate experiment, not a speed regression. Layout effects and animation-frame callbacks are render proxies, not proof of presented pixels. Host results are separately indexed and never mixed with device charts.
 

@@ -15,6 +15,7 @@
 | How do we build and check it? | [Lab runbook](../apps/platform-lab/README.md), [verification workflow](development/verification-workflow.md) |
 | How do we investigate provider requests with API Anything? | [Project-local tooling, high-level learning and guarded request discovery](../pocs/vereinsflieger-api-anything/README.md) — #10; remaining date/paging/account/platform gates explicit |
 | How has phone/emulator performance changed? | [Maintained performance charts, complete samples and append protocol](verification/performance/README.md) — #90 |
+| Which Sync runtime checks are required, reusable or candidates for removal? | [36-family runtime verification review and native comparison](verification/2026-10-30-sync-verification-review.md) — #113; owner-phone acceptance remains open |
 | What was actually verified? | [Acceptance map](project-plan.md#21-acceptance-traceability), [modern main delivery](verification/2026-10-22-alternative-ui.md#main-adoption-and-documentation-reconciliation) |
 | Where are past plans and rejected designs? | [Archive](archive/README.md) |
 

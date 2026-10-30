@@ -226,7 +226,7 @@ The approved staged own-flight migration [#112](https://github.com/MomoRC-tech/M
 
 ## Runnable first milestone
 
-The approved [Sync verification optimization and runtime-check review](docs/verification/2026-10-30-sync-verification-review.md) under [#113](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/113) replaces repeated validation of identical history/command content with bounded reuse during one Sync. Fresh ownership, actual database reads, recovery and post-write verification remain. Native matched measurements and final package acceptance are pending at this source checkpoint; no phone speedup is claimed.
+The [Sync verification optimization and 36-family runtime-check review](docs/verification/2026-10-30-sync-verification-review.md) under [#113](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/113) replaces repeated validation of identical history/command content with bounded reuse during one Sync. Fresh ownership, database reads, recovery and post-write verification remain. Five matched native synthetic pairs reduce median local processing from 11.77 to 6.62 seconds (43.7% less elapsed), with identical final records/receipts. [Android update ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-sync-verification-2026-10-30-7d3d700/MoFlight-Sync-Verification-7d3d700.zip), actual source `7d3d700`, adds obsolete-timing-hint invalidation to the measured pipeline and passes its targeted compatibility/export/native checks. Actual phone ordinary Sync/offline acceptance and iOS remain pending; this is not a measured whole-Sync phone speedup.
 
 ```bash
 npm install --global pnpm@11.25.0
