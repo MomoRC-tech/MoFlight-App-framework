@@ -1,0 +1,202 @@
+{
+  "date": "2026-10-30",
+  "milestone": "M4/E1/E4",
+  "issue": 101,
+  "application_source": "d389d6914370d08e54eb63c8903aaf0aa38cefe7",
+  "apk_sha256": "f975256f95cf8ee718f41a9e299d2e9c810dbf03866a8ee03702ae97bc6b6d0d",
+  "configuration": "development-signed Release",
+  "device": {
+    "avd": "MoFlight_API37",
+    "model": "sdk_gphone64_x86_64",
+    "api": 37,
+    "abi": "x86_64",
+    "physical_pixels": [
+      1080,
+      1920
+    ],
+    "active_override_pixels": [
+      480,
+      800
+    ],
+    "physical_density_dpi": 420,
+    "active_density_dpi": 160,
+    "logical_dp": [
+      480,
+      800
+    ],
+    "font_scale": 1,
+    "theme": "dark"
+  },
+  "capture": {
+    "outcome": "passed",
+    "native_saved_receipts": 1,
+    "before_list_detail_after_profile_guards": true,
+    "actual_native_owner_lease_and_provider_scope": true,
+    "exact_acknowledged_disk_receipt_verified": true,
+    "coverage": "single-flight raw observation",
+    "pdf_used": false,
+    "desktop_source_rows_in_selected_month": 13,
+    "desktop_reference_fee_lines": 2
+  },
+  "offline": {
+    "outcome": "passed",
+    "fresh_process": true,
+    "same_billed_checksum_verified": true,
+    "receipts": 1,
+    "before": {
+      "size": "Physical size: 1080x1920\nOverride size: 480x800",
+      "density": "Physical density: 420\nOverride density: 160",
+      "font_scale": "1.0",
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "after": {
+      "size": "Physical size: 1080x1920\nOverride size: 480x800",
+      "density": "Physical density: 420\nOverride density: 160",
+      "font_scale": "1.0",
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0"
+    },
+    "source_inputs_empty_after_restart": true
+  },
+  "preservation": {
+    "original_apk_copied": true,
+    "install_r": true,
+    "first_install_time_preserved": true,
+    "data_cleared": false,
+    "original_native_period": "last-20-flights",
+    "native_period_restored": true,
+    "desktop_active_and_saved_view_restored": true,
+    "initial_unused_datepicker_draft_difference_recorded": true,
+    "final_desktop_draft_matches_new_baseline": true,
+    "source_record_edits": false,
+    "provider_session_retained": true,
+    "radio_display_font_restored": true,
+    "full_original_database_byte_comparison": false,
+    "final_desktop_all_controls_match_baseline": true
+  },
+  "credentials": {
+    "existing_dpapi_record_used": true,
+    "native_original_form_login_succeeded": true,
+    "protected_profile_matched_existing_local_binding": true,
+    "password_privately_verified_exactly": true,
+    "login_name_automatic_capitalization_observed": true,
+    "credential_values_in_evidence": false,
+    "new_native_saved_credential_created": false,
+    "consumer_limits": [
+      "One authorized desktop Windows user/native emulator consumer only",
+      "Inherited OS environment metadata needed repair in one-off consumer",
+      "Clipboard/Unicode paste did not populate fields; public probes then direct native key events used",
+      "One empty-form local validation alert; one populated original login accepted",
+      "No credentials were retained in screenshots/logs/command text"
+    ]
+  },
+  "host": {
+    "focused_passes": 132,
+    "complete_groups_passed": 5,
+    "complete_groups_total": 5,
+    "mobile_passes": 1981,
+    "mobile_skips": 2,
+    "python_tests": 158,
+    "python_skips": 16,
+    "report": "build/host-checks/20261030T171225Z-58a30e91/report.json",
+    "android_and_ios_exports": true
+  },
+  "measurements": [
+    {
+      "id": "capture-1",
+      "metric": "financial-capture",
+      "milliseconds": 5776.673400076106,
+      "outcome": "failed",
+      "observer_polls": 1,
+      "note": "Initial unconfirmed native action with expired session; no receipt accepted"
+    },
+    {
+      "id": "capture-2",
+      "metric": "financial-capture-observer",
+      "milliseconds": 39932.23039992154,
+      "outcome": "failed",
+      "observer_polls": 0,
+      "note": "Observer did not find enabled target; source action not established"
+    },
+    {
+      "id": "capture-3",
+      "metric": "financial-capture",
+      "milliseconds": 7449.216699926183,
+      "outcome": "failed",
+      "observer_polls": 1,
+      "note": "Safe refusal before native June source selection; no receipt accepted"
+    },
+    {
+      "id": "capture-4",
+      "metric": "financial-capture",
+      "milliseconds": 22290.58640007861,
+      "outcome": "success",
+      "observer_polls": 6,
+      "note": "Real billed HTML/native owner-controller/SQLite exact receipt readback"
+    },
+    {
+      "id": "offline-reopen",
+      "metric": "financial-offline-reopen",
+      "milliseconds": 75218.33870001137,
+      "outcome": "failed",
+      "observer_polls": null,
+      "note": "Observer stopped at clipped/unstable disclosure; radios restored"
+    },
+    {
+      "id": "offline-reopen-2",
+      "metric": "financial-offline-reopen",
+      "milliseconds": 57757.39639997482,
+      "outcome": "failed",
+      "observer_polls": null,
+      "note": "Observer did not establish expanded tool/readback; radios restored"
+    },
+    {
+      "id": "offline-reopen-3",
+      "metric": "financial-offline-reopen",
+      "milliseconds": 84384.14420001209,
+      "outcome": "success",
+      "observer_polls": null,
+      "note": "Fresh process, fully offline exact receipt checksum readback"
+    }
+  ],
+  "measurement_limits": [
+    "Host-observed inclusive UI experiment durations, not pure network/collector/SQLite latency",
+    "Scroll, waits, dumps, taps, app startup/navigation and polling are included as applicable",
+    "Failed observer attempts remain separate; no baseline/speedup claim",
+    "Untimed menu/credential/selector corrections remain in report rather than fabricated zero-duration samples"
+  ],
+  "publication": {
+    "zip_sha256": "844f31475f8b774fe7daf326b6ef769e83d2076b12d4d8d85c7e8478de3ef5bb",
+    "apk_sha256": "f975256f95cf8ee718f41a9e299d2e9c810dbf03866a8ee03702ae97bc6b6d0d",
+    "source_commit": "d389d6914370d08e54eb63c8903aaf0aa38cefe7",
+    "download_verified": true,
+    "url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-financial-live-capture-2026-10-30-d389d69/MoFlight-Financial-Live-d389d69.zip"
+  },
+  "remaining": [
+    "E2 source authority/liability/date/allowance/revision mapping and production projection",
+    "Reviewed E3 expense UI and ordinary financial Sync flow",
+    "Native second/foreign account, lifecycle failure and larger-source coverage",
+    "Actual financial SAF/aggregate full-user restore/update",
+    "Physical phone and iOS runtime",
+    "Development/provider overlay accessibility scoping and stable test targeting"
+  ],
+  "cleanup": {
+    "provider_avd_retained_running": true,
+    "actual_installed_apk_matches_source_d389d69": true,
+    "radios_display_font_match_original": true,
+    "original_install_identity_preserved": true,
+    "emulator_reset": false,
+    "own_mirror_stopped": true
+  },
+  "performance_ledger": {
+    "baseline_groups_preserved_by_id_and_content": 135,
+    "own_groups_added": 2,
+    "own_samples_added": 7
+  },
+  "source_limits": [
+    "The financial proof APK predates later #113 Sync validation changes at e4fb675; it is not a claim of testing that later source"
+  ]
+}

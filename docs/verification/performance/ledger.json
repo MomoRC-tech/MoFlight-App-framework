@@ -9512,7 +9512,7 @@
       "kind": "emulator-live",
       "source_commit": "256aa3f",
       "apk_sha256": "d5927b0ac986be404ec1591b9f52fdfbc39317c7a750e569de408aaa922def61",
-      "device": "MoFlight_API37 retained-session overlay;390×900dp/density160/font1",
+      "device": "MoFlight_API37 retained-session overlay;390Ã—900dp/density160/font1",
       "input": "Authorized own-flight/selected optional-source windows; size not recorded",
       "conditions": "Same process, normal header Sync",
       "method": "Native harness observed completed UI; includes polling/observer delay",
@@ -21816,7 +21816,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "597712b375145e64feba8f69c1f61c23c434d8d0",
       "apk_sha256": "67e07015ca6c998b6277d6cc17ab22a28baf0e6199cbe16bca3ce922e9388f7f",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; fixture/receipts documented in evidence",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Five independently cloned identical seed databases per scenario; baseline then candidate; native SQLite and final recovery read included; setup/final graph check excluded",
@@ -25659,7 +25659,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "d6f61ccb488be9c8671b175ed9aee16261b70487",
       "apk_sha256": "bf53c236343b77ad2191de355cfc1b1ea2e18ceb448d5001d88f6710562a63c7",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; fixture/receipts documented in evidence",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Five independently cloned identical seed databases per scenario; baseline then candidate; native SQLite and final recovery read included; setup/final graph check excluded",
@@ -25933,7 +25933,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "d6f61ccb488be9c8671b175ed9aee16261b70487",
       "apk_sha256": null,
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; fixture/receipts documented in evidence",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Actual reducer/learner replay of measured native local stages. retrieval-review maps to review; save plus durable stored readback maps to save; reopened readback maps to prepare. Only these nonoverlapping local windows are modeled. Provider network, user login/setup and optional sources are absent; operation recovery/other gaps remain separately unmodeled. First three chronological trials train frozen per-stage medians; later trials are held out and never learned. Synthetic-AVD local-stage evidence does not establish physical-phone or full real Sync prediction accuracy.",
@@ -26507,7 +26507,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "9eccbf7082ca2a4a4217c4233d8ad961e782550d",
       "apk_sha256": "110b61938aa5e9851fcd547144238a560619b399eabd8f7424116d6755dae76f",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; seed process; complete details matched",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Five paired fresh/retained detail read paths; render commit and next frame callback are separate proxies",
@@ -26590,7 +26590,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "9eccbf7082ca2a4a4217c4233d8ad961e782550d",
       "apk_sha256": "110b61938aa5e9851fcd547144238a560619b399eabd8f7424116d6755dae76f",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; seed process; complete details matched",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Five paired fresh/retained detail read paths; render commit and next frame callback are separate proxies",
@@ -26678,7 +26678,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "9eccbf7082ca2a4a4217c4233d8ad961e782550d",
       "apk_sha256": "110b61938aa5e9851fcd547144238a560619b399eabd8f7424116d6755dae76f",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; reopen process; complete details matched",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Five paired fresh/retained detail read paths; render commit and next frame callback are separate proxies",
@@ -26761,7 +26761,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "9eccbf7082ca2a4a4217c4233d8ad961e782550d",
       "apk_sha256": "110b61938aa5e9851fcd547144238a560619b399eabd8f7424116d6755dae76f",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; reopen process; complete details matched",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Five paired fresh/retained detail read paths; render commit and next frame callback are separate proxies",
@@ -27607,7 +27607,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "78748e15ec78646857d42d8ff3c8e9f7fe9d6227",
       "apk_sha256": "dde2d8f840054db40402e975d872c1fd86dda65969d3f3c772290c5eb4b4a2aa",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; seed process; complete details matched",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Five paired fresh/retained detail read paths; render commit and next frame callback are separate proxies",
@@ -27688,7 +27688,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "78748e15ec78646857d42d8ff3c8e9f7fe9d6227",
       "apk_sha256": "dde2d8f840054db40402e975d872c1fd86dda65969d3f3c772290c5eb4b4a2aa",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; seed process; complete details matched",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Five paired fresh/retained detail read paths; render commit and next frame callback are separate proxies",
@@ -27774,7 +27774,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "78748e15ec78646857d42d8ff3c8e9f7fe9d6227",
       "apk_sha256": "dde2d8f840054db40402e975d872c1fd86dda65969d3f3c772290c5eb4b4a2aa",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; reopen process; complete details matched",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Five paired fresh/retained detail read paths; render commit and next frame callback are separate proxies",
@@ -27855,7 +27855,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "78748e15ec78646857d42d8ff3c8e9f7fe9d6227",
       "apk_sha256": "dde2d8f840054db40402e975d872c1fd86dda65969d3f3c772290c5eb4b4a2aa",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; reopen process; complete details matched",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Five paired fresh/retained detail read paths; render commit and next frame callback are separate proxies",
@@ -28987,7 +28987,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "35c0dc52868779cb8027587f27e751d7acfb10a4",
       "apk_sha256": "5c7a77f42bc31ce4a42399033638d2a9d53ce6d18a8efc3b2700e10b08f4c90c",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; fixture/receipts documented in evidence",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Same committed harness, five independent identical seed clones per scenario; includes recovery read, excludes clone setup/final graph verification; sequential process order",
@@ -29335,7 +29335,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "d986ac1435b82ada5d0c406ca4e09689058e7fec",
       "apk_sha256": "8032d98bf22d1410ea4fbc680ebd9d55eafaf75c18d92f5d40a461fbee0617bf",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "101 synthetic flights; fixture/receipts documented in evidence",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Same committed harness, five independent identical seed clones per scenario; includes recovery read, excludes clone setup/final graph verification; sequential process order",
@@ -31078,7 +31078,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "814305e3c4f1a2dbb46f30ce4ca7311a2f165a3e",
       "apk_sha256": "4e5c79f7111aa62125683098e82d3bc554ad2e5a3af26fb1de00351eb464c8f3",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "Existing local owner; empty flight graph; no seeding",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Tap-to-accessibility observation with ADB dump/polling/scheduling overhead",
@@ -31140,7 +31140,7 @@
       "kind": "emulator-synthetic",
       "source_commit": "53549c4931c8308b29de9f55eb9f6f7eb0682d86",
       "apk_sha256": "bbdff6222b578f73dad67855b4a46314d48ea08a8527144e30774c9c749cc9e1",
-      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080×1920px, 420dpi, font 1.0",
+      "device": "Android API 37 / x86_64 / Hermes / native SQLite; 1080Ã—1920px, 420dpi, font 1.0",
       "input": "Existing local owner; empty flight graph; no seeding",
       "conditions": "Offline synthetic native proof; no provider requests",
       "method": "Tap-to-accessibility observation with ADB dump/polling/scheduling overhead",
@@ -35624,7 +35624,7 @@
       "source_commit": "58851de4d3de01539384d7e08163e736cce1022b",
       "apk_sha256": "351fa60bdef8a72fb5e290ca9a5f98e7ecf401143f5ba713d301e9d9478e2022",
       "device": "MoFlight_Synthetic_API37; Android API37 x86_64; 1080x1920 px, density420, font scale 1.0",
-      "input": "Existing synthetic app state; no flight/content values read; pre-launch page Flüge/Statistik; package de.momorc.moflight.lab",
+      "input": "Existing synthetic app state; no flight/content values read; pre-launch page FlÃ¼ge/Statistik; package de.momorc.moflight.lab",
       "conditions": "Wi-Fi off, mobile data off, airplane mode on; first app activity launch after explicit no-snapshot emulator cold boot; foreground launch via ADB",
       "method": "Android ActivityManager am start -W for MainActivity; reported TotalTime=534 ms and WaitTime=542 ms. TotalTime is the sample; WaitTime is retained separately.",
       "limits": [
@@ -40480,6 +40480,117 @@
             "report.transitions.5.occurrences": 1,
             "report.transitions.6.occurrences": 1,
             "report.transitions.7.occurrences": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "financial-live-capture-30oct-65e4bfd",
+      "recorded_date": "2026-10-30",
+      "kind": "emulator-live",
+      "source_commit": "65e4bfd6c774714b147433921998da4afaedd7f2",
+      "apk_sha256": "ed41d51292796d9288eb678f2b9532a12359f1a1d5e41c93dadd3df14e771b79",
+      "device": "MoFlight_API37 / sdk_gphone64_x86_64 / Android API37 x86_64; physical1080x1920 density420, active480x800 override density160, actual480x800dp/font1/dark",
+      "input": "One own billed flight; desktop reference has two fee lines. Financial store initially absent, one native receipt after successful capture. Existing101-flight library preserved. Single source only.",
+      "conditions": "Retained provider emulator and selected native owner; online capture. Restart/read trials disable airplane/wifi/data to1/0/0; every attempt restores original0/1/1 and original active display/font. Host UI observer overhead included.",
+      "method": "Host time.perf_counter from action search/tap to observed result, or from force-stop to local-read result after new process/navigation. Dump/scroll/tap/wait overhead included; failed attempts can stop before a collector request. Stages are not disjoint or interchangeable.",
+      "limits": [
+        "Host-observed inclusive UI experiment durations, not pure network/collector/SQLite latency",
+        "Scroll, waits, dumps, taps, app startup/navigation and polling are included as applicable",
+        "Failed observer attempts remain separate; no baseline/speedup claim",
+        "Untimed menu/credential/selector corrections remain in report rather than fabricated zero-duration samples",
+        "No controlled comparison, phone/iOS, complete history or pure collector latency acceptance."
+      ],
+      "evidence": [
+        "docs/verification/2026-10-28-expense-source-contract.md#actual-native-billed-capture-and-offline-reopen--30-october-2026",
+        "docs/verification/2026-10-30-financial-live-capture.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "capture-1",
+          "metric": "financial-capture",
+          "milliseconds": 5776.673400076106,
+          "outcome": "failed",
+          "details": {
+            "observer_polls": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "financial-live-capture-30oct-d389d69",
+      "recorded_date": "2026-10-30",
+      "kind": "emulator-live",
+      "source_commit": "d389d6914370d08e54eb63c8903aaf0aa38cefe7",
+      "apk_sha256": "f975256f95cf8ee718f41a9e299d2e9c810dbf03866a8ee03702ae97bc6b6d0d",
+      "device": "MoFlight_API37 / sdk_gphone64_x86_64 / Android API37 x86_64; physical1080x1920 density420, active480x800 override density160, actual480x800dp/font1/dark",
+      "input": "One own billed flight; desktop reference has two fee lines. Financial store initially absent, one native receipt after successful capture. Existing101-flight library preserved. Single source only.",
+      "conditions": "Retained provider emulator and selected native owner; online capture. Restart/read trials disable airplane/wifi/data to1/0/0; every attempt restores original0/1/1 and original active display/font. Host UI observer overhead included.",
+      "method": "Host time.perf_counter from action search/tap to observed result, or from force-stop to local-read result after new process/navigation. Dump/scroll/tap/wait overhead included; failed attempts can stop before a collector request. Stages are not disjoint or interchangeable.",
+      "limits": [
+        "Host-observed inclusive UI experiment durations, not pure network/collector/SQLite latency",
+        "Scroll, waits, dumps, taps, app startup/navigation and polling are included as applicable",
+        "Failed observer attempts remain separate; no baseline/speedup claim",
+        "Untimed menu/credential/selector corrections remain in report rather than fabricated zero-duration samples",
+        "No controlled comparison, phone/iOS, complete history or pure collector latency acceptance."
+      ],
+      "evidence": [
+        "docs/verification/2026-10-28-expense-source-contract.md#actual-native-billed-capture-and-offline-reopen--30-october-2026",
+        "docs/verification/2026-10-30-financial-live-capture.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "capture-2",
+          "metric": "financial-capture-observer",
+          "milliseconds": 39932.23039992154,
+          "outcome": "failed",
+          "details": {
+            "observer_polls": 0
+          }
+        },
+        {
+          "id": "capture-3",
+          "metric": "financial-capture",
+          "milliseconds": 7449.216699926183,
+          "outcome": "failed",
+          "details": {
+            "observer_polls": 1
+          }
+        },
+        {
+          "id": "capture-4",
+          "metric": "financial-capture",
+          "milliseconds": 22290.58640007861,
+          "outcome": "success",
+          "details": {
+            "observer_polls": 6,
+            "receipt_count": 1,
+            "desktop_reference_fee_line_count": 2
+          }
+        },
+        {
+          "id": "offline-reopen",
+          "metric": "financial-offline-reopen",
+          "milliseconds": 75218.33870001137,
+          "outcome": "failed",
+          "details": {}
+        },
+        {
+          "id": "offline-reopen-2",
+          "metric": "financial-offline-reopen",
+          "milliseconds": 57757.39639997482,
+          "outcome": "failed",
+          "details": {}
+        },
+        {
+          "id": "offline-reopen-3",
+          "metric": "financial-offline-reopen",
+          "milliseconds": 84384.14420001209,
+          "outcome": "success",
+          "details": {
+            "receipt_count": 1
           }
         }
       ]
