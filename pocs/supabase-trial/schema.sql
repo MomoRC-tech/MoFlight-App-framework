@@ -14,13 +14,49 @@ CREATE TABLE public.mf_trial_flights (
   PRIMARY KEY (owner,id),
   FOREIGN KEY (owner,dataset_id) REFERENCES public.mf_trial_datasets(owner,id) ON DELETE CASCADE
 );
+-- These profile/settings and learning-attempt rows exist only inside a run's
+-- synthetic dataset. This is not a production account or profile schema.
+CREATE TABLE public.mf_trial_profile_settings (
+  owner uuid NOT NULL DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE,
+  dataset_id uuid NOT NULL,
+  label text NOT NULL CHECK (label ~ '^Synthetic [A-Za-z0-9 ]{1,40}$'),
+  settings jsonb NOT NULL CHECK (
+    jsonb_typeof(settings)='object'
+    AND settings @> '{"synthetic":true}'::jsonb
+    AND octet_length(settings::text)<=2048
+  ),
+  PRIMARY KEY (owner,dataset_id),
+  FOREIGN KEY (owner,dataset_id) REFERENCES public.mf_trial_datasets(owner,id) ON DELETE CASCADE
+);
+CREATE TABLE public.mf_trial_learning_attempts (
+  owner uuid NOT NULL DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE,
+  dataset_id uuid NOT NULL,
+  id uuid NOT NULL,
+  format_version smallint NOT NULL CHECK (format_version=1),
+  payload jsonb NOT NULL CHECK (
+    jsonb_typeof(payload)='object'
+    AND payload @> '{"synthetic":true}'::jsonb
+    AND (payload->'formatVersion') IS NOT DISTINCT FROM to_jsonb(format_version)
+    AND octet_length(payload::text)<=4096
+  ),
+  PRIMARY KEY (owner,dataset_id,id),
+  FOREIGN KEY (owner,dataset_id) REFERENCES public.mf_trial_datasets(owner,id) ON DELETE CASCADE
+);
 ALTER TABLE public.mf_trial_datasets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.mf_trial_flights ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON public.mf_trial_datasets, public.mf_trial_flights FROM anon, authenticated;
-GRANT SELECT,INSERT,UPDATE,DELETE ON public.mf_trial_datasets, public.mf_trial_flights TO authenticated;
+ALTER TABLE public.mf_trial_profile_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.mf_trial_learning_attempts ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.mf_trial_datasets, public.mf_trial_flights,
+  public.mf_trial_profile_settings, public.mf_trial_learning_attempts FROM anon, authenticated;
+GRANT SELECT,INSERT,UPDATE,DELETE ON public.mf_trial_datasets, public.mf_trial_flights,
+  public.mf_trial_profile_settings, public.mf_trial_learning_attempts TO authenticated;
 CREATE POLICY mf_trial_dataset_owner ON public.mf_trial_datasets TO authenticated
   USING ((SELECT auth.uid())=owner) WITH CHECK ((SELECT auth.uid())=owner);
 CREATE POLICY mf_trial_flight_owner ON public.mf_trial_flights TO authenticated
+  USING ((SELECT auth.uid())=owner) WITH CHECK ((SELECT auth.uid())=owner);
+CREATE POLICY mf_trial_profile_settings_owner ON public.mf_trial_profile_settings TO authenticated
+  USING ((SELECT auth.uid())=owner) WITH CHECK ((SELECT auth.uid())=owner);
+CREATE POLICY mf_trial_learning_attempt_owner ON public.mf_trial_learning_attempts TO authenticated
   USING ((SELECT auth.uid())=owner) WITH CHECK ((SELECT auth.uid())=owner);
 
 -- Server command derives identity from the verified request JWT; no owner argument.

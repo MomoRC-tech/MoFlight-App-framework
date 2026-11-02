@@ -3,6 +3,7 @@
 - Date: 2026-10-08
 - Status: Accepted for initial backend provider/hosting only; detailed sync implementation remains proposed
 - Decision owner: Manuel Singer
+- Amendment: 2026-11-02 — owner confirmed a single MoFlight app; cross-app identity/session requirements are retired for the current trial
 - Tracking: [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5)
 - Evidence: [Complete backend comparison](../architecture/low-usage-backend-comparison.md), [logbook user stories](../product/flight-logbook-user-stories.md)
 
@@ -20,7 +21,7 @@ Manuel instructed on 2026-10-08 to prefer initial phone-local user storage if si
 
 ## Accepted provider/hosting decision
 
-Use **Supabase Cloud Free** for the first bounded backend trial: Supabase Auth, Postgres with tested RLS, private Storage and authenticated server functions. Shared backend identity supports both apps, with separate app sessions. Keep schema, grants, RLS and functions versioned in this repository.
+Use **Supabase Cloud Free** for the first bounded backend trial: Supabase Auth, Postgres with tested RLS, private Storage and authenticated server functions. Under the 2 November scope amendment, MoFlight is the single product app; two synthetic users/sessions remain necessary to test isolation. The earlier requirement for identity/session sharing across two product apps is superseded. Keep schema, grants, RLS and functions versioned in this repository. This amendment does not approve provisioning, spending or production deployment.
 
 Self-hosted Supabase is a possible later migration, preferably assessed on the NUC. Do not deploy on the NUC or Home Assistant Pi now. No Supabase Pro subscription, PowerSync deployment or Convex/Firebase implementation is selected for the first trial.
 
