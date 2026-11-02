@@ -1,0 +1,12 @@
+{
+  "source_commit": "8ca43fcf8b435d43683bc7d210380e2595e6a82f",
+  "apk_sha256": "8bfd6ade843ea286630afc91771606c86065d9ad37580f88bc496134339e0542",
+  "zip_sha256": "4851856528e458f0711b3db2fd014cdad5b305e1683cf6892d46483861ed1353",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "release_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-modern-charts-2026-11-02-8ca43fc"
+}

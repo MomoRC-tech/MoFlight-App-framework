@@ -50835,6 +50835,93 @@
           }
         }
       ]
+    },
+    {
+      "id": "modern-charts-20261102-main",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "f6825aa98474a9d4140aa97b0764a3c5c1fe5304",
+      "apk_sha256": "e3581c13c432d3804cb5aff4c7fff38665c7b112de3d91e2ed5bb72f7b88cf6c",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; MAIN390x900/font1, MIN360x900/font1.6, WIDE800x600/font1; density160",
+      "input": "Fictional nonpersisting flight/role/financial previews only.",
+      "conditions": "Verified installed Release; offline and installation/display/network restored.",
+      "method": "Controller active elapsed including model deliberation, ADB, waiting and observer overhead.",
+      "limits": "Tooling wall-clock, not app latency or controlled speed comparison. First native defects/blocked MIN are retained; final focused case verifies selected precondition and Back. Horizontal Costs month strip is intentional; Nov/Dec scrolling itself not exercised.",
+      "evidence": [
+        "docs/verification/2026-11-02-modern-charts-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 212516.00000006147,
+          "outcome": "failed",
+          "details": {
+            "actions": 35,
+            "captures": 7,
+            "action_errors": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "modern-charts-20261102-responsive",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "8ca43fcf8b435d43683bc7d210380e2595e6a82f",
+      "apk_sha256": "8bfd6ade843ea286630afc91771606c86065d9ad37580f88bc496134339e0542",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; MAIN390x900/font1, MIN360x900/font1.6, WIDE800x600/font1; density160",
+      "input": "Fictional nonpersisting flight/role/financial previews only.",
+      "conditions": "Verified installed Release; offline and installation/display/network restored.",
+      "method": "Controller active elapsed including model deliberation, ADB, waiting and observer overhead.",
+      "limits": "Tooling wall-clock, not app latency or controlled speed comparison. First native defects/blocked MIN are retained; final focused case verifies selected precondition and Back. Horizontal Costs month strip is intentional; Nov/Dec scrolling itself not exercised.",
+      "evidence": [
+        "docs/verification/2026-11-02-modern-charts-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 196983.99999993853,
+          "outcome": "partial",
+          "details": {
+            "actions": 37,
+            "captures": 6,
+            "action_errors": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "modern-charts-20261102-min-final",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "8ca43fcf8b435d43683bc7d210380e2595e6a82f",
+      "apk_sha256": "8bfd6ade843ea286630afc91771606c86065d9ad37580f88bc496134339e0542",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; MAIN390x900/font1, MIN360x900/font1.6, WIDE800x600/font1; density160",
+      "input": "Fictional nonpersisting flight/role/financial previews only.",
+      "conditions": "Verified installed Release; offline and installation/display/network restored.",
+      "method": "Controller active elapsed including model deliberation, ADB, waiting and observer overhead.",
+      "limits": "Tooling wall-clock, not app latency or controlled speed comparison. First native defects/blocked MIN are retained; final focused case verifies selected precondition and Back. Horizontal Costs month strip is intentional; Nov/Dec scrolling itself not exercised.",
+      "evidence": [
+        "docs/verification/2026-11-02-modern-charts-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 114906.00000019185,
+          "outcome": "success",
+          "details": {
+            "actions": 23,
+            "captures": 3,
+            "action_errors": 0
+          }
+        }
+      ]
     }
   ]
 }

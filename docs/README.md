@@ -1,6 +1,8 @@
 # MoFlight documentation
 
-Current visual implementation: [expressive compact graphite](verification/2026-11-02-graphite-ui.md), with source-specific synthetic native screenshots and verification.
+Current charts: [modern vector implementation](verification/2026-11-02-modern-charts.md), with source-specific native selection/Back evidence.
+
+Earlier graphite implementation: [expressive compact graphite](verification/2026-11-02-graphite-ui.md), with source-specific synthetic native screenshots and verification.
 
 | Question | Maintained source |
 | --- | --- |

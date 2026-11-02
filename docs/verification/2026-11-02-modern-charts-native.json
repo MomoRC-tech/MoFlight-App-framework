@@ -1,0 +1,214 @@
+{
+  "sessions": [
+    {
+      "id": "vector-main-20261102",
+      "application_commit": "f6825aa98474a9d4140aa97b0764a3c5c1fe5304",
+      "apk_sha256": "e3581c13c432d3804cb5aff4c7fff38665c7b112de3d91e2ed5bb72f7b88cf6c",
+      "actions_used": 35,
+      "captures_used": 7,
+      "active_elapsed_seconds": 212.51600000006147,
+      "action_error_count": 2,
+      "restoration": {
+        "display": true,
+        "network": true,
+        "installation": true,
+        "cleanup": true
+      },
+      "worker_checks": {
+        "V01": {
+          "status": "passed",
+          "observation": "MAIN 390x900 dp, density160, font1. Dashboard shows smooth three-color ring, 5 flights, smooth purple area trend, dotted grid and dashed peach previous comparison. No overlap in captured chart.",
+          "evidence": [
+            "dashboard.png",
+            "dashboard.xml"
+          ]
+        },
+        "V02": {
+          "status": "passed",
+          "observation": "Single-view time chart renders smooth purple area curve, dotted horizontal grid and dashed peach 2025 comparison. Plot shows gaps and isolated October point; unknown-time notice present.",
+          "evidence": [
+            "time-chart.png",
+            "time-chart.xml"
+          ]
+        },
+        "V03": {
+          "status": "failed",
+          "observation": "Center chart tap selects July: 3:00 h, 2025 0:00 h, purple marker and vertical guide align with July peak. Lower detail card starts at viewport bottom and needs scrolling. Native Back unexpectedly exits preview to Development instead of clearing selection; subsequent metric selector unavailable. Reopened preview once to continue.",
+          "evidence": [
+            "time-selected.png",
+            "time-selected.xml",
+            "after-back.xml"
+          ]
+        },
+        "V04": {
+          "status": "failed",
+          "observation": "Flight-count toggle changes chart to mint curve/area but 2026 legend remains purple. 2025 dashed peach graph and legend correspond. Chart reports 2 flights vertical maximum.",
+          "evidence": [
+            "count-chart.png",
+            "count-chart.xml"
+          ]
+        },
+        "V05": {
+          "status": "passed",
+          "observation": "Roles donut has 5 center total and purple/mint/peach proportions corresponding to Solo3, Dual1 and PIC+1 legend. Times3:55/1:25/unknown correspond. PIC+ Begleitperson(en) wraps midword awkwardly. Exact role row interaction not tested: row labels absent from admitted navigation list. Contextual Back returns DesignPreview directly, not Cockpit.",
+          "evidence": [
+            "roles.png",
+            "roles.xml",
+            "return-position.xml"
+          ]
+        },
+        "V06": {
+          "status": "blocked",
+          "observation": "Cost trend smooth purple area observed in two scroll positions; pinned preview controls and fixed swipe distance prevent one fully visible plot capture. Lower capture shows month buttons and unknown amount explanation. XML distinguishes Jan unknown and Feb known0.00 EUR. Conflict state and selector activation not tested: exact cost chart/month labels are not admitted by supplied navigation allowlist; no bypass attempted.",
+          "evidence": [
+            "cost-trend.png",
+            "cost-trend.xml",
+            "cost-trend-visible.png",
+            "cost-trend-visible.xml",
+            "cost-position.xml"
+          ]
+        }
+      }
+    },
+    {
+      "id": "vector-responsive-20261102",
+      "application_commit": "8ca43fcf8b435d43683bc7d210380e2595e6a82f",
+      "apk_sha256": "8bfd6ade843ea286630afc91771606c86065d9ad37580f88bc496134339e0542",
+      "actions_used": 37,
+      "captures_used": 6,
+      "active_elapsed_seconds": 196.98399999993853,
+      "action_error_count": 3,
+      "restoration": {
+        "display": true,
+        "network": true,
+        "installation": true,
+        "cleanup": true
+      },
+      "worker_checks": {
+        "MIN": {
+          "evidence": [
+            "min-route.xml",
+            "min-profile-scroll.xml"
+          ],
+          "status": "blocked",
+          "observation": "360x900 dp density160 font1.6 set first. Development entry not fully visible after one scroll; initial selector and single retry refused. MIN chart/count selection and Back therefore not tested."
+        },
+        "WIDE_TIME": {
+          "evidence": [
+            "wide-time.png",
+            "wide-time-plot.png",
+            "wide-time-plot.xml"
+          ],
+          "status": "passed",
+          "observation": "800x600 dp density160 font1.0 set first and route re-entered. Scrolled full plot has bounded Jan-Dec axis, purple gradient/solid curve and orange dashed prior-year curve corresponding to legend; gaps explicitly qualified incomplete."
+        },
+        "WIDE_ROLES": {
+          "evidence": [
+            "wide-roles.png",
+            "wide-roles.xml"
+          ],
+          "status": "passed",
+          "observation": "Readable Solo, Dual, PIC+ labels beside donut, values 3/1/1; PIC+ time unknown preserved."
+        },
+        "WIDE_COST": {
+          "evidence": [
+            "wide-cost-trend.png",
+            "wide-cost-trend.xml"
+          ],
+          "status": "failed",
+          "observation": "Annual trend fully visible after scroll, but separate month-choice strip clips Nov and hides Dec at right boundary. February selectable."
+        },
+        "ZERO": {
+          "evidence": [
+            "wide-cost-zero.png",
+            "wide-cost-zero.xml"
+          ],
+          "status": "passed",
+          "observation": "Exact admitted February choice produces Feb 2026 0,00 €, selected point and vertical guide. Known partial-price qualifier visible above trend."
+        },
+        "BACK": {
+          "evidence": [
+            "wide-native-back-cleared.png",
+            "wide-native-back-cleared.xml"
+          ],
+          "status": "passed",
+          "observation": "Wide fallback: chart month target tapped then native Back; Statistics remains and captured plot has no visible selected guide. No pre-Back selected capture or selected-value observation, so clearing itself is limited evidence; MIN requested case not tested."
+        }
+      }
+    },
+    {
+      "id": "vector-min-final-20261102",
+      "application_commit": "8ca43fcf8b435d43683bc7d210380e2595e6a82f",
+      "apk_sha256": "8bfd6ade843ea286630afc91771606c86065d9ad37580f88bc496134339e0542",
+      "actions_used": 23,
+      "captures_used": 3,
+      "active_elapsed_seconds": 114.90600000019185,
+      "action_error_count": 0,
+      "restoration": {
+        "display": true,
+        "network": true,
+        "installation": true,
+        "cleanup": true
+      },
+      "worker_checks": {
+        "MIN_TIME": {
+          "status": "passed",
+          "observation": "360x900 dp, density160, font1.6. Actual time chart fully visible; enlarged controls, legend and Jan/Mai/Aug/Dez axes have no observed overlap. Default time chart shows 3:00 h scale.",
+          "evidence": [
+            "time-default.png",
+            "time-default.xml"
+          ]
+        },
+        "MIN_COUNT": {
+          "status": "passed",
+          "observation": "Count chart fully visible without scrolling. 2026 purple legend matches solid purple curve/points; 2025 orange legend and short dash match orange dashed curve. Enlarged controls and axes show no observed overlap.",
+          "evidence": [
+            "count-selected.png",
+            "count-cleared.png"
+          ]
+        },
+        "MIN_BACK": {
+          "status": "passed",
+          "observation": "Before native Back, observed Jul 2026 / 1 Flüge and 2025 · 0 Flüge, purple selected marker, orange baseline marker and vertical guide band. Native Back retained Flugstatistik/count mode while clearing selected month values, emphasized markers and vertical guide.",
+          "evidence": [
+            "count-selected.png",
+            "count-selected.xml",
+            "count-cleared.png",
+            "count-cleared.xml"
+          ]
+        }
+      }
+    }
+  ],
+  "parent_assessment": {
+    "first_main": "Area/ring rendering verified; count legend, long PIC+ wrap and preview Back defects confirmed, corrected in8ca43fc.",
+    "responsive": "Wide time/roles and known-zero Cost selection pass. Worker cost clipping finding describes an intentional horizontal ScrollView: twelve48dp targets plus gaps do not all fit the capped surface; not a lost-data/layout defect. Nov/Dec horizontal gesture remains unexercised. MIN navigation was blocked by premature taps on a partially visible Settings row, not chart acceptance.",
+    "min_final": "Fresh targeted MIN run reaches chart by scrolling Settings until the admitted row is fully visible. Both metrics/axes readable; count legend matches; July selection/marker/guide observed before native Back, retained Statistics and cleared focus observed after.",
+    "limits": [
+      "Synthetic shared-component acceptance only, not live/private provider, physical phone, iOS runtime, light or extended spoken acceptance.",
+      "Native conflict styling uses host synthetic component evidence; no real financial inference/retrieval in these checks."
+    ]
+  },
+  "parent_reviewed_images": {
+    "vector-main-20261102": [
+      "dashboard.png",
+      "time-chart.png",
+      "time-selected.png",
+      "count-chart.png",
+      "roles.png",
+      "cost-trend-visible.png"
+    ],
+    "vector-responsive-20261102": [
+      "wide-time-plot.png",
+      "wide-roles.png",
+      "wide-cost-trend.png",
+      "wide-cost-zero.png",
+      "wide-native-back-cleared.png"
+    ],
+    "vector-min-final-20261102": [
+      "time-default.png",
+      "count-selected.png",
+      "count-cleared.png"
+    ]
+  }
+}
