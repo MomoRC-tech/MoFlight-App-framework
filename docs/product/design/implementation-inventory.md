@@ -426,34 +426,34 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubHeading.tsx](
 
 ## ClubInformation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.tsx](../../../apps/platform-lab/src/mobile/ClubInformation.tsx); normalized SHA-256 `262a486787d33398b84882a8b075ce700ae09a4ca4434e0850b2617cab351b4a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ClubInformation.tsx](../../../apps/platform-lab/src/mobile/ClubInformation.tsx); normalized SHA-256 `6d32fa6ad7397772366fcc8c0169e0fbbe14fd86ed5a995571c29e5cecf14e43`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 164 |
-| `fontSize: 13` | 161 |
-| `fontSize: 14` | 145, 150 |
-| `fontWeight: '600'` | 145, 147, 150 |
-| `lineHeight: 18` | 164 |
+| `fontSize: 12` | 165 |
+| `fontSize: 13` | 162 |
+| `fontSize: 14` | 146, 151 |
+| `fontWeight: '600'` | 146, 148, 151 |
+| `lineHeight: 18` | 165 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 143, 148, 149, 153, 155, 158, 159 |
-| `borderWidth: 1` | 159 |
-| `gap: 10` | 149, 153 |
-| `gap: 12` | 142, 143 |
-| `gap: 2` | 144, 146, 152 |
-| `gap: 4` | 157, 159, 162 |
-| `gap: 8` | 151, 155, 156, 160 |
-| `minHeight: 48` | 160 |
-| `minWidth: 0` | 146, 152 |
-| `opacity: .72` | 163 |
-| `padding: 12` | 143, 148, 149, 153, 155, 158, 159 |
-| `padding: 16` | 142 |
+| `borderRadius: 12` | 144, 149, 150, 154, 156, 159, 160 |
+| `borderWidth: 1` | 160 |
+| `gap: 10` | 150, 154 |
+| `gap: 12` | 143, 144 |
+| `gap: 2` | 145, 147, 153 |
+| `gap: 4` | 158, 160, 163 |
+| `gap: 8` | 152, 156, 157, 161 |
+| `minHeight: 48` | 161 |
+| `minWidth: 0` | 147, 153 |
+| `opacity: .72` | 164 |
+| `padding: 12` | 144, 149, 150, 154, 156, 159, 160 |
+| `padding: 16` | 143 |
 
 ## CockpitPreview.tsx
 

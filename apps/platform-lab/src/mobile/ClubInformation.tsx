@@ -53,7 +53,8 @@ export function ClubDocumentNotices({ information, readFailed, compact = false, 
   const items = source?.status === 'partial' ? source.items : [];
   const shown = compact ? items.slice(0, 2) : items;
   return <Card style={styles.card}>
-    <Section icon="logbook" title="Dokumentenhinweise" action={compact && onOpen ? 'Ansehen' : undefined} onPress={onOpen} />
+    <Section icon="logbook" title={compact ? 'Dokumente' : 'Dokumentenhinweise'} action={compact && onOpen ? 'Ansehen' : undefined} onPress={onOpen} />
+    {compact && <Label muted style={styles.note}>Erfasste Hinweise</Label>}
     {!shown.length && <SourceState>Dokumentenhinweise unbekannt. Noch keine unterstützte Quelle verfügbar.</SourceState>}
     {shown.map(item => <View key={item.key} style={styles.document}><Label selectable style={styles.title}>{item.text}</Label></View>)}
     {shown.length < items.length && <Label muted style={styles.note}>{shown.length} von {items.length} erfassten Hinweisen</Label>}

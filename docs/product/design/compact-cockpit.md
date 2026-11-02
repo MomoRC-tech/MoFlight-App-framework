@@ -12,6 +12,8 @@ Costs replaces wrapping mini-tiles and amount dots with one horizontally scrolla
 
 The remaining monthly count/time panels, duration bands, role groups, per-flight duration timeline, launch-duration spread and secondary flying-day calendar serve distinct questions. Retain these rather than replace useful representations for stylistic uniformity. Public reference principles remain summary → selected period/group → exact records → detail. The separate #116 branch experiment is not merged by this package.
 
+The MAIN native review found the compact Club heading “Dokumentenhinweise” breaking mid-word beside its action. The overview now uses “Dokumente” with “Erfasste Hinweise” below; detail keeps its full title and the unchanged title-text-only source contract. No shared Section/Start typography changes follow.
+
 Consulted current [Material cards](https://m3.material.io/components/cards/guidelines), [lists](https://m3.material.io/components/lists/guidelines) and [interaction](https://m3.material.io/foundations/interaction) on 2 November; text retrieval returns a JavaScript shell. Google's [accessible target guidance](https://developer.android.com/develop/ui/compose/accessibility/api-defaults) supplies directly readable size/overlap guidance. MoFlight adapts the hierarchy through existing native navy/cyan primitives, without a UI/chart dependency. Public flying/logbook/fitness examples and verification limits are in the [review report](../../verification/2026-11-02-whole-app-refactor.md).
 
 ## Calculated annual Pflicht target — selected 29 October 2026
