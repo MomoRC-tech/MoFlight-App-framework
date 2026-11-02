@@ -30,10 +30,14 @@ Controllers restored size/density/font and preserved offline/install identity du
 
 The two controller active windows169,391/215,531ms and all gathered action/capture/error/budget counters are appended to the [#90 ledger](performance/README.md), separately labelled synthetic tooling. They include navigation, ADB, screenshots and worker reasoning/idle; no app latency, startup or performance improvement is measured. Further native seen-state persistence and remaining narrow/wide acceptance remain open; no extra full suite or build was repeated for evidence/documentation.
 
-## Remaining boundaries
-
-### Narrow preview controls correction — #94
+## Narrow preview controls correction — #94
 
 The partial narrow trial justified a small Development-only correction: while a flight detail is open, retain the synthetic/no-storage notice and hide secondary fixture mode/navigation controls; contextual detail Back restores them. The source comparison, ordinary app, Start and storage are unchanged. Both existing preview route tests pass, extended to verify hidden detail controls and restoration after Back; focused lint and regenerated handbook pass. Reuse the preceding source/store/reader/full-host/MAIN evidence within its source limits. Run only a new committed-source Android enlarged-text comparison check for this actual layout correction; do not repeat the ordinary app matrix or host suite. Logs: build/source-review-chrome-test.log and build/source-review-chrome-handbook.log.
+
+**Completed checkpoint:** source **5e2798307a99246bf9b8ea1e46d33e05b4d95589**, APK SHA-256 **9aa4478b96aba65b4d4b8464c0aeec805c9e26cf45b43a718edc062a690ec81b**, fresh standalone Android Release. At MIN360×900dp/density160/font1.6 the exact80→85 and remark comparison, full Gesehen action and fictional notice are visible without clipping; contextual Back restores the fixture buttons and changed flight list. Parent inspected the actual PNG. Gesehen was not pressed. [Sanitized scoped evidence](2026-11-02-flight-source-review-chrome-native.json), [fresh download verification](2026-11-02-flight-source-review-chrome-release.json), [latest APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-source-review-2026-11-02-5e27983/MoFlight-Source-Review-5e27983.zip). Earlier cd20291 partial attempts are preserved; MAIN and WIDE-collapsed evidence retains that source. Ordinary persistence and WIDE expanded acceptance are not inferred.
+
+The final controller window197,578ms and26actions/one capture/one recovered selector error are indexed in #90, with zero cleanup errors and explicit budgets. This is tooling/worker elapsed time, not app latency. Original synthetic snapshot/display/font/radios are restored and the initially stopped AVD is stopped; the same immediate pre-install hash/byte-comparison limitations above remain. No full host suite or unrelated UI matrix was repeated for the preview-only correction; the cd20291 host/export evidence is reused with the final two affected route checks/lint/Release/MIN trial.
+
+## Remaining boundaries
 
 #30 retains independent paper deviations, aggregate-only book markers and resolved-marker lifetime under #7/#11/#18; real book/format integration is not implemented by this package. Supabase/cross-device acknowledgment sync stays parked. Actual ordinary Android seen-state restart/write failure/account transitions, physical phone, iOS, beta light and spoken accessibility retain #8/#16/#107 and feature acceptance. No provider/model requests, source mutation, new dependency or spending.

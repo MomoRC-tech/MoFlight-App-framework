@@ -1,0 +1,64 @@
+{
+  "source_commit": "5e2798307a99246bf9b8ea1e46d33e05b4d95589",
+  "apk_sha256": "9aa4478b96aba65b4d4b8464c0aeec805c9e26cf45b43a718edc062a690ec81b",
+  "api": 37,
+  "abi": "x86_64",
+  "logical_dp": [
+    360,
+    900
+  ],
+  "density_dpi": 160,
+  "font_scale": 1.6,
+  "theme": "dark",
+  "offline": true,
+  "scope": "Fictional nonpersisting DesignPreview source comparison/chrome/Back only. No Gesehen press, ordinary account/persistence/provider acceptance.",
+  "controller_status": "completed",
+  "ui_outcome": "passed-within-scope",
+  "actions": 26,
+  "captures": 1,
+  "selector_failures": 1,
+  "active_elapsed_seconds": 197.5779999999795,
+  "checks": {
+    "MIN-comparison": {
+      "status": "passed",
+      "evidence": [
+        "comparison-min.xml",
+        "comparison-min.png"
+      ],
+      "observation": "At 360x900 dp, density 160, font 1.6, expanded comparison displays Flugzeit 80 to 85 and Bemerkung Fr\u00fcherer synthetischer Beleg to Synthetischer \u00dcbungsflug. Inspected PNG: no overlap or clipped comparison values; Vergleichsbasis wraps inside narrow column."
+    },
+    "MIN-preview-chrome": {
+      "status": "passed",
+      "evidence": [
+        "comparison-min.xml",
+        "comparison-min.png",
+        "returned-fixture-navigation.xml"
+      ],
+      "observation": "Fictional no-storage notice remains visible. Fixture-navigation buttons are absent in detail, leaving comparison and button visible. Contextual Zur\u00fcck zur Vorschau Flugliste returns to changed D-SYN1 list and restores Vorschau Quellen\u00e4nderung/Sync/Start/Fl\u00fcge/Verein/Kosten navigation."
+    },
+    "MIN-seen": {
+      "status": "passed",
+      "evidence": [
+        "comparison-min.xml",
+        "comparison-min.png"
+      ],
+      "observation": "Gesehen is fully visible, enabled and reachable at [31,780][136,828] without scrolling. Not activated. Complete explanation remains readable."
+    }
+  },
+  "parent_image_review": "comparison-min.png inspected; exact 80/85 and remarks, full action and notice visible. Comparison-basis label wraps at enlarged text.",
+  "controller_preservation": true,
+  "cleanup": {
+    "synthetic_snapshot_restored": true,
+    "reset_or_seed": false,
+    "provider_operations": false,
+    "initial_apk_probe": "Inconclusive during early package-manager boot: pm initially returned no package, but update retained historical firstInstallTime. No independent immediate pre-install APK hash was obtained.",
+    "settings_restored": true,
+    "initially_stopped_synthetic_avd_stopped": true
+  },
+  "host_evidence": "Reuse cd20291 full host5/5 (2,196 mobile passes/two skips; Python167 run/16 skips) and Android/iOS exports. Final5e27983 changes only preview chrome and its existing route regression: both focused cases and changed-file lint pass.",
+  "limits": [
+    "Elapsed window includes ADB/navigation/screenshots/worker idle and is not app latency or a source-comparison speedup.",
+    "Earlier MAIN and WIDE-collapsed evidence retains cd20291 source; WIDE expanded/ordinary native acknowledgment persistence/account switching, physical phone and iOS runtime remain open.",
+    "Original snapshot/settings restored; immediate pre-install APK hash not independently obtained. No private database byte comparison."
+  ]
+}

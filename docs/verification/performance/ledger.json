@@ -54518,6 +54518,43 @@
           }
         }
       ]
+    },
+    {
+      "id": "source-review-chrome-20261102-min",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "5e2798307a99246bf9b8ea1e46d33e05b4d95589",
+      "apk_sha256": "9aa4478b96aba65b4d4b8464c0aeec805c9e26cf45b43a718edc062a690ec81b",
+      "device": "MoFlight_Synthetic_API37 / API37 / x86_64 / standalone Release; MIN360x900dp, density160, font1.6",
+      "input": "Fictional eight-flight nonpersisting DesignPreview; source-change comparison only",
+      "conditions": "Offline synthetic controller inspection after preview chrome correction; comparison, Gesehen reachability and contextual Back inspected; acknowledgment not activated.",
+      "method": "Exact controller active_elapsed_seconds multiplied by1000; includes UI, observer/model and idle overhead. Not app runtime latency.",
+      "limits": [
+        "Success applies only to this fictional MIN comparison/chrome/Back checkpoint; no broad baseline, normal-account, persistence, provider, physical-phone or iOS acceptance.",
+        "Gesehen was fully visible/enabled but not pressed; no store-write or acknowledgment-persistence acceptance.",
+        "Earlier two partial windows remain unchanged; unmatched controller totals establish no speedup."
+      ],
+      "evidence": [
+        "docs/verification/2026-11-02-flight-source-review.md"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller-window",
+          "metric": "ui-agent-observation",
+          "milliseconds": 197577.9999999795,
+          "outcome": "success",
+          "details": {
+            "actions": 26,
+            "captures": 1,
+            "action_errors": 1,
+            "cleanup_errors": 0,
+            "budget.milliseconds": 360000,
+            "budget.actions": 32,
+            "budget.captures": 3
+          }
+        }
+      ]
     }
   ]
 }
