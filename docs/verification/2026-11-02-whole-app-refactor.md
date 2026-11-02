@@ -74,7 +74,7 @@ The two retained controller active durations (92.25 s and 215.141 s) include mod
 - #101: scoped validated financial read sharing; preserve fresh async identity/inventory fences. Reduce repeated coverage copy through existing disclosures in a later visual increment.
 - #94/#9: clearer aircraft/count/time comparison rows, fewer initially visible metrics, discoverable Club sections and progressive advanced charts; retain source semantics.
 - #29/#34/#101: actual preserved same-file aggregate resume, exact re-export, update and ordinary recovery acceptance remain open; do not erase pending operations.
-- Product decision: retain the unfinished Flugbuch primary tab, or move its preparation entry to secondary navigation until the real workflow exists.
+- **Owner decision, 2 November:** keep the unfinished Flugbuch main tab with its preparation notice. Current implementation already matches; no navigation change is required.
 - Existing beta decisions: operator/audience and privacy/distribution facts (#21/#97/#98), plus explicit live-AI service/input/funding scope (#13/#72–79). This review does not authorize spending or invent those facts.
 
 Each remaining package stays with its matching Issue. Review findings are not completion of open umbrella Issues or acceptance of unexecuted device/provider/model checks.
