@@ -1,0 +1,12 @@
+{
+  "source_commit": "cd20291d9444f5763ff9b924a93d083b29cfc934",
+  "apk_sha256": "ad6fee0613970842427f9899b87edbfb4759cbf149900e9ae8dc4f17fa702f2f",
+  "zip_sha256": "86df0f3882e79cd9cca633f72d22fa8a109cc1f4bfde20dcea81ff24e3309d05",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "download_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-source-review-2026-11-02-cd20291/MoFlight-Source-Review-cd20291.zip"
+}

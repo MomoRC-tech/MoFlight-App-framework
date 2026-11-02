@@ -1,0 +1,116 @@
+{
+  "source_commit": "cd20291d9444f5763ff9b924a93d083b29cfc934",
+  "apk_sha256": "ad6fee0613970842427f9899b87edbfb4759cbf149900e9ae8dc4f17fa702f2f",
+  "api": 37,
+  "abi": "x86_64",
+  "kind": "emulator-synthetic",
+  "input": "Fictional nonpersisting DesignPreview only. No real account/source, Gesehen press, provider, model or storage activation.",
+  "parent_reviewed": [
+    "MAIN390x900/font1 full comparison and button",
+    "MIN360x900/font1.6 button/cropped comparison",
+    "WIDE800x600/font1 centered collapsed card"
+  ],
+  "trials": [
+    {
+      "controller_status": "completed",
+      "ui_outcome": "partial",
+      "actions": 31,
+      "captures": 2,
+      "selector_failures": 2,
+      "active_elapsed_seconds": 169.39099999982864,
+      "checks": {
+        "S01_MAIN": {
+          "status": "passed",
+          "observation": "390x900 dp, density 160, font 1.0. Changed D-SYN1 row has Ge\u00e4ndert marker and accessible Quellenangaben ge\u00e4ndert. Expanded card is readable with no observed overlap: Fassung 1 \u2192 2; Flugzeit Vergleichsbasis 80 / Aktuell 85; Bemerkung Fr\u00fcherer synthetischer Beleg / Synthetischer \u00dcbungsflug. Gesehen enabled and fully visible, untouched. Explanation says acknowledgment only confirms review and does not change paper logbook.",
+          "evidence": [
+            "changed-list.xml",
+            "main-comparison.xml",
+            "main-comparison.png"
+          ]
+        },
+        "S02_BACK": {
+          "status": "blocked",
+          "observation": "MAIN detail has visible Zur\u00fcck \u00b7 Flugdetails with accessible label Zur\u00fcck zur Vorschau Flugliste. This exact label is absent from supplied navigation allowlist, so specific detail Back was not pressed. Global contextual Back was successfully used from MIN preview to leave it.",
+          "evidence": [
+            "main-comparison.xml"
+          ]
+        },
+        "S03_MIN": {
+          "status": "blocked",
+          "observation": "360x900 dp, density 160, font 1.6. Re-entered preview after activity recreation. Tall preview controls and first-use hint leave changed row clipped to y560\u2013566; marker and flight contents unreadable. Hint dismissals not admitted, and no acknowledgment/dismissal pressed. Comparison and Gesehen reachability not established.",
+          "evidence": [
+            "min-list.xml",
+            "min-blocked-list.xml",
+            "min-blocked-list.png"
+          ]
+        },
+        "S04_WIDE": {
+          "status": "not_tested",
+          "observation": "Remaining action budget could not fit re-entry from viewport recreation plus comparison and required recovery reserve.",
+          "evidence": []
+        }
+      },
+      "display_font_network_install_identity_preserved": true
+    },
+    {
+      "controller_status": "completed",
+      "ui_outcome": "partial",
+      "actions": 40,
+      "captures": 4,
+      "selector_failures": 1,
+      "active_elapsed_seconds": 215.53099999995902,
+      "checks": {
+        "MIN-comparison": {
+          "status": "blocked",
+          "observation": "360x900 dp font 1.6. Expanded comparison then swiped up. Fixed preview controls occupy top 489 dp; comparison values are above clipped scroll region. Down swipe did not change displayed state. XML reports Flugzeit comparison 80 to 85 and remark Fr\u00fcherer synthetischer Beleg to Synthetischer \u00dcbungsflug, but actual PNG does not show those values; exact comparison readability remains unverified.",
+          "evidence": [
+            "min-detail.xml",
+            "min-expanded.xml",
+            "min-expanded.png",
+            "min-comparison-top.png"
+          ]
+        },
+        "MIN-Gesehen": {
+          "status": "passed",
+          "observation": "Gesehen fully visible and enabled after upward scroll; never pressed.",
+          "evidence": [
+            "min-expanded.xml",
+            "min-expanded.png"
+          ]
+        },
+        "MIN-contextual-back": {
+          "status": "passed",
+          "observation": "Zur\u00fcck zur Vorschau Flugliste returned to synthetic list retaining changed D-SYN1 marker and 8 Fl\u00fcge / 8:05 h bekannt.",
+          "evidence": [
+            "min-return.xml"
+          ]
+        },
+        "WIDE-comparison": {
+          "status": "not_tested",
+          "observation": "800x600 dp font 1.0 route re-entered after activity recreation. Captured collapsed source-change detail only. Expanded comparison, Gesehen and contextual Back not exercised before 40-action budget exhausted.",
+          "evidence": [
+            "wide-source-detail.xml",
+            "wide-source-detail.png"
+          ]
+        }
+      },
+      "display_font_network_install_identity_preserved": true
+    }
+  ],
+  "cleanup": {
+    "synthetic_snapshot_restored": true,
+    "reset_or_seed": false,
+    "provider_operations": false,
+    "initial_apk_probe": "Inconclusive during early package-manager boot: pm initially returned no package, but update retained historical firstInstallTime. No independent immediate pre-install APK hash was obtained.",
+    "settings_restored": true,
+    "initially_stopped_synthetic_avd_stopped": true
+  },
+  "limits": [
+    "MAIN readable. MIN exact comparison remains unverified because the captured scrolled viewport omitted the values and fixed preview chrome reduced available height.",
+    "WIDE expanded comparison not exercised within bounded action budget; collapsed layout only.",
+    "Native ordinary-account acknowledgment persistence/write failure/account switch, physical phone, iOS, light and spoken acceptance not established.",
+    "Controller elapsed windows include navigation, ADB, screenshots, reasoning/idle and cleanup coordination, not app latency. No numeric app timing gathered.",
+    "Two preparation attempts stopped at early boot/package lookup before snapshot/install. Controller start rejected oversized action count and outside-root output before a session. No missing duration reconstructed.",
+    "Immediate pre-install APK hash was not obtained; original snapshot restored, with original package probe and settings limitations explicit. No private database byte comparison."
+  ]
+}

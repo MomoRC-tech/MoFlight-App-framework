@@ -54442,6 +54442,82 @@
           }
         }
       ]
+    },
+    {
+      "id": "source-review-20261102-main-min",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "cd20291d9444f5763ff9b924a93d083b29cfc934",
+      "apk_sha256": "ad6fee0613970842427f9899b87edbfb4759cbf149900e9ae8dc4f17fa702f2f",
+      "device": "MoFlight_Synthetic_API37 / API37 / x86_64 / standalone Release; MAIN390x900dp/font1.0 then MIN360x900dp/font1.6; density160",
+      "input": "Fictional eight-flight nonpersisting DesignPreview; source-change review screen only",
+      "conditions": "Offline synthetic controller inspection; no acknowledgment, provider, AI, account, book, save, seed or reset action. Viewport changes recreate Activity.",
+      "method": "Controller active_elapsed_seconds multiplied by1000; includes UI operations, observer/model/idle overhead. Action log has no explicit duration metrics; no UTC interval inferred.",
+      "limits": [
+        "Overall visual acceptance is partial, not passed; controller completed only means the bounded trial and cleanup ended.",
+        "Not app runtime latency or performance improvement; no ordinary account/persistence/provider, physical-phone or iOS acceptance.",
+        "MAIN changed-source marker, expanded comparison and unpressed Gesehen readable; MIN blocked by development chrome/first-use hint; WIDE not tested.",
+        "Contextual detail Back initially outside allowlist; this run does not establish that return."
+      ],
+      "evidence": [
+        "docs/verification/2026-11-02-flight-source-review.md"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller-window",
+          "metric": "ui-agent-observation",
+          "milliseconds": 169390.99999982864,
+          "outcome": "partial",
+          "details": {
+            "actions": 31,
+            "captures": 2,
+            "action_errors": 2,
+            "cleanup_errors": 0,
+            "budget.milliseconds": 420000,
+            "budget.actions": 40,
+            "budget.captures": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "source-review-20261102-min-wide",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "cd20291d9444f5763ff9b924a93d083b29cfc934",
+      "apk_sha256": "ad6fee0613970842427f9899b87edbfb4759cbf149900e9ae8dc4f17fa702f2f",
+      "device": "MoFlight_Synthetic_API37 / API37 / x86_64 / standalone Release; MIN360x900dp/font1.6 then WIDE800x600dp/font1.0; density160",
+      "input": "Fictional eight-flight nonpersisting DesignPreview; source-change review screen only",
+      "conditions": "Offline synthetic controller inspection; no acknowledgment, provider, AI, account, book, save, seed or reset action. Viewport changes recreate Activity.",
+      "method": "Controller active_elapsed_seconds multiplied by1000; includes UI operations, observer/model/idle overhead. Action log has no explicit duration metrics; no UTC interval inferred.",
+      "limits": [
+        "Overall visual acceptance is partial, not passed; controller completed only means the bounded trial and cleanup ended.",
+        "Not app runtime latency or performance improvement; no ordinary account/persistence/provider, physical-phone or iOS acceptance.",
+        "MIN Gesehen enabled and contextual Back reachable; comparison exact-value readability limited by fixed development chrome.",
+        "WIDE collapsed card readable; expanded comparison, Gesehen and Back not tested before action budget exhausted."
+      ],
+      "evidence": [
+        "docs/verification/2026-11-02-flight-source-review.md"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller-window",
+          "metric": "ui-agent-observation",
+          "milliseconds": 215530.99999995902,
+          "outcome": "partial",
+          "details": {
+            "actions": 40,
+            "captures": 4,
+            "action_errors": 1,
+            "cleanup_errors": 0,
+            "budget.milliseconds": 420000,
+            "budget.actions": 40,
+            "budget.captures": 4
+          }
+        }
+      ]
     }
   ]
 }
