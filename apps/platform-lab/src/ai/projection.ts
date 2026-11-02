@@ -55,7 +55,8 @@ function sourceField(assessment: RealFlightListItem['facts']['assessment'], fiel
   return value.state === 'value' ? value.raw : null;
 }
 
-export function projectAiFlights(flights: readonly RealFlightListItem[], context: AiContext): AiProjection {
+/** The same fresh source validation serves projections and current-context fences. */
+export function validateAiFlightRows(flights: readonly RealFlightListItem[], context: AiContext) {
   const validatedContext = validateAiContext(context);
   if (validatedContext.flights.state !== 'available') throw new Error('AI flights unavailable.');
   if (!Array.isArray(flights)) throw new Error('AI flights must be a list.');
@@ -81,6 +82,15 @@ export function projectAiFlights(flights: readonly RealFlightListItem[], context
     uniqueFlights.push(flight);
   }
 
+  const references = uniqueFlights.map((flight, index) => validateFlightReference({
+    id: `e${index + 1}`, flightId: flight.flightId, factsRevision: String(flight.factsRevision), context: validatedContext,
+  }, validatedContext));
+  return { uniqueFlights, references };
+}
+
+export function projectAiFlights(flights: readonly RealFlightListItem[], context: AiContext): AiProjection {
+  const { uniqueFlights, references } = validateAiFlightRows(flights, context);
+
   const candidates: AiProjection['candidates'] = [];
   const aliases = {
     registration: new Map<string, string>(),
@@ -97,17 +107,10 @@ export function projectAiFlights(flights: readonly RealFlightListItem[], context
   };
 
   const rows: AiProjectedFlight[] = [];
-  const references: FlightReference[] = [];
   const sourceByReference = new Map<string, RealFlightListItem>();
   for (let index = 0; index < uniqueFlights.length; index++) {
     const flight = uniqueFlights[index]!;
-    const reference: FlightReference = validateFlightReference({
-      id: `e${index + 1}`,
-      flightId: flight.flightId,
-      factsRevision: String(flight.factsRevision),
-      context: validatedContext,
-    }, validatedContext);
-    references.push(reference);
+    const reference = references[index]!;
     sourceByReference.set(reference.id, cloneFlight(flight));
 
     const assessment = flight.facts.assessment;

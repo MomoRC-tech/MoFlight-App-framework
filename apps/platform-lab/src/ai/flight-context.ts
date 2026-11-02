@@ -1,9 +1,9 @@
 import { assertAiContext, validateAiContext, validateHistoricalProviderIdentity,
   type AiContext, type HistoricalProviderIdentity } from '../../../../packages/ai-contracts/src/index.ts';
 import type { OwnFlightReadPorts } from '../mobile/own-flight-reader.ts';
-import { projectAiFlights, type AiProjection } from './projection.ts';
+import { projectAiFlights, validateAiFlightRows, type AiProjection } from './projection.ts';
 import type { SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy.ts';
-import { projectAiSourceReview, type AiSourceReview } from './source-review';
+import { projectAiSourceReview, validateAiSourceReview, type AiSourceReview } from './source-review';
 
 export interface AiFlightContextPorts {
   flights: OwnFlightReadPorts;
@@ -26,6 +26,11 @@ export class AiContextChanged extends Error {
  * leave the device. No database lease remains open while waiting on a model. */
 export async function readAiFlightSnapshot(ports: AiFlightContextPorts, receipt: HistoricalProviderIdentity,
   contextVersion: number): Promise<AiFlightSnapshot> {
+  return readAiFlightState(ports, receipt, contextVersion, true);
+}
+
+async function readAiFlightState(ports: AiFlightContextPorts, receipt: HistoricalProviderIdentity,
+  contextVersion: number, project: boolean): Promise<AiFlightSnapshot> {
   const identity = validateHistoricalProviderIdentity(receipt, receipt.localOwnerId);
   if (await ports.currentOwner() !== identity.localOwnerId) throw new AiContextChanged();
   const unavailable = (reason: AiFlightSnapshot['unavailableReason']): AiFlightSnapshot => ({
@@ -62,14 +67,16 @@ export async function readAiFlightSnapshot(ports: AiFlightContextPorts, receipt:
     const context = validateAiContext({ version: 1, localOwnerId: identity.localOwnerId, provider: identity.provider,
       accountRef: identity.accountRef, contextVersion, flights: { state: 'available', storeId: session.storeId,
         generation: snapshot.generation, snapshotRevision: `generation-${snapshot.generation}` } });
-    const projection = projectAiFlights(flights, context);
+    const projection = project ? projectAiFlights(flights, context) : null;
+    if (!project) validateAiFlightRows(flights, context);
     let sourceReview: AiSourceReview | undefined;
     if (session.service.readReviewEvidence) {
       const review = await session.service.readReviewEvidence();
       await session.assertCurrent();
-      sourceReview = projectAiSourceReview(review, projection, context);
+      if (projection) sourceReview = projectAiSourceReview(review, projection, context);
+      else validateAiSourceReview(review, context);
     }
-    const coverageWindows = snapshot.savedRetrievals.map(window => ({ ...window }));
+    const coverageWindows = project ? snapshot.savedRetrievals.map(window => ({ ...window })) : [];
     const pendingIssueCount = snapshot.pending.reduce((sum, pending) => sum + pending.issues.length, 0);
     if (!Number.isSafeInteger(pendingIssueCount)) throw new Error('Invalid pending AI source count');
     await session.assertCurrent();
@@ -79,10 +86,12 @@ export async function readAiFlightSnapshot(ports: AiFlightContextPorts, receipt:
 }
 
 /** Reopen via the same owner/recovery gate. Revise context on store/generation or
- * availability changes, suppressing any late tools/answers from the old run. */
+ * availability changes, suppressing any late tools/answers from the old run.
+ * Fresh evidence is fully validated; aliases, detached source copies and tool
+ * projections are needed only when initially pinning the snapshot. */
 export async function assertAiFlightSnapshotCurrent(ports: AiFlightContextPorts, identity: HistoricalProviderIdentity,
   snapshot: AiFlightSnapshot): Promise<void> {
-  const latest = await readAiFlightSnapshot(ports, identity, snapshot.context.contextVersion);
+  const latest = await readAiFlightState(ports, identity, snapshot.context.contextVersion, false);
   try { assertAiContext(latest.context, snapshot.context); }
   catch { throw new AiContextChanged(); }
   if (latest.unavailableReason !== snapshot.unavailableReason) throw new AiContextChanged();
