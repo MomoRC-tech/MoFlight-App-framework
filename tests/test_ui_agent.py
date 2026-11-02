@@ -141,6 +141,68 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(result['tap'], [25, 45])
         self.assertIn(('input', 'tap', '25', '45'), self.device.calls)
 
+    def navigation_tree(self, label='', ident=''):
+        tree = ET.Element('hierarchy')
+        ET.SubElement(tree, 'node', {'content-desc': label, 'resource-id': ident,
+                      'enabled': 'true', 'clickable': 'true', 'bounds': '[0,20][50,70]'})
+        self.device.tree = lambda remote: tree
+        return tree
+
+    def test_profile_base_selects_only_its_known_fixed_android_status_aliases(self):
+        self.options['actions'] = 10
+        labels = [ui.PROFILE_LABEL, ui.PROFILE_LABEL + ', Anmeldung aktuell ungeprüft.',
+                  ui.PROFILE_LABEL + ', Anmeldung wird geprüft.',
+                  ui.PROFILE_LABEL + ', Anmeldung erforderlich.',
+                  ui.PROFILE_LABEL + ', Anmeldung konnte nicht geprüft werden.',
+                  ui.PROFILE_LABEL + ', Anderes Konto oder anderer Verein. Anmeldung nicht bestätigt.']
+        for label in labels:
+            with self.subTest(label=label):
+                self.navigation_tree(label)
+                result = self.session.action({'op': 'tap', 'by': 'label', 'value': ui.PROFILE_LABEL})
+                self.assertEqual(result['tap'], [25, 45])
+        # A worker can also use the exact fixed-status label from the fresh dump.
+        label = ui.PROFILE_LABEL + ', Anmeldung erforderlich.'
+        self.navigation_tree(label)
+        self.session.action({'op': 'tap', 'by': 'label', 'value': label})
+        self.assertEqual(self.session.report['actions_used'], len(labels) + 1)
+
+    def test_unknown_profile_suffix_needs_exact_parent_admission_and_is_not_a_base_alias(self):
+        unknown = ui.PROFILE_LABEL + ', Angemeldet. Zuletzt bestätigt: 2.11.2026, 12:00:00.'
+        self.navigation_tree(unknown)
+        with self.assertRaisesRegex(ValueError, 'allowlist'):
+            self.session.action({'op': 'tap', 'by': 'label', 'value': unknown})
+        with self.assertRaisesRegex(ValueError, 'exactly one'):
+            self.session.action({'op': 'tap', 'by': 'label', 'value': ui.PROFILE_LABEL})
+        self.assertFalse(any(args[:2] == ('input', 'tap') for args in self.device.calls))
+        self.options['allow_labels'] = [unknown]
+        self.session.action({'op': 'tap', 'by': 'label', 'value': unknown})
+
+    def test_profile_alias_still_refuses_ambiguous_or_disabled_navigation(self):
+        tree = self.navigation_tree(ui.PROFILE_LABEL)
+        other = ET.SubElement(tree, 'node', dict(tree[0].attrib))
+        other.set('content-desc', ui.PROFILE_LABEL + ', Anmeldung aktuell ungeprüft.')
+        with self.assertRaisesRegex(ValueError, 'exactly one'):
+            self.session.action({'op': 'tap', 'by': 'label', 'value': ui.PROFILE_LABEL})
+        tree.remove(other)
+        tree[0].set('enabled', 'false')
+        with self.assertRaisesRegex(ValueError, 'exactly one'):
+            self.session.action({'op': 'tap', 'by': 'label', 'value': ui.PROFILE_LABEL})
+        self.assertFalse(any(args[:2] == ('input', 'tap') for args in self.device.calls))
+
+    def test_parent_scoped_navigation_id_remains_exact_and_is_exposed_without_a_label(self):
+        self.options['actions'] = 6
+        self.navigation_tree(ident='de.momorc.moflight.lab:id/statistics-entry')
+        with self.assertRaisesRegex(ValueError, 'allowlist'):
+            self.session.action({'op': 'tap', 'by': 'id', 'value': 'statistics-entry'})
+        self.options['allow_ids'] = ['statistics-entry']
+        self.session.action({'op': 'tap', 'by': 'id', 'value': 'statistics-entry'})
+        for ident in ['statistics-entry-delete', 'prefix-statistics-entry', 'statistics-.*']:
+            with self.subTest(ident=ident), self.assertRaisesRegex(ValueError, 'allowlist'):
+                self.session.action({'op': 'tap', 'by': 'id', 'value': ident})
+        dump = self.session.action({'op': 'dump', 'name': 'scoped-navigation'})
+        self.assertEqual(dump['nodes'][0]['id'], 'de.momorc.moflight.lab:id/statistics-entry')
+        self.assertEqual(self.device.calls.count(('input', 'tap', '25', '45')), 1)
+
     def test_visible_or_opening_keyboard_refuses_both_swipe_directions(self):
         for raw in [
                 'mInputShown=true\nmIsInputViewShown=true',
@@ -335,7 +397,7 @@ class ControllerTests(unittest.TestCase):
 
     def test_real_controller_idle_deadline_restores_after_worker_abandons_session(self):
         options = {**self.options, 'adb': 'synthetic', 'serial': 'emulator-5562',
-                   'scope': 'synthetic idle trial', 'seconds': .8}
+                   'scope': 'synthetic idle trial', 'seconds': .8, 'allow_ids': ['statistics-entry']}
         ui.write(self.root / 'options.json', options)
         with patch.object(ui, 'RUNS', self.root), patch.object(ui, 'Device', return_value=self.device):
             thread = threading.Thread(target=ui.serve, args=(self.root,), daemon=True)
@@ -345,6 +407,10 @@ class ControllerTests(unittest.TestCase):
                 if time.monotonic() > until:
                     self.fail('Controller did not become ready')
                 time.sleep(.01)
+            task = (self.root / 'task.md').read_text(encoding='utf-8')
+            self.assertIn('"statistics-entry"', task)
+            self.assertIn('0.8 seconds, 3 controller UI actions and 1 captures', task)
+            self.assertNotIn('{{', task)
             ui.request(self.root, {'op': 'viewport', 'name': 'main'})
             # No finish/stop/client remains: a worker can disappear between requests.
             thread.join(3)
@@ -426,6 +492,21 @@ class ControllerTests(unittest.TestCase):
 
 
 class ProcessBoundaryTests(unittest.TestCase):
+    def test_start_persists_parent_scoped_ids_without_contacting_device(self):
+        with tempfile.TemporaryDirectory() as folder:
+            runs = Path(folder); output = runs / 'scoped'
+            def started(*args, **kwargs):
+                (output / 'task.md').write_text('synthetic worker', encoding='utf-8')
+                return unittest.mock.Mock()
+            with patch.object(ui, 'RUNS', runs), patch.object(ui.subprocess, 'Popen', side_effect=started), \
+                    patch.object(ui.Device, 'run') as run:
+                self.assertEqual(ui.main(['start', '--serial', 'emulator-5562', '--adb', 'synthetic',
+                    '--build', str(runs / 'build.json'), '--output', str(output),
+                    '--allow-id', 'statistics-entry', '--allow-id', 'statistics-chart-entry']), 0)
+            self.assertEqual(ui.read(output / 'options.json')['allow_ids'],
+                             ['statistics-entry', 'statistics-chart-entry'])
+            run.assert_not_called()
+
     def test_wrong_or_physical_device_rejected_before_capture_or_mutation(self):
         for serial in ['', 'USB-private', 'emulator-5562;anything']:
             with self.assertRaises(ValueError), patch.object(ui.subprocess, 'run') as run:

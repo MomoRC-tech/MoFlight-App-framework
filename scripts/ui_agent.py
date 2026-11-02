@@ -36,6 +36,14 @@ DEFAULT_LABELS = ['Übersicht', 'Flüge', 'Flugbuch', 'Verein', 'AI',
                   'Zur vorherigen App-Ansicht', 'Papierstand ansehen']
 DEFAULT_IDS = ['tab-home', 'tab-flights', 'tab-logbook', 'tab-club', 'tab-ai',
                'development-entry', 'paper-assistant-entry']
+PROFILE_LABEL = 'Profil & Einstellungen öffnen'
+# Android can append accessibilityValue.text to the accessible label. Only these
+# fixed states from data-update-presentation.ts are aliases of the same action;
+# timestamp-bearing/other labels still need explicit parent-reviewed admission.
+PROFILE_LABELS = {PROFILE_LABEL, *(PROFILE_LABEL + ', ' + status for status in (
+    'Anmeldung aktuell ungeprüft.', 'Anmeldung wird geprüft.',
+    'Anmeldung erforderlich.', 'Anmeldung konnte nicht geprüft werden.',
+    'Anderes Konto oder anderer Verein. Anmeldung nicht bestätigt.'))}
 
 
 def keyboard_state(raw):
@@ -318,7 +326,7 @@ class Session:
                                'id': n.get('resource-id'), 'class': n.get('class'),
                                'bounds': n.get('bounds'), 'clickable': n.get('clickable'),
                                'enabled': enabled[n]}
-                              for n in tree.iter('node') if n.get('text') or n.get('content-desc')][:100]}
+                              for n in tree.iter('node') if n.get('text') or n.get('content-desc') or n.get('resource-id')][:100]}
         raise ValueError('Unknown operation; raw shell, text input, network and data commands are refused.')
 
     def dimensions(self):
@@ -328,8 +336,10 @@ class Session:
 
     def tap(self, tree, command):
         key, value = command.get('by'), command.get('value')
-        permitted = ((key == 'label' and value in DEFAULT_LABELS + self.options.get('allow_labels', [])) or
-                     (key == 'id' and value in DEFAULT_IDS) or
+        profile_alias = key == 'label' and isinstance(value, str) and value in PROFILE_LABELS
+        permitted = (profile_alias or
+                     (key == 'label' and value in DEFAULT_LABELS + self.options.get('allow_labels', [])) or
+                     (key == 'id' and value in DEFAULT_IDS + self.options.get('allow_ids', [])) or
                      (key == 'class' and value == 'android.widget.EditText') or
                      (key == 'label' and isinstance(value, str) and re.fullmatch(r'\d{2}.*?, D-EX[^,]*, Details öffnen', value)))
         if not permitted:
@@ -341,7 +351,8 @@ class Session:
         for node in tree.iter('node'):
             actual = node.get(attribute, '')
             matches = actual == value or (key == 'label' and node.get('text') == value) or (
-                key == 'id' and actual.endswith('/' + value))
+                key == 'id' and actual.endswith('/' + value)) or (
+                profile_alias and actual in PROFILE_LABELS)
             match = re.fullmatch(r'\[(\d+),(\d+)\]\[(\d+),(\d+)\]', node.get('bounds', ''))
             if not (matches and match and node.get('clickable') == 'true' and enabled[node]):
                 continue
@@ -471,6 +482,11 @@ def serve(output):
         write(output / 'session.json', {'port': server.server_port, 'token': server.token, 'pid': os.getpid()})
         template = (ROOT / 'docs/development/ui-agent-task.md').read_text(encoding='utf-8')
         task = template.replace('{{session}}', str(output)).replace('{{scope}}', options['scope'])
+        task = task.replace('{{navigation}}', json.dumps({
+            'labels': DEFAULT_LABELS + options.get('allow_labels', []),
+            'ids': DEFAULT_IDS + options.get('allow_ids', [])}, ensure_ascii=False))
+        for limit in ['seconds', 'actions', 'captures']:
+            task = task.replace('{{' + limit + '}}', str(options[limit]))
         (output / 'task.md').write_text(task, encoding='utf-8')
         while not session.closed:
             if session.clock() >= session.deadline:
@@ -529,6 +545,7 @@ def main(argv=None):
     start.add_argument('--output', type=Path)
     start.add_argument('--scope', default='Run the eight-check non-mutating baseline below.')
     start.add_argument('--allow-label', action='append', default=[], help='Parent-reviewed additional navigation action only.')
+    start.add_argument('--allow-id', action='append', default=[], help='Parent-reviewed exact navigation test ID only; no wildcard or regex matching.')
     start.add_argument('--seconds', type=int, default=720)
     start.add_argument('--actions', type=int, default=40)
     start.add_argument('--captures', type=int, default=8)
@@ -552,7 +569,7 @@ def main(argv=None):
         output.mkdir(parents=True, exist_ok=False)
         (output / 'worker').mkdir()
         write(output / 'options.json', {'serial': args.serial, 'adb': str(Path(args.adb).resolve()),
-              'build': str(args.build.resolve()), 'scope': args.scope, 'allow_labels': args.allow_label,
+              'build': str(args.build.resolve()), 'scope': args.scope, 'allow_labels': args.allow_label, 'allow_ids': args.allow_id,
               'seconds': args.seconds, 'actions': args.actions, 'captures': args.captures})
         with (output / 'controller.log').open('wb') as log:
             process = subprocess.Popen([sys.executable, '-u', str(Path(__file__).resolve()), 'serve', '--session', str(output)],
