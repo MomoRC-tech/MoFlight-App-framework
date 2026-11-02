@@ -1,5 +1,7 @@
 # MoFlight documentation
 
+Current visual implementation: [expressive compact graphite](verification/2026-11-02-graphite-ui.md), with source-specific synthetic native screenshots and verification.
+
 | Question | Maintained source |
 | --- | --- |
 | What did the whole-app/refactoring and cross-app review find? | [2 November coordinated review, verification and remaining decisions](verification/2026-11-02-whole-app-refactor.md) — #114/#115 |

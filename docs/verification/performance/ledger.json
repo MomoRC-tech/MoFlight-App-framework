@@ -50777,6 +50777,64 @@
           "details": {}
         }
       ]
+    },
+    {
+      "id": "graphite-matrix-20261102",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "bf2c619c418133fb0dc7ab27eb680c3b1074ceb8",
+      "apk_sha256": "5ca93bdbbc5f4073dea7aeb3947b0341ebd7bc32353ce2e636c118753e0d922f",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; MAIN390x900,font1; MIN360x900,font1.6; WIDE800x600,font1; density160",
+      "input": "Nonpersisting fictional Dashboard/Statistics/Costs/Club preview.",
+      "conditions": "Verified installed committed-source Release; offline; display/network/install identity restored.",
+      "method": "Controller active wall-clock, including deliberation, waits, ADB and observation overhead.",
+      "limits": "Tooling duration, not app latency or a controlled speed comparison. First session omits wide Statistics/Costs/Club; second session checks those remaining surfaces. Club top heading not visually captured.",
+      "evidence": [
+        "docs/verification/2026-11-02-graphite-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 245359.00000017136,
+          "outcome": "partial",
+          "details": {
+            "actions": 37,
+            "captures": 5,
+            "action_errors": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "graphite-details-20261102",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "bf2c619c418133fb0dc7ab27eb680c3b1074ceb8",
+      "apk_sha256": "5ca93bdbbc5f4073dea7aeb3947b0341ebd7bc32353ce2e636c118753e0d922f",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; MAIN390x900,font1; MIN360x900,font1.6; WIDE800x600,font1; density160",
+      "input": "Nonpersisting fictional Dashboard/Statistics/Costs/Club preview.",
+      "conditions": "Verified installed committed-source Release; offline; display/network/install identity restored.",
+      "method": "Controller active wall-clock, including deliberation, waits, ADB and observation overhead.",
+      "limits": "Tooling duration, not app latency or a controlled speed comparison. First session omits wide Statistics/Costs/Club; second session checks those remaining surfaces. Club top heading not visually captured.",
+      "evidence": [
+        "docs/verification/2026-11-02-graphite-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 211906.00000019185,
+          "outcome": "partial",
+          "details": {
+            "actions": 34,
+            "captures": 5,
+            "action_errors": 0
+          }
+        }
+      ]
     }
   ]
 }

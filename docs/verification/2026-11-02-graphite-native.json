@@ -1,0 +1,149 @@
+{
+  "application_commit": "bf2c619c418133fb0dc7ab27eb680c3b1074ceb8",
+  "sessions": [
+    {
+      "id": "graphite-matrix-20261102",
+      "application_commit": "bf2c619c418133fb0dc7ab27eb680c3b1074ceb8",
+      "apk_sha256": "5ca93bdbbc5f4073dea7aeb3947b0341ebd7bc32353ce2e636c118753e0d922f",
+      "actions_used": 37,
+      "captures_used": 5,
+      "active_elapsed_seconds": 245.35900000017136,
+      "action_errors": 2,
+      "restoration": {
+        "display_restored": true,
+        "network_restored": true,
+        "installation_preserved": true,
+        "cleanup_errors_absent": true
+      },
+      "checks": {
+        "G_MAIN_DASHBOARD": {
+          "status": "passed",
+          "observation": "390x900 dp, density160, font1. Actual Übersicht · Demo composed Cockpit: 5 flights in segmented role orbit, 5:20 time, 2025 2:45/3 flights, Arbeit 7:25 /31,05 h; Solo 3:55, Dual 1:25, PIC+ unknown. All primary values and role labels clear without overlap.",
+          "evidence": [
+            "main-dashboard.xml",
+            "main-dashboard.png"
+          ]
+        },
+        "G_MAIN_STATISTICS": {
+          "status": "passed",
+          "observation": "Actual Flugstatistik monthly activity: time traces, distinct count stems/dots, year legends, axes, sparse month labels, unknown ? and future / indicators visible and readable. 5 flights, 5:20 h, 5 flight days.",
+          "evidence": [
+            "main-statistics.xml",
+            "main-statistics.png"
+          ]
+        },
+        "G_MAIN_BACK": {
+          "status": "passed",
+          "observation": "Contextual Back works, returning to Designvorschau with Cockpit control; it does not return directly to composed Cockpit Dashboard. Parent should assess desired route contract.",
+          "evidence": [
+            "main-return.xml"
+          ]
+        },
+        "G_MIN_DASHBOARD": {
+          "status": "passed",
+          "observation": "360x900 dp, density160, font1.6 set before re-entry. Stacked orbit/time/work composition; Solo/Dual row and full-width PIC+ row readable. All primary values visible; monthly chart below viewport.",
+          "evidence": [
+            "min-dashboard.xml",
+            "min-dashboard.png"
+          ]
+        },
+        "G_MIN_STATISTICS": {
+          "status": "passed",
+          "observation": "Actual monthly Flugstatistik at font1.6 fits entire chart, axes, count markers, unknown/future indicators and legend. Jan/Mär labels close but separate. No scroll needed.",
+          "evidence": [
+            "min-statistics.xml",
+            "min-statistics.png"
+          ]
+        },
+        "G_WIDE_DASHBOARD": {
+          "status": "passed",
+          "observation": "800x600 dp, density160, font1 set before re-entry. Actual Cockpit centered capped card about496dp wide. Primary values and role labels clear. Dashboard monthly chart below viewport; not assessed here.",
+          "evidence": [
+            "wide-dashboard.xml",
+            "wide-dashboard.png"
+          ]
+        },
+        "G_WIDE_STATISTICS": {
+          "status": "not_tested",
+          "observation": "Action budget reserve consumed by route recovery: development-entry initially not visible after one swipe, second swipe/retry succeeded. Stopped at37/40 actions with3 remaining; no wide Statistics capture.",
+          "evidence": []
+        },
+        "G_OPTIONAL": {
+          "status": "not_tested",
+          "observation": "Costs and Club omitted due action budget.",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "id": "graphite-details-20261102",
+      "application_commit": "bf2c619c418133fb0dc7ab27eb680c3b1074ceb8",
+      "apk_sha256": "5ca93bdbbc5f4073dea7aeb3947b0341ebd7bc32353ce2e636c118753e0d922f",
+      "actions_used": 34,
+      "captures_used": 5,
+      "active_elapsed_seconds": 211.90600000019185,
+      "action_errors": 0,
+      "restoration": {
+        "display_restored": true,
+        "network_restored": true,
+        "installation_preserved": true,
+        "cleanup_errors_absent": true
+      },
+      "checks": {
+        "WIDE_STATISTICS": {
+          "status": "passed",
+          "observation": "800x600 dp, density160, font1.0. Actual synthetic Flugstatistik monthly chart: 5 flights, 5:20 h, 5 flight days. Content centered x112–688 (576 dp). Time/count plots, year legends and numeric axes readable. Initial viewport requires vertical scrolling for months; scrolled capture shows all Jan–Dec labels and gap/unknown/future qualifiers without overlap.",
+          "evidence": [
+            "wide-statistics.png",
+            "wide-statistics.xml",
+            "wide-statistics-axis.png",
+            "wide-statistics-axis.xml"
+          ]
+        },
+        "MAIN_COSTS": {
+          "status": "passed",
+          "observation": "390x900 dp, density160, font1.0. Synthetic Costs hero shows 584,66 €, Bekannter Teilbetrag and incomplete/not-paid qualifiers clearly. Monthly chart title and known-partial wording readable; scrolled chart shows Jan unknown dash, Feb documented 0,00 €, Mar 6,40 €, Apr 153,00 € plus explicit unknown-versus-zero explanation. Horizontal-month affordance stated; no refresh invoked.",
+          "evidence": [
+            "main-costs.png",
+            "main-costs.xml",
+            "main-costs-chart.png",
+            "main-costs-chart.xml"
+          ]
+        },
+        "MAIN_CLUB_CARDS": {
+          "status": "passed",
+          "observation": "Synthetic Club source/event cards readable with dates, titles and locations separated. Seitenausschnitt · Vollständigkeit ungeprüft and Quellendetails visible. Document card partly below viewport; not claiming full-page acceptance.",
+          "evidence": [
+            "main-club.png",
+            "main-club.xml"
+          ]
+        },
+        "MAIN_CLUB_HEADING": {
+          "status": "not_tested",
+          "observation": "Switching Costs to Club retained scrolled position, so final available capture shows source cards rather than compact heading. Scrolled to top and confirmed exact heading Demo Segelflugverein Talwiese in fresh XML bounds [63,512][333,533], but capture budget exhausted; no visual heading acceptance claimed.",
+          "evidence": [
+            "main-club-top.xml"
+          ]
+        }
+      }
+    }
+  ],
+  "parent_reviewed_images": [
+    "main-dashboard.png",
+    "main-statistics.png",
+    "min-dashboard.png",
+    "min-statistics.png",
+    "wide-dashboard.png",
+    "wide-statistics.png",
+    "wide-statistics-axis.png",
+    "main-costs.png",
+    "main-costs-chart.png",
+    "main-club.png"
+  ],
+  "limits": [
+    "Synthetic shared component presentation, not ordinary private/provider acceptance.",
+    "Preview Statistics Back returns DesignPreview, not its composed Cockpit subpreview; ordinary production Back is covered by focused navigation tests.",
+    "MIN Jan/Mar ticks close but do not overlap. Club top heading not visually captured due retained preview scroll.",
+    "Physical phone, iOS runtime, light, spoken trials and service activation not tested."
+  ]
+}

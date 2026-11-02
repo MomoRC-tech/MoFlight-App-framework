@@ -1,0 +1,12 @@
+{
+  "source_commit": "bf2c619c418133fb0dc7ab27eb680c3b1074ceb8",
+  "apk_sha256": "5ca93bdbbc5f4073dea7aeb3947b0341ebd7bc32353ce2e636c118753e0d922f",
+  "zip_sha256": "1e7b58428c9cc79471581d975e8f9ba4cfa7a20c7589cbf84d1bc6a8b3b833d1",
+  "inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "download_matches_local": true,
+  "embedded_source_verified": true,
+  "release_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-graphite-2026-11-02-bf2c619"
+}
