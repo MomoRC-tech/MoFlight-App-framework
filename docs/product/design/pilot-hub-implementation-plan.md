@@ -35,7 +35,7 @@ The owner rejects the first palette and describes the UI as clumsy. Keep the six
 - [x] Refine shared surfaces/navigation and module entry pages consistently; remove repeated explanatory and marketing copy.
 - [x] Add the combined season instrument, exact aircraft labels/bars, prior-year count marker and direct aircraft-detail routing. Unknown and zero data draw no false progress.
 - [x] Refresh source-rendered phone/wide review; TypeScript, focused lint and 67 financial/navigation/instrument checks pass. This is no native acceptance.
-- [ ] Update evidence/handbook and push the revision. Native acceptance stays deferred.
+- [x] Update evidence/handbook and push the revision: application source [80a9f6d](https://github.com/MomoRC-tech/MoFlight-App-framework/commit/80a9f6d). Native acceptance stays deferred.
 
 Android challenge: color supports hierarchy rather than decorating every panel; essential actions retain labels, sufficient contrast and independent touch targets. Preserve the owner's six-item exception and wide rail. Do not make unavailable workflows visually dominate verified current facts.
 
