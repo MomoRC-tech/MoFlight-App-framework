@@ -1,8 +1,10 @@
 # MoFlight documentation
 
+Latest UI: [owner-selected Club/Assistant adoption and bare Start follow-up](verification/2026-11-02-selected-experiment-adoption.md). Current five destinations remain; other experiment proposals are unselected.
+
 Current UI increment: [compact monthly Start and cool controls](verification/2026-11-02-compact-monthly-start.md), retaining the upper season composition and lean tiles.
 
-Current Start: [restored season layout with lean tiles](verification/2026-11-02-start-restoration.md). [Experiment adoption review](product/design/pilot-experiment-adoption-review.md) is recommendations only; #116 awaits selection.
+Earlier Start: [restored season layout with lean tiles](verification/2026-11-02-start-restoration.md). [Experiment adoption review](product/design/pilot-experiment-adoption-review.md) records the original recommendations; the later owner selection covers only Verein and local starters.
 
 Current charts: [modern vector implementation](verification/2026-11-02-modern-charts.md), with source-specific native selection/Back evidence.
 

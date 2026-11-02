@@ -1,0 +1,12 @@
+{
+  "source_commit": "dbed486fe307dc66ad6a793379ec040442d0c748",
+  "apk_sha256": "7334d644b201bba7bd7054ffab3cf1d0ab3ca0214e449416554c2a0df4077bf1",
+  "zip_sha256": "dc70eb900f09543f72eb6cbb43afec9facc0e2a17fc2e53e6b28f66506494699",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "release_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-selected-ui-2026-11-02-dbed486"
+}

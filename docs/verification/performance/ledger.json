@@ -51038,6 +51038,64 @@
           }
         }
       ]
+    },
+    {
+      "id": "selected-ui-20261102-phone",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "dbed486fe307dc66ad6a793379ec040442d0c748",
+      "apk_sha256": "7334d644b201bba7bd7054ffab3cf1d0ab3ca0214e449416554c2a0df4077bf1",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; MAIN390x900/font1, MIN360x900/font1.6, WIDE800x600/font1, density160; actual profile in evidence",
+      "input": "Fictional shared-component Cockpit/Club/Assistant preview; ordinary root Club unknown-state observation if reached. No user data writes.",
+      "conditions": "Installed committed-source Release, offline. Original display/network/install identity restored.",
+      "method": "Controller active elapsed including model deliberation, ADB, waiting and observer overhead.",
+      "limits": "Tooling wall-clock only, not app latency or controlled speed comparison. Source-specific reached states and remaining gates in evidence.",
+      "evidence": [
+        "docs/verification/2026-11-02-selected-experiment-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 188312.00000015087,
+          "outcome": "success",
+          "details": {
+            "actions": 31,
+            "captures": 5,
+            "action_errors": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "selected-ui-20261102-responsive",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "dbed486fe307dc66ad6a793379ec040442d0c748",
+      "apk_sha256": "7334d644b201bba7bd7054ffab3cf1d0ab3ca0214e449416554c2a0df4077bf1",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; MAIN390x900/font1, MIN360x900/font1.6, WIDE800x600/font1, density160; actual profile in evidence",
+      "input": "Fictional shared-component Cockpit/Club/Assistant preview; ordinary root Club unknown-state observation if reached. No user data writes.",
+      "conditions": "Installed committed-source Release, offline. Original display/network/install identity restored.",
+      "method": "Controller active elapsed including model deliberation, ADB, waiting and observer overhead.",
+      "limits": "Tooling wall-clock only, not app latency or controlled speed comparison. Source-specific reached states and remaining gates in evidence.",
+      "evidence": [
+        "docs/verification/2026-11-02-selected-experiment-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 191609.00000017136,
+          "outcome": "partial",
+          "details": {
+            "actions": 33,
+            "captures": 6,
+            "action_errors": 0
+          }
+        }
+      ]
     }
   ]
 }

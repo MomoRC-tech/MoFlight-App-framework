@@ -1,0 +1,242 @@
+{
+  "sessions": [
+    {
+      "profile": "phone",
+      "application_commit": "dbed486fe307dc66ad6a793379ec040442d0c748",
+      "apk_sha256": "7334d644b201bba7bd7054ffab3cf1d0ab3ca0214e449416554c2a0df4077bf1",
+      "actions_used": 31,
+      "captures_used": 5,
+      "active_elapsed_seconds": 188.31200000015087,
+      "android_api": "37",
+      "restoration": {
+        "display": true,
+        "network": true,
+        "installation": true,
+        "cleanup": true
+      },
+      "action_errors": [],
+      "worker_checks": {
+        "U03": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by narrowed selected MAIN-only scope; no broad baseline, keyboard, restart or book acceptance.",
+          "evidence": []
+        },
+        "S03-ai": {
+          "status": "passed",
+          "observation": "AI Demo shows three small local starters: Saison zusammenfassen, Flugzeit vergleichen, Kennzeichen ansehen. Season starter renders local draft Fasse meine Flüge dieser Saison zusammen. No Send/provider/model/archive action used; no keyboard/text input.",
+          "evidence": [
+            "cockpit-ai.xml",
+            "cockpit-ai.png",
+            "cockpit-ai-draft.xml",
+            "cockpit-ai-draft.png"
+          ]
+        },
+        "S04-root-club": {
+          "status": "passed",
+          "observation": "After closing Cockpit and Back out of preview/development/profile, root Verein presents same five task destinations with unknown saved-data states. No retrieval or root AI used. Presence/readability checked; destination routes other than preview Dienste not opened.",
+          "evidence": [
+            "after-preview-back.xml",
+            "root-return.xml",
+            "root-club.xml",
+            "root-club.png"
+          ]
+        },
+        "U08": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by narrowed selected MAIN-only scope; no broad baseline, keyboard, restart or book acceptance.",
+          "evidence": []
+        },
+        "S05-route": {
+          "status": "passed",
+          "observation": "Profile scrolled once until development-entry fully visible, then development-design-preview and Cockpit reached. Final action returns root overview.",
+          "evidence": [
+            "profile.xml",
+            "profile-scrolled.xml",
+            "development.xml",
+            "preview.xml"
+          ]
+        },
+        "S02-club": {
+          "status": "passed",
+          "observation": "Five readable preview rows: Dienste, Termine, Arbeitsstunden, Aufgaben, Dokumente. Supporting text wraps without overlap. Dienste opens Dienstübersicht; contextual toolbar Back returns to Verein Demo menu.",
+          "evidence": [
+            "cockpit-club.xml",
+            "cockpit-club.png",
+            "club-duties.xml",
+            "club-return.xml"
+          ]
+        },
+        "U05": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by narrowed selected MAIN-only scope; no broad baseline, keyboard, restart or book acceptance.",
+          "evidence": []
+        },
+        "U01": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by narrowed selected MAIN-only scope; no broad baseline, keyboard, restart or book acceptance.",
+          "evidence": []
+        },
+        "U02": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by narrowed selected MAIN-only scope; no broad baseline, keyboard, restart or book acceptance.",
+          "evidence": []
+        },
+        "U06": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by narrowed selected MAIN-only scope; no broad baseline, keyboard, restart or book acceptance.",
+          "evidence": []
+        },
+        "U07": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by narrowed selected MAIN-only scope; no broad baseline, keyboard, restart or book acceptance.",
+          "evidence": []
+        },
+        "U04": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by narrowed selected MAIN-only scope; no broad baseline, keyboard, restart or book acceptance.",
+          "evidence": []
+        },
+        "S01-start": {
+          "status": "passed",
+          "observation": "MAIN 390x900 dp, density160, font1.0 dark Cockpit Start: one Flugzeit/Flüge selector and latest-date row; 2026/2025 legend beside 0–3:00 h scale; month axis is last chart content with no text/action below. Five bottom navigation entries retained.",
+          "evidence": [
+            "cockpit-start.xml",
+            "cockpit-start.png"
+          ]
+        }
+      },
+      "parent_reviewed_images": [
+        "cockpit-start.png",
+        "cockpit-club.png",
+        "cockpit-ai.png",
+        "cockpit-ai-draft.png",
+        "root-club.png"
+      ]
+    },
+    {
+      "profile": "responsive",
+      "application_commit": "dbed486fe307dc66ad6a793379ec040442d0c748",
+      "apk_sha256": "7334d644b201bba7bd7054ffab3cf1d0ab3ca0214e449416554c2a0df4077bf1",
+      "actions_used": 33,
+      "captures_used": 6,
+      "active_elapsed_seconds": 191.60900000017136,
+      "android_api": "37",
+      "restoration": {
+        "display": true,
+        "network": true,
+        "installation": true,
+        "cleanup": true
+      },
+      "action_errors": [],
+      "worker_checks": {
+        "U01": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Narrow responsive preview scope; broad baseline, MAIN interactions, keyboard and restart checks deliberately excluded."
+        },
+        "U02": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Narrow responsive preview scope; broad baseline, MAIN interactions, keyboard and restart checks deliberately excluded."
+        },
+        "U03": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Narrow responsive preview scope; broad baseline, MAIN interactions, keyboard and restart checks deliberately excluded."
+        },
+        "U04": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Narrow responsive preview scope; broad baseline, MAIN interactions, keyboard and restart checks deliberately excluded."
+        },
+        "U05": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Narrow responsive preview scope; broad baseline, MAIN interactions, keyboard and restart checks deliberately excluded."
+        },
+        "U06": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Narrow responsive preview scope; broad baseline, MAIN interactions, keyboard and restart checks deliberately excluded."
+        },
+        "U07": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Narrow responsive preview scope; broad baseline, MAIN interactions, keyboard and restart checks deliberately excluded."
+        },
+        "U08": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Narrow responsive preview scope; broad baseline, MAIN interactions, keyboard and restart checks deliberately excluded."
+        },
+        "MIN_START": {
+          "status": "passed",
+          "evidence": [
+            "min-start.png",
+            "min-start.xml"
+          ],
+          "observation": "360x900 dp, density 160, font 1.6. Demo overview has month initials only below plot; switch/latest row is readable without overlap. Upper metric overflow intentional."
+        },
+        "MIN_CLUB": {
+          "status": "passed",
+          "evidence": [
+            "min-club.png",
+            "min-club.xml"
+          ],
+          "observation": "Five compact menu headings visible; Aufgaben shows Unbekannt. Fifth row supporting content continues below viewport; no row-text overlap observed."
+        },
+        "MIN_AI": {
+          "status": "passed",
+          "evidence": [
+            "min-ai.png",
+            "min-ai.xml"
+          ],
+          "observation": "Three compact starter buttons visible and readable, vertically wrapped; disconnected-service and synthetic cues visible. No starter invoked."
+        },
+        "WIDE_START": {
+          "status": "passed",
+          "evidence": [
+            "wide-start.png",
+            "wide-start.xml"
+          ],
+          "observation": "800x600 dp, density 160, font 1.0. Main group centered/bounded; months below bars and compact combined switch/latest row readable."
+        },
+        "WIDE_CLUB": {
+          "status": "passed",
+          "evidence": [
+            "wide-club.png",
+            "wide-club.xml"
+          ],
+          "observation": "Club group centered/bounded; five compact menu headings and Aufgaben Unbekannt cue visible. Bottom of Dokumente continues behind viewport boundary."
+        },
+        "WIDE_AI": {
+          "status": "failed",
+          "evidence": [
+            "wide-ai.png",
+            "wide-ai.xml"
+          ],
+          "observation": "Three compact starters fit on one centered/bounded row. Secondary Zur Übersicht button renders only Zur, visibly truncating its label."
+        }
+      },
+      "parent_reviewed_images": [
+        "min-start.png",
+        "min-club.png",
+        "min-ai.png",
+        "wide-start.png",
+        "wide-club.png",
+        "wide-ai.png"
+      ]
+    }
+  ],
+  "limits": [
+    "Synthetic dark Android only, not physical phone, iOS runtime, light theme, live provider or model acceptance.",
+    "Aesthetic acceptance belongs to the owner; controller completion is not an automatic UI pass."
+  ],
+  "parent_assessment": {
+    "start": "MAIN390x900/font1, MIN360x900/font1.6 and WIDE800x600/font1, density160: month axis is final content in the chart card; no unknown-time/date caption, disclosure or Alle Flüge row. Latest-flight action and measure controls share one row. Upper horizontal metric overflow remains intentional; later-metric swipe not exercised.",
+    "club": "Parent inspected shared menu at all three sizes and ordinary root Club unknown state at MAIN. Five destinations readable and bounded; long/large-font content scrolls rather than needing every detail simultaneously visible. MAIN Dienste toolbar/native return observed by worker. Full source/scroll/account behavior also has focused host evidence.",
+    "assistant": "Three compact starter faces render at MAIN/MIN/WIDE. MAIN local preview selection visibly fills the season draft without a Send/service/archive operation. This is the shared starter leaf with an in-memory adapter, not full production archive/persistence/model acceptance.",
+    "incidental_issue": "WIDE existing Development-preview secondary Zur Übersicht Action paints only Zur. Confirmed in wide-ai.png, retained as a failed worker observation and tracked under #94. No claim of full-page Assistant/button acceptance. New starter labels themselves render fully.",
+    "limits": "Dark synthetic Android only. Physical phone, iOS runtime, light, keyboard/spoken, actual AI archive/draft persistence and model/provider acceptance remain separate. No speedup inferred from controller time."
+  }
+}
