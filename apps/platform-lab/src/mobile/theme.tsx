@@ -3,10 +3,10 @@ import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePro
 import { SymbolIcon, legacyIconTone, type SymbolName, type SymbolTone } from './SymbolIcon';
 
 // Content, shell and Start tiles have separately scoped surface roles.
-export const colors = { background: '#0b1220', card: '#151f30', raised: '#1e2c41', border: '#2e3d54', text: '#f3f6fb', muted: '#a5b4c8', blue: '#8ce5dc', cyan: '#8ce5dc', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
-export const startSurfaces = { card: '#151f30', raised: '#1e2c41', border: '#2e3d54' };
+export const colors = { background: '#051b2b', card: '#0b2a40', raised: '#123b55', border: '#26465c', text: '#eaf4ff', muted: '#9eb8cc', blue: '#43c9ff', cyan: '#43c9ff', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
+export const startSurfaces = { card: '#0b2a40', raised: '#123b55', border: '#26465c' };
 // Brighter Start tiles; keep the header/bottom-navigation palette above unchanged.
-export const startTileSurfaces = { card: '#151f30', raised: '#1e2c41', border: '#2e3d54' };
+export const startTileSurfaces = { card: '#0b2a40', raised: '#123b55', border: '#26465c' };
 export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
   return <SymbolIcon name="glider" size={large ? 68 : 28} tone={legacyIconTone(color)} />;
 }
@@ -48,7 +48,7 @@ export const ui = StyleSheet.create({
   text: { color: colors.text, fontSize: 15, lineHeight: 22 }, muted: { color: colors.muted },
   title: { color: colors.text, fontSize: 26, fontWeight: '700', letterSpacing: -.6 },
   heading: { color: colors.text, fontSize: 19, lineHeight: 26, fontWeight: '600' },
-  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 22, padding: 20, gap: 14, overflow: 'hidden' },
+  card: { backgroundColor: colors.card, borderWidth: 0, borderColor: colors.border, borderRadius: 18, padding: 16, gap: 12, overflow: 'hidden' },
   startCard: { backgroundColor: startTileSurfaces.card, borderColor: startTileSurfaces.border },
   headerAction: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   cockpitImage: { opacity: .82 },
@@ -58,7 +58,7 @@ export const ui = StyleSheet.create({
   column: { flex: 1, minWidth: 0, gap: 8 },
   actionTouch: { minHeight: 48, minWidth: 48, justifyContent: 'center', maxWidth: '100%' },
   secondaryTouch: { alignSelf: 'flex-start' },
-  action: { minHeight: 40, minWidth: 48, alignSelf: 'stretch', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 10, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
+  action: { minHeight: 40, minWidth: 48, alignSelf: 'stretch', borderRadius: 14, paddingHorizontal: 18, paddingVertical: 10, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
   actionText: { color: '#031326', fontSize: 15, lineHeight: 22, fontWeight: '600' },
   actionContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   secondary: { backgroundColor: colors.raised, borderWidth: 1, borderColor: colors.border },

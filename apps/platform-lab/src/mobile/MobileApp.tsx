@@ -296,7 +296,7 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
   useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state!=='active'){syncConfirmation.invalidate();setSyncPrompt(null);}if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
   const openBooks = () => openHeaderSheet('paper');
   const pageTitle = pilotTitles[tab];
-  const openStatistics=(mode:'flights'|'costs'='flights')=>{setStatisticsMode(mode);setStatisticsYear(Number(today.slice(0,4)));setStatisticsSection('overview');setStatisticsChart(undefined);setStatisticsContributors(undefined);ownFlights.clearDetail();openHeaderSheet('statistics');};
+  const openStatistics=(mode:'flights'|'costs'='flights',section:StatisticsSection='overview')=>{setStatisticsMode(mode);setStatisticsYear(Number(today.slice(0,4)));setStatisticsSection(section);setStatisticsChart(undefined);setStatisticsContributors(undefined);ownFlights.clearDetail();openHeaderSheet('statistics');};
   const readState=ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready';
   const notice=idleSyncNotice({receivedAt,readState,now,activityChanged});
   const completed=!!updateForOwner&&completedSyncProgress(updateForOwner).state==='idle';
@@ -339,7 +339,7 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
           <PilotHome view={ownFlights.view} preview={startPreview} phase={ownFlights.phase} now={now} duties={startDutyOverview} medical={startMedical} medicalLoading={medicalLoading&&!startMedical}
             active={tab==='home'&&!overlayOpen&&!coreFlightsOpen&&!syncRunning} reload={flightReload} onUpdate={()=>openFlightFlow('update')}
             onPaper={()=>setTab('logbook')} onFlights={()=>openFlightModule()} onFlight={flightId=>openFlightModule('home',flightId)}
-            onStatistics={()=>openStatistics()} onCosts={()=>openStatistics('costs')} onDuties={openDuties} onClub={()=>{openClubSection('Übersicht');setTab('club');}} onAssistant={()=>setTab('ai')} onMedical={()=>openHeaderSheet('medical')}/>
+            onStatistics={section=>openStatistics('flights',section)} onCosts={()=>openStatistics('costs')} onDuties={openDuties} onClub={()=>{openClubSection('Übersicht');setTab('club');}} onAssistant={()=>setTab('ai')} onMedical={()=>openHeaderSheet('medical')}/>
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>

@@ -2,7 +2,7 @@ MOFLIGHT — CURRENT UI DESIGN HANDBOOK AND AI HANDOFF
 
 # MoFlight UI design handbook
 
-**2 November isolated pilot-hub redesign (#116):** on `codex/pilot-ui-redesign`, the owner authorizes a complete Start/layout/palette rethink from rollback `eeda7a0`. The [maintained implementation plan](pilot-hub-implementation-plan.md) controls this experiment: six subapp summaries on Start, six persistent labelled destinations, adaptive rail, ink/slate/mint surfaces and truthful unfinished states. [Synthetic visual review](proposals/pilot-hub-review.html) · [focused evidence and limits](../../verification/2026-11-02-pilot-hub.md). This branch amendment overrides conflicting appearance/Start/navigation instructions below. Final design selection and native acceptance remain pending.
+**2 November isolated pilot-hub redesign (#116):** on `codex/pilot-ui-redesign`, the owner authorizes a complete Start/layout/palette rethink from rollback `eeda7a0`. The [maintained implementation plan](pilot-hub-implementation-plan.md) controls this experiment: six subapp summaries on Start, six persistent labelled destinations, adaptive rail, aviation-blue/sky surfaces, combined season rings and concise unfinished states. [Synthetic visual review](proposals/pilot-hub-review.html) · [focused evidence and limits](../../verification/2026-11-02-pilot-hub.md). This branch amendment overrides conflicting appearance/Start/navigation instructions below. Final design selection and native acceptance remain pending.
 
 **29 October Start correction (#108):** [lighter tile fills, thin visible outlines and per-Medical expiry badges](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) supersede the retained Start tile colors only. Header/navigation and all source/date rules remain separately scoped.
 
@@ -98,7 +98,7 @@ The [30 October financial analysis amendment](patterns.md#financial-analysis--au
 
 # Dark Compact Cockpit — approved 24 October 2026
 
-**Isolated branch amendment, 2 November 2026 (#116):** the owner requests a completely rethought UI from the rollback release. On `codex/pilot-ui-redesign` only, the [pilot-hub implementation plan](pilot-hub-implementation-plan.md) supersedes appearance, Start preservation and five-destination navigation below. Six persistent modules, six Start summaries and ink/slate/mint surfaces are implemented for review. Original logo, source/unknown/account and unfinished-feature contracts remain. Main's previous appearance is preserved; no final visual/native acceptance is claimed.
+**Isolated branch amendment, 2 November 2026 (#116):** the owner requests a completely rethought UI from the rollback release. On `codex/pilot-ui-redesign` only, the [pilot-hub implementation plan](pilot-hub-implementation-plan.md) supersedes appearance, Start preservation and five-destination navigation below. Six persistent modules, six Start summaries and aviation-blue/sky surfaces and combined season rings are implemented for review. Original logo, source/unknown/account and unfinished-feature contracts remain. Main's previous appearance is preserved; no final visual/native acceptance is claimed.
 
 ## Calculated annual Pflicht target — selected 29 October 2026
 
@@ -482,7 +482,7 @@ Approved under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issue
 
 # Visual foundations
 
-**Pilot-hub branch (Issue 116), 2 November:** the [implementation plan](pilot-hub-implementation-plan.md) supersedes earlier color-preservation prose on this experimental branch. Generated roles below reflect ink/slate/mint. New cards use 22-dp corners/20-dp padding, a warm paper surface, scalable text and labelled 48-dp-minimum controls. Existing image/symbol assets retain their original colors; original logo is unchanged. This is implemented for review, not final owner selection or whole-app accessibility acceptance.
+**Pilot-hub branch (Issue 116), 2 November:** the [implementation plan](pilot-hub-implementation-plan.md) supersedes earlier color-preservation prose on this experimental branch. The initial ink/slate/mint treatment was rejected. Generated roles now reflect aviation blue/sky. Shared panels use 18-dp corners/16-dp padding without perimeter outlines; the season instrument has a distinct gradient surface. Supporting copy is reduced; scalable labels and 48-dp targets remain. Existing image/symbol assets retain their original colors; original logo is unchanged. This is implemented for review, not final owner selection or whole-app accessibility acceptance.
 
 **Earlier 29 October Start tiles:** the [Issue 108 correction](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) preserves the historical teal card/raised/outline values. This branch replaces those surface exports with the palette below and moves Medical to a compact reminder linked to its full details. The recorded expiry meanings remain green ✓ beyond six months, amber ! within the inclusive window, red × past and gray ? unknown; existing source/date semantics remain.
 
@@ -500,14 +500,14 @@ Keep surface, text, action, state and chart roles consistent, including foregrou
 <!-- generated:theme:start -->
 | Semantic role / code key | Value | Allowed/current use | Pairing context |
 | --- | --- | --- | --- |
-| surface.canvas / `background` | `#0b1220` | Primary dark canvas | text / muted |
-| surface.card / `card` | `#151f30` | Opaque shared content panel | text / muted |
-| surface.raised / `raised` | `#1e2c41` | Raised / secondary action surface | text |
-| stroke.default / `border` | `#2e3d54` | Shared card/control outlines | dark surfaces |
-| text.primary / `text` | `#f3f6fb` | Primary readable text | background / card / raised |
-| text.secondary / `muted` | `#a5b4c8` | Supporting text and inactive symbols | dark surfaces |
-| action.primary / `blue` | `#8ce5dc` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
-| accent.general / `cyan` | `#8ce5dc` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
+| surface.canvas / `background` | `#051b2b` | Primary dark canvas | text / muted |
+| surface.card / `card` | `#0b2a40` | Opaque shared content panel | text / muted |
+| surface.raised / `raised` | `#123b55` | Raised / secondary action surface | text |
+| stroke.default / `border` | `#26465c` | Shared card/control outlines | dark surfaces |
+| text.primary / `text` | `#eaf4ff` | Primary readable text | background / card / raised |
+| text.secondary / `muted` | `#9eb8cc` | Supporting text and inactive symbols | dark surfaces |
+| action.primary / `blue` | `#43c9ff` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
+| accent.general / `cyan` | `#43c9ff` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
 | accent.assistant.family / `purple` | `#231e63` | Retained assistant-family token; not a shared panel fill | light text; check displayed panel |
 | accent.paper.family / `orange` | `#fc6a2d` | Retained paper-family token; no photographic paper hero | dark action text in context |
 | feedback.saved / `green` | `#48dba5` | Local profile saved text; also a chart-palette color | dark surfaces; meaning needs text |
@@ -594,11 +594,11 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 <!-- generated:contrast:start -->
 | Opaque pair | Foreground | Background | Calculated ratio |
 | --- | --- | --- | --- |
-| Primary text / canvas | `#f3f6fb` | `#0b1220` | 17.28:1 |
-| Muted text / card | `#a5b4c8` | `#151f30` | 7.84:1 |
-| Action label / mint action | `#031326` | `#8ce5dc` | 12.76:1 |
-| General mint accent / canvas | `#8ce5dc` | `#0b1220` | 12.80:1 |
-| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#8ce5dc` | 8.22:1 |
+| Primary text / canvas | `#eaf4ff` | `#051b2b` | 15.76:1 |
+| Muted text / card | `#9eb8cc` | `#0b2a40` | 7.17:1 |
+| Action label / mint action | `#031326` | `#43c9ff` | 9.81:1 |
+| General mint accent / canvas | `#43c9ff` | `#051b2b` | 9.21:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#43c9ff` | 6.32:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography
@@ -615,7 +615,7 @@ The U1/U3 header uses neutral saved-age text independently of session state, wit
 
 # Components, symbols and shapes
 
-**Pilot-hub branch (#116), 2 November:** `PilotHome`, `SubappNavigation`, `HomeCosts`, `PilotClubOverview` and `PaperWorkspace` implement the [branch contract](pilot-hub-implementation-plan.md), superseding earlier dashboard/navigation entries below on this branch. Six persistent labelled destinations use a compact bottom bar or wide rail. Shared content panels use slate surfaces, 22-dp corners and 20-dp padding. Existing detail modules and their source/unknown/confirmation/recovery semantics remain.
+**Pilot-hub branch (#116), 2 November:** `PilotHome`, `SubappNavigation`, `HomeCosts`, `PilotClubOverview` and `PaperWorkspace` implement the [branch contract](pilot-hub-implementation-plan.md), superseding earlier dashboard/navigation entries below on this branch. Six persistent labelled destinations use a compact bottom bar or wide rail. The owner-revised treatment adds `PilotSeasonInstrument`, aviation-blue surfaces, 18-dp corners/16-dp padding, compact rows and fewer outlines/text. Outer aircraft-time sections and inner count comparison have direct labels and exact matching mini-bars. Existing detail modules and their source/unknown/confirmation/recovery semantics remain.
 
 **29 October Start correction (#108):** [selected tile/badge amendment](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) overrides earlier Start tile surface values. Medical rows retain name/date plus a small green ✓ / orange ! / red × / gray ? date-status badge, with complete date relationships on the parent action. No independent badge action.
 
@@ -877,7 +877,7 @@ The explicit Costs “Belege abrufen” action is a scoped exception to the earl
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 134 product mobile TypeScript/model and app-owned TSX UI/adapter files; 85 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 135 product mobile TypeScript/model and app-owned TSX UI/adapter files; 94 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -1056,7 +1056,7 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AiChat.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `4f2e16692864cbae9bc3d3c9b494530132410eabc0e7459c19009347f7393e2a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `40d58db977001e36701af5ea48e0b94fb0adffa9be0bc85ca23e2b6ea2edf213`.
 
 ### Literal colors
 
@@ -1069,7 +1069,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../..
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 172, 249, 250 |
+| `fontSize: 12` | 249, 250 |
 | `fontSize: 14` | 252 |
 | `fontSize: 15` | 248, 252 |
 | `fontSize: 16` | 250, 251 |
@@ -1081,7 +1081,6 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../..
 | `fontWeight: '600'` | 170, 248, 251, 252 |
 | `lineHeight: 17` | 250 |
 | `lineHeight: 18` | 249 |
-| `lineHeight: 19` | 172 |
 | `lineHeight: 20` | 252 |
 | `lineHeight: 22` | 250, 252 |
 | `lineHeight: 28` | 251 |
@@ -1837,17 +1836,28 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/HelpScreen.tsx](.
 
 ## HomeCosts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/HomeCosts.tsx](../../../apps/platform-lab/src/mobile/HomeCosts.tsx); normalized SHA-256 `514a3b8b571a4d701b1991d7195ac6a2185c9ba89fc0e29060767f62ac0da59e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/HomeCosts.tsx](../../../apps/platform-lab/src/mobile/HomeCosts.tsx); normalized SHA-256 `775d284b3c58003d3270bc6d2979591d2305aa49e092ea04253da87cc0e8f825`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 33 |
-| `fontSize: 30` | 33 |
-| `fontWeight: '600'` | 33 |
-| `lineHeight: 19` | 33 |
-| `lineHeight: 40` | 33 |
+| `fontSize: 12` | 35, 36 |
+| `fontSize: 26` | 35 |
+| `fontWeight: '600'` | 35 |
+| `letterSpacing: 1.2` | 35 |
+| `lineHeight: 18` | 35 |
+| `lineHeight: 19` | 36 |
+| `lineHeight: 34` | 35 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `gap: 12` | 35 |
+| `gap: 4` | 35 |
+| `gap: 6` | 34 |
+| `paddingVertical: 14` | 34 |
 
 ## ImportPreview.tsx
 
@@ -1965,7 +1975,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `70794cc1fe5f1481360838d257abc56915241651fe8ee2b95c852fe04bd165e8`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `4b4f4dc93c31e8b01d34302d6f10828aea5e2a218774b1147f6d20b0377cf4c1`.
 
 ### Literal colors
 
@@ -2240,7 +2250,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperStatus.tsx](
 
 ## PaperWorkspace.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperWorkspace.tsx](../../../apps/platform-lab/src/mobile/PaperWorkspace.tsx); normalized SHA-256 `9e05b7407393225d5ac34d968ee263d4cb513e722e972f4561144d0651ea1e77`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperWorkspace.tsx](../../../apps/platform-lab/src/mobile/PaperWorkspace.tsx); normalized SHA-256 `e324963cdee1f8d3ee190836278314bc6a5dbced8143d71ebf441579673d020d`.
 
 ### Literal colors
 
@@ -2278,7 +2288,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PaperWorkspace.ts
 
 ## PilotClubOverview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PilotClubOverview.tsx](../../../apps/platform-lab/src/mobile/PilotClubOverview.tsx); normalized SHA-256 `2620eb3483527f099108b5253de7593c17f73110b7edd8915199b83e29065e54`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PilotClubOverview.tsx](../../../apps/platform-lab/src/mobile/PilotClubOverview.tsx); normalized SHA-256 `6e2c181262c1e7e795cb5a74206f98b531b5fb3dff534418a196c5458595f752`.
 
 ### Typography declarations
 
@@ -2304,67 +2314,122 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PilotClubOverview
 
 ## PilotHome.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PilotHome.tsx](../../../apps/platform-lab/src/mobile/PilotHome.tsx); normalized SHA-256 `1dd47b97a21ae67011ddc1bfa7777dea18ac96b78e08af086b75dec3b6a7d637`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PilotHome.tsx](../../../apps/platform-lab/src/mobile/PilotHome.tsx); normalized SHA-256 `68c6a770953b195f73d0779321640a58c4ccdafde0a359a574590b06d94bb9fe`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#1d2e3b` | 80 |
-| `#3e5662` | 80 |
-| `#f2c49c` | 82 |
+| `#1b2f40` | 79 |
+| `#1c2948` | 79 |
+| `#9fb9ce` | 75 |
+| `#b5d2e6` | 77 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 78, 86 |
-| `fontSize: 13` | 84 |
-| `fontSize: 15` | 86 |
-| `fontSize: 22` | 81 |
-| `fontSize: 29` | 78 |
-| `fontSize: 35` | 83 |
-| `fontWeight: '600'` | 81, 83, 84, 86 |
-| `fontWeight: '700'` | 78 |
-| `letterSpacing: -.5` | 81 |
-| `letterSpacing: -.8` | 78 |
-| `letterSpacing: -1` | 83 |
-| `letterSpacing: 1` | 78 |
-| `lineHeight: 18` | 78, 86 |
-| `lineHeight: 19` | 86 |
-| `lineHeight: 20` | 84 |
-| `lineHeight: 22` | 86 |
-| `lineHeight: 30` | 81 |
-| `lineHeight: 37` | 78 |
-| `lineHeight: 44` | 83 |
+| `fontSize: 12` | 75, 77, 78, 80, 82 |
+| `fontSize: 15` | 82 |
+| `fontSize: 20` | 79 |
+| `fontSize: 30` | 75 |
+| `fontWeight: '600'` | 77, 79, 82 |
+| `fontWeight: '700'` | 75 |
+| `letterSpacing: -.4` | 79 |
+| `letterSpacing: -1` | 75 |
+| `letterSpacing: 1.2` | 77 |
+| `lineHeight: 18` | 77, 82 |
+| `lineHeight: 19` | 75, 78, 80, 82 |
+| `lineHeight: 22` | 82 |
+| `lineHeight: 28` | 79 |
+| `lineHeight: 38` | 75 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 3` | 82 |
-| `gap: 0` | 85 |
-| `gap: 12` | 80, 83, 85 |
-| `gap: 16` | 79 |
-| `gap: 22` | 77 |
-| `gap: 3` | 83, 86 |
-| `gap: 5` | 84 |
-| `gap: 6` | 77 |
-| `gap: 8` | 82 |
-| `height: 6` | 82 |
-| `maxWidth: 1000` | 77 |
-| `minHeight: 48` | 84 |
-| `minHeight: 70` | 83 |
-| `minHeight: 72` | 85 |
-| `minWidth: 0` | 79 |
-| `padding: 20` | 80 |
-| `paddingVertical: 0` | 85 |
-| `paddingVertical: 16` | 85 |
-| `paddingVertical: 6` | 84 |
-| `paddingVertical: 8` | 83 |
-| `width: '100%'` | 77 |
-| `width: 34` | 86 |
-| `width: 6` | 82 |
+| `borderRadius: 18` | 79 |
+| `gap: 12` | 79, 81 |
+| `gap: 14` | 74, 76 |
+| `gap: 3` | 74, 80, 82 |
+| `gap: 6` | 79, 80 |
+| `gap: 8` | 77, 80 |
+| `maxWidth: 1000` | 74 |
+| `minHeight: 36` | 77 |
+| `minHeight: 48` | 78 |
+| `minHeight: 64` | 81 |
+| `minWidth: 0` | 76, 79 |
+| `padding: 16` | 79 |
+| `paddingHorizontal: 4` | 78 |
+| `paddingVertical: 12` | 80, 81 |
+| `width: '100%'` | 74 |
+| `width: 32` | 82 |
+
+## PilotSeasonInstrument.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/PilotSeasonInstrument.tsx](../../../apps/platform-lab/src/mobile/PilotSeasonInstrument.tsx); normalized SHA-256 `2189b4c0ff2541aa4d5df2f0f59f101fc6b5feb877aaa50f4d7692bd339eeaed`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#092a43` | 58 |
+| `#103757` | 58 |
+| `#14476e` | 58 |
+| `#214863` | 14, 58 |
+| `#315a76` | 58 |
+| `#b5d2e6` | 58 |
+| `#f7c46b` | 40, 58 |
+
+### Gradients
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `linear-gradient(130deg, #14476e, #092a43)` | 58 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 12` | 58 |
+| `fontSize: 27` | 58 |
+| `fontSize: 38` | 58 |
+| `fontWeight: '600'` | 58 |
+| `letterSpacing: -1` | 58 |
+| `letterSpacing: 1.5` | 58 |
+| `lineHeight: 18` | 58 |
+| `lineHeight: 19` | 58 |
+| `lineHeight: 36` | 58 |
+| `lineHeight: 46` | 58 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 2` | 51, 58 |
+| `borderRadius: 22` | 58 |
+| `borderRadius: 3` | 58 |
+| `borderWidth: 1` | 40 |
+| `gap: 0` | 58 |
+| `gap: 10` | 58 |
+| `gap: 14` | 58 |
+| `gap: 4` | 58 |
+| `gap: 6` | 58 |
+| `gap: 7` | 58 |
+| `gap: 8` | 58 |
+| `height: 3` | 51, 58 |
+| `height: 5` | 58 |
+| `height: 6` | 58 |
+| `height: 8` | 40 |
+| `minHeight: 48` | 58 |
+| `minHeight: 86` | 58 |
+| `minWidth: 0` | 58 |
+| `minWidth: 38` | 58 |
+| `paddingHorizontal: 18` | 58 |
+| `width: 5` | 58 |
+| `width: 6` | 58 |
+| `width: 74` | 58 |
+| `width: 8` | 40 |
 
 ## ProfileSettings.tsx
 
@@ -2776,7 +2841,13 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatusBadge.tsx](
 
 ## SubappNavigation.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SubappNavigation.tsx](../../../apps/platform-lab/src/mobile/SubappNavigation.tsx); normalized SHA-256 `325d6c2bc0ac8ce200d3f8913debca86e2dd6452c2b26a3cd50348deefd02894`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SubappNavigation.tsx](../../../apps/platform-lab/src/mobile/SubappNavigation.tsx); normalized SHA-256 `3c678243a1d6752c6fc402203c7449ab998a02863b22b2657e6328d23fe0616e`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#144b6c` | 26 |
 
 ### Typography declarations
 
@@ -2802,7 +2873,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SubappNavigation.
 | `opacity: .5` | 20 |
 | `paddingHorizontal: 4` | 26 |
 | `paddingVertical: 16` | 26 |
-| `paddingVertical: 8` | 26 |
+| `paddingVertical: 6` | 26 |
 | `width: '100%'` | 26 |
 | `width: '33.333%'` | 26 |
 | `width: 108` | 26 |
@@ -2810,7 +2881,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SubappNavigation.
 
 ## SymbolIcon.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](../../../apps/platform-lab/src/mobile/SymbolIcon.tsx); normalized SHA-256 `015563842cc1e1fbc57f47a64256f4ce815bedc5a54715e19da57c3de635a5c3`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](../../../apps/platform-lab/src/mobile/SymbolIcon.tsx); normalized SHA-256 `88383d0a6451daadc4edf7ae7783317df39b4c44c05b4ca2cb7b18273a8a1025`.
 
 ### Literal colors
 
@@ -2818,12 +2889,14 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SymbolIcon.tsx](.
 | --- | --- |
 | `#00c8ff` | 18 |
 | `#27d3d2` | 18 |
+| `#43c9ff` | 18 |
 | `#46ccff` | 18 |
 | `#7497bf12` | 23 |
 | `#8ba9c01a` | 22 |
 | `#8be8d2` | 18 |
 | `#9ab8d333` | 22 |
 | `#b9dcf52b` | 23 |
+| `#eaf4ff` | 18 |
 | `#f4f7f8` | 18 |
 | `#f4f8fc` | 18 |
 | `#f5f7ff` | 18 |
@@ -2925,7 +2998,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx]
 
 ## theme.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `8fb5f2248c3d79be983d8205a34733dcf9209865a49db04c2e4d7b3018a83eac`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `b43ff1f0b81e6ffdd460491ec14a45eaa02839e53c8c429b803c2478ca27595d`.
 
 ### Literal colors
 
@@ -2934,16 +3007,16 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 | `#00102277` | 73 |
 | `#001b2944` | 55 |
 | `#031326` | 35, 62 |
-| `#0b1220` | 6 |
-| `#151f30` | 6, 7, 9 |
+| `#051b2b` | 6 |
+| `#0b2a40` | 6, 7, 9 |
+| `#123b55` | 6, 7, 9 |
 | `#162a42` | 72 |
-| `#1e2c41` | 6, 7, 9 |
 | `#231e63` | 6 |
-| `#2e3d54` | 6, 7, 9 |
+| `#26465c` | 6, 7, 9 |
+| `#43c9ff` | 6 |
 | `#48dba5` | 6 |
-| `#8ce5dc` | 6 |
-| `#a5b4c8` | 6 |
-| `#f3f6fb` | 6 |
+| `#9eb8cc` | 6 |
+| `#eaf4ff` | 6 |
 | `#fc6a2d` | 6 |
 
 ### Typography declarations
@@ -2965,13 +3038,13 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 67 |
+| `borderRadius: 14` | 61, 67 |
 | `borderRadius: 16` | 72 |
-| `borderRadius: 20` | 61 |
-| `borderRadius: 22` | 51 |
-| `borderWidth: 1` | 51, 64, 67 |
+| `borderRadius: 18` | 51 |
+| `borderWidth: 0` | 51 |
+| `borderWidth: 1` | 64, 67 |
 | `gap: 10` | 56 |
-| `gap: 14` | 51 |
+| `gap: 12` | 51 |
 | `gap: 4` | 71 |
 | `gap: 5` | 19 |
 | `gap: 6` | 63, 73 |
@@ -2988,7 +3061,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 | `opacity: .72` | 71 |
 | `opacity: .82` | 54 |
 | `padding: 12` | 73 |
-| `padding: 20` | 51 |
+| `padding: 16` | 51 |
 | `paddingHorizontal: 14` | 67 |
 | `paddingHorizontal: 18` | 61 |
 | `paddingHorizontal: 4` | 70 |

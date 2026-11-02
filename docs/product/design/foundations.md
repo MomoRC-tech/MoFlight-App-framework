@@ -1,6 +1,6 @@
 # Visual foundations
 
-**Pilot-hub branch (Issue 116), 2 November:** the [implementation plan](pilot-hub-implementation-plan.md) supersedes earlier color-preservation prose on this experimental branch. Generated roles below reflect ink/slate/mint. New cards use 22-dp corners/20-dp padding, a warm paper surface, scalable text and labelled 48-dp-minimum controls. Existing image/symbol assets retain their original colors; original logo is unchanged. This is implemented for review, not final owner selection or whole-app accessibility acceptance.
+**Pilot-hub branch (Issue 116), 2 November:** the [implementation plan](pilot-hub-implementation-plan.md) supersedes earlier color-preservation prose on this experimental branch. The initial ink/slate/mint treatment was rejected. Generated roles now reflect aviation blue/sky. Shared panels use 18-dp corners/16-dp padding without perimeter outlines; the season instrument has a distinct gradient surface. Supporting copy is reduced; scalable labels and 48-dp targets remain. Existing image/symbol assets retain their original colors; original logo is unchanged. This is implemented for review, not final owner selection or whole-app accessibility acceptance.
 
 **Earlier 29 October Start tiles:** the [Issue 108 correction](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) preserves the historical teal card/raised/outline values. This branch replaces those surface exports with the palette below and moves Medical to a compact reminder linked to its full details. The recorded expiry meanings remain green ✓ beyond six months, amber ! within the inclusive window, red × past and gray ? unknown; existing source/date semantics remain.
 
@@ -18,14 +18,14 @@ Keep surface, text, action, state and chart roles consistent, including foregrou
 <!-- generated:theme:start -->
 | Semantic role / code key | Value | Allowed/current use | Pairing context |
 | --- | --- | --- | --- |
-| surface.canvas / `background` | `#0b1220` | Primary dark canvas | text / muted |
-| surface.card / `card` | `#151f30` | Opaque shared content panel | text / muted |
-| surface.raised / `raised` | `#1e2c41` | Raised / secondary action surface | text |
-| stroke.default / `border` | `#2e3d54` | Shared card/control outlines | dark surfaces |
-| text.primary / `text` | `#f3f6fb` | Primary readable text | background / card / raised |
-| text.secondary / `muted` | `#a5b4c8` | Supporting text and inactive symbols | dark surfaces |
-| action.primary / `blue` | `#8ce5dc` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
-| accent.general / `cyan` | `#8ce5dc` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
+| surface.canvas / `background` | `#051b2b` | Primary dark canvas | text / muted |
+| surface.card / `card` | `#0b2a40` | Opaque shared content panel | text / muted |
+| surface.raised / `raised` | `#123b55` | Raised / secondary action surface | text |
+| stroke.default / `border` | `#26465c` | Shared card/control outlines | dark surfaces |
+| text.primary / `text` | `#eaf4ff` | Primary readable text | background / card / raised |
+| text.secondary / `muted` | `#9eb8cc` | Supporting text and inactive symbols | dark surfaces |
+| action.primary / `blue` | `#43c9ff` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
+| accent.general / `cyan` | `#43c9ff` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
 | accent.assistant.family / `purple` | `#231e63` | Retained assistant-family token; not a shared panel fill | light text; check displayed panel |
 | accent.paper.family / `orange` | `#fc6a2d` | Retained paper-family token; no photographic paper hero | dark action text in context |
 | feedback.saved / `green` | `#48dba5` | Local profile saved text; also a chart-palette color | dark surfaces; meaning needs text |
@@ -112,11 +112,11 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 <!-- generated:contrast:start -->
 | Opaque pair | Foreground | Background | Calculated ratio |
 | --- | --- | --- | --- |
-| Primary text / canvas | `#f3f6fb` | `#0b1220` | 17.28:1 |
-| Muted text / card | `#a5b4c8` | `#151f30` | 7.84:1 |
-| Action label / mint action | `#031326` | `#8ce5dc` | 12.76:1 |
-| General mint accent / canvas | `#8ce5dc` | `#0b1220` | 12.80:1 |
-| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#8ce5dc` | 8.22:1 |
+| Primary text / canvas | `#eaf4ff` | `#051b2b` | 15.76:1 |
+| Muted text / card | `#9eb8cc` | `#0b2a40` | 7.17:1 |
+| Action label / mint action | `#031326` | `#43c9ff` | 9.81:1 |
+| General mint accent / canvas | `#43c9ff` | `#051b2b` | 9.21:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#43c9ff` | 6.32:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography

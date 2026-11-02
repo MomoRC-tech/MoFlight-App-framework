@@ -1,6 +1,6 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
-**Isolated branch amendment, 2 November 2026 (#116):** the owner requests a completely rethought UI from the rollback release. On `codex/pilot-ui-redesign` only, the [pilot-hub implementation plan](pilot-hub-implementation-plan.md) supersedes appearance, Start preservation and five-destination navigation below. Six persistent modules, six Start summaries and ink/slate/mint surfaces are implemented for review. Original logo, source/unknown/account and unfinished-feature contracts remain. Main's previous appearance is preserved; no final visual/native acceptance is claimed.
+**Isolated branch amendment, 2 November 2026 (#116):** the owner requests a completely rethought UI from the rollback release. On `codex/pilot-ui-redesign` only, the [pilot-hub implementation plan](pilot-hub-implementation-plan.md) supersedes appearance, Start preservation and five-destination navigation below. Six persistent modules, six Start summaries and aviation-blue/sky surfaces and combined season rings are implemented for review. Original logo, source/unknown/account and unfinished-feature contracts remain. Main's previous appearance is preserved; no final visual/native acceptance is claimed.
 
 ## Calculated annual Pflicht target — selected 29 October 2026
 

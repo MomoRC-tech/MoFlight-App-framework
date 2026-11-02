@@ -23,7 +23,23 @@ Medical is a supporting recorded-date reminder below the module summaries, with 
 
 ## Design decisions and Android challenge
 
-- Ink canvas, distinct slate surfaces, soft mint actions and a warm paper accent. Remove decorative dashboard photography and horizontally hidden metrics. Preserve the original logo. Dark only for this review.
+### Visual revision — owner feedback, 2 November
+
+The owner rejects the first palette and describes the UI as clumsy. Keep the six-subapp structure and persistent navigation; rework the visual treatment directly on the same branch. The earlier ink/slate/mint treatment is rejected, not selected.
+
+**Additional owner instruction:** remove unnecessary visible text and combine metrics in richer graphics. Implement a season instrument with outer aircraft-time segments, an inner current-flight-count arc, a labelled previous-year marker, direct values and matching aircraft mini-bars. Rings describe saved distributions/comparisons, never an invented goal or completeness. Keep fuller explanations in accessibility labels and detailed subapps. Reuse deterministic summaries and native ring rendering; no dependency/service addition.
+
+- [x] Replace muted mint/slate with deep aviation blue, clear sky-blue actions and restrained warm/violet module accents.
+- [x] Put actual season figures and the latest flight first; remove the large unfinished-paper hero and repeated full-width buttons.
+- [x] Use compact rows, a paired paper/assistant area, fewer outlines and a clearer type hierarchy. Keep 48-dp targets, scalable text and honest unknowns.
+- [x] Refine shared surfaces/navigation and module entry pages consistently; remove repeated explanatory and marketing copy.
+- [x] Add the combined season instrument, exact aircraft labels/bars, prior-year count marker and direct aircraft-detail routing. Unknown and zero data draw no false progress.
+- [x] Refresh source-rendered phone/wide review; TypeScript, focused lint and 67 financial/navigation/instrument checks pass. This is no native acceptance.
+- [ ] Update evidence/handbook and push the revision. Native acceptance stays deferred.
+
+Android challenge: color supports hierarchy rather than decorating every panel; essential actions retain labels, sufficient contrast and independent touch targets. Preserve the owner's six-item exception and wide rail. Do not make unavailable workflows visually dominate verified current facts.
+
+- First revision (rejected): ink canvas, slate surfaces, soft mint actions and a warm paper accent. Preserve its source history; replace its appearance in this follow-up. Original logo and dark-default remain.
 - Start is the stable hub. Six persistent destinations are Flüge, Flugbuch, Verein, Kosten, Statistik and Assistent; Start remains reachable from the header and wide navigation rail. **Owner-selected departure:** Android recommends primary navigation bars for 3–5 peers. The owner explicitly wants six. Use labelled, minimum-48-dp targets, a bottom bar on compact windows and a rail on wide windows; wrap into two rows at enlarged font sizes. This replaces the earlier hub-only experiment before delivery. Native navigation acceptance is still pending.
 - Module overview cards expose details through named actions, avoiding nested complete dashboards. Verein uses a task menu rather than six stacked full lists. Reuse existing typed application operations behind presentation components.
 - Interactive targets at least 48 logical dp; scalable text; no fixed card heights. Phone uses one column; wide hub uses two bounded columns. No gesture-only essential actions. Check newly introduced foreground/surface contrast; do not claim app-wide accessibility acceptance.
@@ -55,4 +71,4 @@ Sources consulted 2 November: [Android navigation](https://developer.android.com
 
 Final TypeScript passes. There are 91 focused passing checks: 26 retained financial/AI/preview checks, 62 updated shell checks and three new control/isolation checks. The shell checks caught and resolved flight-context clearing during module switches. Native leaf mocks and the source-rendered synthetic preview establish no native acceptance. Offline dependency installation completed from the local cache, without lifecycle scripts or network downloads. No native, provider, paid AI or hosted CI runs were requested.
 
-Final focused evidence and remaining limits are recorded in [the package report](../../verification/2026-11-02-pilot-hub.md). Existing domain/source tests are reused; new checks protect navigation and isolation behavior rather than freeze incidental spacing/text. The [implementation branch](https://github.com/MomoRC-tech/MoFlight-App-framework/tree/codex/pilot-ui-redesign) is pushed; application commit `6428d51` is ready for design review. Remaining work is owner layout/color selection; expanded native acceptance is deliberately deferred.
+Focused evidence and remaining limits are recorded in [the package report](../../verification/2026-11-02-pilot-hub.md). The [implementation branch](https://github.com/MomoRC-tech/MoFlight-App-framework/tree/codex/pilot-ui-redesign) preserves first application commit `6428d51`; its initial visual treatment was rejected and is superseded by the blue/instrument revision above. Remaining work is owner layout/color selection; expanded native acceptance is deliberately deferred.
