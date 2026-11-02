@@ -36,6 +36,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
   const flights=data.view?.flights??[],saved=data.view?.snapshot.savedRetrievals??[];
   const allUnique=useMemo(()=>selectStatisticsFlights(flights,{kind:'all'},today).flights,[flights,today]);
   if(data.phase!=='ready'||!data.view?.snapshot.account)explorerBack.current=()=>false;
+  if(data.phase!=='ready')expenseBack.current=()=>false;
   const back=()=>{
     Keyboard.dismiss();
     if(mode==='costs')return expenseBack.current();
@@ -68,7 +69,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
       onScroll={event=>{scrollOffsets.current[mode==='costs'?'costs':route.key]=event.nativeEvent.contentOffset.y;}} scrollEventThrottle={32}
       onContentSizeChange={()=>scroll.current?.scrollTo({y:scrollOffsets.current[mode==='costs'?'costs':route.key]??0,animated:false})}
       keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={[styles.canvas,fontScale>1.3&&{paddingHorizontal:10}]}>
-      {mode==='costs'?<ExpensesView expected={data.phase==='ready'&&data.view?.snapshot.account?{ownerId:data.view.snapshot.ownerId,storeId:data.view.snapshot.storeId,accountRef:data.view.snapshot.account.accountRef}:null} reloadKey={reloadKey} period={expensePeriod} onPeriod={setExpensePeriod} onRefresh={onRefreshFinancial??(()=>{})} onBackHandler={handler=>{expenseBack.current=handler;}}/>:<>
+      {mode==='costs'?(data.phase==='loading'?<Card><ActivityIndicator color={colors.cyan}/><Label>Gespeicherte Daten werden geladen.</Label></Card>:data.phase==='failed'?<Card><Empty title="Kosten nicht lesbar">Die gespeicherten Flugdaten konnten nicht geöffnet werden.</Empty><Action secondary onPress={()=>void data.reload()}>Lokal erneut prüfen</Action></Card>:<ExpensesView expected={data.phase==='ready'&&data.view?.snapshot.account?{ownerId:data.view.snapshot.ownerId,storeId:data.view.snapshot.storeId,accountRef:data.view.snapshot.account.accountRef}:null} reloadKey={reloadKey} period={expensePeriod} onPeriod={setExpensePeriod} onRefresh={onRefreshFinancial??(()=>{})} onBackHandler={handler=>{expenseBack.current=handler;}}/>):<>
       <View style={route.kind==='section'?undefined:{display:'none'}} accessibilityElementsHidden={route.kind!=='section'} importantForAccessibility={route.kind==='section'?'auto':'no-hide-descendants'}>
         {data.phase==='loading'&&<Card><ActivityIndicator color={colors.cyan}/><Label>Gespeicherte Flugstatistik wird geprüft.</Label></Card>}
         {data.phase==='failed'&&<Card><Empty title="Statistik nicht lesbar">Die gespeicherte Auswahl konnte nicht geprüft werden.</Empty><Action secondary onPress={()=>void data.reload()}>Gespeicherte Flüge erneut prüfen</Action></Card>}

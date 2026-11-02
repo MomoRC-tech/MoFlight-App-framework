@@ -142,3 +142,11 @@ test('a parent-held view intent selects Costs and both chips report subsequent u
  f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Flüge')!.props.onPress();assert.ok(explorer(f));
  f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Kosten')!.props.onPress();assert.ok(f.nodes().some(n=>n.type==='ExpensesView'));
 });
+
+test('Costs waits for saved-account loading and offers only local retry on source-read failure',()=>{
+ const f=fixture();f.controlMode('costs');const costs=f.nodes().find(n=>n.type==='ExpensesView')!;costs.props.onBackHandler(()=>true);
+ f.data.phase='loading';assert.equal(f.nodes().some(n=>n.type==='ExpensesView'),false);assert.equal(f.back(),false);
+ assert.ok(JSON.stringify(f.render()).includes('Gespeicherte Daten werden geladen.'));
+ f.data.phase='failed';assert.ok(f.nodes().some(n=>n.type==='Empty'&&n.props.title==='Kosten nicht lesbar'));
+ f.nodes().find(n=>n.type==='Action'&&n.children.includes('Lokal erneut prüfen'))!.props.onPress();assert.deepEqual(f.events,['reload']);
+});

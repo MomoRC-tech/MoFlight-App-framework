@@ -1737,21 +1737,21 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsExplore
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `22ffa5c0761a992d4614c472651018788f6b5f559ee24161e0c98a3fb73481c4`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `98aabb4168e5caf490fbe99e9d4909d7b2fc9b4afdce1ebf8e2dbbf74b67aac4`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 12` | 92 |
-| `gap: 5` | 79 |
-| `gap: 8` | 66 |
-| `maxWidth: 600` | 66, 92 |
-| `minHeight: 0` | 92 |
-| `padding: 12` | 92 |
-| `paddingHorizontal: 10` | 70 |
-| `paddingHorizontal: 12` | 66 |
-| `width: '100%'` | 66, 92 |
+| `gap: 12` | 93 |
+| `gap: 5` | 80 |
+| `gap: 8` | 67 |
+| `maxWidth: 600` | 67, 93 |
+| `minHeight: 0` | 93 |
+| `padding: 12` | 93 |
+| `paddingHorizontal: 10` | 71 |
+| `paddingHorizontal: 12` | 67 |
+| `width: '100%'` | 67, 93 |
 
 ## StatusBadge.tsx
 
