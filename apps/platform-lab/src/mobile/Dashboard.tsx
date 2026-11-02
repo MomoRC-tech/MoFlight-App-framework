@@ -50,6 +50,7 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
   const startGuidance=flightStartGuidance({phase:ownFlightPhase,accountAssociated:!!ownFlights?.snapshot.account,
     successfulRetrieval:!!planFlightRetrieval(saved).lastSuccessfulRetrievalAt,savedFlights:ownFlights?.flights.length??0});
   const latest=facts.latest;
+  const latestAction=ready&&latest?<Pressable accessibilityRole="button" accessibilityLabel={`Letzten Flug vom ${latest.date} ansehen${latest.orderUnknown?'. Reihenfolge am selben Tag unbekannt.':''}`} onPress={()=>onFlight?onFlight(latest.flightId):onFlights()} style={({pressed})=>[styles.latest,pressed&&ui.pressed]}><SymbolIcon name="glider" size={14}/><Label muted style={{fontSize:12,lineHeight:18}}>{latest.date}</Label><SymbolIcon name="right" size={14}/></Pressable>:null;
   return <Card surface="start" style={styles.season}>
     <ImageBackground source={require('../../assets/aviation/ask21-flight-header-v2.png')} resizeMode="cover" imageStyle={ui.cockpitImage} style={styles.photo}>
       <View style={[ui.cockpitShade,styles.shade]}>
@@ -59,7 +60,7 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
         </View>
         {yearOpen&&<View><ScrollView horizontal contentContainerStyle={{gap:6}}>{years.map(y=><Pressable key={y} accessibilityRole="button" accessibilityLabel={`Saison ${y}`} accessibilityState={{selected:year===y}} onPress={()=>{setSelection({scope,year:y});setYearOpen(false);}} style={[styles.yearButton,year===y&&{backgroundColor:colors.raised,borderRadius:10}]}><Label>{y}</Label></Pressable>)}</ScrollView><View style={styles.yearControls}><Pressable accessibilityRole="button" accessibilityLabel="Vorherige Saison" disabled={year<=1901} onPress={()=>setSelection({scope,year:Math.max(1901,year-1)})} style={styles.yearButton}><Label>‹ {Math.max(1901,year-1)}</Label></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Nächste Saison" disabled={year>=currentYear} onPress={()=>setSelection({scope,year:year+1})} style={[styles.yearButton,year>=currentYear&&{opacity:.4}]}><Label>{year+1} ›</Label></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Saisonauswahl schließen" onPress={()=>setYearOpen(false)} style={styles.yearButton}><SymbolIcon name="close" size={18}/></Pressable></View></View>}
         <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={[styles.metrics,fontScale>1.3&&{minWidth:330*fontScale}]}>
-          <Pressable testID="start-time-statistics" accessibilityHint="Monatsvergleich öffnen" style={styles.metric} accessibilityRole="button" accessibilityLabel={`Flugzeit ${year}: ${ready?facts.current.time:'unbekannt'} Stunden und Minuten. ${year-1}: ${ready?facts.prior.time:'unbekannt'}.`} onPress={()=>onStatistics?.(year,'overview','monthly')}>
+          <Pressable testID="start-time-statistics" accessibilityHint="Monatsvergleich öffnen" style={styles.metric} accessibilityRole="button" accessibilityLabel={`Flugzeit ${year}: ${ready?facts.current.time:'unbekannt'} bekannte Stunden und Minuten${facts.current.unknownDurationCount?`, ${facts.current.unknownDurationCount} Zeiten unbekannt`:''}. ${year-1}: ${ready?facts.prior.time:'unbekannt'}${facts.prior.unknownDurationCount?`, ${facts.prior.unknownDurationCount} Zeiten unbekannt`:''}.`} onPress={()=>onStatistics?.(year,'overview','monthly')}>
             <Label style={styles.value}>{ready?facts.current.time:'—'}</Label><Label muted style={styles.metricLabel}>Flugzeit · h:min</Label><Label muted style={styles.prior}>{year-1}: {ready?facts.prior.time:'—'}</Label>
           </Pressable>
           <Pressable testID="start-count-statistics" accessibilityHint="Monatsvergleich öffnen" style={[styles.metric,styles.divider]} accessibilityRole="button" accessibilityLabel={`Flüge ${year}: ${ready?facts.current.starts:'unbekannt'}. ${year-1}: ${ready?facts.prior.starts:'unbekannt'}.`} onPress={()=>onStatistics?.(year,'overview','monthly')}>
@@ -86,13 +87,12 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
     {!targetOpen&&target.error&&<Label muted style={styles.inset}>{target.error}</Label>}
     <View style={styles.body}>
       {(savedPreview||ownFlightPhase==='loading')&&<View accessibilityLiveRegion="polite" accessibilityState={{busy:true}} style={ui.row}><ActivityIndicator color={colors.cyan}/><Label style={{flex:1}}>{savedPreview?`Letzter gespeicherter Stand: ${new Date(savedPreview.savedAt).toLocaleString('de-DE')} (wird geprüft)`:'Gespeicherte Flugdaten werden vorbereitet …'}</Label></View>}
-      {!ready?<Label muted>{ownFlightPhase==='failed'?'Gespeicherte Flugdaten konnten nicht geprüft werden. Bitte die lokale Liste erneut prüfen.':startGuidance?.message}</Label>:latest?<Pressable accessibilityRole="button" accessibilityLabel={`Letzten Flug vom ${latest.date} ansehen${latest?.orderUnknown?'. Reihenfolge am selben Tag unbekannt.':''}`} onPress={()=>onFlight?onFlight(latest.flightId):onFlights()} style={({pressed})=>[styles.latest,pressed&&ui.pressed]}>
-        <Label muted style={{flex:1}}>Letzter Flug · {latest.date}{latest.orderUnknown?' · Reihenfolge offen':''}</Label><SymbolIcon name="right" size={18}/>
-      </Pressable>:<Label muted>{startGuidance?.message ?? 'Noch keine datierten gespeicherten Flüge.'}</Label>}
-      {ready&&ownFlights&&scope&&<StartSeasonCharts key={scope} scope={scope} persistent={persistDutyTarget} flights={ownFlights.flights} saved={saved} year={year} today={today} onStatistics={()=>onStatistics?.(year,'overview','monthly')}/>}
-      {ready&&(facts.current.unknownDurationCount>0||facts.prior.unknownDurationCount>0)&&<Label muted style={styles.small}>Zeit unbekannt · {[[year,facts.current.unknownDurationCount],[year-1,facts.prior.unknownDurationCount]].filter(([,count])=>(count??0)>0).map(([y,count])=>`${y}: ${count}`).join(' · ')}</Label>}
-      {ready&&facts.current.unknownDateCount>0&&<Label muted style={styles.small}>{facts.current.unknownDateCount} Flüge ohne zugeordnetes Datum.</Label>}
-      <Pressable accessibilityRole="button" onPress={onFlights} style={styles.allFlights}><Label style={{color:colors.cyan,fontWeight:'600'}}>Alle Flüge</Label><SymbolIcon name="right" size={24}/></Pressable>
+      {!ready&&<Label muted>{ownFlightPhase==='failed'?'Gespeicherte Flugdaten konnten nicht geprüft werden. Bitte die lokale Liste erneut prüfen.':startGuidance?.message}</Label>}
+      {ready&&!latest&&<Label muted>{startGuidance?.message ?? 'Noch keine datierten gespeicherten Flüge.'}</Label>}
+      {ready&&!ownFlights&&latestAction}
+      {ready&&ownFlights&&scope&&<StartSeasonCharts key={scope} flights={ownFlights.flights} saved={saved} year={year} today={today} onStatistics={()=>onStatistics?.(year,'overview','monthly')}>
+        {latestAction}
+      </StartSeasonCharts>}
     </View>
   </Card>;
 }
@@ -104,8 +104,6 @@ const styles=StyleSheet.create({
   metrics:{flexGrow:1,flexDirection:'row',paddingTop:4},metric:{flex:1,minWidth:90,minHeight:48,alignItems:'center',justifyContent:'flex-start',gap:3,paddingHorizontal:5},divider:{borderLeftWidth:1,borderColor:colors.border},
   value:{fontSize:27,lineHeight:34,fontWeight:'700',textAlign:'center',fontVariant:['tabular-nums']},workValue:{fontSize:22,lineHeight:34},roleValue:{fontSize:22},metricLabel:{fontSize:12,lineHeight:18,textAlign:'center'},prior:{fontSize:11,lineHeight:17,textAlign:'center'},
   workMetric:{minWidth:116,minHeight:72},workTarget:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:4},editCue:{fontSize:15,lineHeight:18,color:colors.cyan},
-  body:{paddingHorizontal:12},inset:{padding:12},latest:{flexDirection:'row',alignItems:'center',gap:6,minHeight:48,paddingVertical:4,borderTopWidth:1,borderColor:colors.border},
-  small:{fontSize:12,lineHeight:18},
-  allFlights:{minHeight:48,flexDirection:'row',alignItems:'center',justifyContent:'space-between',borderTopWidth:1,borderColor:colors.border},
+  body:{paddingHorizontal:12},inset:{padding:12},latest:{flexDirection:'row',alignItems:'center',gap:4,minHeight:48,maxWidth:'55%'},
   yearControls:{flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between',alignItems:'center'},yearButton:{minHeight:48,minWidth:48,justifyContent:'center',paddingHorizontal:8},
 });

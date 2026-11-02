@@ -8,7 +8,8 @@ const initials = ['J','F','M','A','M','J','J','A','S','O','N','D'];
 const months = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
 
 /** Both years share a zero baseline and scale. Empty, zero and partial stay distinct. */
-export function MonthlyBars({ values, prior, uncertain, priorUncertain, future, formatValue, onOpen, accessibilityLabel }: {
+export function MonthlyBars({ year, values, prior, uncertain, priorUncertain, future, formatValue, onOpen, accessibilityLabel }: {
+  year:number;
   values: readonly (number|null)[]; prior: readonly (number|null)[];
   uncertain: readonly boolean[]; priorUncertain: readonly boolean[]; future: readonly boolean[];
   formatValue: (value:number)=>string; onOpen: ()=>void; accessibilityLabel: string;
@@ -26,7 +27,7 @@ export function MonthlyBars({ values, prior, uncertain, priorUncertain, future, 
     return <Rect key={`${index}-${isPrior}`} x={x} y={bottom-h} width={bar} height={h} rx={Math.min(2.5,h/2)} fill={color} fillOpacity={partial ? .32 : 1} stroke={color} strokeWidth={partial?1:0} strokeDasharray={partial?'2 2':undefined}/>;
   };
   return <Pressable testID="start-monthly-bars" accessibilityRole="button" accessibilityLabel={accessibilityLabel} accessibilityHint="Detaillierten Monatsvergleich in Statistik öffnen" onPress={onOpen} onLayout={event=>{const next=event.nativeEvent.layout.width;if(next>0&&Math.abs(next-width)>1)setWidth(next);}} style={{minHeight:48,gap:2}}>
-    <View style={{alignItems:'flex-end'}}><Label muted style={{fontSize:10,lineHeight:14}}>{known.length?`0–${formatValue(Math.max(0,...known))}`:'Keine belegten Monatswerte'}</Label></View>
+    <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:2}}><View style={{flexDirection:'row',gap:8}}>{[[year,colors.cyan],[year-1,priorYearColor]].map(([label,color])=><View key={label} style={{flexDirection:'row',alignItems:'center',gap:3}}><View style={{width:4,height:8,borderRadius:1,backgroundColor:String(color)}}/><Label muted style={{fontSize:10,lineHeight:14}}>{label}</Label></View>)}</View><Label muted style={{fontSize:10,lineHeight:14}}>{known.length?`0–${formatValue(Math.max(0,...known))}`:'—'}</Label></View>
     <Svg width={width} height={height} accessible={false}>
       <Line x1={0} x2={width} y1={bottom} y2={bottom} stroke={colors.border} strokeWidth={.7}/>
       <Line x1={0} x2={width} y1={bottom/2} y2={bottom/2} stroke={colors.border} strokeWidth={.5} strokeDasharray="2 5"/>

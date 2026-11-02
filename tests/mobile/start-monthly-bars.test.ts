@@ -21,8 +21,6 @@ test('compact Start compares monthly known time and counts and opens detailed st
   f.press('Fluganzahl im Diagramm').props.onPress();
   assert.equal(f.plot().props.values[2],1);assert.equal(f.plot().props.prior[2],1);
   f.plot().props.onOpen();assert.equal(f.opened(),1);
-  f.press('Saisondiagramme').props.onPress();assert.equal(f.nodes().some(node=>node.type==='MonthlyBars'),false);
-  f.press('Saisondiagramme').props.onPress();assert.equal(f.plot().props.values[2],1,'collapse keeps the selected measure');
   f.props.year=2025;assert.equal(f.plot().props.values[2],1);assert.equal(f.plot().props.prior[2],null,'year change uses its own comparison');
 });
 test('compact Start keeps known zero, unknown duration and captured zero-flight months distinct',()=>{

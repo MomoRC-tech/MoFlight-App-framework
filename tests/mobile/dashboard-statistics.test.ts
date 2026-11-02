@@ -114,8 +114,8 @@ test('Solo, Dual and PIC+ retain the rollback metric strip and exact role analys
 test('compact season deduplicates flights and keeps missing durations explicit',()=>{
  const a=structuredClone(ownFlightFixture().flights[0]!);a.facts.assessment.date={...a.facts.assessment.date,state:'parsed',value:'2026-01-01'};a.facts.assessment.durations.flight={state:'known',minutes:90,evidence:[]};
  const b=structuredClone(a);b.flightId='second';b.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
- const f=render([a,a,b]);assert.match(f.text,/1:30/);assert.match(f.text,/Flüge 2026: 2/);assert.match(f.text,/Zeit unbekannt/);assert.match(f.text,/2026: 1/);
- f.nodes.find(n=>n.type==='Pressable'&&n.children.some(c=>c?.children?.includes('Alle Flüge')))!.props.onPress();assert.deepEqual(f.calls,[undefined]);
+ const f=render([a,a,b]);assert.match(f.text,/1:30/);assert.match(f.text,/Flüge 2026: 2/);assert.match(f.text,/1 Zeiten unbekannt/);
+ f.nodes.find(n=>n.type==='StartSeasonCharts')!.props.onStatistics();assert.deepEqual(f.statisticsCalls,[2026]);
 });
 test('unknown cached season remains unknown and loading never publishes cached totals',()=>{
  for(const scale of [1,1.6]){
