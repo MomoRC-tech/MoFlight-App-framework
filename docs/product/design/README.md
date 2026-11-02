@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+**2 November compact monthly Start (#122):** [Owner-requested cool cyan/blue accents, paired monthly bars and small consistent controls](compact-cockpit.md#cool-accents-and-compact-monthly-start--authorized-2-november-2026) supersede lavender/apricot accents and the large embedded Start chart. Restored upper composition and lean tiles remain.
+
 **2 November Start restoration (Issue121):** [Rollback composition, lean tiles](compact-cockpit.md#rollback-start-composition-lean-tiles--authorized-2-november-2026) restores the season strip/photo, keeps compact tiles/colors and modern charts. [Experiment review](pilot-experiment-adoption-review.md) is recommendations only.
 
 **2 November modern charts (Issue120):** [Vector chart amendment](compact-cockpit.md#modern-vector-charts--authorized-2-november-2026) replaces line/arc strips with native paths, area gradients, one time/count viewport and focused selection. Unknown gaps and exact routes remain.

@@ -1,5 +1,7 @@
 # Visual foundations
 
+**2 November compact monthly Start (Issue122):** [Owner-requested cool cyan/blue accents, paired monthly bars and small consistent controls](compact-cockpit.md#cool-accents-and-compact-monthly-start--authorized-2-november-2026) supersede lavender/apricot accents and the large embedded Start chart. Restored upper composition and lean tiles remain.
+
 **2 November expressive compact redesign (Issue119):** [Owner-authorized graphite/violet amendment](compact-cockpit.md#expressive-compact-graphite--authorized-2-november-2026) supersedes earlier palette/Start composition in scope: denser surfaces, role orbit, seasonal traces and shorter copy. Original logo, five tabs and source/unknown boundaries remain.
 
 **Historical surface amendments:** the [29 October tile correction](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) and [28 October controls](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026) retain their evidence and Medical date semantics. Their former navy/teal palette is superseded by Issue119; current values follow below.
@@ -16,16 +18,16 @@ Keep surface, text, action, state and chart roles consistent, including foregrou
 <!-- generated:theme:start -->
 | Semantic role / code key | Value | Allowed/current use | Pairing context |
 | --- | --- | --- | --- |
-| surface.canvas / `background` | `#11131e` | Primary dark canvas | text / muted |
-| surface.card / `card` | `#1c1f30` | Opaque shared content panel | text / muted |
-| surface.raised / `raised` | `#292d43` | Raised / secondary action surface | text |
-| stroke.default / `border` | `#3c4058` | Shared card/control outlines | dark surfaces |
-| text.primary / `text` | `#f4f2fb` | Primary readable text | background / card / raised |
-| text.secondary / `muted` | `#b7b8cc` | Supporting text and inactive symbols | dark surfaces |
-| action.primary / `blue` | `#b8adff` | Violet filled action and selected-chip base; legacy code key | #031326 action text |
-| accent.general / `cyan` | `#b8adff` | Violet links, metrics and selected navigation labels; legacy code key | dark surfaces |
-| accent.assistant.family / `purple` | `#6355a6` | Muted violet accent strokes | light text; check displayed panel |
-| accent.paper.family / `orange` | `#ffb49a` | Apricot comparison and role accent; paper-family symbols retain original artwork | dark action text in context |
+| surface.canvas / `background` | `#11151e` | Primary dark canvas | text / muted |
+| surface.card / `card` | `#1b2330` | Opaque shared content panel | text / muted |
+| surface.raised / `raised` | `#263447` | Raised / secondary action surface | text |
+| stroke.default / `border` | `#394c62` | Shared card/control outlines | dark surfaces |
+| text.primary / `text` | `#f1f6fb` | Primary readable text | background / card / raised |
+| text.secondary / `muted` | `#adbfce` | Supporting text and inactive symbols | dark surfaces |
+| action.primary / `blue` | `#80c8fb` | Cool blue filled action and selected-chip base | #031326 action text |
+| accent.general / `cyan` | `#68d5ef` | Cyan links, metrics and selected navigation labels | dark surfaces |
+| accent.assistant.family / `purple` | `#376a92` | Muted steel-blue accent strokes; legacy code key | light text; check displayed panel |
+| accent.paper.family / `orange` | `#e6bb70` | Restrained amber comparison and role accent; paper-family symbols retain original artwork | dark action text in context |
 | feedback.saved / `green` | `#7be2c3` | Local profile saved text; also a chart-palette color | dark surfaces; meaning needs text |
 <!-- generated:theme:end -->
 
@@ -110,11 +112,11 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 <!-- generated:contrast:start -->
 | Opaque pair | Foreground | Background | Calculated ratio |
 | --- | --- | --- | --- |
-| Primary text / canvas | `#f4f2fb` | `#11131e` | 16.68:1 |
-| Muted text / card | `#b7b8cc` | `#1c1f30` | 8.34:1 |
-| Action label / primary action | `#031326` | `#b8adff` | 9.30:1 |
-| General accent / canvas | `#b8adff` | `#11131e` | 9.21:1 |
-| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#b8adff` | 5.99:1 |
+| Primary text / canvas | `#f1f6fb` | `#11151e` | 16.80:1 |
+| Muted text / card | `#adbfce` | `#1b2330` | 8.36:1 |
+| Action label / primary action | `#031326` | `#80c8fb` | 10.29:1 |
+| General accent / canvas | `#68d5ef` | `#11151e` | 10.74:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#80c8fb` | 6.63:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography

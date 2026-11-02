@@ -1,5 +1,7 @@
 # Layout and presentation patterns
 
+**2 November compact monthly Start (#122):** [Owner-requested cool cyan/blue accents, paired monthly bars and small consistent controls](compact-cockpit.md#cool-accents-and-compact-monthly-start--authorized-2-november-2026) supersede lavender/apricot accents and the large embedded Start chart. Restored upper composition and lean tiles remain.
+
 **2 November expressive compact redesign (#119):** [Owner-authorized graphite/violet amendment](compact-cockpit.md#expressive-compact-graphite--authorized-2-november-2026) supersedes earlier palette/Start composition in scope: denser surfaces, role orbit, seasonal traces and shorter copy. Original logo, five tabs and source/unknown boundaries remain.
 
 **27 October coherent Club/AI/Settings continuation (#94):** contextual page Back returns to the exact section/caller; temporary AI option details use Back, while Close exits their surface. Per-menu and per-Club-section scrolling is retained. Diagnostics/About/Development stay mounted but hidden/inaccessible under nested routes. Exact AI evidence uses the existing flight list/detail and an owner-scoped return to its retained conversation. [Current contract](compact-cockpit.md#club-ai-and-remaining-settings--authorized-27-october-2026) preserves drafts, source/unknown caveats and account/provider guards.

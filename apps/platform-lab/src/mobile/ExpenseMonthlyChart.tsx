@@ -53,7 +53,7 @@ const s = StyleSheet.create({
   selected: { borderColor: colors.cyan, backgroundColor: colors.raised },
   monthLabel: { fontSize: 12, lineHeight: 18, fontWeight: '600', fontVariant: ['tabular-nums'] },
   selectedText: { color: colors.text },
-  conflictMark: { width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffb49a22' },
+  conflictMark: { width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: '#e6bb7022' },
   warning: { color: colors.orange, fontSize: 11, lineHeight: 15, fontWeight: '800' },
   selection: { minHeight: 36, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, paddingHorizontal: 4 },
   selectedLabel: { fontSize: 12, lineHeight: 18 },

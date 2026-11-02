@@ -11,7 +11,7 @@ import { type StatisticsPeriod, statisticsPeriodBounds } from './statistics-over
 import { classifyAircraft } from './flight-classification';
 import { classifyFlightRoleMetric, flightRoleShortLabels } from './flight-role-metric';
 import {
-  chartNames, chartOrder, chartDataset, monthlyChartGroups, groupChartFlights, calendarChartDays,
+  chartNames, chartOrder, chartDataset, monthlyChartGroups, monthlyChartValue, groupChartFlights, calendarChartDays,
   quantile, nearestChartPoints, emptyChartFilters,
   type ChartKind, type ChartFilters, type AircraftGrouping, type ChartGroup,
 } from './statistics-charts-model';
@@ -85,7 +85,7 @@ export function StatisticsCharts({ flights, saved, today, period, dataset: provi
     if (period.kind !== 'year') content = <Label muted>Für den Monatsvergleich bitte ein Jahr im Filter auswählen.</Label>;
     else {
       const current=monthly.map(pair=>pair[0]!),previous=monthly.map(pair=>pair[1]!);
-      const value=(g:typeof current[number],prior=false)=>g.future||prior&&!g.validComparison?null:measure==='count'?(g.count>0||g.covered?g.count:null):(g.knownDurationCount>0||g.count===0&&g.covered?g.knownMinutes:null);
+      const value=(g:typeof current[number],prior=false)=>monthlyChartValue(g,measure,prior);
       const format=(n:number)=>measure==='time'?time(n):`${n} Flüge`;
       const focused=monthFocus===null?null:current[monthFocus],focusedPrior=monthFocus===null?null:previous[monthFocus];
       const selectMonth=(index:number)=>{
@@ -97,7 +97,7 @@ export function StatisticsCharts({ flights, saved, today, period, dataset: provi
       };
       content=<View style={{gap:8}}>
         <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
-          <View style={{flexDirection:'row',backgroundColor:colors.raised,borderRadius:14,paddingHorizontal:3,gap:2}}>{(['time','count'] as const).map(key=><Pressable key={key} accessibilityRole="button" accessibilityLabel={key==='time'?'Flugzeit im Diagramm':'Fluganzahl im Diagramm'} accessibilityState={{selected:measure===key}} onPress={()=>setMeasure(key)} style={{minHeight:48,justifyContent:'center'}}><View style={{paddingHorizontal:12,paddingVertical:6,borderRadius:11,backgroundColor:measure===key?colors.card:'transparent'}}><Label style={{fontSize:12,fontWeight:measure===key?'700':'400',color:measure===key?colors.text:colors.muted}}>{key==='time'?'Flugzeit':'Flüge'}</Label></View></Pressable>)}</View>
+          <View style={ui.segmented}>{(['time','count'] as const).map(key=><Pressable key={key} accessibilityRole="button" accessibilityLabel={key==='time'?'Flugzeit im Diagramm':'Fluganzahl im Diagramm'} accessibilityState={{selected:measure===key}} onPress={()=>setMeasure(key)} style={ui.segmentTouch}><View style={[ui.segmentFace,measure===key&&ui.segmentSelected]}><Label style={[ui.segmentText,measure===key&&ui.segmentTextSelected]}>{key==='time'?'Flugzeit':'Flüge'}</Label></View></Pressable>)}</View>
           <View style={{flexDirection:'row',gap:12,alignItems:'center'}}><Label style={{fontSize:11,color:colors.cyan}}>● {period.year}</Label><View style={{flexDirection:"row",alignItems:"center",gap:4}}><View style={{width:12,borderTopWidth:1.5,borderColor:colors.orange,borderStyle:"dashed"}}/><Label style={{fontSize:11,color:colors.orange}}>{period.year-1}</Label></View></View>
         </View>
         {focused&&<View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'baseline',gap:8,flexWrap:'wrap'}}><View><Label muted style={s.small}>{monthNames[monthFocus!]} {period.year}</Label><Label style={{fontSize:28,lineHeight:36,fontWeight:'600',fontVariant:['tabular-nums']}}>{value(focused)===null?'—':format(value(focused)!)}</Label></View><Label muted style={s.small}>{period.year-1} · {focusedPrior&&value(focusedPrior,true)!==null?format(value(focusedPrior,true)!):'—'}</Label></View>}

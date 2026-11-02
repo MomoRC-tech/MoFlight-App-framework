@@ -102,6 +102,13 @@ export function monthlyChartGroups(flights: readonly RealFlightListItem[], saved
     });
   });
 }
+/** Shared by the compact Start bars and detailed monthly plot. Missing is never zero. */
+export function monthlyChartValue(group: ReturnType<typeof monthlyChartGroups>[number][number], measure: 'time'|'count', prior = false): number|null {
+  if (!group || group.future || prior && !group.validComparison) return null;
+  return measure === 'count'
+    ? group.count > 0 || group.covered ? group.count : null
+    : group.knownDurationCount > 0 || group.count === 0 && group.covered ? group.knownMinutes : null;
+}
 export function calendarChartDays(flights: readonly RealFlightListItem[], saved: readonly SavedFlightRetrieval[], year: number, today: string, filters: ChartFilters) {
   const rows = chartDataset(flights, { kind: 'year', year }, today, filters).dated;
   const byDate = new Map<string, RealFlightListItem[]>();

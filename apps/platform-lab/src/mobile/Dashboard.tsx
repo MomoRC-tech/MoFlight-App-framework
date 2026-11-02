@@ -1,5 +1,5 @@
 import { startRenderSpan } from '../start-timing';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Label, colors as contentColors, startTileSurfaces, ui } from './theme';
 import type { OwnFlightView } from './own-flight-reader';
@@ -27,13 +27,9 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
   const [selection,setSelection] = useState<{scope:string|null;year:number}|null>(null);
   const year = selection?.scope === scope ? selection.year : currentYear;
   const [yearOpen,setYearOpen] = useState(false), [targetOpen,setTargetOpen] = useState(false);
-  const [chartSelection,setChartSelection]=useState<{scope:string|null;chart:ChartKind}|null>(null);
-  const chartBack=useRef<()=>boolean>(()=>false);
-  const selectedChart=chartSelection?.scope===scope?chartSelection.chart:'monthly';
   const target = useDutyTarget(scope,year,persistDutyTarget,ownFlightPhase==='ready'&&!ownFlights?.pendingCommand&&!ownFlights?.snapshot.recovery?.readOnly?ownFlights?.featureInformation?.workSummary:undefined);
   onBackHandler?.(()=>{
     if(targetOpen){if(!target.busy)setTargetOpen(false);return true;}
-    if(chartBack.current())return true;
     if(yearOpen){setYearOpen(false);return true;}
     return false;
   });
@@ -59,7 +55,7 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
       <View style={[ui.cockpitShade,styles.shade]}>
         <View style={styles.heading}>
           <Pressable accessibilityRole="button" accessibilityLabel={`Saison ${year} auswählen`} accessibilityState={{expanded:yearOpen}} disabled={!ownFlights} onPress={()=>setYearOpen(!yearOpen)} style={styles.seasonTitle}><View style={ui.row}><Label style={[styles.title,{flexShrink:1}]}>Meine Saison · {year}</Label><SymbolIcon name="down" size={16}/></View></Pressable>
-          {onStatistics&&<Pressable accessibilityRole="button" accessibilityLabel="Statistik" onPress={()=>onStatistics(year,undefined,selectedChart)} style={[styles.statistics,fontScale>1.3&&{maxWidth:'45%'}]}><Label style={[styles.statisticsText,{flexShrink:1}]}>Statistik</Label><View style={{transform:[{rotate:'-45deg'}]}}><SymbolIcon name="arrow" size={16}/></View></Pressable>}
+          {onStatistics&&<Pressable accessibilityRole="button" accessibilityLabel="Statistik" onPress={()=>onStatistics(year,undefined,'monthly')} style={[styles.statistics,fontScale>1.3&&{maxWidth:'45%'}]}><View style={styles.statisticsFace}><Label style={[styles.statisticsText,{flexShrink:1}]}>Statistik</Label><View style={{transform:[{rotate:'-45deg'}]}}><SymbolIcon name="arrow" size={14}/></View></View></Pressable>}
         </View>
         {yearOpen&&<View><ScrollView horizontal contentContainerStyle={{gap:6}}>{years.map(y=><Pressable key={y} accessibilityRole="button" accessibilityLabel={`Saison ${y}`} accessibilityState={{selected:year===y}} onPress={()=>{setSelection({scope,year:y});setYearOpen(false);}} style={[styles.yearButton,year===y&&{backgroundColor:colors.raised,borderRadius:10}]}><Label>{y}</Label></Pressable>)}</ScrollView><View style={styles.yearControls}><Pressable accessibilityRole="button" accessibilityLabel="Vorherige Saison" disabled={year<=1901} onPress={()=>setSelection({scope,year:Math.max(1901,year-1)})} style={styles.yearButton}><Label>‹ {Math.max(1901,year-1)}</Label></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Nächste Saison" disabled={year>=currentYear} onPress={()=>setSelection({scope,year:year+1})} style={[styles.yearButton,year>=currentYear&&{opacity:.4}]}><Label>{year+1} ›</Label></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Saisonauswahl schließen" onPress={()=>setYearOpen(false)} style={styles.yearButton}><SymbolIcon name="close" size={18}/></Pressable></View></View>}
         <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={[styles.metrics,fontScale>1.3&&{minWidth:330*fontScale}]}>
@@ -93,7 +89,7 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
       {!ready?<Label muted>{ownFlightPhase==='failed'?'Gespeicherte Flugdaten konnten nicht geprüft werden. Bitte die lokale Liste erneut prüfen.':startGuidance?.message}</Label>:latest?<Pressable accessibilityRole="button" accessibilityLabel={`Letzten Flug vom ${latest.date} ansehen${latest?.orderUnknown?'. Reihenfolge am selben Tag unbekannt.':''}`} onPress={()=>onFlight?onFlight(latest.flightId):onFlights()} style={({pressed})=>[styles.latest,pressed&&ui.pressed]}>
         <Label muted style={{flex:1}}>Letzter Flug · {latest.date}{latest.orderUnknown?' · Reihenfolge offen':''}</Label><SymbolIcon name="right" size={18}/>
       </Pressable>:<Label muted>{startGuidance?.message ?? 'Noch keine datierten gespeicherten Flüge.'}</Label>}
-      {ready&&ownFlights&&scope&&<StartSeasonCharts key={scope} scope={scope} persistent={persistDutyTarget} flights={ownFlights.flights} saved={saved} year={year} today={today} onChartChange={chart=>setChartSelection({scope,chart})} onBackHandler={handler=>{chartBack.current=handler;}} onFlights={(title,ids,period)=>onStatistics?.(year,undefined,selectedChart,{title,ids,scope:period??{kind:'year',year}})}/>}
+      {ready&&ownFlights&&scope&&<StartSeasonCharts key={scope} scope={scope} persistent={persistDutyTarget} flights={ownFlights.flights} saved={saved} year={year} today={today} onStatistics={()=>onStatistics?.(year,'overview','monthly')}/>}
       {ready&&facts.current.unknownDurationCount>0&&<Label muted style={styles.small}>{facts.current.unknownDurationCount} Saisonzeiten unbekannt · bekannte Flugzeit</Label>}
       {ready&&facts.prior.unknownDurationCount>0&&<Label muted style={styles.small}>{year-1}: {facts.prior.unknownDurationCount} Zeiten unbekannt · bekannte Flugzeit</Label>}
       {ready&&facts.current.unknownDateCount>0&&<Label muted style={styles.small}>{facts.current.unknownDateCount} Flüge ohne zugeordnetes Datum.</Label>}
@@ -105,7 +101,7 @@ const styles=StyleSheet.create({
   season:{width:'100%',maxWidth:520,alignSelf:'center',padding:0,gap:0},
   photo:{width:'100%'},shade:{paddingHorizontal:12,paddingBottom:12,gap:8},
   heading:{flexDirection:'row',alignItems:'center',gap:6},seasonTitle:{flex:1,minWidth:0,minHeight:48,justifyContent:'center'},title:{fontSize:18,lineHeight:25,fontWeight:'700'},
-  statistics:{backgroundColor:colors.raised,borderRadius:12,minHeight:48,justifyContent:'center',alignItems:'center',flexDirection:'row',gap:5,paddingHorizontal:10,maxWidth:'35%'},statisticsText:{color:colors.cyan,fontSize:14,lineHeight:20},
+  statistics:{minHeight:48,justifyContent:'center',maxWidth:'35%'},statisticsFace:{backgroundColor:colors.raised,borderRadius:8,minHeight:30,alignItems:'center',flexDirection:'row',gap:4,paddingHorizontal:9,paddingVertical:5},statisticsText:{color:colors.cyan,fontSize:13,lineHeight:18},
   metrics:{flexGrow:1,flexDirection:'row',paddingTop:4},metric:{flex:1,minWidth:90,minHeight:48,alignItems:'center',justifyContent:'flex-start',gap:3,paddingHorizontal:5},divider:{borderLeftWidth:1,borderColor:colors.border},
   value:{fontSize:27,lineHeight:34,fontWeight:'700',textAlign:'center',fontVariant:['tabular-nums']},workValue:{fontSize:22,lineHeight:34},roleValue:{fontSize:22},metricLabel:{fontSize:12,lineHeight:18,textAlign:'center'},prior:{fontSize:11,lineHeight:17,textAlign:'center'},
   workMetric:{minWidth:116,minHeight:72},workTarget:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:4},editCue:{fontSize:15,lineHeight:18,color:colors.cyan},

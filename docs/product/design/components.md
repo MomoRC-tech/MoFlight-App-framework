@@ -1,5 +1,7 @@
 # Components, symbols and shapes
 
+**2 November compact monthly Start (#122):** [Owner-requested cool cyan/blue accents, paired monthly bars and small consistent controls](compact-cockpit.md#cool-accents-and-compact-monthly-start--authorized-2-november-2026) supersede lavender/apricot accents and the large embedded Start chart. Restored upper composition and lean tiles remain.
+
 **29 October Start correction (#108):** [selected tile/badge amendment](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) overrides earlier Start tile surface values. Medical rows retain name/date plus a small green ✓ / orange ! / red × / gray ? date-status badge, with complete date relationships on the parent action. No independent badge action.
 
 The same-day Medical refinement scales the initial badges to 80% and paints a navy gradient/header motif behind the existing title. Absolute decoration uses the existing inset and adds no vertical row/padding; native text still scales.

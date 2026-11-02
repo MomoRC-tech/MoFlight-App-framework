@@ -2,6 +2,8 @@ MOFLIGHT — CURRENT UI DESIGN HANDBOOK AND AI HANDOFF
 
 # MoFlight UI design handbook
 
+**2 November compact monthly Start (#122):** [Owner-requested cool cyan/blue accents, paired monthly bars and small consistent controls](compact-cockpit.md#cool-accents-and-compact-monthly-start--authorized-2-november-2026) supersede lavender/apricot accents and the large embedded Start chart. Restored upper composition and lean tiles remain.
+
 **2 November Start restoration (Issue121):** [Rollback composition, lean tiles](compact-cockpit.md#rollback-start-composition-lean-tiles--authorized-2-november-2026) restores the season strip/photo, keeps compact tiles/colors and modern charts. [Experiment review](pilot-experiment-adoption-review.md) is recommendations only.
 
 **2 November modern charts (Issue120):** [Vector chart amendment](compact-cockpit.md#modern-vector-charts--authorized-2-november-2026) replaces line/arc strips with native paths, area gradients, one time/count viewport and focused selection. Unknown gaps and exact routes remain.
@@ -401,6 +403,17 @@ Issue121 restores the rollbackeeda7a0 season-card composition with current color
 
 Parallel Issue116 review is recommendations only until explicit selection. Six subapps are a review preference, not implementation approval. [Restoration evidence](../../verification/2026-11-02-start-restoration.md) and [21-item adoption review](pilot-experiment-adoption-review.md) distinguish implemented and proposed work.
 
+
+## Cool accents and compact monthly Start — authorized 2 November 2026
+
+Owner request under #122 supersedes the lavender/apricot accent roles of #119 and the large embedded Start chart of #120/#121. Use cool blue filled controls, cyan links/current data, steel-blue previous-year bars and restrained amber secondary/status accents. Keep dark surfaces, original logo/icons, restored season photo/metric strip, year/work target and lean lower tiles. This does not adopt the #116 experiment or recompose the upper Start layout.
+
+Start's lower season content is one short left-to-right paired monthly bar viewport (78dp plot) with the confirmed Flugzeit / Flüge switch. Both years use one zero baseline and scale, and existing monthly groups compare through the same calendar cutoff. Future months stay empty. Known zero uses a baseline dot, unknown a short dash, partially known bars a dashed outline; the detail route retains exact values, source/coverage and contributors. The year legend, compact switch and collapse action share one wrapping toolbar; there is no nested chart picker, summary paragraph or value table on Start. The whole plot opens detailed monthly Statistics. Existing account-scoped expanded-state preference remains; obsolete saved chart types no longer select a different Start visualization. Start no longer mounts the full Statistics component or computes its unrelated dataset.
+
+Shared action faces are 30dp, chips/measure faces 28dp, with 8dp corners, compact typography and unchanged 48dp minimum touch areas. Faces grow with scaled text; no fixed text clipping. Start Statistics uses the same visual size. Small visible controls and their touch area are separate, adapting [Material segmented buttons](https://m3.material.io/components/segmented-buttons/overview) and [Android accessibility defaults](https://developer.android.com/develop/ui/compose/accessibility/api-defaults) to the existing React Native shell. No component-library/framework migration or new dependency. Detailed Statistics retains its curves and now uses the same measure-control styles/shared monthly value rules.
+
+Implementation and affected-source evidence are recorded in [the package report](../../verification/2026-11-02-compact-monthly-start.md). Implementation does not establish owner aesthetic acceptance. Dark synthetic/native checks remain scoped; phone/iOS/light/provider/model gates stay separate.
+
 # Alternative UI — 22 October 2026
 
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
@@ -525,6 +538,8 @@ Approved under [#20](https://github.com/MomoRC-tech/MoFlight-App-framework/issue
 
 # Visual foundations
 
+**2 November compact monthly Start (Issue122):** [Owner-requested cool cyan/blue accents, paired monthly bars and small consistent controls](compact-cockpit.md#cool-accents-and-compact-monthly-start--authorized-2-november-2026) supersede lavender/apricot accents and the large embedded Start chart. Restored upper composition and lean tiles remain.
+
 **2 November expressive compact redesign (Issue119):** [Owner-authorized graphite/violet amendment](compact-cockpit.md#expressive-compact-graphite--authorized-2-november-2026) supersedes earlier palette/Start composition in scope: denser surfaces, role orbit, seasonal traces and shorter copy. Original logo, five tabs and source/unknown boundaries remain.
 
 **Historical surface amendments:** the [29 October tile correction](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) and [28 October controls](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026) retain their evidence and Medical date semantics. Their former navy/teal palette is superseded by Issue119; current values follow below.
@@ -541,16 +556,16 @@ Keep surface, text, action, state and chart roles consistent, including foregrou
 <!-- generated:theme:start -->
 | Semantic role / code key | Value | Allowed/current use | Pairing context |
 | --- | --- | --- | --- |
-| surface.canvas / `background` | `#11131e` | Primary dark canvas | text / muted |
-| surface.card / `card` | `#1c1f30` | Opaque shared content panel | text / muted |
-| surface.raised / `raised` | `#292d43` | Raised / secondary action surface | text |
-| stroke.default / `border` | `#3c4058` | Shared card/control outlines | dark surfaces |
-| text.primary / `text` | `#f4f2fb` | Primary readable text | background / card / raised |
-| text.secondary / `muted` | `#b7b8cc` | Supporting text and inactive symbols | dark surfaces |
-| action.primary / `blue` | `#b8adff` | Violet filled action and selected-chip base; legacy code key | #031326 action text |
-| accent.general / `cyan` | `#b8adff` | Violet links, metrics and selected navigation labels; legacy code key | dark surfaces |
-| accent.assistant.family / `purple` | `#6355a6` | Muted violet accent strokes | light text; check displayed panel |
-| accent.paper.family / `orange` | `#ffb49a` | Apricot comparison and role accent; paper-family symbols retain original artwork | dark action text in context |
+| surface.canvas / `background` | `#11151e` | Primary dark canvas | text / muted |
+| surface.card / `card` | `#1b2330` | Opaque shared content panel | text / muted |
+| surface.raised / `raised` | `#263447` | Raised / secondary action surface | text |
+| stroke.default / `border` | `#394c62` | Shared card/control outlines | dark surfaces |
+| text.primary / `text` | `#f1f6fb` | Primary readable text | background / card / raised |
+| text.secondary / `muted` | `#adbfce` | Supporting text and inactive symbols | dark surfaces |
+| action.primary / `blue` | `#80c8fb` | Cool blue filled action and selected-chip base | #031326 action text |
+| accent.general / `cyan` | `#68d5ef` | Cyan links, metrics and selected navigation labels | dark surfaces |
+| accent.assistant.family / `purple` | `#376a92` | Muted steel-blue accent strokes; legacy code key | light text; check displayed panel |
+| accent.paper.family / `orange` | `#e6bb70` | Restrained amber comparison and role accent; paper-family symbols retain original artwork | dark action text in context |
 | feedback.saved / `green` | `#7be2c3` | Local profile saved text; also a chart-palette color | dark surfaces; meaning needs text |
 <!-- generated:theme:end -->
 
@@ -635,11 +650,11 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 <!-- generated:contrast:start -->
 | Opaque pair | Foreground | Background | Calculated ratio |
 | --- | --- | --- | --- |
-| Primary text / canvas | `#f4f2fb` | `#11131e` | 16.68:1 |
-| Muted text / card | `#b7b8cc` | `#1c1f30` | 8.34:1 |
-| Action label / primary action | `#031326` | `#b8adff` | 9.30:1 |
-| General accent / canvas | `#b8adff` | `#11131e` | 9.21:1 |
-| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#b8adff` | 5.99:1 |
+| Primary text / canvas | `#f1f6fb` | `#11151e` | 16.80:1 |
+| Muted text / card | `#adbfce` | `#1b2330` | 8.36:1 |
+| Action label / primary action | `#031326` | `#80c8fb` | 10.29:1 |
+| General accent / canvas | `#68d5ef` | `#11151e` | 10.74:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#80c8fb` | 6.63:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography
@@ -655,6 +670,8 @@ The HTML guide embeds original reference and symbol/brand images unchanged. Comp
 The U1/U3 header uses neutral saved-age text independently of session state, with a small green `#74dfba` ✓ for recent matching confirmed proof, amber `#ffc477` → for required login, and muted ?/! for unknown/mismatch/error. Saved flight receipt age strictly greater than 72 hours adds a small `#ffc477` dot on the otherwise transparent icon-only control; exactly 72 hours does not. The same dot also signals a scope-matched activity-count change or incomplete sync, with distinct accessible wording and retained details/retry. These recommendation cues are independent of session colour and saved age; when both apply, both descriptions remain in the accessible action and status detail. Checks/login/failure never renew the durable successful flight receipt. The former one-hour age-colour policy is superseded. Provider-panel session colours retain their own meanings.
 
 # Components, symbols and shapes
+
+**2 November compact monthly Start (#122):** [Owner-requested cool cyan/blue accents, paired monthly bars and small consistent controls](compact-cockpit.md#cool-accents-and-compact-monthly-start--authorized-2-november-2026) supersede lavender/apricot accents and the large embedded Start chart. Restored upper composition and lean tiles remain.
 
 **29 October Start correction (#108):** [selected tile/badge amendment](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) overrides earlier Start tile surface values. Medical rows retain name/date plus a small green ✓ / orange ! / red × / gray ? date-status badge, with complete date relationships on the parent action. No independent badge action.
 
@@ -787,6 +804,8 @@ The implemented U3 count advice adds a compact amber **Änderungen möglich** th
 
 # Layout and presentation patterns
 
+**2 November compact monthly Start (#122):** [Owner-requested cool cyan/blue accents, paired monthly bars and small consistent controls](compact-cockpit.md#cool-accents-and-compact-monthly-start--authorized-2-november-2026) supersede lavender/apricot accents and the large embedded Start chart. Restored upper composition and lean tiles remain.
+
 **2 November expressive compact redesign (#119):** [Owner-authorized graphite/violet amendment](compact-cockpit.md#expressive-compact-graphite--authorized-2-november-2026) supersedes earlier palette/Start composition in scope: denser surfaces, role orbit, seasonal traces and shorter copy. Original logo, five tabs and source/unknown boundaries remain.
 
 **27 October coherent Club/AI/Settings continuation (#94):** contextual page Back returns to the exact section/caller; temporary AI option details use Back, while Close exits their surface. Per-menu and per-Club-section scrolling is retained. Diagnostics/About/Development stay mounted but hidden/inaccessible under nested routes. Exact AI evidence uses the existing flight list/detail and an owner-scoped return to its retained conversation. [Current contract](compact-cockpit.md#club-ai-and-remaining-settings--authorized-27-october-2026) preserves drafts, source/unknown caveats and account/provider guards.
@@ -916,7 +935,7 @@ The explicit Costs “Belege abrufen” action is a scoped exception to the earl
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 132 product mobile TypeScript/model and app-owned TSX UI/adapter files; 83 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 133 product mobile TypeScript/model and app-owned TSX UI/adapter files; 87 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -1491,58 +1510,58 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `31c676238d888ab59e7e175cd8d43d64b3ddcebc537ee96cad6754669b4a4b6b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `5e8d8ebc27b9f1a3a09840c7ad074176961580c56b70bb4cb464f09ae97d0d18`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 110 |
-| `fontSize: 12` | 110, 113 |
-| `fontSize: 14` | 108 |
-| `fontSize: 15` | 111 |
-| `fontSize: 18` | 107 |
-| `fontSize: 22` | 110 |
-| `fontSize: 27` | 110 |
-| `fontWeight: '600'` | 100 |
-| `fontWeight: '700'` | 107, 110 |
-| `lineHeight: 17` | 110 |
-| `lineHeight: 18` | 110, 111, 113 |
-| `lineHeight: 20` | 108 |
-| `lineHeight: 25` | 107 |
-| `lineHeight: 34` | 110 |
+| `fontSize: 11` | 106 |
+| `fontSize: 12` | 106, 109 |
+| `fontSize: 13` | 104 |
+| `fontSize: 15` | 107 |
+| `fontSize: 18` | 103 |
+| `fontSize: 22` | 106 |
+| `fontSize: 27` | 106 |
+| `fontWeight: '600'` | 96 |
+| `fontWeight: '700'` | 103, 106 |
+| `lineHeight: 17` | 106 |
+| `lineHeight: 18` | 104, 106, 107, 109 |
+| `lineHeight: 25` | 103 |
+| `lineHeight: 34` | 106 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 64 |
-| `borderRadius: 12` | 108 |
-| `gap: 0` | 105 |
-| `gap: 3` | 109 |
-| `gap: 4` | 111 |
-| `gap: 5` | 108 |
-| `gap: 6` | 64, 107, 112 |
-| `gap: 8` | 106 |
-| `maxWidth: '35%'` | 108 |
-| `maxWidth: '45%'` | 62 |
-| `maxWidth: 520` | 105 |
-| `minHeight: 48` | 107, 108, 109, 112, 114, 115 |
-| `minHeight: 72` | 111 |
-| `minWidth: 0` | 107 |
-| `minWidth: 116` | 111 |
-| `minWidth: 330` | 65 |
-| `minWidth: 48` | 115 |
-| `minWidth: 90` | 109 |
-| `opacity: .4` | 64 |
-| `padding: 0` | 105 |
-| `padding: 12` | 112 |
-| `paddingHorizontal: 10` | 108 |
-| `paddingHorizontal: 12` | 106, 112 |
-| `paddingHorizontal: 5` | 109 |
-| `paddingHorizontal: 8` | 115 |
-| `paddingVertical: 4` | 112 |
-| `width: '100%'` | 105, 106 |
+| `borderRadius: 10` | 60 |
+| `borderRadius: 8` | 104 |
+| `gap: 0` | 101 |
+| `gap: 3` | 105 |
+| `gap: 4` | 104, 107 |
+| `gap: 6` | 60, 103, 108 |
+| `gap: 8` | 102 |
+| `maxWidth: '35%'` | 104 |
+| `maxWidth: '45%'` | 58 |
+| `maxWidth: 520` | 101 |
+| `minHeight: 30` | 104 |
+| `minHeight: 48` | 103, 104, 105, 108, 110, 111 |
+| `minHeight: 72` | 107 |
+| `minWidth: 0` | 103 |
+| `minWidth: 116` | 107 |
+| `minWidth: 330` | 61 |
+| `minWidth: 48` | 111 |
+| `minWidth: 90` | 105 |
+| `opacity: .4` | 60 |
+| `padding: 0` | 101 |
+| `padding: 12` | 108 |
+| `paddingHorizontal: 12` | 102, 108 |
+| `paddingHorizontal: 5` | 105 |
+| `paddingHorizontal: 8` | 111 |
+| `paddingHorizontal: 9` | 104 |
+| `paddingVertical: 4` | 108 |
+| `paddingVertical: 5` | 104 |
+| `width: '100%'` | 101, 102 |
 
 ## DataUpdateIndicator.tsx
 
@@ -1662,13 +1681,13 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](.
 
 ## ExpenseMonthlyChart.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx](../../../apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx); normalized SHA-256 `571140ae5562be74669dd8441e36328ffebe38d4036324ed6429825ca3effe5f`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx](../../../apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx); normalized SHA-256 `b0bc764f41044cdc2e9a7e8e6400245dc3a37add8698065f38782dec7f02f29c`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#ffb49a22` | 56 |
+| `#e6bb7022` | 56 |
 | `transparent` | 52 |
 
 ### Typography declarations
@@ -2149,6 +2168,30 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](..
 | `width: 48` | 428 |
 | `width: 64` | 424 |
 
+## MonthlyBars.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MonthlyBars.tsx](../../../apps/platform-lab/src/mobile/MonthlyBars.tsx); normalized SHA-256 `ae09778ad19715e35561964879a295cb97c62bb4afe734700a86daf5e22d5b1e`.
+
+### Literal colors
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `#809cb3` | 6 |
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 10` | 29, 35 |
+| `lineHeight: 14` | 29, 35 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `gap: 2` | 28 |
+| `minHeight: 48` | 28 |
+
 ## OverviewTiles.tsx
 
 Product mobile UI/model. Source: [apps/platform-lab/src/mobile/OverviewTiles.tsx](../../../apps/platform-lab/src/mobile/OverviewTiles.tsx); normalized SHA-256 `131a4f0d45622182dc4c19e3ed7dd93c0e884e3d96c22a0f3e9bdb4109473c21`.
@@ -2549,25 +2592,33 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/settings-secondar
 
 ## StartSeasonCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StartSeasonCharts.tsx](../../../apps/platform-lab/src/mobile/StartSeasonCharts.tsx); normalized SHA-256 `38bf19108f90d7c45ba7f85d07580a90ae771bab4047f5efae2384d061d79ada`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StartSeasonCharts.tsx](../../../apps/platform-lab/src/mobile/StartSeasonCharts.tsx); normalized SHA-256 `8f21a3ed403881d4d376bad9f16c2fd5e50dfa88825238997cdf81a7be31c32d`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontWeight: '600'` | 23 |
+| `fontSize: 10` | 32 |
+| `fontSize: 11` | 27 |
+| `fontSize: 18` | 28 |
+| `lineHeight: 16` | 27, 32 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 4` | 22 |
-| `minHeight: 48` | 23 |
-| `paddingVertical: 4` | 22 |
+| `borderRadius: 2` | 27 |
+| `gap: 2` | 24 |
+| `gap: 4` | 27 |
+| `gap: 8` | 27 |
+| `height: 10` | 27 |
+| `minHeight: 48` | 28 |
+| `minWidth: 48` | 28 |
+| `width: 5` | 27 |
 
 ## StatisticsCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.tsx](../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx); normalized SHA-256 `7599e1d277078b0b0daee95526bcb1612b73563ad12921196af437c85e2c73ac`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.tsx](../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx); normalized SHA-256 `c591764d8491ac6cd137d6361e2c7d4d3f4cc98993ab869af2c8613b91bd443a`.
 
 ### Literal colors
 
@@ -2580,7 +2631,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `fontSize: 11` | 101, 136, 152, 188 |
-| `fontSize: 12` | 100, 137, 188 |
+| `fontSize: 12` | 137, 188 |
 | `fontSize: 13` | 152 |
 | `fontSize: 28` | 103 |
 | `fontSize: 30` | 152 |
@@ -2594,16 +2645,14 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 11` | 100 |
 | `borderRadius: 12` | 188 |
-| `borderRadius: 14` | 100 |
 | `borderRadius: 3` | 145, 188 |
 | `borderRadius: 4` | 152 |
 | `gap: 10` | 149 |
 | `gap: 12` | 101 |
 | `gap: 14` | 145 |
 | `gap: 16` | 152 |
-| `gap: 2` | 100, 141 |
+| `gap: 2` | 141 |
 | `gap: 3` | 136, 188 |
 | `gap: 4` | 81, 101, 138, 145, 152, 178, 188 |
 | `gap: 6` | 188 |
@@ -2620,17 +2669,14 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.
 | `height: 5` | 145 |
 | `height: 7` | 152 |
 | `height: 8` | 188 |
-| `minHeight: 48` | 100, 152, 175, 188 |
+| `minHeight: 48` | 152, 175, 188 |
 | `minHeight: 76` | 145 |
 | `minWidth: 0` | 188 |
 | `minWidth: 48` | 188 |
 | `padding: 12` | 188 |
-| `paddingHorizontal: 12` | 100 |
-| `paddingHorizontal: 3` | 100 |
 | `paddingVertical: 10` | 188 |
 | `paddingVertical: 12` | 152 |
 | `paddingVertical: 4` | 188 |
-| `paddingVertical: 6` | 100 |
 | `width: '100%'` | 77, 141, 188 |
 | `width: '65%'` | 141 |
 | `width: 12` | 101, 138 |
@@ -2847,72 +2893,78 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx]
 
 ## theme.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `9381cba742474b7d6e4709628e1c173439ae4290f4987e62c147a53eb4b1f466`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `07cc55281fa20896a49ef78472273eda03b1877d613a7fc199276817efce044a`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00102277` | 73 |
+| `#00102277` | 79 |
 | `#001b2944` | 55 |
 | `#031326` | 35, 62 |
-| `#11131e` | 6 |
-| `#162a42` | 72 |
+| `#11151e` | 6 |
+| `#162a42` | 78 |
 | `#171a28` | 7 |
-| `#1c1f30` | 6, 9 |
-| `#292d43` | 6, 7, 9 |
+| `#1b2330` | 6, 9 |
+| `#263447` | 6, 9 |
+| `#292d43` | 7 |
 | `#34384d` | 7 |
-| `#3c4058` | 6, 9 |
-| `#6355a6` | 6 |
+| `#376a92` | 6 |
+| `#394c62` | 6, 9 |
+| `#68d5ef` | 6 |
 | `#7be2c3` | 6 |
-| `#b7b8cc` | 6 |
-| `#b8adff` | 6 |
-| `#f4f2fb` | 6 |
-| `#ffb49a` | 6 |
+| `#80c8fb` | 6 |
+| `#adbfce` | 6 |
+| `#e6bb70` | 6 |
+| `#f1f6fb` | 6 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 14` | 48, 62, 68 |
+| `fontSize: 12` | 73 |
+| `fontSize: 13` | 62, 68 |
+| `fontSize: 14` | 48 |
 | `fontSize: 17` | 50 |
 | `fontSize: 24` | 49 |
-| `fontWeight: '600'` | 41, 50, 62 |
+| `fontWeight: '600'` | 41, 50, 62, 74 |
 | `fontWeight: '700'` | 35, 49 |
 | `letterSpacing: -.6` | 49 |
-| `lineHeight: 20` | 48, 62, 68 |
+| `lineHeight: 18` | 62, 68, 73 |
+| `lineHeight: 20` | 48 |
 | `lineHeight: 23` | 50 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 10` | 61, 67 |
-| `borderRadius: 16` | 72 |
+| `borderRadius: 16` | 78 |
 | `borderRadius: 18` | 51 |
+| `borderRadius: 8` | 61, 67, 71 |
 | `borderWidth: 1` | 51, 64, 67 |
 | `gap: 10` | 56 |
-| `gap: 4` | 71 |
+| `gap: 2` | 69 |
+| `gap: 4` | 77 |
 | `gap: 5` | 19 |
-| `gap: 6` | 63, 73 |
-| `gap: 8` | 51, 57, 58, 69 |
+| `gap: 6` | 63, 79 |
+| `gap: 8` | 51, 57, 58, 75 |
 | `height: 48` | 53 |
 | `maxWidth: '100%'` | 59 |
-| `minHeight: 30` | 67 |
-| `minHeight: 34` | 61 |
-| `minHeight: 48` | 59, 66, 70 |
+| `minHeight: 28` | 67, 71 |
+| `minHeight: 30` | 61 |
+| `minHeight: 48` | 59, 66, 70, 76 |
 | `minWidth: 0` | 38, 58 |
-| `minWidth: 48` | 59, 61, 67 |
+| `minWidth: 48` | 59, 61, 67, 70 |
 | `opacity: .45` | 35 |
 | `opacity: .5` | 30 |
-| `opacity: .72` | 71 |
+| `opacity: .72` | 77 |
 | `opacity: .82` | 54 |
-| `padding: 12` | 51, 73 |
-| `paddingHorizontal: 10` | 67 |
-| `paddingHorizontal: 11` | 61 |
-| `paddingHorizontal: 4` | 70 |
-| `paddingVertical: 4` | 67 |
-| `paddingVertical: 5` | 61, 71 |
+| `padding: 12` | 51, 79 |
+| `paddingHorizontal: 10` | 61 |
+| `paddingHorizontal: 4` | 76 |
+| `paddingHorizontal: 9` | 67, 71 |
+| `paddingVertical: 4` | 67, 71 |
+| `paddingVertical: 5` | 61, 77 |
 | `width: '100%'` | 38 |
 | `width: '40%'` | 38 |
 | `width: 48` | 53 |

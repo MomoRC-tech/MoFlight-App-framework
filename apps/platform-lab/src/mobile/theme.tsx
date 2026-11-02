@@ -3,10 +3,10 @@ import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePro
 import { SymbolIcon, legacyIconTone, type SymbolName, type SymbolTone } from './SymbolIcon';
 
 // Content, shell and Start tiles have separately scoped surface roles.
-export const colors = { background: '#11131e', card: '#1c1f30', raised: '#292d43', border: '#3c4058', text: '#f4f2fb', muted: '#b7b8cc', blue: '#b8adff', cyan: '#b8adff', purple: '#6355a6', orange: '#ffb49a', green: '#7be2c3' };
+export const colors = { background: '#11151e', card: '#1b2330', raised: '#263447', border: '#394c62', text: '#f1f6fb', muted: '#adbfce', blue: '#80c8fb', cyan: '#68d5ef', purple: '#376a92', orange: '#e6bb70', green: '#7be2c3' };
 export const startSurfaces = { card: '#171a28', raised: '#292d43', border: '#34384d' };
-// Start keeps semantic surface roles within the unified graphite family.
-export const startTileSurfaces = { card: '#1c1f30', raised: '#292d43', border: '#3c4058' };
+// Start keeps its lean composition with the shared cool-blue surface family.
+export const startTileSurfaces = { card: '#1b2330', raised: '#263447', border: '#394c62' };
 export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
   return <SymbolIcon name="glider" size={large ? 68 : 28} tone={legacyIconTone(color)} />;
 }
@@ -58,14 +58,20 @@ export const ui = StyleSheet.create({
   column: { flex: 1, minWidth: 0, gap: 8 },
   actionTouch: { minHeight: 48, minWidth: 48, justifyContent: 'center', maxWidth: '100%' },
   secondaryTouch: { alignSelf: 'flex-start' },
-  action: { minHeight: 34, minWidth: 48, alignSelf: 'stretch', borderRadius: 10, paddingHorizontal: 11, paddingVertical: 5, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
-  actionText: { color: '#031326', fontSize: 14, lineHeight: 20, fontWeight: '600' },
+  action: { minHeight: 30, minWidth: 48, alignSelf: 'stretch', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
+  actionText: { color: '#031326', fontSize: 13, lineHeight: 18, fontWeight: '600' },
   actionContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   secondary: { backgroundColor: colors.raised, borderWidth: 1, borderColor: colors.border },
   startSecondary: { backgroundColor: startTileSurfaces.raised, borderColor: startTileSurfaces.border },
   chipTouch: { minHeight: 48, justifyContent: 'center' },
-  chip: { minHeight: 30, minWidth: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.card },
-  chipSelected: { backgroundColor: colors.blue, borderColor: colors.blue }, chipText: { color: colors.text, fontSize: 14, lineHeight: 20 },
+  chip: { minHeight: 28, minWidth: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: 9, paddingVertical: 4, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.card },
+  chipSelected: { backgroundColor: colors.blue, borderColor: colors.blue }, chipText: { color: colors.text, fontSize: 13, lineHeight: 18 },
+  segmented: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  segmentTouch: { minHeight: 48, minWidth: 48, justifyContent: 'center' },
+  segmentFace: { minHeight: 28, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8, justifyContent: 'center' },
+  segmentSelected: { backgroundColor: colors.raised },
+  segmentText: { color: colors.muted, fontSize: 12, lineHeight: 18 },
+  segmentTextSelected: { color: colors.cyan, fontWeight: '600' },
   section: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   smallAction: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 4 },
   empty: { gap: 4, paddingVertical: 5 }, pressed: { opacity: .72 },
