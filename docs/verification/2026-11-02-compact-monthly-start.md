@@ -31,3 +31,10 @@ Initial/final controllers used 28/29 actions and 3/3 captures. Active elapsed 17
 ![Final-source WIDE compact monthly bars](assets/2026-11-02-compact-monthly/wide-cockpit.png)
 
 [Final MIN layout](assets/2026-11-02-compact-monthly/min-cockpit.png) · [Final return to Cockpit](assets/2026-11-02-compact-monthly/min-returned-cockpit.png). Earlier-source [MAIN time](assets/2026-11-02-compact-monthly/main-time.png) / [MAIN count](assets/2026-11-02-compact-monthly/main-count.png) retain their source-specific footer differences.
+
+
+## Owner follow-up — bare chart and shorter header
+
+Owner explicitly requests no text beneath the diagram and less vertical space above it. Normal unknown-time/date prose, the incomplete caption and redundant Alle Flüge row are removed; the persistent Flights destination and chart-to-Statistics route remain. The latest-flight identity/date action shares the time/count switch row; the year legend shares the plot-scale line. No normal text follows the month labels. The always-visible 78dp chart no longer needs a collapse preference read/write/error state; saved preferences remain untouched for rollback. Empty/failed/loading guidance remains above the chart; cached latest-flight identity remains available. Upper season photo/metric/year/work-target and lean tiles are retained. Unknown values remain distinct in data/graphics/accessibility/details, without extra visible paragraphs.
+
+Sixteen focused Start checks pass after retaining an existing empty/unconfirmed-data guidance case. No new copy/pixel tests. The shared preview also supports the separately selected Club/Assistant components; final coherent Release/native evidence follows below.

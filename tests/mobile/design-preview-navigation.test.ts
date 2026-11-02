@@ -70,9 +70,13 @@ test('cockpit preview opts out of target persistence in every synthetic facts sc
  const react={createElement:(type:any,props:any,...children:any[])=>({type,props:props??{},children:children.flat(Infinity)}),useMemo:(fn:()=>any)=>fn(),useState:(initial:any)=>{const i=index++;if(!(i in states))states[i]=initial;return [states[i],(v:any)=>{states[i]=v;}];}};
  const modules:any={react:{default:react,...react},'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View',useWindowDimensions:()=>({width:390,fontScale:1})},'./design-preview-data':{createDesignPreviewData,DESIGN_PREVIEW_NOW},'./sync-progress':syncProgress};
  for(const id of ['AppHeader','Dashboard','OverviewTiles','DutyRoster','DataUpdateIndicator','SymbolIcon','SyncProgress'])modules['./'+id]={[id]:id};
- modules['./theme']={Action:'Action',Label:'Label',colors:{},startSurfaces:{raised:'#0c3041'},ui:{}};
+ modules['./theme']={Action:'Action',Card:'Card',Label:'Label',colors:{},startSurfaces:{raised:'#0c3041'},ui:{}};
+ modules['./ClubOverview']={ClubOverview:'ClubOverview'};
+ modules['./AiChat']={AssistantQuestionStarters:'AssistantQuestionStarters'};
+ modules['./ClubInformation']=Object.fromEntries(['ClubEvents','ClubDocumentNotices','ClubOwnTasks','ClubWorkSummary'].map(name=>[name,name]));
  const exports:any={};runInNewContext(code,{exports,require:(id:string)=>{assert.ok(id in modules,id);return modules[id];}});
- const render=()=>{index=0;return exports.CockpitPreview({onClose:()=>{},onFlights:()=>{},onStatistics:()=>{}});};
+ let cockpitBack=()=>false;
+ const render=()=>{index=0;return exports.CockpitPreview({onClose:()=>{},onFlights:()=>{},onStatistics:()=>{},onBackHandler:(handler:()=>boolean)=>{cockpitBack=handler;}});};
  const nodes=(n:any):any[]=>!n||typeof n!=='object'?[]:[n,...(n.children??[]).flatMap(nodes)];
  const dashboard=()=>nodes(render()).find(n=>n.type==='Dashboard')!.props;
  assert.equal(dashboard().persistDutyTarget,false);
@@ -82,4 +86,10 @@ test('cockpit preview opts out of target persistence in every synthetic facts sc
  const view=dashboard();assert.equal(view.persistDutyTarget,false);assert.equal(view.ownFlights.flights.length,2);
  assert.equal(view.ownFlights.flights[0].facts.assessment.date.value,view.ownFlights.flights[1].facts.assessment.date.value);
  assert.equal(view.ownFlights.flights[1].facts.assessment.clocks.start.state,'blank');
+ nodes(render()).find(n=>n.props.accessibilityLabel==='Vorschau Verein').props.onPress();
+ nodes(render()).find(n=>n.type==='ClubOverview').props.onOpen('Dienste');assert.ok(nodes(render()).some(n=>n.type==='DutyRoster'));
+ render();assert.equal(cockpitBack(),true);assert.ok(nodes(render()).some(n=>n.type==='ClubOverview'));
+ nodes(render()).find(n=>n.props.accessibilityLabel==='Vorschau AI').props.onPress();
+ nodes(render()).find(n=>n.type==='AssistantQuestionStarters').props.onSelect('Lokaler synthetischer Entwurf');
+ assert.ok(JSON.stringify(render()).includes('Lokaler synthetischer Entwurf'));assert.ok(!nodes(render()).some(n=>n.type==='AssistantQuestionStarters'));
 });

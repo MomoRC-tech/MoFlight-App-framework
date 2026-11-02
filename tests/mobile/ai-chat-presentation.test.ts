@@ -109,6 +109,45 @@ test('composer restores the selected conversation draft and declares its contrac
   assert.equal(input.props.accessibilityLabel, 'Frage oder Nachrichtenentwurf');
 });
 
+test('empty loaded chat offers local-only question starters without changing selection or enabling AI', () => {
+  const f = fixture({ conversations:[conversation('chat-one','Saved chat','')], enabled:false });
+  assert.equal(f.text().includes('Schreibe eine Frage. Dein Entwurf bleibt lokal.'),false);
+  const starters=f.find('Pressable',node=>String(node.props.testID||'').startsWith('ai-question-starter-'));
+  assert.deepEqual(starters.map(node=>node.props.testID),[
+    'ai-question-starter-season','ai-question-starter-comparison','ai-question-starter-aircraft',
+  ]);
+  for(const starter of starters){
+    assert.equal(starter.props.accessibilityHint,'Fügt die Frage lokal in den Entwurf ein. Sendet nichts.');
+    assert.equal(starter.props.accessibilityState.disabled,false);
+  }
+  starters[1]!.props.onPress();
+  assert.deepEqual(f.calls.drafts,['Vergleiche meine bekannten Flugzeiten dieses und letzten Jahres.']);
+  assert.equal(f.calls.send,0);assert.equal(f.calls.toggle.length,0);
+  assert.equal(f.calls.select.length,0);assert.equal(f.calls.create,0);
+  assert.equal(f.props.selectedId,'chat-one');assert.equal(f.props.enabled,false);
+});
+
+test('question starters stay hidden for existing drafts and while editing is unavailable',()=>{
+  for(const overrides of [
+    {},
+    { busy:true },
+    { loading:true },
+    { storageReady:false },
+    { active:false },
+  ]){
+    const f=fixture({conversations:[conversation('chat-one','Saved chat','Keep this draft')],...overrides});
+    assert.equal(f.find('Pressable',node=>String(node.props.testID||'').startsWith('ai-question-starter-')).length,0);
+    if(Object.keys(overrides).length===0)assert.ok(f.text().includes('Schreibe eine Frage. Dein Entwurf bleibt lokal.'));
+    assert.equal(f.requireNode('TextInput',node=>node.props.accessibilityLabel==='Frage oder Nachrichtenentwurf').props.value,'Keep this draft');
+    assert.equal(f.calls.drafts.length,0);assert.equal(f.calls.send,0);assert.equal(f.calls.toggle.length,0);
+  }
+  for(const overrides of [{busy:true},{loading:true},{storageReady:false},{active:false}]){
+    const f=fixture({conversations:[conversation('chat-one','Saved chat','')],...overrides});
+    assert.equal(f.find('Pressable',node=>String(node.props.testID||'').startsWith('ai-question-starter-')).length,0);
+    assert.equal(f.calls.drafts.length,0);assert.equal(f.calls.send,0);assert.equal(f.calls.toggle.length,0);
+  }
+});
+
 test('sending and cancellation are explicit actions with no automatic dispatch', () => {
   const f = fixture();
   const input = f.requireNode('TextInput');

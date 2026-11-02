@@ -7,7 +7,7 @@ import LabApp from '../App';
 import { DetailHttpPoc } from '../vereinsflieger/DetailHttpPoc';
 import type { ObservedContext } from '../vereinsflieger/context';
 import { BookLab } from '../BookLab';
-import { Action, Card, Chip, ClubMark, Empty, IconLabel, Label, Photo, Section, colors, startSurfaces, ui } from './theme';
+import { Action, Card, ClubMark, Empty, IconLabel, Label, Section, colors, startSurfaces, ui } from './theme';
 import { useLibrary } from './use-library';
 import { formatDuration } from './flight-model';
 import { AiChatRoute } from './AiChatRoute';
@@ -49,6 +49,7 @@ import type { PreviewSession } from '../import-preview';
 import { CoreFlightFoundation, type FlightLoadResult, type ConnectionIntent,type OptionsDestination,type SyncControls } from './CoreFlightFoundation';
 import { UpdateResult } from './UpdateResult';
 import { ClubEvents, ClubDocumentNotices, ClubWorkSummary, ClubOwnTasks } from './ClubInformation';
+import { ClubOverview, type ClubDetailSection } from './ClubOverview';
 import { ConnectionSummary } from './ConnectionSummary';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import type { OwnFlightRequest } from './own-flight-model';
@@ -67,7 +68,7 @@ const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
 const clubAirfield = require('../../assets/aviation/club-airfield.jpg');
 const tabs = [{ id: 'home', title: 'Übersicht' }, { id: 'flights', title: 'Flüge' }, { id: 'logbook', title: 'Flugbuch' }, { id: 'club', title: 'Verein' }, { id: 'ai', title: 'AI' }] as const;
 type Tab = typeof tabs[number]['id'];
-type ClubSection = 'Übersicht' | 'Termine' | 'Dienste' | 'Dokumente' | 'Arbeitsstunden' | 'Aufgaben';
+type ClubSection = 'Übersicht' | ClubDetailSection;
 type Sheet = 'designPreview' | 'diagnostics' | 'paper' | 'development' | 'importPreview' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | 'statistics' | 'help' | null;
 const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : 'Datum unbekannt';
 
@@ -341,13 +342,16 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
       </View>
       <View style={[s.page, tab !== 'club' && s.hidden]} accessibilityElementsHidden={tab !== 'club'} importantForAccessibility={tab === 'club' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView key={clubSection} contentOffset={{x:0,y:clubOffsets.current[clubSection]??0}} onScroll={event=>{clubOffsets.current[clubSection]=event.nativeEvent.contentOffset.y;}} scrollEventThrottle={32} contentContainerStyle={s.canvas}>
-          <View accessibilityLabel="Vereinsbereiche" style={s.clubSections}>{(['Übersicht', 'Termine', 'Dienste', 'Dokumente', 'Arbeitsstunden', 'Aufgaben'] as const).map(section => <Chip key={section} title={section} selected={clubSection === section} onPress={() => {diagnosticJournal.record('filter','club-section');openClubSection(section);}} />)}</View>
-          <View style={[s.clubBody, tablet && clubSection==='Übersicht' && s.clubBodyWide, clubSection!=='Übersicht'&&s.clubDetail]}>
-          {(clubSection === 'Übersicht' || clubSection === 'Dienste') && dutyContent(clubSection==='Dienste','club')}
-          {(clubSection === 'Übersicht' || clubSection === 'Termine') && <View style={[s.clubSectionCard, tablet && clubSection==='Übersicht' && s.clubHalf]}><ClubEvents information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={clubSection === 'Übersicht'} onOpen={() => openClubSection('Termine')} /></View>}
-          {(clubSection === 'Übersicht' || clubSection === 'Dokumente') && <View style={[s.clubSectionCard, tablet && clubSection==='Übersicht' && s.clubHalf]}><ClubDocumentNotices information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={clubSection === 'Übersicht'} onOpen={() => openClubSection('Dokumente')} /></View>}
-          {(clubSection === 'Übersicht' || clubSection === 'Arbeitsstunden') && <View style={[s.clubSectionCard, tablet && clubSection==='Übersicht' && s.clubHalf]}><ClubWorkSummary information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={clubSection === 'Übersicht'} onOpen={() => openClubSection('Arbeitsstunden')} /></View>}
-          {(clubSection === 'Übersicht' || clubSection === 'Aufgaben') && <View style={[s.clubSectionCard, tablet && clubSection==='Übersicht' && s.clubHalf]}><ClubOwnTasks information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={clubSection === 'Übersicht'} onOpen={() => openClubSection('Aufgaben')} /></View>}
+          <View style={[s.clubBody, clubSection!=='Übersicht'&&s.clubDetail]}>
+          {clubSection === 'Übersicht' && <ClubOverview clubLabel={dutyOverview?.clubLabel ?? selected?.duties?.scope.context.clubLabel}
+            dutyOverview={dutyOverview} dutiesLoading={dutiesLoading} dutiesReadFailed={ownFlights.phase==='failed'||!!selected?.dutiesReadFailed}
+            information={selected?.featureInformation} informationLoading={informationLoading} informationReadFailed={ownFlights.phase==='failed'||!!selected?.featureInformationReadFailed}
+            disabled={screenBusy} onOpen={section=>{diagnosticJournal.record('filter','club-section');openClubSection(section);}} />}
+          {clubSection === 'Dienste' && dutyContent(true,'club')}
+          {clubSection === 'Termine' && <ClubEvents information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} />}
+          {clubSection === 'Dokumente' && <ClubDocumentNotices information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} />}
+          {clubSection === 'Arbeitsstunden' && <ClubWorkSummary information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} />}
+          {clubSection === 'Aufgaben' && <ClubOwnTasks information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} />}
           </View>
           <Pressable accessibilityRole="button" onPress={() => openHeaderSheet('status')} style={ui.smallAction}><IconLabel name="right" size={16} muted>Verbindung & Datenstatus</IconLabel></Pressable>
         </ScrollView>
@@ -420,9 +424,9 @@ const s = StyleSheet.create({
   headerBook: { minHeight: 36, justifyContent: 'center', alignSelf: 'flex-start' },
   stateBanner: { gap: 3, padding: 4, marginTop: 8 }, provenance: { fontSize: 10, lineHeight: 16, color: '#8ba4bc', letterSpacing: .6 },
   metric: { flex: 1, minWidth: 0, alignItems: 'center', gap: 1 }, metricValue: { color: colors.cyan, fontSize: 20, lineHeight: 25, fontWeight: '600' }, metricLabel: { fontSize: 11, textAlign: 'center', lineHeight: 16 },
-  clubSections: { flexDirection:'row', flexWrap:'wrap', gap:5, width:'100%', maxWidth:520, alignSelf:'center' }, searchBox: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: 22, backgroundColor: colors.card, paddingHorizontal: 12, gap: 7 }, search: { flex: 1, minHeight: 40, color: colors.text, fontSize: 13, paddingVertical: 4 }, filterButton: { width: 42, minHeight: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
+  searchBox: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: colors.border, borderRadius: 22, backgroundColor: colors.card, paddingHorizontal: 12, gap: 7 }, search: { flex: 1, minHeight: 40, color: colors.text, fontSize: 13, paddingVertical: 4 }, filterButton: { width: 42, minHeight: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   statsStrip: { flexDirection: 'row', paddingHorizontal: 6, paddingVertical: 10, gap: 3, minHeight: 66 }, flightRow: { padding: 7, borderRadius: 13, gap: 3 }, flightDate: { fontSize: 12, lineHeight: 17, fontWeight: '600' }, noTrack: { width: 64, minHeight: 64, backgroundColor: '#10282d', borderRadius: 9, justifyContent: 'center', alignItems: 'center' }, badge: { borderRadius: 12, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 7, backgroundColor: colors.raised },
-  clubBody: { gap: 8 }, clubDetail: { width:'100%',maxWidth:520,alignSelf:'center' }, clubBodyWide: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start' }, clubHalf: { width: '49.2%' }, duty: { padding: 0 }, clubSectionCard: { width: '100%', gap: 12, backgroundColor: colors.background, experimental_backgroundImage: 'none', borderColor: colors.border }, dutyAction: { minHeight: 48, justifyContent: 'center', alignSelf: 'flex-start' }, dutyActionFace: { minHeight: 34, borderRadius: 17, backgroundColor: colors.blue, justifyContent: 'center', paddingHorizontal: 16 },
+  clubBody: { gap: 8 }, clubDetail: { width:'100%',maxWidth:520,alignSelf:'center' },
   aiBody: { width: '100%', maxWidth: 520, alignSelf: 'center', gap: 18 }, welcome: { backgroundColor: colors.card, borderColor: colors.border, minHeight: 126, gap: 7 }, aiBadge: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: '#78efdc' },
   questionGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 }, question: { minHeight: 86, borderWidth: 1, borderColor: colors.border, borderRadius: 18, padding: 16, paddingRight: 18, backgroundColor: colors.card, justifyContent: 'center' }, questionArrow: { position: 'absolute', right: 8, top: '40%', color: colors.muted, fontSize: 23 },
   composer: { borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, borderRadius: 20, padding: 4, flexDirection: 'row', alignItems: 'center', gap: 6 }, messageInput: { flex: 1, minHeight: 52, maxHeight: 150, color: colors.text, fontSize: 16, paddingHorizontal: 8 }, send: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.blue }, recent: { borderTopWidth: 1, borderTopColor: '#1b344a', paddingTop: 10, gap: 8 },

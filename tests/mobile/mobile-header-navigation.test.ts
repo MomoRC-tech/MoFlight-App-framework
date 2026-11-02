@@ -90,7 +90,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './OwnFlights': leaves(['OwnFlights']),
     './use-own-flights': { useOwnFlights: (_ports:unknown,active:boolean,_reload:unknown,retained:boolean) => {readEnabled.push(active);retainedReads.push(retained);return { preview:ownPreview, view: ownView, phase: ownView?'ready':'missing', detail:null, detailBusy:false, detailError:null, openDetail:async()=>{}, clearDetail:()=>calls.push('clear-own-flight-detail'), reload:async()=>{} };} },
     './own-flight-reader-native': { ownFlightReadPorts: {} },
-    './UpdateResult':leaves(['UpdateResult']), './ClubInformation':leaves(['ClubEvents','ClubDocumentNotices']),
+    './UpdateResult':leaves(['UpdateResult']), './ClubOverview':leaves(['ClubOverview']), './ClubInformation':leaves(['ClubEvents','ClubDocumentNotices','ClubWorkSummary','ClubOwnTasks']),
     './ConnectionSummary': leaves(['ConnectionSummary']), './medical-source': { medicalSource },
     './connection-guidance': { ownFlightConnectionState },
     './data-update-presentation': { SESSION_DISPLAY_FRESH_MS, createSessionPresentation },
@@ -687,9 +687,13 @@ test('Details never exposes results across a same-owner store or account switch'
 test('Verein uses selected account sources in overview and detail routes',()=>{
  const f=fixture();const information={events:{status:'partial',items:[]},documentNotices:{status:'unavailable',items:[]}};
  f.showLoad(null,{snapshot:{ownerId:'owner-a',account:{accountRef:'101'}},featureInformation:information,featureInformationReadFailed:true});f.press('Pressable','Verein');
+ const overview=f.find('ClubOverview');
+ assert.equal(overview.props.information,information);assert.equal(overview.props.informationReadFailed,true);
+ assert.equal(overview.props.informationLoading,false);assert.equal(overview.props.disabled,false);
+ overview.props.onOpen('Termine');f.render();assert.equal(f.headers()[0]!.props.title,'Termine');
  assert.equal(f.find('ClubEvents').props.information,information);assert.equal(f.find('ClubEvents').props.readFailed,true);
- f.find('ClubEvents').props.onOpen();f.render();assert.equal(f.find('ClubEvents').props.compact,false);
- assert.equal(f.nodes().some(n=>n.type==='ClubDocumentNotices'),false);
+ assert.equal(f.find('ClubEvents').props.compact,undefined);
+ assert.deepEqual(f.calls.filter(call=>['connect','check','retrieve'].includes(call)),[],'opening and browsing saved Club sections do not invoke the provider');
 });
 
 test('Costs intent survives authoritative account resolution while the data subtree still resets',()=>{
@@ -813,11 +817,11 @@ test('club expansion restores overview scroll on both toolbar and Android Back',
  const f=fixture();f.press('Pressable','Verein');
  const scroll=()=>f.nodes().find(n=>n.type==='ScrollView'&&n.props.onScroll&&n.props.key==='Übersicht')!;
  scroll().props.onScroll({nativeEvent:{contentOffset:{y:240}}});
- f.find('ClubEvents').props.onOpen();f.render();
+ f.find('ClubOverview').props.onOpen('Termine');f.render();
   assert.equal(f.headers()[0]!.props.title,'Termine');
  f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Verein');
  assert.equal(scroll().props.contentOffset.y,240);
- f.find('ClubEvents').props.onOpen();f.render();f.headers()[0]!.props.back();f.render();
+ f.find('ClubOverview').props.onOpen('Dienste');f.render();f.headers()[0]!.props.back();f.render();
  assert.equal(scroll().props.contentOffset.y,240);
 });
 
@@ -878,20 +882,22 @@ test('remaining Settings pages use contextual headers and retain their mounted c
  }
 });
 
-test('all Club sections use concise page headers and restore their independent scroll on Back',()=>{
+test('all five Club menu destinations use concise page headers and restore their independent scroll on Back',()=>{
  const f=fixture();f.press('Pressable','Verein');
- const navigation=f.nodes().find(n=>n.props.accessibilityLabel==='Vereinsbereiche')!;assert.equal(navigation.type,'View');
- assert.deepEqual(navigation.children.filter((n:any)=>n?.type==='Chip').map((n:any)=>n.props.title),['Übersicht','Termine','Dienste','Dokumente','Arbeitsstunden','Aufgaben']);
- for(const section of ['Termine','Dienste','Dokumente','Arbeitsstunden','Aufgaben']){
-  const chip=f.nodes().find(n=>n.type==='Chip'&&n.props.title===section)!;chip.props.onPress();f.render();
+ const sections=['Dienste','Termine','Arbeitsstunden','Aufgaben','Dokumente'];
+ const detailComponents:Record<string,string>={Termine:'ClubEvents',Arbeitsstunden:'ClubWorkSummary',Aufgaben:'ClubOwnTasks',Dokumente:'ClubDocumentNotices'};
+ for(const section of sections){
+  f.find('ClubOverview').props.onOpen(section);f.render();
   assert.equal(f.headers()[0]!.props.title,section);assert.equal(f.headers()[0]!.props.variant,'page');
+  if(section==='Dienste')assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Dienste'));
+  else assert.ok(f.nodes().some(n=>n.type===detailComponents[section]));
   const scroll=()=>f.nodes().find(n=>n.type==='ScrollView'&&n.props.key===section)!;
   scroll().props.onScroll({nativeEvent:{contentOffset:{y:235}}});
   f.headers()[0]!.props.back();f.render();assert.equal(f.headers()[0]!.props.title,'Verein');
-  f.nodes().find(n=>n.type==='Chip'&&n.props.title===section)!.props.onPress();f.render();assert.equal(scroll().props.contentOffset.y,235);
+  f.find('ClubOverview').props.onOpen(section);f.render();assert.equal(scroll().props.contentOffset.y,235);
   f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Verein');
  }
- f.press('Pressable','Übersicht');assert.equal(f.headers()[0]!.props.variant,undefined);assert.equal(f.headers()[0]!.props.title,'Übersicht');
+ assert.deepEqual(f.calls.filter(call=>['connect','check','retrieve'].includes(call)),[],'Club menu navigation remains local and read-only');
 });
 
 test('AI evidence list has contextual Back to the retained conversation; detail Back is consumed first',async()=>{

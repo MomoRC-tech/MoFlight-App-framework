@@ -57,11 +57,11 @@ export function DesignPreview({onClose=()=>{},onBackHandler}:{onClose?:()=>void;
   const [loginPreview,setLoginPreview]=useState<'unknown'|'connected'|'required'>('unknown');
   const [syncReceiptVisible, setSyncReceiptVisible] = useState(true);
   const [dutiesExpanded, setDutiesExpanded] = useState(false);
-  const statisticsBack = useRef<() => boolean>(() => false);
+  const statisticsBack = useRef<() => boolean>(() => false),cockpitBack=useRef<()=>boolean>(()=>false);
   const back=()=>{
     if(helpOpen){closeHelp();return true;}
     if(statisticsOpen){if(!statisticsBack.current())setStatisticsOpen(false);return true;}
-    if(cockpit){setCockpit(false);return true;}
+    if(cockpit){if(!cockpitBack.current())setCockpit(false);return true;}
     return page==='costs'&&costBack.current();
   };
   onBackHandler?.(back);
@@ -94,7 +94,7 @@ export function DesignPreview({onClose=()=>{},onBackHandler}:{onClose?:()=>void;
         onStatus={()=>{syncReturnPage.current=page;closeHelp();setPage('sync');}}/>
     </ScrollView></View>}
   </View>;
-  if(cockpit&&!statisticsOpen)return withHelp(<CockpitPreview onClose={()=>setCockpit(false)} onFlights={()=>{setCockpit(false);setPage('flights');}} onStatistics={(year,section='overview',chart,contributors)=>{setStatisticsChart(chart);setStatisticsContributors(contributors);setStatisticsYear(year);setStatisticsSection(section);setStatisticsOpen(true);}}/>);
+  if(cockpit&&!statisticsOpen)return withHelp(<CockpitPreview onBackHandler={handler=>{cockpitBack.current=handler;}} onClose={()=>setCockpit(false)} onFlights={()=>{setCockpit(false);setPage('flights');}} onStatistics={(year,section='overview',chart,contributors)=>{setStatisticsChart(chart);setStatisticsContributors(contributors);setStatisticsYear(year);setStatisticsSection(section);setStatisticsOpen(true);}}/>);
   if(page==='sync')return withHelp(<View style={styles.root}>
     <AppHeader title="Synchronisierung" back={()=>setPage(syncReturnPage.current)} profile={<Pressable accessibilityRole="button" accessibilityLabel="Vorschau Anmeldestatus umschalten" onPress={()=>setLoginPreview(loginPreview==='unknown'?'connected':loginPreview==='connected'?'required':'unknown')} style={ui.headerAction}><ProfileIcon/><StatusBadge mark={loginPreview==='connected'?'✓':loginPreview==='required'?'→':'?'} tone={loginPreview==='connected'?'success':loginPreview==='required'?'advice':'neutral'}/></Pressable>}><DataUpdateIndicator progress={progress} completed={syncCompleted} receivedAt={syncReceived} readState={syncRead} activityChanged={syncState==='changed'} incomplete={progress.state==='failed'||progress.state==='partial'} now={DESIGN_PREVIEW_NOW} syncing={progress.state==='active'||progress.state==='waiting'} onPress={()=>setProgress({state:'active',last:'account',current:'flights'})}/></AppHeader>
     <SyncProgress notice={syncNotice} progress={progress} retry={()=>setProgress({state:'active',last:null,current:'account'})} details={()=>setSyncDetails(!syncDetails)}/>

@@ -55,7 +55,6 @@ test('club heading uses the saved full name and allows long names to wrap withou
     assert.equal(title.props.numberOfLines, undefined);
     assert.equal(title.props.allowFontScaling, undefined);
     assert.equal(title.props.adjustsFontSizeToFit, undefined);
-    const photo=f.nodes(view).find(node=>node.type==='ImageBackground')!;assert.equal(photo.props.accessible,false);
     assert.doesNotMatch(f.text(view),/Ort unbekannt/);
   }
 });

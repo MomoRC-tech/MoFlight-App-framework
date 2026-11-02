@@ -37,6 +37,27 @@ const features: { id: AiFeature; title: string }[] = [
   { id: 'term', title: 'Begriff' },
 ];
 
+export const assistantQuestionStarters = [
+  { id: 'season', label: 'Saison zusammenfassen', prompt: 'Fasse meine Flüge dieser Saison zusammen.' },
+  { id: 'comparison', label: 'Flugzeit vergleichen', prompt: 'Vergleiche meine bekannten Flugzeiten dieses und letzten Jahres.' },
+  { id: 'aircraft', label: 'Kennzeichen ansehen', prompt: 'Mit welchen Kennzeichen bin ich diese Saison geflogen?' },
+] as const;
+
+/** Small, local-only prompt controls; the caller decides when drafts can be edited. */
+export function AssistantQuestionStarters({ onSelect, disabled = false }: {
+  onSelect(prompt: string): void; disabled?: boolean;
+}) {
+  return <View testID="ai-question-starters" style={styles.starterList}>
+    {assistantQuestionStarters.map(starter => <Pressable key={starter.id} testID={`ai-question-starter-${starter.id}`}
+      accessibilityRole="button" accessibilityLabel={starter.label}
+      accessibilityHint="Fügt die Frage lokal in den Entwurf ein. Sendet nichts."
+      accessibilityState={{ disabled }} disabled={disabled} onPress={() => { if (!disabled) onSelect(starter.prompt); }}
+      style={({ pressed }) => [styles.starterButton, disabled && styles.disabled, pressed && ui.pressed]}>
+      <View style={styles.starterFace}><Text style={styles.starterText}>{starter.label}</Text></View>
+    </Pressable>)}
+  </View>;
+}
+
 const statusLabels: Record<ChatMessage['status'], string> = {
   pending: 'Wartet',
   running: 'Wird verarbeitet',
@@ -147,6 +168,7 @@ export function AiChat({
   const key=selectedId??'new';
   const cannotCreate=busy||!storageReady;
   const cannotSend=!draft.trim()||!storageReady||!enabled||!active;
+  const showStarters=storageReady&&!loading&&!busy&&active&&!selected?.messages.length&&draft.length===0;
   useEffect(()=>{follow.current=positions.current[key]===undefined;setShowLatest(false);setInputHeight(44);},[key]);
   useEffect(()=>{if(!active){setSheet(null);Keyboard.dismiss();}},[active]);
   const open=(next:NonNullable<typeof sheet>)=>{Keyboard.dismiss();setSheet(next);};
@@ -167,7 +189,7 @@ export function AiChat({
       onContentSizeChange={()=>{if(follow.current)transcript.current?.scrollToEnd({animated:false});}} onLayout={()=>{if(follow.current)transcript.current?.scrollToEnd({animated:false});}}>
       {loading&&<View accessible accessibilityLiveRegion="polite" accessibilityRole="progressbar" accessibilityLabel="Unterhaltungen werden geladen" accessibilityState={{busy:true}} style={styles.progress}><ActivityIndicator color={colors.cyan}/><Label muted>Unterhaltungen werden geladen …</Label></View>}
       {!loading&&onRetryLoad&&<Action secondary label="Gespeicherte Chats erneut laden" onPress={onRetryLoad}>Erneut lokal laden</Action>}
-      {storageReady&&!loading&&!selected?.messages.length&&<View style={styles.welcome}><Label>Was möchtest du über deine Flüge wissen?</Label><Label muted>Schreibe eine Frage. Dein Entwurf bleibt lokal.</Label></View>}
+      {storageReady&&!loading&&!selected?.messages.length&&<View style={styles.welcome}><Label>Was möchtest du über deine Flüge wissen?</Label>{showStarters?<AssistantQuestionStarters onSelect={onDraft}/>:<Label muted>Schreibe eine Frage. Dein Entwurf bleibt lokal.</Label>}</View>}
       {selected?.messages.map(message=><View key={message.id} style={styles.exchange}>
         <View style={styles.userMessage}><Label selectable>{message.input}</Label></View>
         {message.status!=='complete'&&<Label muted style={styles.messageHeading}>{statusLabels[message.status]}</Label>}
@@ -244,7 +266,7 @@ export function AiChat({
 const styles=StyleSheet.create({
  disabled:{opacity:.4},progress:{flexDirection:'row',alignItems:'center',flexWrap:'wrap',gap:8,paddingHorizontal:14,paddingVertical:8},
  root:{flex:1,minHeight:0,width:'100%',maxWidth:600,alignSelf:'center'},toolbar:{flexDirection:'row',alignItems:'center',gap:4,minHeight:48,paddingHorizontal:6},chatTitle:{flex:1,minWidth:0,fontSize:15,fontWeight:'600',color:colors.text},iconButton:{minWidth:48,minHeight:48,alignItems:'center',justifyContent:'center'},icon:{fontSize:23,color:colors.text},sendIcon:{fontSize:25,color:colors.cyan},
- transcript:{flex:1,minHeight:0},messages:{padding:14,gap:18},welcome:{paddingVertical:24,gap:8},exchange:{gap:8},userMessage:{alignSelf:'flex-end',maxWidth:'90%',backgroundColor:colors.raised,borderRadius:16,padding:12},answer:{gap:8},messageHeading:{fontSize:12,lineHeight:18},
+ transcript:{flex:1,minHeight:0},messages:{padding:14,gap:18},welcome:{paddingVertical:24,gap:8},starterList:{flexDirection:'row',flexWrap:'wrap',gap:6,marginTop:4},starterButton:{minHeight:48,maxWidth:'100%',justifyContent:'center'},starterFace:{minHeight:28,paddingHorizontal:9,paddingVertical:4,borderWidth:1,borderColor:colors.border,borderRadius:8,backgroundColor:colors.raised},starterText:{flexShrink:1,fontSize:13,lineHeight:18,fontWeight:'600',color:colors.cyan},exchange:{gap:8},userMessage:{alignSelf:'flex-end',maxWidth:'90%',backgroundColor:colors.raised,borderRadius:16,padding:12},answer:{gap:8},messageHeading:{fontSize:12,lineHeight:18},
  status:{minHeight:48,justifyContent:'center',paddingHorizontal:14,paddingVertical:4},statusText:{fontSize:12,lineHeight:17,color:colors.muted},composerPanel:{paddingHorizontal:6,paddingBottom:6,borderTopWidth:1,borderColor:colors.border},composerRow:{flexDirection:'row',alignItems:'flex-end'},composer:{flex:1,minWidth:0,paddingHorizontal:10,paddingVertical:10,color:colors.text,fontSize:16,lineHeight:22,backgroundColor:colors.card,borderRadius:14,textAlignVertical:'top'},mode:{minHeight:48,justifyContent:'center',paddingHorizontal:10},latest:{alignSelf:'center',paddingHorizontal:12,minHeight:48,justifyContent:'center',borderRadius:16,backgroundColor:colors.raised},
  scrim:{flex:1,justifyContent:'flex-end',backgroundColor:'#000712bd',padding:12,paddingTop:24},wideScrim:{justifyContent:'center'},sheet:{maxHeight:'85%',width:'100%',maxWidth:520,alignSelf:'center',backgroundColor:colors.raised,borderRadius:28,paddingBottom:12,overflow:'hidden'},sheetHeader:{flexDirection:'row',alignItems:'center',gap:4,paddingLeft:20,paddingRight:8,paddingVertical:12},sheetTitle:{flex:1,minWidth:0,fontSize:22,lineHeight:28,fontWeight:'600',color:colors.text},sheetScroll:{flexShrink:1,minHeight:0},sheetBody:{padding:12,gap:8},historySearch:{minHeight:52,color:colors.text,paddingHorizontal:16,paddingVertical:12,fontSize:16,marginHorizontal:16,marginBottom:4,borderRadius:12,borderWidth:1,borderColor:colors.muted,backgroundColor:colors.card},menuRow:{minHeight:56,flexDirection:'row',alignItems:'center',gap:12,paddingHorizontal:16,paddingVertical:12},menuLabel:{flex:1},menuChevron:{color:colors.muted,fontSize:24},destructive:{color:'#ffb39e'},menuGroup:{backgroundColor:colors.card,borderRadius:18,overflow:'hidden'},statusGroup:{padding:16,gap:8,backgroundColor:colors.card,borderRadius:18},
  card:{gap:10},toggleRow:{gap:8},toggleState:{fontWeight:'600'},actionList:{flexDirection:'row',flexWrap:'wrap',gap:8},actionCell:{flexGrow:1,flexBasis:160,minWidth:140},conversationChoice:{minHeight:56,justifyContent:'center',paddingVertical:12,paddingHorizontal:16,borderRadius:14,backgroundColor:colors.card},conversationChoiceSelected:{backgroundColor:colors.raised},conversationChoiceText:{fontSize:15,lineHeight:22},conversationChoiceTextSelected:{color:colors.cyan},groupHeading:{fontSize:14,lineHeight:20,fontWeight:'600'},evidenceGroup:{padding:12,gap:8,borderRadius:16,borderWidth:1,borderColor:colors.border},metricRows:{padding:12,gap:8,borderRadius:16,backgroundColor:colors.card},budgetRows:{gap:4},budgetRow:{flexDirection:'row',flexWrap:'wrap',justifyContent:'space-between',gap:8},budgetName:{flexGrow:1,flexShrink:1,flexBasis:120},budgetValue:{flexShrink:1,maxWidth:'100%'},stackedBudgetRow:{flexDirection:'column',alignItems:'stretch'},stackedBudgetName:{flexGrow:0,flexBasis:'auto'},

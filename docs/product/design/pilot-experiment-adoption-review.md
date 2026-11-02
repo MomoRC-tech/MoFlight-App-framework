@@ -1,10 +1,14 @@
 # Pilot UI experiment adoption review — 2 November 2026
 
-**Recommendations only. No experiment merge, cherry-pick, implementation or resumption is selected.** Independent Start restoration under Issue121 is authorized separately. Latest steering: keep tiles lean and current colors; restore the earlier season-card layout/metric strip.
+**Original review recommendations; later owner selection is recorded below. No whole-branch import or resumption.** Independent Start restoration under Issue121 is authorized separately. Latest steering: keep tiles lean and current colors; restore the earlier season-card layout/metric strip.
 
 Reviewed main **158c2ca** (application8ca43fc), and clean experiment **0dbca8e8bf0e0786dfe8d00131fe113daa721629**, application revisions6428d51/80a9f6d, rollback parenteeda7a0. Main advanced beyond the prompt's historicalb0e0d93. Read actual diffs, source, plans, evidence, Issue116 and existing blue preview image. No tests, builds, preview servers, browser sessions or devices were run for the experiment review. Preserve its stopped branch/worktree and main's unrelated dirty performance files.
 
 Sources: [frozen experimental tree](https://github.com/MomoRC-tech/MoFlight-App-framework/tree/0dbca8e8bf0e0786dfe8d00131fe113daa721629), [plan](https://github.com/MomoRC-tech/MoFlight-App-framework/blob/0dbca8e8bf0e0786dfe8d00131fe113daa721629/docs/product/design/pilot-hub-implementation-plan.md), [evidence](https://github.com/MomoRC-tech/MoFlight-App-framework/blob/0dbca8e8bf0e0786dfe8d00131fe113daa721629/docs/verification/2026-11-02-pilot-hub.md), [Issue116](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/116).
+
+## Later owner selection — 2 November 2026
+
+Owner chose **Verein + starters only; keep current navigation**. Implement adapted items 11/13 in current main, supported only by necessary small presentation/test/documentation work. Preserve five tabs, lean Start and current colors. Other proposed navigation/hub/instrument/cost/Medical/Paper/style changes remain unselected. [Selected implementation/evidence](../../verification/2026-11-02-selected-experiment-adoption.md). The full 21-item table below retains the review rationale; its recommendations are not blanket approval. Start's independent #122 cleanup also removes beneath-chart prose and merges the latest-flight/header rows.
 
 ## Decision table
 
@@ -47,7 +51,7 @@ The blue image can be aesthetically attractive and information-rich. No native/u
 - **Evidence:** branch report21–28 records earlier91; final blue source46 records67. The latest source has no APK/native/live/phone/iOS acceptance.
 - **Integration:** main-to-experiment diff removes current TrendChart/geometry/expense-chart files and rolls maintained financial/status docs backwards. Neither shell nor docs should be transplanted wholesale.
 
-## Proposed packages — none selected
+## Original proposed packages — narrowed by the later selection
 
 | Package | Scope | Dependency / acceptance |
 | --- | --- | --- |
@@ -58,4 +62,4 @@ The blue image can be aesthetically attractive and information-rich. No native/u
 | E. Optional finance overview |9 in Costs' own overview, no new global tile now. | Share validated reads, async isolation/subtotal caveat, local fixtures. |
 | F. Styling/evidence | Selected14–16/19–21. | Current palette/Start stay; preserve current docs and67-vs-earlier91 attribution. Pending native/live/iOS limits remain. |
 
-Recommended sequence if selected: A, B, C, D. E is optional; F accompanies only an approved package. This is not permission to execute them. Issue116 remains open for selection; no experiment code has been adopted.
+Recommended sequence if selected: A, B, C, D. E is optional; F accompanies only an approved package. This original sequence is superseded by the narrower owner selection above: only Verein and local starters are authorized, adapted to current main. No wholesale experiment code or navigation is imported.

@@ -4,7 +4,10 @@ import { AppHeader } from './AppHeader';
 import { Dashboard } from './Dashboard';
 import { OverviewTiles } from './OverviewTiles';
 import { DutyRoster } from './DutyRoster';
-import { Action, Label, colors, startSurfaces, ui } from './theme';
+import { ClubOverview, type ClubDetailSection } from './ClubOverview';
+import { ClubEvents, ClubDocumentNotices, ClubOwnTasks, ClubWorkSummary } from './ClubInformation';
+import { AssistantQuestionStarters } from './AiChat';
+import { Action, Card, Label, colors, startSurfaces, ui } from './theme';
 import { createDesignPreviewData, DESIGN_PREVIEW_NOW } from './design-preview-data';
 import { DataUpdateIndicator } from './DataUpdateIndicator';
 import { SymbolIcon } from './SymbolIcon';
@@ -15,7 +18,7 @@ import type { ChartKind, ChartContributors } from './statistics-charts-model';
 import type { StatisticsSection } from './statistics-overlay-model';
 
 /** Existing Development preview: fictional facts only; no provider calls or user-record writes. */
-export function CockpitPreview({onClose,onFlights,onStatistics}: {onClose:()=>void;onFlights:()=>void;onStatistics:(year:number,section?:StatisticsSection,chart?:ChartKind,contributors?:ChartContributors)=>void}) {
+export function CockpitPreview({onClose,onFlights,onStatistics,onBackHandler}: {onClose:()=>void;onFlights:()=>void;onStatistics:(year:number,section?:StatisticsSection,chart?:ChartKind,contributors?:ChartContributors)=>void;onBackHandler?:(handler:()=>boolean)=>void}) {
   const [scenario,setScenario]=useState<'default'|'undated'|'same-day'>('default');
   const fixture=useMemo(()=>createDesignPreviewData(scenario),[scenario]),{width,fontScale}=useWindowDimensions();
   const [mode,setMode]=useState<'ready'|'missing'|'loading'|'failed'>('ready');
@@ -24,11 +27,20 @@ export function CockpitPreview({onClose,onFlights,onStatistics}: {onClose:()=>vo
   const demoMedical:InformationCapture={version:1,id:'synthetic-medical',owner:'synthetic-owner',connectionId:'synthetic-connection',retrievedAt:'2026-10-22T10:00:00.000Z',sourceIdentity:'provisional-observed-profile',category:'medical',path:'/member/profile/viewprofile',columns:[{key:'kind',label:'Medical-Art',index:0},{key:'expiry',label:'Gültig bis',index:1}],rows:[{position:0,values:['LAPL','10.08.2027']},{position:1,values:['Klasse 2','22.04.2027']},{position:2,values:['Klasse 1','21.10.2026']},{position:3,values:['Demo','']}],filters:[],empty:false,coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}};
   const [sync,setSync]=useState<Progress>({state:'idle',last:null,current:null});
   const [page,setPage]=useState<'home'|'club'|'ai'>('home');
+  const [clubSection,setClubSection]=useState<ClubDetailSection|null>(null),[demoDraft,setDemoDraft]=useState('');
+  onBackHandler?.(()=>{if(page==='club'&&clubSection){setClubSection(null);return true;}if(page!=='home'){setPage('home');return true;}return false;});
   return <View style={{flex:1,backgroundColor:colors.background}}>
-    <AppHeader title="Übersicht · Demo" profile={<Pressable accessibilityRole="button" accessibilityLabel="Cockpit-Vorschau schließen" onPress={onClose} style={ui.headerAction}><SymbolIcon name="profile" size={28}/></Pressable>}><DataUpdateIndicator incomplete={sync.state==='failed'||sync.state==='partial'} now={DESIGN_PREVIEW_NOW} receivedAt="2026-10-22T10:00:00.000Z" readState="ready" syncing={sync.state==='active'} onPress={()=>setSync({state:'active',last:'account',current:'flights'})}/></AppHeader>
+    <AppHeader title={page==='club'?clubSection??'Verein · Demo':page==='ai'?'AI · Demo':'Übersicht · Demo'} back={page==='club'&&clubSection?()=>setClubSection(null):undefined} profile={<Pressable accessibilityRole="button" accessibilityLabel="Cockpit-Vorschau schließen" onPress={onClose} style={ui.headerAction}><SymbolIcon name="profile" size={28}/></Pressable>}><DataUpdateIndicator incomplete={sync.state==='failed'||sync.state==='partial'} now={DESIGN_PREVIEW_NOW} receivedAt="2026-10-22T10:00:00.000Z" readState="ready" syncing={sync.state==='active'} onPress={()=>setSync({state:'active',last:'account',current:'flights'})}/></AppHeader>
     <SyncProgress progress={sync} retry={()=>setSync({state:'active',last:'account',current:'flights'})} details={()=>setSync({state:'failed',last:'account',current:null,message:'Synthetischer Fehler. Keine Quelle wurde abgerufen.'})}/>
     <ScrollView contentContainerStyle={{padding:12,gap:10,alignSelf:'center',width:'100%',maxWidth:520}}>
-      {page==='ai'?<View style={{gap:12}}><Label>MoFlight AI · Demo</Label><Label muted>Der AI-Dienst ist nicht verbunden.</Label><Action secondary onPress={()=>setPage('home')}>Zur Übersicht</Action></View>:page==='club'?<DutyRoster overview={fixture.dutyOverview} expanded/>:<>
+      {page==='ai'?<View style={{gap:8}}><Label>MoFlight AI · Demo</Label><Label muted>Der AI-Dienst ist nicht verbunden.</Label>{demoDraft?<Card><Label>{demoDraft}</Label></Card>:<AssistantQuestionStarters onSelect={setDemoDraft}/>}<Action secondary onPress={()=>setPage('home')}>Zur Übersicht</Action></View>:page==='club'?<>
+        {clubSection===null&&<ClubOverview clubLabel={fixture.dutyOverview.clubLabel} dutyOverview={fixture.dutyOverview} information={fixture.view.featureInformation} onOpen={setClubSection}/>}
+        {clubSection==='Dienste'&&<DutyRoster overview={fixture.dutyOverview} expanded/>}
+        {clubSection==='Termine'&&<ClubEvents information={fixture.view.featureInformation}/>}
+        {clubSection==='Dokumente'&&<ClubDocumentNotices information={fixture.view.featureInformation}/>}
+        {clubSection==='Arbeitsstunden'&&<ClubWorkSummary information={fixture.view.featureInformation}/>}
+        {clubSection==='Aufgaben'&&<ClubOwnTasks information={fixture.view.featureInformation}/>}
+      </>:<>
       <Dashboard persistDutyTarget={false} ownFlights={mode==='ready'?fixture.view:null} ownFlightPhase={mode} pending={null} width={width} fontScale={fontScale} now={DESIGN_PREVIEW_NOW} onFlights={onFlights} onFlight={onFlights} onStatistics={onStatistics} onPaper={()=>setPaper(!paper)}/>
       <OverviewTiles medical={knownMedical?demoMedical:null} now={DESIGN_PREVIEW_NOW} onMedical={()=>setMedical(!medical)} onPaper={()=>setPaper(!paper)} bookName={configured?'Demo Flugbuch':null} pending={configured?3:null}/>
       {medical&&<Label>{knownMedical?'Erfasste Demo-Ablaufdaten':'Medical unbekannt'} · synthetische Vorschau, keine Flugtauglichkeitsbestätigung.</Label>}
