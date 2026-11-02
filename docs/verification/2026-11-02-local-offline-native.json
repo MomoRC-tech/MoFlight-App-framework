@@ -1,0 +1,100 @@
+{
+  "source_commit": "295e02af735be70cdba723e028a21e53583f5416",
+  "apk_sha256": "a31dabbe78c19f3e51e6d4e324e05d454efe08652a2144c9a68844fa1a1b3bb1",
+  "device": {
+    "kind": "emulator-live",
+    "api": 37,
+    "abi": "x86_64",
+    "physical_pixels": [
+      1080,
+      1920
+    ],
+    "physical_density_dpi": 420,
+    "logical_dp": [
+      480,
+      800
+    ],
+    "override_density_dpi": 160,
+    "font_scale": 1,
+    "theme": "dark",
+    "offline": true
+  },
+  "boundary": "Parent-operated ordinary preserved populated local provider selection. No live retrieval, Sync, login, reset, seed, cache/owner substitution or restore activation.",
+  "attempts": [
+    {
+      "status": "failed",
+      "checks": [],
+      "tooling_milliseconds": 90360.0
+    },
+    {
+      "status": "failed",
+      "checks": [
+        {
+          "name": "current-local-diagnostics-captured",
+          "cached_stage_recorded": false
+        },
+        {
+          "name": "ordinary-saved-flight-pic-to-offline-article"
+        },
+        {
+          "name": "offline-search-article-back-retains-query"
+        },
+        {
+          "name": "article-return-preserves-ordinary-flight"
+        }
+      ],
+      "tooling_milliseconds": 222094.0
+    },
+    {
+      "status": "passed",
+      "checks": [
+        {
+          "name": "ordinary-historical-preview-visible-before-verification",
+          "status": "passed"
+        },
+        {
+          "name": "historical-preview-reconciles-with-ordinary-local-read",
+          "status": "passed"
+        }
+      ],
+      "tooling_milliseconds": 73875.0
+    }
+  ],
+  "additional_helper_failure": "Diagnostics was already open at retained bottom scroll; offscreen share-action confirmation failed. No overall duration captured. Fixed header confirmation without resetting scroll.",
+  "assessment": {
+    "ordinary_pic_article_search_return": "Passed within attempt2; overall attempt2 failed its later cached-marker assertion.",
+    "native_cached_summary_then_reconciled_summary": "Passed attempt3; parent inspected both private actual screenshots.",
+    "failure_causes": [
+      "Attempt1 inspected a still-running read too early; elapsed operation time is not stage duration.",
+      "Attempt2 left Start before its React publication effect and looked only for a completed cached stage; active stage was already present.",
+      "Helper now avoids unnecessary am-start for an already-visible activity and accepts retained Diagnostics scroll. No app change/rebuild followed."
+    ]
+  },
+  "observations": {
+    "cached_visible_poll_milliseconds": 12359,
+    "settled_visible_poll_milliseconds": 33687,
+    "settled_local_read_milliseconds": 28885,
+    "cached_react_publication_milliseconds": 795,
+    "full_react_publication_milliseconds": 2224
+  },
+  "timing_limits": "UI polling includes ADB/screenshot/observer work; endpoints are upper bounds, not native first-frame or app-only latency. React commits are proxies. Earlier leaving-Start delays are observer-induced. No equivalent-input baseline or causal speedup.",
+  "cleanup": {
+    "original_apk_restored": true,
+    "original_apk_sha256": "24f92b79ad727690a344bc61dbb411b5369cf03e8c3e31bcde7753d3d2ef6293",
+    "settings_restored": true,
+    "data_reset": false,
+    "provider_operations": false,
+    "source_data_byte_comparison": "not performed; ordinary local reads/navigation only",
+    "originally_stopped_avd_stopped": true
+  },
+  "private_evidence": "Ignored local-data/local-acceptance-20261102; raw reports, original/restored APKs and private PNG/XML are not published.",
+  "untested": [
+    "native cache failure/invalidation injection",
+    "real second-account transition",
+    "matched preview/full timing comparison",
+    "physical phone",
+    "iOS runtime",
+    "named Help aviation-domain approval",
+    "spoken/focus accessibility"
+  ]
+}

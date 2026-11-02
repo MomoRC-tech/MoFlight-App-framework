@@ -21,13 +21,18 @@ def save(smoke):
     (smoke.output / 'report.json').write_text(json.dumps(smoke.report, indent=2) + '\n', encoding='utf-8')
 
 
-def support_report(smoke):
-    smoke.shell('am', 'start', '-W', '-n', PACKAGE + '/.MainActivity')
+def support_report(smoke, *, open_app=True):
+    if open_app:
+        smoke.shell('am', 'start', '-W', '-n', PACKAGE + '/.MainActivity')
     smoke.tap_node(smoke.find('Profil & Einstellungen öffnen', attempts=40))
     for attempt in range(3):
         tap_content(smoke, 'Diagnose', resource='diagnostics-entry')
         try:
-            smoke.find('Diagnosebericht teilen', attempts=2)
+            # This sheet preserves scroll position. Its share action may be
+            # offscreen; confirm the fixed page header without resetting scroll.
+            nodes = smoke.dump()
+            titles = [n.get('text') for n in nodes if n.get('text') in {'Diagnose', 'Profil & Einstellungen'}]
+            assert 'Diagnose' in titles and 'Profil & Einstellungen' not in titles
             break
         except AssertionError:
             if attempt == 2:

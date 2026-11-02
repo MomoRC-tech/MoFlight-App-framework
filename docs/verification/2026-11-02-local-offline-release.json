@@ -1,0 +1,12 @@
+{
+  "source_commit": "295e02af735be70cdba723e028a21e53583f5416",
+  "apk_sha256": "a31dabbe78c19f3e51e6d4e324e05d454efe08652a2144c9a68844fa1a1b3bb1",
+  "zip_sha256": "8d3843a10253e10b5471dca133a39185fdf6c54d3b471a5904fd7e700040e50c",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "release_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-local-acceptance-2026-11-02-295e02a"
+}
