@@ -143,7 +143,7 @@ function linkFact(proof: DurableInvoiceBookingEvidence, receipt: FinancialObserv
  * explicit v2 provisional projection. Missing evidence never falls back to a
  * text candidate/service date. This does not enable ordinary app retrieval. */
 export async function readCapturedFinancialSnapshot(archiveText: string, selected: FinancialObservationTarget,
-  ports: CapturedExpenseProjectionPorts): Promise<{snapshot:UnversionedExpenseSnapshot;checkCurrent:()=>Promise<void>}> {
+  ports: CapturedExpenseProjectionPorts): Promise<{snapshot:UnversionedExpenseSnapshot;receipts:FinancialObservationReceipt[];checkCurrent:()=>Promise<void>}> {
   const target = validateFinancialObservationTarget(selected), scope = scopeOf(target);
   if (typeof ports.readInvoiceBookingEvidence !== 'function') throw Error('Durable financial link reader unavailable.');
   await ports.gate(clone(target), null);
@@ -184,7 +184,7 @@ export async function readCapturedFinancialSnapshot(archiveText: string, selecte
   const snapshot:UnversionedExpenseSnapshot={ version: 2, sourceBasis: 'unversioned-billed-flight', scope,
     coverage: { state: 'partial', from: null, through: null, evidenceRefs: [] }, facts };
   await gate();
-  return {snapshot,checkCurrent:gate};
+  return {snapshot,receipts:archive.receipts,checkCurrent:gate};
 }
 export async function projectCapturedFinancialArchive(archiveText:string,selected:FinancialObservationTarget,requested:ExpensePeriod,ports:CapturedExpenseProjectionPorts):Promise<UnversionedExpenseProjection>{
  const period=clone(requested),read=await readCapturedFinancialSnapshot(archiveText,selected,ports);

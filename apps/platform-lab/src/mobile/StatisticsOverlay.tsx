@@ -52,7 +52,8 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
     setRoutes(previous=>[...previous,{kind:'detail',flightId:flight.flightId,title,key:`detail-${++sequence.current}`}]);void data.openDetail(flight);
   };
   const detail=data.detail?.flightId===(route.kind==='detail'?route.flightId:null)?data.detail:null;
-  const items=route.kind==='flights'?selectStatisticsFlights(allUnique,route.scope,today).flights.filter(f=>route.ids.includes(f.flightId))
+  const contributorIds=route.kind==='flights'?new Set(route.ids):null;
+  const items=route.kind==='flights'?selectStatisticsFlights(allUnique,route.scope,today).flights.filter(f=>contributorIds!.has(f.flightId))
     .sort((a,b)=>(b.facts.assessment.date.value??'').localeCompare(a.facts.assessment.date.value??'')||a.flightId.localeCompare(b.flightId)):[];
   const scopeLabel=route.kind==='flights'?(()=>{const b=statisticsPeriodBounds(route.scope,today);return b?`${b.from} bis ${b.to}`:'gesamter gespeicherter Bestand';})():'';
   const defaultChart:ChartKind=initialChart??({overview:'monthly',aircraft:'aircraft',duration:'duration',launch:'launch',roles:'roles'} as const)[initialSection];

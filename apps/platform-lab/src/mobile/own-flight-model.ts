@@ -118,9 +118,10 @@ export function ownFlightRegistrations(flights: readonly RealFlightListItem[]): 
 /** Text labels are searched as recorded; names/registrations never become identity or credit. */
 export function selectOwnFlights(flights: readonly RealFlightListItem[], filters: OwnFlightFilters): RealFlightListItem[] {
   const needle = filters.search.trim().toLocaleLowerCase('de-DE');
+  const requestedIds = filters.flightIds ? new Set(filters.flightIds) : null;
   const seen = new Set<string>();
   return flights.filter(flight => {
-      if(filters.flightIds&&!filters.flightIds.includes(flight.flightId))return false;
+    if(requestedIds&&!requestedIds.has(flight.flightId))return false;
     if (seen.has(flight.flightId)) return false;
     seen.add(flight.flightId);
     const a = flight.facts.assessment;
