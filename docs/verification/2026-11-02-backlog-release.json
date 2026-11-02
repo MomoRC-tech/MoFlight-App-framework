@@ -1,0 +1,12 @@
+{
+  "source_commit": "8501e715e798757352650b5eb5216bcba249ef92",
+  "apk_sha256": "11f3819cf78dfe32f1036f69715a3c5bbf1e5527571e462e783044f0a9c95a3f",
+  "zip_sha256": "1f1394680be0a6abf5156c032a68bd6aae17d58869f267367449b4052e3a2032",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "release_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-backlog-2026-11-02-8501e71"
+}

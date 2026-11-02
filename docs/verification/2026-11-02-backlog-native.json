@@ -1,0 +1,94 @@
+{
+  "sessions": [
+    {
+      "profile": "labels",
+      "application_commit": "127e96df37b0c901dd524b2a8866e5312987a602",
+      "apk_sha256": "a92a12fb655a2ba80156e6423255e0518d522e2c6022c2536160b7a8cb177175",
+      "actions_used": 30,
+      "captures_used": 2,
+      "active_elapsed_seconds": 172.6720000000205,
+      "android_api": "37",
+      "restoration": {
+        "display": true,
+        "network": true,
+        "installation": true,
+        "cleanup": true
+      },
+      "action_errors": [],
+      "worker_checks": {
+        "U01": {
+          "status": "not_tested",
+          "observation": "Deliberately outside Issue123-only native text paint scope.",
+          "evidence": []
+        },
+        "U02": {
+          "status": "not_tested",
+          "observation": "Deliberately outside Issue123-only native text paint scope.",
+          "evidence": []
+        },
+        "U03": {
+          "status": "not_tested",
+          "observation": "Deliberately outside Issue123-only native text paint scope.",
+          "evidence": []
+        },
+        "U04": {
+          "status": "not_tested",
+          "observation": "Deliberately outside Issue123-only native text paint scope.",
+          "evidence": []
+        },
+        "U05": {
+          "status": "not_tested",
+          "observation": "Deliberately outside Issue123-only native text paint scope.",
+          "evidence": []
+        },
+        "U06": {
+          "status": "not_tested",
+          "observation": "Deliberately outside Issue123-only native text paint scope.",
+          "evidence": []
+        },
+        "U07": {
+          "status": "not_tested",
+          "observation": "Deliberately outside Issue123-only native text paint scope.",
+          "evidence": []
+        },
+        "U08": {
+          "status": "not_tested",
+          "observation": "Deliberately outside Issue123-only native text paint scope.",
+          "evidence": []
+        },
+        "I123_MIN": {
+          "status": "passed",
+          "observation": "360x900 dp, density 160, font 1.6; starters stack vertically. Inspected PNG visibly paints full Zur Übersicht, plus full Saison zusammenfassen, Flugzeit vergleichen and Kennzeichen ansehen labels. No truncation to Zur. Dark AI Demo heading and disconnected-service explanation confirmed.",
+          "evidence": [
+            "min-ai-paint.png",
+            "min-ai-paint.xml"
+          ]
+        },
+        "I123_WIDE": {
+          "status": "passed",
+          "observation": "800x600 dp, density 160, font 1.0; starters share one row. Inspected PNG visibly paints full Zur Übersicht, plus full Saison zusammenfassen, Flugzeit vergleichen and Kennzeichen ansehen labels. No truncation to Zur. Dark AI Demo heading and disconnected-service explanation confirmed.",
+          "evidence": [
+            "wide-ai-paint.png",
+            "wide-ai-paint.xml"
+          ]
+        }
+      },
+      "parent_reviewed_images": [
+        "min-ai-paint.png",
+        "wide-ai-paint.png"
+      ]
+    }
+  ],
+  "limits": [
+    "Synthetic dark Android only, not physical phone, iOS runtime, light theme, live provider or model acceptance.",
+    "Aesthetic acceptance belongs to the owner; controller completion is not an automatic UI pass."
+  ],
+  "parent_assessment": {
+    "inspected": [
+      "min-ai-paint.png",
+      "wide-ai-paint.png"
+    ],
+    "result": "Full Zur Übersicht and three starter labels paint at MIN360x900/font1.6 and WIDE800x600/font1, density160. No retry/action/cleanup error. Native source127e96d; final geometry-only extraction8501e71 has exact resolved values/key parity and leaves Action body unchanged.",
+    "limits": "Specific observed regression, not every product button or physical/iOS/light acceptance. No new model/provider/draft operation."
+  }
+}

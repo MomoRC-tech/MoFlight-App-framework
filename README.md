@@ -1,5 +1,7 @@
 # MoFlight
 
+**2 November backlog package (#24/#123):** corrected compact Action font/viewport label paint and shared identical control geometry. Backup evidence reconciled under #29/#34; conflicts #1/#9 paused. [Source-specific checks/limits](docs/verification/2026-11-02-backlog-execution.md) · [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-backlog-2026-11-02-8501e71/MoFlight-Backlog-8501e71.zip), actual source `8501e715e798757352650b5eb5216bcba249ef92`. Other issues remain open where criteria are unmet.
+
 **2 November selected UI package (#116/#122):** bare Start chart with merged header, compact Verein task menu and three local Assistant draft starters. Owner selected only Verein + starters from the experiment; five navigation destinations/current colors remain. [Evidence and limits](docs/verification/2026-11-02-selected-experiment-adoption.md) · [current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-selected-ui-2026-11-02-dbed486/MoFlight-Selected-UI-dbed486.zip), actual source `dbed486fe307dc66ad6a793379ec040442d0c748`.
 
 **2 November compact monthly Start (#122):** cool cyan/blue accents, short paired monthly time/count bars, smaller shared controls and corrected preview caller return. Upper season layout and lean tiles retained. [Source-specific evidence/limits](docs/verification/2026-11-02-compact-monthly-start.md); [current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-compact-monthly-2026-11-02-0a510da/MoFlight-Compact-Monthly-0a510da.zip), actual application source `0a510da5f51779941d5e7f4b763c03b771fd4280`.
@@ -35,7 +37,9 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 ## Current delivery
 
-**Selected UI: [download current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-selected-ui-2026-11-02-dbed486/MoFlight-Selected-UI-dbed486.zip)**, actual source `dbed486fe307dc66ad6a793379ec040442d0c748`. [Checks/remaining limits](docs/verification/2026-11-02-selected-experiment-adoption.md).
+**Backlog fixes: [download current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-backlog-2026-11-02-8501e71/MoFlight-Backlog-8501e71.zip)**, source `8501e715e798757352650b5eb5216bcba249ef92`. [Evidence](docs/verification/2026-11-02-backlog-execution.md).
+
+**Earlier selected UI: [download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-selected-ui-2026-11-02-dbed486/MoFlight-Selected-UI-dbed486.zip)**, actual source `dbed486fe307dc66ad6a793379ec040442d0c748`. [Checks/remaining limits](docs/verification/2026-11-02-selected-experiment-adoption.md).
 
 **Earlier compact monthly Start: [download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-compact-monthly-2026-11-02-0a510da/MoFlight-Compact-Monthly-0a510da.zip)**, actual source `0a510da5f51779941d5e7f4b763c03b771fd4280`. [Verification](docs/verification/2026-11-02-compact-monthly-start.md).
 
