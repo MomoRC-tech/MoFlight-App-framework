@@ -1,8 +1,10 @@
 # MoFlight documentation
 
-Latest UI: [owner-selected Club/Assistant adoption and bare Start follow-up](verification/2026-11-02-selected-experiment-adoption.md). Current five destinations remain; other experiment proposals are unselected.
+Current delivery/status: [2 November backlog fixes and verification](verification/2026-11-02-backlog-execution.md), [latest APK/source](../README.md#current-delivery) and [current plan](project-plan.md#current-baseline--2-november-2026). Owner confirmed retirement of the obsolete two-app/collapse criteria; #1/#9 are resumed with their remaining gates open.
 
-Current UI increment: [compact monthly Start and cool controls](verification/2026-11-02-compact-monthly-start.md), retaining the upper season composition and lean tiles.
+Selected UI features: [owner-selected Club/Assistant adoption and bare Start follow-up](verification/2026-11-02-selected-experiment-adoption.md). Current five destinations remain; other experiment proposals are unselected.
+
+Earlier UI increment: [compact monthly Start and cool controls](verification/2026-11-02-compact-monthly-start.md), retaining the upper season composition and lean tiles.
 
 Earlier Start: [restored season layout with lean tiles](verification/2026-11-02-start-restoration.md). [Experiment adoption review](product/design/pilot-experiment-adoption-review.md) records the original recommendations; the later owner selection covers only Verein and local starters.
 
@@ -18,7 +20,7 @@ Earlier graphite implementation: [expressive compact graphite](verification/2026
 | What should happen next? | [Current plan](project-plan.md#next-executable-packages) and [GitHub Issues](https://github.com/MomoRC-tech/MoFlight-App-framework/issues) |
 | What should the app do? | [Product contracts](product/README.md) |
 | What should it look like? | [Selected design handbook](product/design/README.md) |
-| Where is the latest project/phone review? | [28 October project/plan review](verification/2026-10-17-current-status-and-open-issues.md#28-october-project-and-implementation-plan-review) |
+| Where is the earlier project/phone review? | [28 October project/plan review](verification/2026-10-17-current-status-and-open-issues.md#28-october-project-and-implementation-plan-review) |
 | What did the next bounded roadmap batch establish? | [Sync/backup regressions, proposal and remaining decisions](verification/2026-10-17-current-status-and-open-issues.md#25-october-bounded-continuation--sync-and-preservation) |
 | Where is the complete UI interaction and consistency review? | [24 October interaction tree and findings](verification/2026-10-24-ui-interaction-review.md) |
 | How do we implement expense analysis? | [E1–E4 plan and selected source policy](development/expense-analysis-implementation-plan.md), [native proof](verification/2026-10-28-expense-source-contract.md#actual-native-billed-capture-and-offline-reopen--30-october-2026), [approved E2 host implementation](verification/2026-10-28-expense-source-contract.md#approved-unversioned-e2-contract-and-adapter--30-october-2026) and [#101](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/101); [whole-feature completion package](verification/2026-10-30-financials-completion.md) records durable evidence, UI, v5 preservation and outstanding acceptance |

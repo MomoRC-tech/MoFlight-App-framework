@@ -1,5 +1,7 @@
 # Independent early Supabase Cloud Free trial
 
+**Scope clarification — owner confirmed 2 November 2026:** this trial targets the single MoFlight app. Cross-app identity/session sharing is excluded. Two synthetic users/sessions remain required for isolation testing. This clarification does not provision a project, authorize spending or establish deployed acceptance.
+
 Tracking #1/#5/#7. **Prepared; no project provisioned or SQL/live tests executed.**
 This does not persist or link the main app dataset. Requires a disposable Cloud
 Free test project and two synthetic email/password accounts. No paid services,
