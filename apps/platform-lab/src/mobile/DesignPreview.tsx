@@ -28,7 +28,7 @@ import { HelpScreen } from './HelpScreen';
 import type { HelpCategory } from './help-catalog';
 
 /** Mount directly in the shell's flex content area; OwnFlights owns its list scrolling. */
-export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
+export function DesignPreview({onClose=()=>{},onBackHandler}:{onClose?:()=>void;onBackHandler?:(handler:()=>boolean)=>void}={}) {
   const [cockpit,setCockpit]=useState(false);
   const fixture = useMemo(createDesignPreviewData, []);
   const emptyView = useMemo(() => ({ ...fixture.view, flights: [] }), [fixture]);
@@ -40,7 +40,6 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
   const syncReturnPage=useRef<typeof page>('start');
   const closeHelp=()=>{Keyboard.dismiss();setHelpOpen(false);};
   const openHelp=(entryId:string)=>{Keyboard.dismiss();setHelpEntry(entryId);setHelpQuery('');setHelpCategory(null);setHelpOpen(true);};
-  useEffect(()=>{const subscription=BackHandler.addEventListener('hardwareBackPress',()=>{if(helpOpen){closeHelp();return true;}return page==='costs'&&costBack.current();});return()=>subscription.remove();},[helpOpen,page]);
   const [progress,setProgress]=useState<Progress>({state:'active',last:'account',current:'flights'});
   const [mode, setMode] = useState<'populated' | 'empty' | 'error'>('populated');
   const [request, setRequest] = useState<OwnFlightRequest | null>(null);
@@ -59,6 +58,14 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
   const [syncReceiptVisible, setSyncReceiptVisible] = useState(true);
   const [dutiesExpanded, setDutiesExpanded] = useState(false);
   const statisticsBack = useRef<() => boolean>(() => false);
+  const back=()=>{
+    if(helpOpen){closeHelp();return true;}
+    if(statisticsOpen){if(!statisticsBack.current())setStatisticsOpen(false);return true;}
+    if(cockpit){setCockpit(false);return true;}
+    return page==='costs'&&costBack.current();
+  };
+  onBackHandler?.(back);
+  useEffect(()=>{if(onBackHandler)return;const subscription=BackHandler.addEventListener('hardwareBackPress',back);return()=>subscription.remove();},[helpOpen,page,statisticsOpen,cockpit,onBackHandler]);
   const { width, fontScale } = useWindowDimensions();
   const clearDetail = useCallback(() => setDetail(null), []);
   const openDetail = useCallback(async (selected: RealFlightListItem) => {

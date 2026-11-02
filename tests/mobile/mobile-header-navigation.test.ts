@@ -655,6 +655,8 @@ test('design preview is an explicit Development route and Back restores settings
  assert.ok(!f.nodes().some(n=>n.type==='DesignPreview'));f.find('DevelopmentHub').props.onDesignPreview();f.render();
  assert.equal(f.nodes().filter(n=>n.type==='SyncProgress').length,1,'Only the covered main page retains real account progress; the preview overlay is isolated');
  assert.equal(typeof f.find('DesignPreview').props.onClose,'function');assert.ok(f.nodes().some(n=>n.type==='DesignPreview'));assert.deepEqual(f.coreRoutes,[]);
+ let consume=true,nestedBack=0;f.find('DesignPreview').props.onBackHandler(()=>{nestedBack++;return consume;});
+ assert.equal(f.hardwareBack(),true);f.render();assert.equal(nestedBack,1);assert.ok(f.nodes().some(n=>n.type==='DesignPreview'),'shell forwards native Back before leaving preview');consume=false;
  f.find('DesignPreview').props.onClose();f.render();assert.ok(f.nodes().some(n=>n.type==='DevelopmentHub'));
 });
 

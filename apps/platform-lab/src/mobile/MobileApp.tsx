@@ -155,6 +155,7 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
   const [importPreview, setImportPreview] = useState<PreviewSession | null>(null);
   const overlayHistory = useRef<{ sheet: Sheet; detail: Flight | null }[]>([]);
   const statisticsBack = useRef<() => boolean>(() => false);
+  const designPreviewBack = useRef<() => boolean>(() => false);
   const overlayOffsets = useRef<Record<string, number>>({});
   const overlayScroll = useRef<ScrollView>(null);
   const overlayKey = detail ? `detail:${detail.id}` : sheet === 'help' ? `help:${helpEntryId ?? 'home'}` : sheet ?? 'none';
@@ -171,6 +172,8 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
   const popOverlay = () => {
     if (screenBusy) return;
     if (sheet === 'statistics' && statisticsBack.current()) return;
+    if (sheet === 'designPreview' && designPreviewBack.current()) return;
+    if (sheet === 'designPreview') designPreviewBack.current=()=>false;
     diagnosticJournal.record('back', detail ? 'flight-detail' : sheet ?? 'close');
     Keyboard.dismiss();
     if (sheet === 'statistics') ownFlights.clearDetail();
@@ -378,7 +381,7 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
           {page === 'credits' && <AboutCredits />}
           </ScrollView>
         </KeyboardAvoidingView>)}
-        {sheet === 'designPreview' ? <DesignPreview onClose={closeOverlay}/> : sheet === 'flightLab' ? <><DevelopmentNotice /><LabApp providerOwned={true} embedded onBusyChange={setScreenBusy} /></> : sheet === 'bookLab' ? <><DevelopmentNotice /><BookLab close={closeOverlay} onBusyChange={setScreenBusy} /></> : !['diagnostics','development','credits'].includes(sheet??'')&&<KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView ref={overlayScroll} key={overlayKey} contentOffset={{ x: 0, y: overlayOffsets.current[overlayKey] ?? 0 }} onScroll={event => { overlayOffsets.current[overlayKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32} contentContainerStyle={[s.canvas,{width:'100%',maxWidth:600,alignSelf:'center'}]} keyboardShouldPersistTaps="handled">
+        {sheet === 'designPreview' ? <DesignPreview onClose={closeOverlay} onBackHandler={handler=>{designPreviewBack.current=handler;}}/> : sheet === 'flightLab' ? <><DevelopmentNotice /><LabApp providerOwned={true} embedded onBusyChange={setScreenBusy} /></> : sheet === 'bookLab' ? <><DevelopmentNotice /><BookLab close={closeOverlay} onBusyChange={setScreenBusy} /></> : !['diagnostics','development','credits'].includes(sheet??'')&&<KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}><ScrollView ref={overlayScroll} key={overlayKey} contentOffset={{ x: 0, y: overlayOffsets.current[overlayKey] ?? 0 }} onScroll={event => { overlayOffsets.current[overlayKey] = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32} contentContainerStyle={[s.canvas,{width:'100%',maxWidth:600,alignSelf:'center'}]} keyboardShouldPersistTaps="handled">
           {sheet === 'profile' && <ProfileSettings connectionSummary={settingsSummary} onTools={() => openHeaderSheet('development')} onConnections={()=>openFlightFlow('options')} onBackup={() => openFlightFlow('options','backup')} onDiagnostics={() => openHeaderSheet('diagnostics')} onHelp={id => openHelp(id??null,false)} helpEnabled={helpEnabled} helpSaving={helpSaving} helpError={helpPreferenceError} onToggleHelp={()=>void toggleHelp()} onStatus={() => openHeaderSheet('status')} onCredits={() => openHeaderSheet('credits')} onBooks={() => openHeaderSheet('selectBook')} displayName={library.displayName} nameDraft={profileNameDraft} onNameDraftChange={setProfileNameDraft} busy={library.busy} error={library.error} onSaveName={library.saveDisplayName} onRetry={() => void library.reload()} />}
           {sheet === 'help' && <HelpScreen entryId={helpEntryId} query={helpQuery} category={helpCategory} onQuery={setHelpQuery} onCategory={setHelpCategory} onEntry={id=>{overlayOffsets.current[`help:${id ?? 'home'}`]=0;setHelpEntryId(id);Keyboard.dismiss();}} onReturn={leaveHelp} onReplay={()=>{if(helpEnabled !== true)return;Keyboard.dismiss();overlayHistory.current=[];setHelpEntryId(null);setDetail(null);setSheet(null);ownFlights.clearDetail();setFlightRequest(null);setTab('flights');setReplayHintToken(value=>value+1);}} onStatus={()=>openHeaderSheet('status')} returnLabel={helpReturnLabel} helpEnabled={helpEnabled === true} />}
           {sheet === 'importPreview' && <ImportPreview session={importPreview} onChange={setImportPreview} onNavigate={() => { overlayOffsets.current.importPreview = 0; overlayScroll.current?.scrollTo({ y: 0, animated: false }); }} />}

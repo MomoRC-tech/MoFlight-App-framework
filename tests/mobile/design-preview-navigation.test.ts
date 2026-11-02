@@ -46,6 +46,8 @@ test('Verein preview selects actual source components with synthetic data and pr
  assert.equal(overlay.props.data.phase,'ready');assert.equal(overlay.props.data.view.flights.length,createDesignPreviewData().view.flights.length);
  assert.equal(overlay.props.today,'2026-10-22');assert.equal(overlay.props.initialSection,'roles');assert.equal(typeof overlay.props.onClose,'function');
  assert.ok(JSON.stringify(stats).includes('Synthetische UI-Vorschau'));
+ let chartBackCalls=0;overlay.props.onBackHandler(()=>{chartBackCalls++;return true;});
+ render();assert.equal(hardwareBack!(),true);assert.equal(chartBackCalls,1);assert.ok(nodes(render()).some(n=>n.type==='StatisticsOverlay'),'native Back is consumed by the nested chart before leaving preview');
  overlay.props.onHelp('pic');
  help=nodes(render()).find(n=>n.type==='HelpScreen')!;assert.equal(help.props.entryId,'pic');
  const retained=nodes(render()).find(n=>n.type==='StatisticsOverlay')!;assert.equal(retained.props.initialSection,'roles');assert.equal(retained.props.data.detail,overlay.props.data.detail);
