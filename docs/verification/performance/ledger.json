@@ -54555,6 +54555,89 @@
           }
         }
       ]
+    },
+    {
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "c7a7393c262cfac08ab09df2ea314fa87b78a96f",
+      "apk_sha256": "78c08ce6b8b96870f78190bef34f70f0304d9cb7d62f615af497468f2159acf4",
+      "device": "MoFlight_Synthetic_API37 / Android API37 / x86_64 / test-entry Release / Expo SQLite; physical1080x1920px,420dpi,font1.0",
+      "input": "Two isolated synthetic review targets with the same fictional flight SHA ID, distinct exact revisions and digests; seed process and restarted process",
+      "conditions": "Offline dark synthetic native helper proof; actual process restart and first-gate refused write; normal APK/snapshot/settings restored afterward.",
+      "evidence": [
+        "docs/verification/2026-11-02-flight-source-review-persistence-native.json"
+      ],
+      "comparison": null,
+      "id": "source-review-persistence-20261102-native",
+      "method": "Native proof reports its measured work interval per process: initial exact save/load isolation and restart readback with first-gate refused save. Individual intervals retained without startup inference.",
+      "limits": [
+        "Test-entry override and helper persistence only; not ordinary account/owner-registry UI, real second login, provider or paper acceptance.",
+        "First-gate cancellation was refused before opening the store; no injected disk failure, mid-transaction kill, power loss, physical-phone or iOS acceptance.",
+        "No matched baseline or latency/startup benchmark;436/270ms have different work and must not be compared as a speedup."
+      ],
+      "samples": [
+        {
+          "id": "seeded",
+          "metric": "review-metadata-native-work",
+          "milliseconds": 436,
+          "outcome": "success",
+          "details": {
+            "checks.passed": 2,
+            "synthetic_targets": 2
+          }
+        },
+        {
+          "id": "passed",
+          "metric": "review-metadata-native-work",
+          "milliseconds": 270,
+          "outcome": "success",
+          "details": {
+            "checks.passed": 2,
+            "synthetic_targets": 2
+          }
+        }
+      ]
+    },
+    {
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "c7a7393c262cfac08ab09df2ea314fa87b78a96f",
+      "apk_sha256": "78c08ce6b8b96870f78190bef34f70f0304d9cb7d62f615af497468f2159acf4",
+      "device": "MoFlight_Synthetic_API37 / Android API37 / x86_64 / test-entry Release / Expo SQLite; physical1080x1920px,420dpi,font1.0",
+      "input": "Two isolated synthetic review targets with the same fictional flight SHA ID, distinct exact revisions and digests; seed process and restarted process",
+      "conditions": "Offline dark synthetic native helper proof; actual process restart and first-gate refused write; normal APK/snapshot/settings restored afterward.",
+      "evidence": [
+        "docs/verification/2026-11-02-flight-source-review-persistence-native.json"
+      ],
+      "comparison": null,
+      "id": "source-review-persistence-20261102-tooling",
+      "method": "Overall toolingMilliseconds from native proof report; includes controller/ADB/install/restart/report/restore overhead, separate from native work intervals. Separate emulator console boot-completed observation retains the full no-snapshot device-preparation duration before the proof.",
+      "limits": [
+        "Harness wall-clock total is not app runtime latency or startup time.",
+        "The nested436/270ms work samples and13891ms overall window overlap and must not be added.",
+        "Proof APK hash identifies the test entry, not normal-app acceptance.",
+        "Emulator console-reported full no-snapshot startup before the proof. Tool/device preparation only; not app startup, outside the 13891ms proof tooling window."
+      ],
+      "samples": [
+        {
+          "id": "proof-window",
+          "metric": "harness-total",
+          "milliseconds": 13891.0,
+          "outcome": "success",
+          "details": {
+            "distinct_processes": 2,
+            "native_work_samples": 2,
+            "checks.passed": 4
+          }
+        },
+        {
+          "id": "emulator-boot",
+          "metric": "device-preparation",
+          "milliseconds": 36169,
+          "outcome": "success",
+          "details": {}
+        }
+      ]
     }
   ]
 }

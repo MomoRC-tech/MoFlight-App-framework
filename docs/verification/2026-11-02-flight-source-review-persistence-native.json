@@ -1,0 +1,82 @@
+{
+  "status": "passed",
+  "provenance": {
+    "kind": "android-flight-review-poc",
+    "source_commit": "c7a7393c262cfac08ab09df2ea314fa87b78a96f",
+    "harness_source_commit": "",
+    "entry_override": "import { registerRootComponent } from 'expo';\nimport ProofComponent from './src/development/android-flight-review-poc';\nregisterRootComponent(ProofComponent);\n",
+    "test_only_cleartext": false,
+    "recovery_namespace": "",
+    "proof_apk_sha256": "78c08ce6b8b96870f78190bef34f70f0304d9cb7d62f615af497468f2159acf4",
+    "normal_apk_sha256": "d182bb918d8de19cdf06af0105ce94f8f86acad5f453ffaa85ae2b795f2f0964",
+    "boundary": "Test entry override; not normal-app or physical power-loss acceptance"
+  },
+  "mode": "review",
+  "scope": "Production native review metadata helpers; two synthetic scoped targets and real process restart. No ordinary account/owner-registry UI, provider, paper or iOS acceptance.",
+  "original": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0",
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0"
+  },
+  "installedProofHashVerified": true,
+  "device": {
+    "api": "37",
+    "abi": "x86_64"
+  },
+  "reviewRuns": [
+    {
+      "phase": "seeded",
+      "checks": [
+        "synthetic A/B targets persisted the same SHA flight ID with distinct exact revisions and digests",
+        "production save/load readback is exact and isolated per target"
+      ],
+      "milliseconds": 436,
+      "sourceCommit": "c7a7393c262cfac08ab09df2ea314fa87b78a96f"
+    },
+    {
+      "phase": "passed",
+      "checks": [
+        "process-restart readback is exact and isolated for A/B",
+        "rejected cancelled save preserved both original acknowledgments"
+      ],
+      "milliseconds": 270,
+      "sourceCommit": "c7a7393c262cfac08ab09df2ea314fa87b78a96f"
+    }
+  ],
+  "distinctProcesses": 2,
+  "restored": {
+    "airplane_mode_on": "1",
+    "wifi_on": "0",
+    "mobile_data": "0",
+    "size": "Physical size: 1080x1920",
+    "density": "Physical density: 420",
+    "font": "1.0"
+  },
+  "normalApkRestored": true,
+  "normalApkHashVerified": true,
+  "cleanupMatchesOriginal": true,
+  "toolingMilliseconds": 13891.0,
+  "emulator_boot_milliseconds": 36169,
+  "emulator_boot_limit": "Emulator console-reported full no-snapshot startup before the proof. Tool/device preparation only; not app startup, outside the 13891ms proof tooling window.",
+  "theme": "dark",
+  "offline": true,
+  "cleanup": {
+    "synthetic_snapshot_restored": true,
+    "settings_restored": true,
+    "original_apk_probe_present": false,
+    "restored_apk_probe_present": false,
+    "reset_or_seed_normal_app": false,
+    "provider_operations": false,
+    "private_database_byte_comparison": false,
+    "initially_stopped_synthetic_avd_stopped": true
+  },
+  "acceptance_limit": "Actual Expo SQLite helper persistence, two synthetic targets and process restart only. First-gate cancellation is refused before opening the store; this is not injected disk failure, mid-transaction kill, actual ordinary account/UI, real second login, provider, paper, physical phone or iOS acceptance.",
+  "retained_private_archive": {
+    "flight_count": 101,
+    "changed_flight_count": 0,
+    "source": "historical v5 archive; aggregate-only read, not fresh native selection"
+  }
+}
