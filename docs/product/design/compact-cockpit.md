@@ -289,3 +289,10 @@ Monthly charts use time traces/count markers with units, prior cutoff and covera
 Owner requests substantially more modern chart quality under Issue120. Native SVG paths replace rectangle strips for smooth curves, filled trends and crisp donut arcs. Monthly time/count share one switchable viewport, prior is a quiet dashed trace, selected month receives a guide/point and exact value. Role analysis uses a distribution donut with labelled contributor rows. Costs uses a full-year vector trend with compact accessible month choices; twelve repeated prices and swipe instructions are removed.
 
 Smoothing is presentation interpolation only: endpoint-height controls prevent invented extrema, and paths/fills break at missing or uncertain observations. Future values stay absent, known zero remains zero, conflicting costs stay visibly marked and selected details retain exact source routes. Prior cutoff/account/book/storage contracts remain. The single Expo57-bundled SVG library is a rendering dependency, not a chart/data framework; its license is included under About. [Implementation and evidence](../../verification/2026-11-02-modern-charts.md).
+
+
+## Rollback Start composition, lean tiles — authorized 2 November 2026
+
+Issue121 restores the rollbackeeda7a0 season-card composition with current colors. Latest owner steering explicitly excludes fuller tiles: current compact Medical/Paper/duty content and shared spacing/header/navigation remain. Restore the photo-backed season header, horizontal time/flights/work/Solo/Dual/PIC+ metrics, prior values, year and editable target. Keep newer metric drilldowns and modern charts in the existing expandable slot; omit redundant swipe instruction/unused old styles. Supersedes Issue119 Start orbit/recomposition only; current source/account/Back fixes and detail layouts remain.
+
+Parallel Issue116 review is recommendations only until explicit selection. Six subapps are a review preference, not implementation approval. [Restoration evidence](../../verification/2026-11-02-start-restoration.md) and [21-item adoption review](pilot-experiment-adoption-review.md) distinguish implemented and proposed work.

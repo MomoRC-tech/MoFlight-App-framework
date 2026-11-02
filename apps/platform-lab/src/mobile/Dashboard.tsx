@@ -1,6 +1,6 @@
 import { startRenderSpan } from '../start-timing';
 import React, { useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ImageBackground, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Label, colors as contentColors, startTileSurfaces, ui } from './theme';
 import type { OwnFlightView } from './own-flight-reader';
 import { formatReportedMinutes } from './real-flight-statistics';
@@ -12,7 +12,6 @@ import { planFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { createProcessedSelector } from './processed-result';
 import { startFlightDashboard, startDashboardValues, type StartPreview } from './start-preview';
 import { DutyTargetEditor, useDutyTarget } from './DutyTarget';
-import { MetricOrbit } from './SeasonRing';
 import { StartSeasonCharts } from './StartSeasonCharts';
 import type { ChartKind, ChartContributors } from './statistics-charts-model';
 const colors = { ...contentColors, ...startTileSurfaces };
@@ -55,49 +54,38 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
   const startGuidance=flightStartGuidance({phase:ownFlightPhase,accountAssociated:!!ownFlights?.snapshot.account,
     successfulRetrieval:!!planFlightRetrieval(saved).lastSuccessfulRetrievalAt,savedFlights:ownFlights?.flights.length??0});
   const latest=facts.latest;
-  const roleColors=[colors.cyan,colors.green,colors.orange];
-  const roleKeys=['solo','dualInstruction','picWithCompanion'] as const;
-  const count=ready&&/^\d+$/.test(facts.current.starts)?Number(facts.current.starts):null;
-  const orbitParts=roleKeys.map((key,i)=>({value:display?.roles.find(role=>role.key===key)?.count??0,color:roleColors[i]!}));
-  const unresolved=count===null?0:Math.max(0,count-orbitParts.reduce((n,part)=>n+part.value,0));
   return <Card surface="start" style={styles.season}>
-    <View style={styles.photo}>
+    <ImageBackground source={require('../../assets/aviation/ask21-flight-header-v2.png')} resizeMode="cover" imageStyle={ui.cockpitImage} style={styles.photo}>
       <View style={[ui.cockpitShade,styles.shade]}>
         <View style={styles.heading}>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Saison ${year} auswählen`} accessibilityState={{expanded:yearOpen}} disabled={!ownFlights} onPress={()=>setYearOpen(!yearOpen)} style={styles.seasonTitle}><View style={ui.row}><Label style={[styles.title,{flexShrink:1}]}>Saison {year}</Label><SymbolIcon name="down" size={16}/></View></Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Saison ${year} auswählen`} accessibilityState={{expanded:yearOpen}} disabled={!ownFlights} onPress={()=>setYearOpen(!yearOpen)} style={styles.seasonTitle}><View style={ui.row}><Label style={[styles.title,{flexShrink:1}]}>Meine Saison · {year}</Label><SymbolIcon name="down" size={16}/></View></Pressable>
           {onStatistics&&<Pressable accessibilityRole="button" accessibilityLabel="Statistik" onPress={()=>onStatistics(year,undefined,selectedChart)} style={[styles.statistics,fontScale>1.3&&{maxWidth:'45%'}]}><Label style={[styles.statisticsText,{flexShrink:1}]}>Statistik</Label><View style={{transform:[{rotate:'-45deg'}]}}><SymbolIcon name="arrow" size={16}/></View></Pressable>}
         </View>
         {yearOpen&&<View><ScrollView horizontal contentContainerStyle={{gap:6}}>{years.map(y=><Pressable key={y} accessibilityRole="button" accessibilityLabel={`Saison ${y}`} accessibilityState={{selected:year===y}} onPress={()=>{setSelection({scope,year:y});setYearOpen(false);}} style={[styles.yearButton,year===y&&{backgroundColor:colors.raised,borderRadius:10}]}><Label>{y}</Label></Pressable>)}</ScrollView><View style={styles.yearControls}><Pressable accessibilityRole="button" accessibilityLabel="Vorherige Saison" disabled={year<=1901} onPress={()=>setSelection({scope,year:Math.max(1901,year-1)})} style={styles.yearButton}><Label>‹ {Math.max(1901,year-1)}</Label></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Nächste Saison" disabled={year>=currentYear} onPress={()=>setSelection({scope,year:year+1})} style={[styles.yearButton,year>=currentYear&&{opacity:.4}]}><Label>{year+1} ›</Label></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Saisonauswahl schließen" onPress={()=>setYearOpen(false)} style={styles.yearButton}><SymbolIcon name="close" size={18}/></Pressable></View></View>}
-        <View style={[styles.instrument,fontScale>1.3&&{flexDirection:'column'}]}>
-          <Pressable testID="start-count-statistics" accessibilityRole="button" accessibilityLabel={`Flüge ${year}: ${ready?facts.current.starts:'unbekannt'}. Ring: Rollen nach Anzahl, neutrale Anteile ungeklärt. Monatsvergleich öffnen`} onPress={()=>onStatistics?.(year,'overview','monthly')} style={styles.dial}>
-            <MetricOrbit size={fontScale>1.3?180:140} total={count} parts={orbitParts}><Label style={styles.orbitValue}>{ready?facts.current.starts:'—'}</Label><Label muted style={styles.metricLabel}>Flüge</Label></MetricOrbit>
+        <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={[styles.metrics,fontScale>1.3&&{minWidth:330*fontScale}]}>
+          <Pressable testID="start-time-statistics" accessibilityHint="Monatsvergleich öffnen" style={styles.metric} accessibilityRole="button" accessibilityLabel={`Flugzeit ${year}: ${ready?facts.current.time:'unbekannt'} Stunden und Minuten. ${year-1}: ${ready?facts.prior.time:'unbekannt'}.`} onPress={()=>onStatistics?.(year,'overview','monthly')}>
+            <Label style={styles.value}>{ready?facts.current.time:'—'}</Label><Label muted style={styles.metricLabel}>Flugzeit · h:min</Label><Label muted style={styles.prior}>{year-1}: {ready?facts.prior.time:'—'}</Label>
           </Pressable>
-          <View style={styles.instrumentCopy}>
-            <Pressable testID="start-time-statistics" accessibilityRole="button" accessibilityLabel={`Flugzeit ${year}: ${ready?facts.current.time:'unbekannt'} Stunden und Minuten. ${year-1}: ${ready?facts.prior.time:'unbekannt'}. Monatsvergleich öffnen`} onPress={()=>onStatistics?.(year,'overview','monthly')} style={styles.timeMetric}>
-              <Label muted style={styles.eyebrow}>{facts.current.unknownDurationCount?'BEKANNTE FLUGZEIT':'FLUGZEIT'}</Label><View style={{flexDirection:'row',alignItems:'baseline',gap:5,flexWrap:'wrap'}}><Label style={styles.value}>{ready?facts.current.time:'—'}</Label><Label muted style={styles.metricLabel}>h:min ↗</Label></View>
-              <Label muted style={styles.prior}>{year-1} · {ready?facts.prior.time:'—'} h:min · {ready?facts.prior.starts:'—'} Flüge</Label>
-            </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel={`Arbeitsstunden ${year}: ${ready?(ownFlights?.sections?.information==='loading'?'wird geladen':workHours??'unbekannt'):'unbekannt'} geleistet. Lokale Sollstunden ${target.hours}. Sollstunden bearbeiten`} accessibilityState={{expanded:targetOpen}} disabled={!ownFlights} onPress={()=>setTargetOpen(!targetOpen)} style={styles.workMetric}>
-              <Label muted style={styles.metricLabel}>Arbeit</Label><Label style={{fontWeight:'600'}}>{ready?(workHours??'—'):'—'} h</Label><Label muted style={styles.prior}>/ {String(target.hours).replace('.',',')} h</Label><Label style={styles.editCue}>✎</Label>
-            </Pressable>
-          </View>
-        </View>
-        <View style={styles.roleGrid}>
-          {roleKeys.map((key,i)=>{
+          <Pressable testID="start-count-statistics" accessibilityHint="Monatsvergleich öffnen" style={[styles.metric,styles.divider]} accessibilityRole="button" accessibilityLabel={`Flüge ${year}: ${ready?facts.current.starts:'unbekannt'}. ${year-1}: ${ready?facts.prior.starts:'unbekannt'}.`} onPress={()=>onStatistics?.(year,'overview','monthly')}>
+            <Label style={styles.value}>{ready?facts.current.starts:'—'}</Label><Label muted style={styles.metricLabel}>Flüge</Label><Label muted style={styles.prior}>{year-1}: {ready?facts.prior.starts:'—'}</Label>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Arbeitsstunden ${year}: ${ready?(ownFlights?.sections?.information==='loading'?'wird geladen':workHours??'unbekannt'):'unbekannt'} geleistet. Lokale Sollstunden ${target.hours}. Sollstunden bearbeiten`} accessibilityState={{expanded:targetOpen}} disabled={!ownFlights} onPress={()=>setTargetOpen(!targetOpen)} style={[styles.metric,styles.divider,styles.workMetric]}>
+            <Label style={[styles.value,styles.workValue]}>{ready?(workHours??'—'):'—'} h</Label><Label muted style={styles.metricLabel}>Arbeitsstunden · Ist</Label><View style={styles.workTarget}><Label style={styles.prior}>Soll {String(target.hours).replace('.',',')} h</Label><Label style={styles.editCue}>✎</Label></View>
+          </Pressable>
+          {(['solo','dualInstruction','picWithCompanion'] as const).map(key=>{
             const group=display?.roles.find(item=>item.key===key),label=flightRoleShortLabels[key];
             const groupCount=group?.count??0,known=ready&&!!group?.knownDurationCount;
             const confirmedZero=ready&&groupCount===0&&facts.current.starts!=='—';
             const time=known?formatReportedMinutes(group!.knownMinutes):confirmedZero?'0:00':'—';
             const count=ready&&(groupCount>0||facts.current.starts!=='—')?String(groupCount):'—';
             const flightWord=groupCount===1?'Flug':'Flüge';
-            return <Pressable key={key} accessibilityRole="button" accessibilityLabel={`${label} ${year}: ${count} ${flightWord} gespeichert, ${known?`${time} Stunden und Minuten bekannte Flugzeit`:confirmedZero?'0:00 Stunden und Minuten gespeicherte Flugzeit':'Flugzeit unbekannt'}${group?.unknownDurationCount?`, ${group.unknownDurationCount} ohne bekannte Dauer`:''}. Statistik öffnen`} onPress={()=>onStatistics?.(year,'roles')} style={styles.roleMetric}>
-              <View style={{width:6,height:6,borderRadius:3,backgroundColor:roleColors[i]}}/><Label style={styles.metricLabel}>{label}</Label><Label style={styles.roleTime}>{ready?time:'—'}</Label>
+            return <Pressable key={key} accessibilityRole="button" accessibilityLabel={`${label} ${year}: ${count} ${flightWord} gespeichert, ${known?`${time} Stunden und Minuten bekannte Flugzeit`:confirmedZero?'0:00 Stunden und Minuten gespeicherte Flugzeit':'Flugzeit unbekannt'}${group?.unknownDurationCount?`, ${group.unknownDurationCount} ohne bekannte Dauer`:''}. Statistik öffnen`} onPress={()=>onStatistics?.(year,'roles')} style={[styles.metric,styles.divider]}>
+              <Label style={[styles.value,styles.roleValue]}>{ready?time:'—'}</Label><Label muted style={styles.metricLabel}>{label} · h:min</Label><Label muted style={styles.prior}>{ready?count:'—'} {flightWord}</Label>
             </Pressable>;
           })}
-        </View>
-        {unresolved>0&&<Label muted style={styles.small}>{unresolved} Rollen ungeklärt</Label>}
+        </ScrollView>
       </View>
-    </View>
+    </ImageBackground>
     {targetOpen&&<View style={styles.inset}>{scope?<DutyTargetEditor key={`${scope}:${year}`} target={target} onClose={()=>setTargetOpen(false)}/>:<Label muted>Ein lokales Soll lässt sich nach Auswahl eines Kontos speichern.</Label>}</View>}
     {!targetOpen&&target.error&&<Label muted style={styles.inset}>{target.error}</Label>}
     <View style={styles.body}>
@@ -114,14 +102,13 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
   </Card>;
 }
 const styles=StyleSheet.create({
-  instrument:{flexDirection:'row',alignItems:'center',gap:12,paddingBottom:4},dial:{minHeight:140,alignItems:'center',justifyContent:'center'},orbitValue:{fontSize:34,lineHeight:40,fontWeight:'600',letterSpacing:-1,fontVariant:['tabular-nums']},instrumentCopy:{flex:1,minWidth:0,alignSelf:'stretch',justifyContent:'center'},timeMetric:{minHeight:88,justifyContent:'center',gap:1},eyebrow:{fontSize:10,lineHeight:16,letterSpacing:1.8},roleGrid:{flexDirection:'row',flexWrap:'wrap',gap:4},roleMetric:{minHeight:48,flexGrow:1,flexDirection:'row',alignItems:'center',justifyContent:'center',gap:5,paddingHorizontal:7,borderRadius:10,backgroundColor:colors.raised},roleTime:{fontSize:12,lineHeight:18,fontWeight:'600',fontVariant:['tabular-nums']},
-
-  season:{width:'100%',maxWidth:520,alignSelf:'center',padding:0,gap:0,borderColor:colors.border,experimental_backgroundImage:'linear-gradient(145deg, #29263e66, #1c1f3000)'},
-  photo:{width:'100%'},shade:{paddingHorizontal:14,paddingBottom:10,gap:4,backgroundColor:'transparent'},
-  heading:{flexDirection:'row',alignItems:'center',gap:6},seasonTitle:{flex:1,minWidth:0,minHeight:48,justifyContent:'center'},title:{fontSize:16,lineHeight:22,fontWeight:'600'},
-  statistics:{backgroundColor:'transparent',borderRadius:10,minHeight:48,justifyContent:'center',alignItems:'center',flexDirection:'row',gap:5,paddingHorizontal:10,maxWidth:'35%'},statisticsText:{color:colors.cyan,fontSize:14,lineHeight:20},
-  value:{fontSize:36,lineHeight:43,fontWeight:'600',letterSpacing:-1.5,fontVariant:['tabular-nums']},metricLabel:{fontSize:12,lineHeight:18,textAlign:'center'},prior:{fontSize:11,lineHeight:17},
-  workMetric:{minHeight:48,flexDirection:'row',alignItems:'center',flexWrap:'wrap',gap:5,borderTopWidth:1,borderTopColor:colors.border},editCue:{fontSize:15,lineHeight:18,color:colors.cyan},
+  season:{width:'100%',maxWidth:520,alignSelf:'center',padding:0,gap:0},
+  photo:{width:'100%'},shade:{paddingHorizontal:12,paddingBottom:12,gap:8},
+  heading:{flexDirection:'row',alignItems:'center',gap:6},seasonTitle:{flex:1,minWidth:0,minHeight:48,justifyContent:'center'},title:{fontSize:18,lineHeight:25,fontWeight:'700'},
+  statistics:{backgroundColor:colors.raised,borderRadius:12,minHeight:48,justifyContent:'center',alignItems:'center',flexDirection:'row',gap:5,paddingHorizontal:10,maxWidth:'35%'},statisticsText:{color:colors.cyan,fontSize:14,lineHeight:20},
+  metrics:{flexGrow:1,flexDirection:'row',paddingTop:4},metric:{flex:1,minWidth:90,minHeight:48,alignItems:'center',justifyContent:'flex-start',gap:3,paddingHorizontal:5},divider:{borderLeftWidth:1,borderColor:colors.border},
+  value:{fontSize:27,lineHeight:34,fontWeight:'700',textAlign:'center',fontVariant:['tabular-nums']},workValue:{fontSize:22,lineHeight:34},roleValue:{fontSize:22},metricLabel:{fontSize:12,lineHeight:18,textAlign:'center'},prior:{fontSize:11,lineHeight:17,textAlign:'center'},
+  workMetric:{minWidth:116,minHeight:72},workTarget:{flexDirection:'row',alignItems:'center',justifyContent:'center',gap:4},editCue:{fontSize:15,lineHeight:18,color:colors.cyan},
   body:{paddingHorizontal:12},inset:{padding:12},latest:{flexDirection:'row',alignItems:'center',gap:6,minHeight:48,paddingVertical:4,borderTopWidth:1,borderColor:colors.border},
   small:{fontSize:12,lineHeight:18},
   allFlights:{minHeight:48,flexDirection:'row',alignItems:'center',justifyContent:'space-between',borderTopWidth:1,borderColor:colors.border},

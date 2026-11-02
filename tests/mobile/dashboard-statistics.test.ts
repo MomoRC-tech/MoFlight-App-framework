@@ -90,7 +90,7 @@ test('compact metrics use selected annual hours and keep financial values out of
  assert.match(JSON.stringify(tree),/7:25 geleistet/);assert.match(JSON.stringify(tree),/Lokale Sollstunden 25/);assert.doesNotMatch(JSON.stringify(tree),/90,00/);
  const next=f.changeView({...f.view(),snapshot:{...f.view().snapshot,ownerId:'other'},featureInformation:undefined});assert.doesNotMatch(JSON.stringify(next),/7:25/);
 });
-test('Solo, Dual and PIC+ explain the orbit and retain exact role analysis',()=>{
+test('Solo, Dual and PIC+ retain the rollback metric strip and exact role analysis',()=>{
  const dual=structuredClone(ownFlightFixture().flights[0]!);
  dual.facts.assessment.date={...dual.facts.assessment.date,state:'parsed',value:'2026-06-18'};
  dual.facts.assessment.durations.flight={state:'known',minutes:12,evidence:[]};
@@ -102,7 +102,7 @@ test('Solo, Dual and PIC+ explain the orbit and retain exact role analysis',()=>
  fields.dualTime={state:'value',label:'Dual-Time',raw:'00:12'};
  fields.picTime={state:'blank',label:'PIC-Time',raw:''};
  const f=render([dual]);
- assert.ok(f.nodes.some(n=>n.type==='MetricOrbit'),'role distribution has a composed overview');
+ const row=f.nodes.find(n=>n.type==='ScrollView'&&n.props.horizontal);assert.ok(row);assert.equal(row.children.length,6,'time/flights/work and all three role metrics remain in the restored strip');
  const metrics=f.nodes.filter(n=>n.type==='Pressable'&&/^(Solo|Dual|PIC\+) 2026:/.test(n.props.accessibilityLabel??''));
  assert.deepEqual(metrics.map(n=>n.props.accessibilityLabel.split(' ')[0]),['Solo','Dual','PIC+']);
  assert.match(metrics[1]!.props.accessibilityLabel,/1 Flug gespeichert, 0:12/);
@@ -256,7 +256,7 @@ test('work hours separate actual hours and editable target without the redundant
  const nodes:Element[]=[];const visit=(node:any)=>{if(node?.children){nodes.push(node);node.children.forEach(visit);}};visit(tree);
  const control=nodes.find(n=>n.type==='Pressable'&&String(n.props.accessibilityLabel).includes('Sollstunden bearbeiten'))!;
  const labels=nodes.filter(n=>n.type==='Label').map(n=>n.children.join(''));
- assert.ok(labels.includes('12,5 h'));assert.ok(labels.includes('Arbeit'));assert.ok(labels.includes('/ 25 h'));assert.ok(labels.includes('✎'));
+ assert.ok(labels.includes('12,5 h'));assert.ok(labels.includes('Arbeitsstunden · Ist'));assert.ok(labels.includes('Soll 25 h'));assert.ok(labels.includes('✎'));
  assert.equal(labels.some(label=>/Soll anpassen|Soll vorläufig/.test(label)),false);
  assert.equal(control.props.accessibilityState.expanded,false);
  control.props.onPress();assert.match(JSON.stringify(f.rerender()),/DutyTargetEditor/);
