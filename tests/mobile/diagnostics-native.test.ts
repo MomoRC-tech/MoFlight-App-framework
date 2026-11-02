@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
+import { connectProcessExitDiagnostics } from '../../apps/platform-lab/src/mobile/process-exit-coordinator';
 import * as diagnostics from '../../apps/platform-lab/src/diagnostics';
 
 const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/diagnostics-native.ts',import.meta.url),'utf8'),{
@@ -23,6 +24,7 @@ function fixture() {
     files.set(uri,text);assert.ok([...files.values()].reduce((sum,value)=>sum+Buffer.byteLength(value),0)<=diagnostics.DIAGNOSTIC_STORAGE_BYTES);
   };
   const modules:Record<string,unknown>={
+    'expo-crypto':{}, './process-exit-coordinator':{connectProcessExitDiagnostics},
     'expo-file-system':{File,Paths:{document:'file:///documents'}},'expo-file-system/legacy':{writeAsStringAsync:write},
     'expo-sharing':{isAvailableAsync:async()=>available,shareAsync:async(uri:string)=>{shared.push({uri,content:files.get(uri)!});}},
     'react-native':{Platform:{OS:'android',Version:37}},'expo':{requireOptionalNativeModule:()=>({diagnosticContextAsync:async()=>({appVersion:'0.1.0',buildVersion:'42',webViewVersion:'145.0.1',private:'never include'})})},

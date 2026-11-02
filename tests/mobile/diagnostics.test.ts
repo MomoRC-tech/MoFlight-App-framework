@@ -46,6 +46,7 @@ test('action history is independent of technical floods, failures retain precedi
 
 test('hard UTF-8 byte bounds hold under mixed floods; short export and separately retained failures stay bounded',async()=>{
  const f=fixture(),j=f.journal;j.connect(f.storage);
+ const exitState=j.processExitState();j.recordProcessExit(exitState.previousMarker,'a'.repeat(32),{category:'unknown',registered:true},exitState.generation);
  for(let i=0;i<3500;i++){f.now(i*1000);j.record('screen',i%2?'flights':'home');}
  for(let i=0;i<700;i++){const op=j.begin('update-flights');for(const name of diagnosticStages.slice(0,12))op.span(name)(false,{sql:{calls:99,milliseconds:1234,failures:3}});op.finish('failed','operation-failed');}
  await j.flush();assert.ok(j.snapshot().length<=600);assert.ok(j.journey().length<=2000);assert.ok(j.failureSnapshot().length<=5);
@@ -182,6 +183,64 @@ test('operation wall time reconciles with nonoverlapping top stages, explicit ga
  const waiting=windows.filter(window=>window.name==='user-sign-in-wait').reduce((sum,window)=>sum+window.end-window.start,0);
  assert.deepEqual({covered,gaps,waiting,knownActive:covered-waiting},{covered:70,gaps:40,waiting:20,knownActive:50});
  assert.equal(covered+gaps,entry.milliseconds);
+});
+
+test('process exit evidence binds to the exact prior session and remains private to that session context',async()=>{
+ const f=fixture();f.journal.connect(f.storage);f.journal.setContext({appVersion:'1.2.3'});
+ const first=f.journal.processExitState(),firstToken='a'.repeat(32);
+ f.journal.recordProcessExit(first.previousMarker,firstToken,{category:'unknown',registered:true,extra:'private-extra'},first.generation);await f.journal.flush();
+ const previousSession=first.currentSession,next=new DiagnosticJournal(()=>0,()=>wall+1000);next.connect(f.storage);
+ const state=next.processExitState();assert.deepEqual(state.previousMarker,{token:firstToken,session:previousSession});assert.equal(state.currentSession,previousSession+1);assert.equal(state.generation,next.clearVersion);
+ next.setContext({appVersion:'2.0.0',processExitReason:'crash'});next.begin('read-flights').finish('success');
+ next.recordProcessExit(state.previousMarker,'b'.repeat(32),{category:'native-crash',registered:true,token:'secret-token',trace:'secret-trace'},state.generation);
+ const report=JSON.parse(next.export()),old=report.sessions.find((session:any)=>session.session===previousSession),current=report.sessions.find((session:any)=>session.session===state.currentSession);
+ assert.equal(old.context.appVersion,'1.2.3');assert.equal(old.context.processExitReason,'native-crash');assert.equal(current.context.appVersion,'2.0.0');assert.equal(current.context.processExitReason,undefined);
+ assert.ok(report.entries.every((entry:any)=>entry.processExitReason===undefined));assert.ok(!next.export().includes(firstToken));assert.ok(!next.export().includes('b'.repeat(32)));assert.ok(!next.export().includes('secret-token'));assert.ok(!next.export().includes('secret-trace'));assert.ok(!next.export().includes('retainedAt'));
+ const persisted=JSON.parse(f.saved()!);assert.deepEqual(persisted.processExitMarker,{token:'b'.repeat(32),session:state.currentSession,retainedAt:wall+1000});
+ assert.ok(utf8Bytes(f.saved()!)<=DIAGNOSTIC_FILE_BYTES);assert.ok(utf8Bytes(next.export())<=DIAGNOSTIC_FILE_BYTES);assert.ok(utf8Bytes(f.saved()!)+utf8Bytes(next.export())<=DIAGNOSTIC_STORAGE_BYTES);
+ const restored=new DiagnosticJournal(()=>0,()=>wall+2000);restored.connect(f.storage);const restoredReport=JSON.parse(restored.export());
+ assert.equal(restored.processExitState().previousMarker?.token,'b'.repeat(32));assert.equal(restoredReport.sessions.find((session:any)=>session.session===previousSession).context.processExitReason,'native-crash');
+});
+
+test('missing, malformed, stale and foreign retained markers never become a previous-session marker',async()=>{
+ const f=fixture();f.journal.connect(f.storage);const initial=f.journal.processExitState();f.journal.recordProcessExit(initial.previousMarker,'c'.repeat(32),{category:'unknown',registered:true},initial.generation);await f.journal.flush();
+ const original=JSON.parse(f.saved()!);
+ const cases=[
+  ['missing',(stored:any)=>{delete stored.processExitMarker;}],
+  ['malformed',(stored:any)=>{stored.processExitMarker.token='C'.repeat(32);}],
+  ['stale',(stored:any)=>{stored.processExitMarker.retainedAt=wall-DIAGNOSTIC_RETENTION_MS-1;}],
+  ['foreign',(stored:any)=>{stored.processExitMarker.session+=2;}],
+ ] as const;
+ for(const [name,alter]of cases){const stored=JSON.parse(JSON.stringify(original));alter(stored);const journal=new DiagnosticJournal(()=>0,()=>wall);journal.connect({read:()=>JSON.stringify(stored),write:()=>{}});assert.equal(journal.processExitState().previousMarker,null,name);}
+});
+
+test('process exit observations are allowlisted, malformed evidence stays unknown, and registration failure prevents replay',async()=>{
+ const f=fixture();f.journal.connect(f.storage);const first=f.journal.processExitState();f.journal.recordProcessExit(first.previousMarker,'d'.repeat(32),{category:'unknown',registered:true},first.generation);await f.journal.flush();
+ const reopened=new DiagnosticJournal(()=>0,()=>wall+100);reopened.connect(f.storage);const state=reopened.processExitState();
+ reopened.recordProcessExit(state.previousMarker,'e'.repeat(32),{category:'crash with details',registered:true,details:'private'},state.generation);
+ const report=JSON.parse(reopened.export()),previous=report.sessions.find((session:any)=>session.session===state.previousMarker!.session);
+ assert.equal(previous.context.processExitReason,'unknown');assert.ok(!reopened.export().includes('private'));assert.ok(!reopened.export().includes('crash with details'));
+ assert.equal(JSON.parse(f.saved()!).processExitMarker,undefined);
+
+ const another=new DiagnosticJournal(()=>0,()=>wall+200);another.connect(f.storage);const retry=another.processExitState();assert.equal(retry.previousMarker,null);
+ const retryToken='f'.repeat(32);another.recordProcessExit(null,retryToken,{category:'crash',registered:true},retry.generation);await another.flush();
+ const failedRegistration=new DiagnosticJournal(()=>0,()=>wall+300);failedRegistration.connect(f.storage);const failedState=failedRegistration.processExitState();
+ failedRegistration.recordProcessExit(failedState.previousMarker,'0'.repeat(32),{category:'low-memory',registered:false},failedState.generation);
+ const failedReport=JSON.parse(failedRegistration.export()),registeredPrior=failedReport.sessions.find((session:any)=>session.session===failedState.previousMarker!.session);
+ assert.equal(registeredPrior.context.processExitReason,'low-memory');assert.equal(JSON.parse(f.saved()!).processExitMarker,undefined);
+ const noReplay=new DiagnosticJournal(()=>0,()=>wall+400);noReplay.connect(f.storage);assert.equal(noReplay.processExitState().previousMarker,null);
+});
+
+test('foreign caller marker cannot attribute evidence and clear rejects a late native result',async()=>{
+ const f=fixture();f.journal.connect(f.storage);const first=f.journal.processExitState();f.journal.recordProcessExit(first.previousMarker,'1'.repeat(32),{category:'unknown',registered:true},first.generation);await f.journal.flush();
+ const reopened=new DiagnosticJournal(()=>0,()=>wall+100);reopened.connect(f.storage);const state=reopened.processExitState();
+ reopened.recordProcessExit({token:'2'.repeat(32),session:state.previousMarker!.session},'3'.repeat(32),{category:'crash',registered:true},state.generation);
+ const old=JSON.parse(reopened.export()).sessions.find((session:any)=>session.session===state.previousMarker!.session);assert.equal(old?.context?.processExitReason,undefined);await reopened.flush();
+
+ const beforeClearJournal=new DiagnosticJournal(()=>0,()=>wall+200);beforeClearJournal.connect(f.storage);const beforeClear=beforeClearJournal.processExitState();assert.deepEqual(beforeClear.previousMarker,{token:'3'.repeat(32),session:state.currentSession});
+ beforeClearJournal.clear();beforeClearJournal.recordProcessExit(beforeClear.previousMarker,'4'.repeat(32),{category:'crash',registered:true},beforeClear.generation);await beforeClearJournal.flush();
+ assert.deepEqual(beforeClearJournal.snapshot(),[]);assert.deepEqual(beforeClearJournal.journey(),[]);assert.deepEqual(beforeClearJournal.failureSnapshot(),[]);
+ const persisted=JSON.parse(f.saved()!);assert.equal(persisted.processExitMarker,undefined);assert.deepEqual(persisted.sessions,[]);assert.ok(!beforeClearJournal.export().includes('processExitReason'));
 });
 
 

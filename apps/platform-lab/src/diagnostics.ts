@@ -40,8 +40,16 @@ export interface DiagnosticOperation {
 }
 interface Storage { read(): string | null; write(text: string): void | Promise<void>; clearExport?(): void | Promise<void> }
 type Context = { appVersion?: string; buildVersion?: string; buildSource?: string; androidApi?: number; webViewVersion?: string; platform?: 'android' | 'ios'; buildMode?: 'development' | 'release' };
+export const processExitCategories = ['crash','native-crash','anr','low-memory','other','unknown'] as const;
+export type ProcessExitCategory = typeof processExitCategories[number];
+export interface ProcessExitMarker { token: string; session: number }
+export interface ProcessExitState { previousMarker: ProcessExitMarker | null; currentSession: number; generation: number }
+type SessionContext = Context & { processExitReason?: ProcessExitCategory };
+type StoredProcessExitMarker = Dated<ProcessExitMarker>;
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 const failures: DiagnosticOutcome[] = ['failed', 'blocked', 'partial', 'interrupted'];
+const validProcessExitToken = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{32}$/.test(value);
+const validSession = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value > 0 && value <= 1e12;
 const cleanCounters = (value: unknown) => {
   const result: Partial<Record<typeof counterNames[number], Counter>> = {}, source = object(value);
   for (const key of counterNames) if (source[key]) { const c = object(source[key]); result[key] = { calls: number(c.calls), failures: number(c.failures), milliseconds: number(c.milliseconds) }; }
@@ -56,6 +64,11 @@ const cleanContext = (value: unknown): Context => {
   if(member(['development','release'],raw.buildMode))next.buildMode=raw.buildMode;
   return next;
 };
+const cleanSessionContext = (value: unknown): SessionContext => {
+  const context = cleanContext(value), raw = object(value);
+  if (member(processExitCategories, raw.processExitReason)) return { ...context, processExitReason: raw.processExitReason };
+  return context;
+};
 
 export class DiagnosticJournal {
   private entries: Dated<DiagnosticEntry>[] = [];
@@ -69,7 +82,8 @@ export class DiagnosticJournal {
   private currentScreen: typeof journeyTargets[number] | null = null;
   private lastCheckpointWrite = -Infinity;
   private context: Context = {};
-  private contexts: Dated<{session:number;context:Context}>[]=[];
+  private contexts: Dated<{session:number;context:SessionContext}>[]=[];
+  private processExitMarker: StoredProcessExitMarker | null = null;
   private listeners = new Set<() => void>();
   private storage: Storage | null = null;
   private timer: ReturnType<typeof setTimeout> | undefined;
@@ -86,6 +100,39 @@ export class DiagnosticJournal {
   private date(value: unknown, legacy = false) {
     const date = legacy ? this.wall() : number(value, Number.MAX_SAFE_INTEGER);
     return date <= this.wall() && date > this.wall() - DIAGNOSTIC_RETENTION_MS ? date : null;
+  }
+  private cleanProcessExitMarker(value: unknown): StoredProcessExitMarker | null {
+    const raw = object(value), retainedAt = this.date(raw.retainedAt);
+    if (!validProcessExitToken(raw.token) || !validSession(raw.session) || retainedAt === null) return null;
+    return { token: raw.token, session: raw.session, retainedAt };
+  }
+  processExitState(): ProcessExitState {
+    const marker = this.processExitMarker;
+    const previousMarker = marker && marker.session === this.session - 1 && this.date(marker.retainedAt) !== null
+      ? { token: marker.token, session: marker.session }
+      : null;
+    return { previousMarker, currentSession: this.session, generation: this.clearVersion };
+  }
+  recordProcessExit(previousMarker: ProcessExitMarker | null, currentToken: string, observation: unknown, expectedClearVersion: number): void {
+    if (expectedClearVersion !== this.clearVersion) return;
+    const observed = object(observation), categoryValid = member(processExitCategories, observed.category), registrationValid = typeof observed.registered === 'boolean';
+    const registered = registrationValid && observed.registered === true, category: ProcessExitCategory = registrationValid && categoryValid ? observed.category as ProcessExitCategory : 'unknown';
+    const stored = this.processExitMarker;
+    const priorMatches = previousMarker !== null && validProcessExitToken(previousMarker.token) && validSession(previousMarker.session) &&
+      stored !== null && stored.session === this.session - 1 && this.date(stored.retainedAt) !== null &&
+      previousMarker.token === stored.token && previousMarker.session === stored.session;
+    if (priorMatches) {
+      const previousSession = previousMarker.session;
+      const existing = [...this.contexts].reverse().find(context => context.session === previousSession);
+      if (existing) {
+        existing.context = { ...existing.context, processExitReason: category };
+        this.sizes.delete(existing);
+      } else this.contexts.push({ session: previousSession, context: { processExitReason: category }, retainedAt: this.wall() });
+    }
+    this.processExitMarker = registered && categoryValid && validProcessExitToken(currentToken)
+      ? { token: currentToken, session: this.session, retainedAt: this.wall() }
+      : null;
+    this.changed(true);
   }
   private cleanEntry(value: unknown, legacy: boolean): Dated<DiagnosticEntry> | null {
     const raw = object(value), retainedAt = this.date(raw.retainedAt, legacy);
@@ -108,7 +155,7 @@ export class DiagnosticJournal {
     }
     const observedState: ObservedState={}, states=object(raw.observedState);
     for(const key of stateNames)if(member(stateValues,states[key]))observedState[key]=states[key];
-    return { sequence: number(raw.sequence, 1e12), session: number(raw.session, 1e12), action: raw.action, outcome: raw.outcome === 'running' ? 'interrupted' : raw.outcome,
+    return { sequence: number(raw.sequence, 1e12), session: validSession(raw.session) ? raw.session : 0, action: raw.action, outcome: raw.outcome === 'running' ? 'interrupted' : raw.outcome,
       code: raw.outcome === 'running' ? 'interrupted' : member(diagnosticCodes, raw.code) ? raw.code : 'none', milliseconds: number(raw.milliseconds), trigger: raw.trigger === 'user' ? 'user' : 'automatic', offset: number(raw.offset),
       ...(typeof raw.droppedCheckpoints === 'number' && raw.droppedCheckpoints > 0 ? {droppedCheckpoints:number(raw.droppedCheckpoints)} : {}),
       ...(typeof object(raw.relatedOperation).session === 'number' && typeof object(raw.relatedOperation).sequence === 'number' ?
@@ -117,7 +164,7 @@ export class DiagnosticJournal {
   }
   private cleanEvent(value: unknown): Dated<JourneyEvent> | null {
     const raw = object(value), retainedAt = this.date(raw.retainedAt);
-    return retainedAt !== null && member(journeyKinds, raw.kind) && member(journeyTargets, raw.target) ? { sequence: number(raw.sequence, 1e12), session: number(raw.session, 1e12), offset: number(raw.offset), kind: raw.kind, target: raw.target, retainedAt } : null;
+    return retainedAt !== null && member(journeyKinds, raw.kind) && member(journeyTargets, raw.target) ? { sequence: number(raw.sequence, 1e12), session: validSession(raw.session) ? raw.session : 0, offset: number(raw.offset), kind: raw.kind, target: raw.target, retainedAt } : null;
   }
   connect(storage: Storage) {
     if (this.storage) return; this.storage = storage;
@@ -134,19 +181,24 @@ export class DiagnosticJournal {
           const preceding = array(raw.preceding).slice(-12).map(v => this.cleanEvent(v)).filter((v): v is Dated<JourneyEvent> => v !== null);
           preserved.push({ operation, preceding, retainedAt });
         }
-        const contexts:Dated<{session:number;context:Context}>[]=[];
-        for(const value of array(parsed.sessions).slice(-32)){const raw=object(value),retainedAt=this.date(raw.retainedAt);if(retainedAt!==null)contexts.push({session:number(raw.session,1e12),context:cleanContext(raw.context),retainedAt});}
+        const contexts:Dated<{session:number;context:SessionContext}>[]=[];
+        for(const value of array(parsed.sessions).slice(-32)){const raw=object(value),retainedAt=this.date(raw.retainedAt);if(retainedAt!==null&&validSession(raw.session))contexts.push({session:raw.session,context:cleanSessionContext(raw.context),retainedAt});}
         let seq = 0, session = 0;
         for(const value of contexts)session=Math.max(session,value.session);
         for (const value of [...loaded, ...events, ...preserved.map(f => f.operation)]) { seq = Math.max(seq, value.sequence); session = Math.max(session, value.session); }
+        const loadedMarker = parsed.version === 2 ? this.cleanProcessExitMarker(parsed.processExitMarker) : null;
+        const retainedMarker = loadedMarker?.session === session ? loadedMarker : null;
         for (const entry of loaded) if (entry.sequence === 0) entry.sequence = ++seq;
         for (const entry of this.entries) { entry.sequence += seq; entry.session += session; if(entry.relatedOperation){entry.relatedOperation.session+=session;entry.relatedOperation.sequence+=seq;} this.sizes.delete(entry); }
         for (const event of this.events) { event.sequence += seq; event.session += session; this.sizes.delete(event); }
         for(const failure of this.protectedFailures){failure.operation.sequence+=seq;failure.operation.session+=session;for(const event of failure.preceding){event.sequence+=seq;event.session+=session;}this.sizes.delete(failure);}
         for(const context of this.contexts){context.session+=session;this.sizes.delete(context);}
+        const localMarker = this.processExitMarker;
+        if (localMarker) localMarker.session += session;
         this.sequence += seq; this.session += session;
         this.contexts=[...contexts,...this.contexts];
         this.entries = [...loaded, ...this.entries]; this.events = [...events, ...this.events]; this.protectedFailures = [...preserved,...this.protectedFailures];
+        this.processExitMarker = localMarker ?? retainedMarker;
         for (const entry of loaded) if (failures.includes(entry.outcome)&&!this.protectedFailures.some(f=>f.operation.sequence===entry.sequence&&f.operation.session===entry.session)) this.protect(entry);
       }
     } catch { this.storageFailed = true; }
@@ -163,6 +215,7 @@ export class DiagnosticJournal {
     this.entries = this.trim(this.entries, 600, 240_000); this.events = this.trim(this.events, 2000, 180_000); this.protectedFailures = this.trim(this.protectedFailures, 5, 48_000);
     for(const failure of this.protectedFailures){const fresh=failure.preceding.filter(event=>this.date(object(event).retainedAt)!==null);if(fresh.length!==failure.preceding.length){failure.preceding=fresh;this.sizes.delete(failure);}}
     this.contexts=this.trim(this.contexts,32,8000);
+    if(this.processExitMarker&&this.date(this.processExitMarker.retainedAt)===null)this.processExitMarker=null;
     for (const entry of this.starts.keys()) if (!this.entries.includes(entry as Dated<DiagnosticEntry>)) this.starts.delete(entry);
   }
   private view(entry: DiagnosticEntry): DiagnosticEntry {
@@ -201,7 +254,7 @@ export class DiagnosticJournal {
     const copy = clone(entry); this.protectedFailures = this.protectedFailures.filter(f => f!==old);
     this.protectedFailures.push({ operation: copy, preceding: old?.preceding??clone(this.events.filter(e=>e.sequence<=entry.sequence).slice(-12)), retainedAt: entry.retainedAt });
   }
-  clear() { this.clearVersion++; this.exportClearFailed=false; this.entries = []; this.events = []; this.protectedFailures = []; this.contexts=[]; this.starts.clear();
+  clear() { this.clearVersion++; this.exportClearFailed=false; this.entries = []; this.events = []; this.protectedFailures = []; this.contexts=[]; this.processExitMarker=null; this.starts.clear();
     try { const result = this.storage?.clearExport?.(); if (result) void result.catch(() => { this.exportClearFailed=true;this.storageFailed = true; this.emit(); }); } catch { this.exportClearFailed=true;this.storageFailed = true; }
     this.changed(true);
   }
@@ -257,7 +310,7 @@ export class DiagnosticJournal {
     this.timer = undefined; this.prune();
     // Retention timestamps remain private to storage and never enter exported reports.
     const entries = this.entries.map(entry => ({ ...this.view(entry), retainedAt: entry.retainedAt }));
-    this.pending = JSON.stringify({ version: 2, entries, events: this.events, failures: this.protectedFailures, sessions:this.contexts });
+    this.pending = JSON.stringify({ version: 2, entries, events: this.events, failures: this.protectedFailures, sessions:this.contexts, ...(this.processExitMarker ? {processExitMarker:this.processExitMarker} : {}) });
     if (utf8Bytes(this.pending) > DIAGNOSTIC_FILE_BYTES) { this.storageFailed = true; this.pending = null; this.emit(); return; }
     this.drain();
   }
