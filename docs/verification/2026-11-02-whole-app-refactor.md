@@ -70,7 +70,7 @@ The two retained controller active durations (92.25 s and 215.141 s) include mod
 
 ## Continued implementation — owner correction
 
-The owner explicitly required continuous work until completion after the first delivery. Tracking #114 remains active through the following concrete packages, rather than treating a review report/first APK as completion:
+The owner explicitly required continuous work until completion after the first delivery. The following continuation packages are now implemented and checked; the initial delivery above is retained as source-specific history:
 
 - AI current-context fences now share the original flight/source-review validation, without building aliases, detached source maps and tool/display rows that the fence discards. No cache or generation-only shortcut; fresh owner/store/recovery/source checks remain. Same-generation valid edits retain prior behavior, while malformed/conflicting evidence is still rejected. Focused 54/54 checks pass.
 - The financial adapter returns its already validated, detached raw receipts with its interpreted snapshot, removing a second native archive validation. Existing exact raw/evidence inventory gates remain. React memoization retains monthly comparisons while selecting another month in the same source/year. Initial focused regression compared newest-first history to ascending archive order; corrected the assertion to the documented sequence ordering, without changing application behavior.
@@ -82,15 +82,31 @@ The owner explicitly required continuous work until completion after the first d
 
 The separate owner-directed #116 redesign branch remains isolated and is not merged by this main refactor. No service provisioning, paid model/CI call, new dependency, storage/schema change or invented operator data follows.
 
-**Stable host checkpoint:** `build/host-checks/20261102T121816Z-708fa29e` passes all five checks. A subsequent status-copy correction retains important AI local/service notices while disabled; only affected presentation tests/lint are repeated. One committed-source native checkpoint follows for the stable app; completed first-wave evidence remains source-specific.
+**Stable host checkpoint:** `build/host-checks/20261102T121816Z-708fa29e` passes all five checks. A subsequent status-copy correction retains important AI local/service notices while disabled; only affected presentation tests/lint are repeated. Completion evidence below supersedes the earlier pending UI matrix; completed first-wave evidence remains source-specific.
 
 ## Feature gates outside this refactor
 
 - #13/#72–79: actual AI service activation/evaluation remains gated by service/input/cohort/funding choices; context validation refactoring is implemented above.
-- #101: financial read sharing and coverage disclosure refinements are implemented; ordinary live/source/restore and broader device acceptance retain their existing gates.
-- #94/#9: count/time comparisons, discoverable Club sections and progressive chart detail are implemented; affected native inspection follows in the completion checkpoint.
-- #29/#34/#101: actual preserved same-file aggregate resume, exact re-export, update and ordinary recovery acceptance remain open; do not erase pending operations.
+- #101: financial read sharing and coverage disclosure refinements are implemented; current saved-data offline restart passes below; live retry and broader device acceptance retain their existing gates.
+- #94/#9: count/time comparisons, discoverable Club sections and progressive chart detail are implemented; affected native inspection is complete within the cases below.
+- #29/#34/#101: historical same-operation aggregate resume and exact six-section re-export are now reconciled as passed below; live retry, broader recovery/settings inventory and phone/iOS remain open.
 - **Owner decision, 2 November:** keep the unfinished Flugbuch main tab with its preparation notice. Current implementation already matches; no navigation change is required.
 - Existing beta decisions: operator/audience and privacy/distribution facts (#21/#97/#98), plus explicit live-AI service/input/funding scope (#13/#72–79). This review does not authorize spending or invent those facts.
 
 Each remaining package stays with its matching Issue. Review findings are not completion of open umbrella Issues or acceptance of unexecuted device/provider/model checks.
+
+## Completed review and final delivery — 2 November
+
+Application source **7c425980ed216167bebc4dd07707b8400dfec788** completes the authorized local review/refactor package. Continuation commits 4207ae4/0d34ca2/604c8de/da90f52 simplify AI/financial reads, tighten bounded UI tooling and improve charts, Club, Costs, Help and disabled AI interactions. 659ae92 corrects the compact Club document heading. Native testing then exposed #118: account-source resolution remounted Statistics and lost Costs intent. 55a3887/7c42598 keep generic selection in the parent while preserving authoritative account/data resets, wait for source loading and provide a local-read retry. The regression failed before the fix; **72 focused tests, TypeScript and lint pass** after it.
+
+The shared stable host checkpoint above passes **5/5: 2,160 mobile tests passed / two skipped; Python 163 tests / 16 skipped**, types, lint and fixture parity. This is package evidence, not a claim of a full suite rerun at the final SHA. Later focused checks cover the changed behavior. Final-source Android Release and iOS export pass; an export does not establish iOS runtime acceptance.
+
+[Sanitized native evidence](2026-11-02-refactor-completion-native.json): da90f52 MAIN actual count/time comparisons, Costs hero, annual reconciliation/detail and contextual Back pass. MIN360x900/font1.6 and WIDE800x600/font1 reach actual Statistics/Costs after route re-entry; parent inspection confirms readable affected content and bounded wide layouts. Help opens the real offline PIC article and returns to its same flight detail; all six Club sections are discoverable; AI Send is disabled with its local-service notice. 659ae92's corrected Documents heading passes the affected-screen inspection. These unchanged visuals are reused at final source, without repeating the matrix for the isolated navigation/loading fix. The first MAIN controller had three unmatched selector attempts, the matrix two; later Help/Club sessions had none. All four restore display/network/install identity without cleanup errors.
+
+**Actual saved-data offline restart:** the initial 659ae92 trial failed by returning to Flights, exposing #118; the observation is retained. At verified installed 7c42598, force-stop/restart with airplane mode on and Wi-Fi/mobile off returns to saved annual Costs with identical period, subtotal and contributor count, in a new process. Original radios/display are restored. This proves visible local saved-data behavior, not full hidden-graph equivalence or live retrieval. Both originally stopped emulators are shut down after checks; no clear/reset, new login, financial capture/write, provider retry or model call.
+
+Read-only reconciliation also found that the retained **31 October local-time** aggregate resume and SAF re-export already passed. Independent private-payload comparison confirms all six sections identical; [sanitized reconciliation](2026-11-02-financial-restore-reconciliation.json) states historical installed-source attribution limits. The subsequent live retry reported source/access refusal and remains unresolved; do not repeat a completed restore or claim current live-provider acceptance.
+
+[Final APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-refactor-complete-2026-11-02-7c42598/MoFlight-Review-7c42598.zip), actual source **7c425980ed216167bebc4dd07707b8400dfec788**, APK SHA-256 **24f92b79ad727690a344bc61dbb411b5369cf03e8c3e31bcde7753d3d2ef6293**. Only intended APK and sanitized build metadata. The earlier rollback and candidate remain available. [Publication/download verification](2026-11-02-refactor-release.json) confirms identical ZIP bytes, exact inventory, embedded source and APK hash.
+
+The local review is complete, with improvements implemented in traceable commits. Remaining work is scoped in existing Issues: live source retry/coverage and broader recovery acceptance, physical-phone/iOS beta checks, paper/cloud workflows, and owner/operator/privacy/service/funding decisions. These are unfinished product or external acceptance gates, not an unimplemented continuation of this refactor. No beta-wide acceptance is claimed. Timing ledger includes failures and tooling overhead, preserves pre-existing dirty historical additions and makes no unmatched speedup claim.

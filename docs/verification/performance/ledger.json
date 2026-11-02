@@ -50544,6 +50544,239 @@
           }
         }
       ]
+    },
+    {
+      "id": "refactor-completion-main-20261102",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "da90f525c5e6618e592789fbd998a2d39ebda9ed",
+      "apk_sha256": "494b49f0b41fae37f8b1073340849885976e0aea8eb82570697f9a86fd01263c",
+      "device": "MoFlight_Synthetic_API37 API37 x86_64, dark",
+      "input": "Existing local saved data or synthetic UI; no new model/provider request.",
+      "conditions": "Viewport-specific UI controller; display/network/identity restored.",
+      "method": "Bounded UI/ADB observer wall-clock; includes waits and observation overhead.",
+      "limits": "Single source-specific observations; not app latency or comparable speedup. Historical source attribution is limited as recorded in evidence.",
+      "evidence": [
+        "docs\\verification\\2026-11-02-refactor-completion-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 207703.9999999106,
+          "outcome": "partial",
+          "details": {
+            "actions": 38,
+            "captures": 4,
+            "action_errors": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "refactor-completion-matrix-20261102",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "da90f525c5e6618e592789fbd998a2d39ebda9ed",
+      "apk_sha256": "494b49f0b41fae37f8b1073340849885976e0aea8eb82570697f9a86fd01263c",
+      "device": "MoFlight_Synthetic_API37 API37 x86_64, dark",
+      "input": "Existing local saved data or synthetic UI; no new model/provider request.",
+      "conditions": "Viewport-specific UI controller; display/network/identity restored.",
+      "method": "Bounded UI/ADB observer wall-clock; includes waits and observation overhead.",
+      "limits": "Single source-specific observations; not app latency or comparable speedup. Historical source attribution is limited as recorded in evidence.",
+      "evidence": [
+        "docs\\verification\\2026-11-02-refactor-completion-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 212703.00000021234,
+          "outcome": "partial",
+          "details": {
+            "actions": 40,
+            "captures": 4,
+            "action_errors": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "refactor-completion-help-20261102",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "da90f525c5e6618e592789fbd998a2d39ebda9ed",
+      "apk_sha256": "494b49f0b41fae37f8b1073340849885976e0aea8eb82570697f9a86fd01263c",
+      "device": "MoFlight_Synthetic_API37 API37 x86_64, dark",
+      "input": "Existing local saved data or synthetic UI; no new model/provider request.",
+      "conditions": "Viewport-specific UI controller; display/network/identity restored.",
+      "method": "Bounded UI/ADB observer wall-clock; includes waits and observation overhead.",
+      "limits": "Single source-specific observations; not app latency or comparable speedup. Historical source attribution is limited as recorded in evidence.",
+      "evidence": [
+        "docs\\verification\\2026-11-02-refactor-completion-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 182766.00000006147,
+          "outcome": "success",
+          "details": {
+            "actions": 32,
+            "captures": 3,
+            "action_errors": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "refactor-final-club-20261102",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "659ae924bac2947ef547c859174a9b4ff924fb77",
+      "apk_sha256": "0bd22b9949d1f6426bf98cb1ced3b30a7ee9d6782b4a1d1060eba5297e0e30b6",
+      "device": "MoFlight_Synthetic_API37 API37 x86_64, dark",
+      "input": "Existing local saved data or synthetic UI; no new model/provider request.",
+      "conditions": "Viewport-specific UI controller; display/network/identity restored.",
+      "method": "Bounded UI/ADB observer wall-clock; includes waits and observation overhead.",
+      "limits": "Single source-specific observations; not app latency or comparable speedup. Historical source attribution is limited as recorded in evidence.",
+      "evidence": [
+        "docs\\verification\\2026-11-02-refactor-completion-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 63406.00000019185,
+          "outcome": "success",
+          "details": {
+            "actions": 8,
+            "captures": 1,
+            "action_errors": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "saved-costs-offline-20261102-initial",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-live",
+      "source_commit": "659ae924bac2947ef547c859174a9b4ff924fb77",
+      "apk_sha256": "0bd22b9949d1f6426bf98cb1ced3b30a7ee9d6782b4a1d1060eba5297e0e30b6",
+      "device": "MoFlight_API37 API37 x86_64,480x800dp density160 font1,dark",
+      "input": "Existing local saved data or synthetic UI; no new model/provider request.",
+      "conditions": "Offline process restart; original radios/display restored. No live retrieval.",
+      "method": "Bounded UI/ADB observer wall-clock; includes waits and observation overhead.",
+      "limits": "Single source-specific observations; not app latency or comparable speedup. Historical source attribution is limited as recorded in evidence.",
+      "evidence": [
+        "docs\\verification\\2026-11-02-refactor-completion-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "baseline",
+          "metric": "saved-costs-baseline",
+          "milliseconds": 2193.0124999489635,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "offline-reopen",
+          "metric": "saved-costs-offline-reopen",
+          "milliseconds": 130778.97739992477,
+          "outcome": "failed",
+          "details": {}
+        },
+        {
+          "id": "restore-radios",
+          "metric": "saved-costs-restore-radios",
+          "milliseconds": 1153.8410999346524,
+          "outcome": "success",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "id": "saved-costs-offline-20261102-corrected",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-live",
+      "source_commit": "7c425980ed216167bebc4dd07707b8400dfec788",
+      "apk_sha256": "24f92b79ad727690a344bc61dbb411b5369cf03e8c3e31bcde7753d3d2ef6293",
+      "device": "MoFlight_API37 API37 x86_64,480x800dp density160 font1,dark",
+      "input": "Existing local saved data or synthetic UI; no new model/provider request.",
+      "conditions": "Offline process restart; original radios/display restored. No live retrieval.",
+      "method": "Bounded UI/ADB observer wall-clock; includes waits and observation overhead.",
+      "limits": "Single source-specific observations; not app latency or comparable speedup. Historical source attribution is limited as recorded in evidence.",
+      "evidence": [
+        "docs\\verification\\2026-11-02-refactor-completion-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "baseline",
+          "metric": "saved-costs-baseline",
+          "milliseconds": 2151.4222000259906,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "offline-reopen",
+          "metric": "saved-costs-offline-reopen",
+          "milliseconds": 47681.861999910325,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "restore-radios",
+          "metric": "saved-costs-restore-radios",
+          "milliseconds": 527.4989998433739,
+          "outcome": "success",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "id": "financials-31oct-eeda7a0-reconciled",
+      "recorded_date": "2026-10-31",
+      "kind": "emulator-live",
+      "source_commit": "eeda7a063fb5266b89cf306d6ad9b937946b0496",
+      "apk_sha256": "66397c7ff1bffcbcd097e0815a6ee79af566f5fb31d7639e2a360a8914053eea",
+      "device": "MoFlight_API37 API37 x86_64,480x800dp density160 font1,dark",
+      "input": "Existing local saved data or synthetic UI; no new model/provider request.",
+      "conditions": "Historical preserved operation resume/re-export and cancellation. Later retry failed source/access; no completed duration available for failure or exact comparison.",
+      "method": "Bounded UI/ADB observer wall-clock; includes waits and observation overhead.",
+      "limits": "Single source-specific observations; not app latency or comparable speedup. Historical source attribution is limited as recorded in evidence.",
+      "evidence": [
+        "docs\\verification\\2026-11-02-financial-restore-reconciliation.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "ordinary-v5-same-operation-resume",
+          "metric": "ordinary-v5-same-operation-resume",
+          "milliseconds": 77578.56189995073,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "ordinary-v5-saf-save",
+          "metric": "ordinary-v5-saf-save",
+          "milliseconds": 101221.67849983089,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "cancel",
+          "metric": "financial-update-cancellation",
+          "milliseconds": 37997.86250013858,
+          "outcome": "success",
+          "details": {}
+        }
+      ]
     }
   ]
 }

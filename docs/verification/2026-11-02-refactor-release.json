@@ -1,0 +1,12 @@
+{
+  "source_commit": "7c425980ed216167bebc4dd07707b8400dfec788",
+  "apk_sha256": "24f92b79ad727690a344bc61dbb411b5369cf03e8c3e31bcde7753d3d2ef6293",
+  "zip_sha256": "dfeca2ec0422acfbab1c223779335e939d23fe919f6943a377b4ad48cf46613c",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "release_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-refactor-complete-2026-11-02-7c42598"
+}

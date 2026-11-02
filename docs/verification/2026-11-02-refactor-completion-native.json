@@ -1,0 +1,181 @@
+{
+  "sessions": [
+    {
+      "id": "refactor-completion-main-20261102",
+      "application_commit": "da90f525c5e6618e592789fbd998a2d39ebda9ed",
+      "apk_sha256": "494b49f0b41fae37f8b1073340849885976e0aea8eb82570697f9a86fd01263c",
+      "avd": "MoFlight_Synthetic_API37",
+      "android_api": "37",
+      "actions_used": 38,
+      "captures_used": 4,
+      "active_elapsed_seconds": 207.7039999999106,
+      "action_error_count": 3,
+      "restoration": {
+        "display_restored": true,
+        "network_restored": true,
+        "install_identity_preserved": true,
+        "cleanup_errors_absent": true
+      }
+    },
+    {
+      "id": "refactor-completion-matrix-20261102",
+      "application_commit": "da90f525c5e6618e592789fbd998a2d39ebda9ed",
+      "apk_sha256": "494b49f0b41fae37f8b1073340849885976e0aea8eb82570697f9a86fd01263c",
+      "avd": "MoFlight_Synthetic_API37",
+      "android_api": "37",
+      "actions_used": 40,
+      "captures_used": 4,
+      "active_elapsed_seconds": 212.70300000021234,
+      "action_error_count": 2,
+      "restoration": {
+        "display_restored": true,
+        "network_restored": true,
+        "install_identity_preserved": true,
+        "cleanup_errors_absent": true
+      }
+    },
+    {
+      "id": "refactor-completion-help-20261102",
+      "application_commit": "da90f525c5e6618e592789fbd998a2d39ebda9ed",
+      "apk_sha256": "494b49f0b41fae37f8b1073340849885976e0aea8eb82570697f9a86fd01263c",
+      "avd": "MoFlight_Synthetic_API37",
+      "android_api": "37",
+      "actions_used": 32,
+      "captures_used": 3,
+      "active_elapsed_seconds": 182.76600000006147,
+      "action_error_count": 0,
+      "restoration": {
+        "display_restored": true,
+        "network_restored": true,
+        "install_identity_preserved": true,
+        "cleanup_errors_absent": true
+      }
+    },
+    {
+      "id": "refactor-final-club-20261102",
+      "application_commit": "659ae924bac2947ef547c859174a9b4ff924fb77",
+      "apk_sha256": "0bd22b9949d1f6426bf98cb1ced3b30a7ee9d6782b4a1d1060eba5297e0e30b6",
+      "avd": "MoFlight_Synthetic_API37",
+      "android_api": "37",
+      "actions_used": 8,
+      "captures_used": 1,
+      "active_elapsed_seconds": 63.40600000019185,
+      "action_error_count": 0,
+      "restoration": {
+        "display_restored": true,
+        "network_restored": true,
+        "install_identity_preserved": true,
+        "cleanup_errors_absent": true
+      }
+    }
+  ],
+  "owner_offline_restart": {
+    "operation": "saved-costs-offline-process-restart",
+    "outcome": "passed",
+    "recorded_at_utc": "2026-11-02T13:07:22.242025+00:00",
+    "source_commit": "7c425980ed216167bebc4dd07707b8400dfec788",
+    "apk_sha256": "24f92b79ad727690a344bc61dbb411b5369cf03e8c3e31bcde7753d3d2ef6293",
+    "observations": [
+      {
+        "id": "baseline",
+        "milliseconds": 2151.4222000259906,
+        "outcome": "success",
+        "endpoint": "Already visible idle saved Costs period and known subtotal/contributors captured.",
+        "completed_at_utc": "2026-11-02T13:07:26.096317+00:00"
+      },
+      {
+        "id": "offline-reopen",
+        "milliseconds": 47681.861999910325,
+        "outcome": "success",
+        "endpoint": "Force-stop through fully offline app restart, same local period and visible known subtotal/contributors.",
+        "completed_at_utc": "2026-11-02T13:08:14.432496+00:00"
+      },
+      {
+        "id": "restore-radios",
+        "milliseconds": 527.4989998433739,
+        "outcome": "success",
+        "endpoint": "Original airplane/Wi-Fi/mobile-data settings restored and read back.",
+        "completed_at_utc": "2026-11-02T13:08:14.960883+00:00"
+      }
+    ],
+    "limits": [
+      "UI plus explicit root idle-state assertion cannot independently inspect hidden jobs.",
+      "Local saved-data acceptance only; no live retry, phone or iOS acceptance."
+    ],
+    "installed_apk_matches_metadata": true,
+    "environment": {
+      "avd": "MoFlight_API37",
+      "display": {
+        "size": "Physical size: 1080x1920\nOverride size: 480x800",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font_scale": "1.0",
+        "rotation": "0",
+        "auto_rotation": "1"
+      }
+    },
+    "equal": {
+      "period": true,
+      "amount": true,
+      "contributors": true
+    },
+    "new_process": true,
+    "radios_off_during_reopen": true,
+    "original_radios_restored": true,
+    "display_unchanged": true
+  },
+  "earlier_failed_offline_restart": {
+    "operation": "saved-costs-offline-process-restart",
+    "outcome": "failed",
+    "recorded_at_utc": "2026-11-02T12:47:38.730024+00:00",
+    "source_commit": "659ae924bac2947ef547c859174a9b4ff924fb77",
+    "apk_sha256": "0bd22b9949d1f6426bf98cb1ced3b30a7ee9d6782b4a1d1060eba5297e0e30b6",
+    "observations": [
+      {
+        "id": "baseline",
+        "milliseconds": 2193.0124999489635,
+        "outcome": "success",
+        "endpoint": "Already visible idle saved Costs period and known subtotal/contributors captured.",
+        "completed_at_utc": "2026-11-02T12:47:42.697770+00:00"
+      },
+      {
+        "id": "offline-reopen",
+        "milliseconds": 130778.97739992477,
+        "outcome": "failed",
+        "endpoint": "Force-stop through fully offline app restart, same local period and visible known subtotal/contributors.",
+        "completed_at_utc": "2026-11-02T12:49:54.207275+00:00"
+      },
+      {
+        "id": "restore-radios",
+        "milliseconds": 1153.8410999346524,
+        "outcome": "success",
+        "endpoint": "Original airplane/Wi-Fi/mobile-data settings restored and read back.",
+        "completed_at_utc": "2026-11-02T12:49:55.360296+00:00"
+      }
+    ],
+    "limits": [
+      "UI plus explicit root idle-state assertion cannot independently inspect hidden jobs.",
+      "Local saved-data acceptance only; no live retry, phone or iOS acceptance."
+    ],
+    "installed_apk_matches_metadata": true,
+    "environment": {
+      "avd": "MoFlight_API37",
+      "display": {
+        "size": "Physical size: 1080x1920\nOverride size: 480x800",
+        "density": "Physical density: 420\nOverride density: 160",
+        "font_scale": "1.0",
+        "rotation": "0",
+        "auto_rotation": "1"
+      }
+    },
+    "failure_stage": "offline-restart",
+    "error_type": "AssertionError",
+    "original_radios_restored": true,
+    "display_unchanged": true
+  },
+  "limits": [
+    "Controller elapsed times include deliberation and observer overhead, not application latency.",
+    "Synthetic UI: MAIN390x900 font1, MIN360x900 font1.6, WIDE800x600 font1, density160, dark.",
+    "Owner saved-data check: annual2026 only; visible period/subtotal/contributor count equality, no hidden full-graph claim.",
+    "No current live retrieval, physical-phone, iOS runtime, light or spoken acceptance."
+  ]
+}

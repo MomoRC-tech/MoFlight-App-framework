@@ -1,0 +1,77 @@
+{
+  "review_date": "2026-11-02",
+  "method": "Read-only inspection of retained local reports, helper source and APK; independent in-memory comparison of the two private v5 archive payloads. No device, provider or private-data writes.",
+  "corrected_build": {
+    "source_commit": "eeda7a063fb5266b89cf306d6ad9b937946b0496",
+    "configuration": "Release",
+    "apk_sha256": "66397c7ff1bffcbcd097e0815a6ee79af566f5fb31d7639e2a360a8914053eea",
+    "artifact_matches_retained_build_log": true,
+    "build_log": "build/financials-completion-release-permit.log",
+    "installed_source_attribution": "Chronologically consistent with corrected build and resume helper; no retained installed-APK hash report was located. Do not claim independent installed-source verification."
+  },
+  "historical_environment": {
+    "device": "MoFlight_API37 emulator, Android API37 x86_64",
+    "logical_dp": "480x800",
+    "density_dpi": 160,
+    "font_scale": 1.0,
+    "theme": "dark",
+    "source": "build/financials-completion-native/original-device.json and historical ledger template"
+  },
+  "observations": [
+    {
+      "report": "build/financials-completion-native/resume-final/result.json",
+      "operation": "ordinary-v5-same-operation-resume",
+      "recorded_at_utc": "2026-10-30T23:14:09.790134+00:00",
+      "outcome": "passed",
+      "pending_gate_cleared": true,
+      "observer_polls": 22,
+      "milliseconds": 77578.56189995073
+    },
+    {
+      "report": "build/financials-completion-native/v5-save-3/result.json",
+      "operation": "ordinary-v5-saf-save",
+      "recorded_at_utc": "2026-10-30T23:15:42.591834+00:00",
+      "outcome": "passed",
+      "milliseconds": 101221.67849983089
+    },
+    {
+      "report": "build/financials-completion-native/v5-save-3/restore-comparison.json",
+      "operation": "actual-v5-native-restore-exact-preservation",
+      "recorded_at_utc": "2026-10-30T23:17:32.128794+00:00",
+      "outcome": "passed",
+      "independently_rechecked_2026_11_02": true,
+      "archive_versions": [5, 5],
+      "sections_identical": {
+        "financial": true,
+        "pilot": true,
+        "realFlights": true,
+        "information": true,
+        "ai": true,
+        "dutyTargets": true
+      }
+    }
+  ],
+  "remaining_acceptance": {
+    "cancel_then_live_retry": "final-collection-2/result.json records a successful cancellation sample but overall failure; no successful retry/return assertions.",
+    "financial_offline_restart": "offline-final.py exists but its result.json is absent; its expected final-collection-2/after.private.json is absent. The earlier d389d69 single-receipt offline proof remains distinct.",
+    "current_source": "No fresh runtime or installed-source comparison performed in this read-only review.",
+    "physical_phone_and_ios": "Not established by these emulator artifacts."
+  },
+  "performance_ledger_reconciliation": {
+    "existing_run_ids": [
+      "financials-30oct-0f418b8",
+      "financials-30oct-8a64dbf",
+      "financials-30oct-0ced0f9",
+      "financials-30oct-f5a46de",
+      "financials-30oct-fe95497",
+      "financials-30oct-2d6c970"
+    ],
+    "missing_observations_in_inspected_current_ledger": [
+      "resume-final success",
+      "v5-save-3 SAF save success",
+      "final-collection failure without completed sample",
+      "final-collection-2 successful cancellation sample and overall failed retry journey"
+    ],
+    "instruction": "Reconcile through the maintained append protocol with honest historical source-attribution limits; preserve and independently review pre-existing dirty ledger edits. Do not duplicate existing runs or infer new device measurements."
+  }
+}
