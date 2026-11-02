@@ -122,10 +122,16 @@ export type RealFlightReceiptRecovery =
  * Kept by the displayed view only, without an open database handle.
  */
 export class RealFlightDetailSource {
-  private readonly graph: RealFlightGraph;
-  constructor(graph: RealFlightGraph) { this.graph = realFlightClone(graph); }
-  sameEvidence(other: RealFlightDetailSource): boolean { return this === other || canonical(this.graph) === canonical(other.graph); }
-  detail(flightId: string): RealFlightDetail | null { return detailFromGraph(this.graph, flightId); }
+  private readonly graphText: string;
+  private graph: RealFlightGraph | null = null;
+  constructor(graph: RealFlightGraph) { this.graphText = canonical(graph); }
+  sameEvidence(other: RealFlightDetailSource): boolean { return this === other || this.graphText === other.graphText; }
+  detail(flightId: string): RealFlightDetail | null {
+    // Most snapshots only support exact view reuse. Parse their already-detached
+    // evidence on the first detail request, keeping full byte equality above.
+    this.graph ??= JSON.parse(this.graphText) as RealFlightGraph;
+    return detailFromGraph(this.graph, flightId);
+  }
 }
 
 function detailFromGraph(graph: RealFlightGraph, flightId: string): RealFlightDetail | null {

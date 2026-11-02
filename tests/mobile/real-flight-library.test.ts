@@ -565,9 +565,16 @@ test('displayed evidence owns its graph and exact reuse includes history beyond 
   const retained=new RealFlightDetailSource(graph),same=new RealFlightDetailSource(graph);
   const expected=retained.detail(flight.flightId);
   assert.equal(retained.sameEvidence(same),true);
+  assert.ok(expected);
+  const changedDetail=retained.detail(flight.flightId)!;
+  changedDetail.factHistory.length=0;
+  changedDetail.captures.length=0;
+  assert.deepEqual(retained.detail(flight.flightId),expected,'returned detail mutation cannot alter retained evidence');
   // Equal sizes/generation do not establish equal bytes or admitted evidence.
   graph.records[0]!.payload += ' ';
   assert.equal(retained.sameEvidence(new RealFlightDetailSource(graph)),false);
   graph.records.length=0;
   assert.deepEqual(retained.detail(flight.flightId),expected,'caller mutation cannot change retained evidence');
+  assert.deepEqual(same.detail(flight.flightId),expected,'caller mutation before the first detail cannot change retained evidence');
+  assert.equal(retained.sameEvidence(same),true,'detail reads cannot alter exact evidence equality');
 });
