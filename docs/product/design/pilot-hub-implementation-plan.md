@@ -47,7 +47,7 @@ Sources consulted 2 November: [Android navigation](https://developer.android.com
 - [x] Prepare a clearly synthetic visual review artifact; inspect compact and wide composition briefly.
 - [x] Run TypeScript and focused presentation/financial/navigation checks; fix affected failures. No full suite or native matrix at this stage.
 - [x] Update this plan, handbook, roadmap and one concise verification summary with actual results and limits.
-- [ ] Commit and push the branch; deliver review links.
+- [x] Commit and push the implementation branch; prepare review links. Application commit: `6428d51`.
 - [ ] Owner chooses/refines layout and palette. **Pending review, not an implementation blocker.**
 - [ ] Later, after design selection: scoped committed-source native/physical/iOS acceptance and optional APK handoff. No new APK is claimed in this package.
 
@@ -55,4 +55,4 @@ Sources consulted 2 November: [Android navigation](https://developer.android.com
 
 Final TypeScript passes. There are 91 focused passing checks: 26 retained financial/AI/preview checks, 62 updated shell checks and three new control/isolation checks. The shell checks caught and resolved flight-context clearing during module switches. Native leaf mocks and the source-rendered synthetic preview establish no native acceptance. Offline dependency installation completed from the local cache, without lifecycle scripts or network downloads. No native, provider, paid AI or hosted CI runs were requested.
 
-Final focused evidence and remaining limits are recorded in [the package report](../../verification/2026-11-02-pilot-hub.md). Existing domain/source tests are reused; new checks protect navigation and isolation behavior rather than freeze incidental spacing/text. Remaining work is source delivery followed by owner design selection; expanded native acceptance is deliberately deferred.
+Final focused evidence and remaining limits are recorded in [the package report](../../verification/2026-11-02-pilot-hub.md). Existing domain/source tests are reused; new checks protect navigation and isolation behavior rather than freeze incidental spacing/text. The [implementation branch](https://github.com/MomoRC-tech/MoFlight-App-framework/tree/codex/pilot-ui-redesign) is pushed; application commit `6428d51` is ready for design review. Remaining work is owner layout/color selection; expanded native acceptance is deliberately deferred.
