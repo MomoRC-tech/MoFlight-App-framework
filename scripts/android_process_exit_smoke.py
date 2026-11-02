@@ -8,6 +8,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import re
 import time
 
 from android_smoke import Smoke, PACKAGE
@@ -23,8 +24,15 @@ def save(smoke):
 def support_report(smoke):
     smoke.shell('am', 'start', '-W', '-n', PACKAGE + '/.MainActivity')
     smoke.tap_node(smoke.find('Profil & Einstellungen öffnen', attempts=40))
-    smoke.tap_node(smoke.find('Diagnose', resource='diagnostics-entry', scroll=True))
-    smoke.tap_node(smoke.find('Kurzbericht zum Kopieren', scroll=True))
+    for attempt in range(3):
+        tap_content(smoke, 'Diagnose', resource='diagnostics-entry')
+        try:
+            smoke.find('Diagnosebericht teilen', attempts=2)
+            break
+        except AssertionError:
+            if attempt == 2:
+                raise
+    tap_content(smoke, 'Kurzbericht zum Kopieren')
     node = smoke.find('MoFlight support diagnostics', scroll=True)
     report = json.loads(next(label for label in smoke.labels(node) if 'MoFlight support diagnostics' in label))
     assert report['context']['buildSource'] == os.environ['APK_SOURCE_COMMIT']
@@ -32,7 +40,22 @@ def support_report(smoke):
     text = json.dumps(report)
     assert 'processExitMarker' not in text and 'moflight-exit-v1:' not in text
     assert 'processExitReason' not in report['context'], 'A prior exit must not describe the current session'
+    (smoke.output / f'support-session-{current_session(report)}.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     return report
+
+
+def tap_content(smoke, text, resource=None):
+    # Accessibility may expose an entire row while only its top edge is visible.
+    # Keep its center clear of the fixed header/navigation before tapping.
+    height = int(re.findall(r'\d+x(\d+)', smoke.shell('wm', 'size'))[-1])
+    for _ in range(5):
+        node = smoke.find(text, resource=resource, scroll=True)
+        _, top, _, bottom = map(int, re.findall(r'\d+', node.get('bounds', '')))
+        if top >= height * .15 and bottom <= height * .94:
+            smoke.tap_node(node)
+            return
+        smoke.swipe(up=bottom > height * .94)
+    raise AssertionError('No unobscured target: ' + text)
 
 
 def current_session(report):
@@ -58,6 +81,7 @@ def execute(smoke):
     }.items()}
     smoke.report['samples'] = []
     try:
+        smoke.shell('am', 'force-stop', PACKAGE)
         before = support_report(smoke)
         # A fixed absent marker and a malformed marker exercise the real native
         # history reader; the synthetic-only log contains fixed categories only.
@@ -72,6 +96,7 @@ def execute(smoke):
             old_entries = {(e['session'], e['sequence']): (e['outcome'], e['code']) for e in before['entries']}
             smoke.shell('input', 'keyevent', 'KEYCODE_HOME')
             started = time.monotonic()
+            smoke.active_exit_probe = (trigger, started)
             broadcast(smoke, trigger)
             deadline = time.monotonic() + 45
             while smoke.shell('pidof', PACKAGE, check=False):
@@ -84,12 +109,15 @@ def execute(smoke):
             observation = next(s['context'].get('processExitReason') for s in after['sessions'] if s['session'] == prior)
             assert observation == expected, f'{trigger}: expected {expected}, observed {observation}'
             assert current_session(after) > prior
+            compared = 0
             for entry in after['entries']:
                 old = old_entries.get((entry['session'], entry['sequence']))
                 if old:
                     assert (entry['outcome'], entry['code']) == (('interrupted', 'interrupted') if old[0] == 'running' else old), 'Exit category changed an operation outcome'
-            smoke.report['checks'].append({'name': trigger, 'status': 'passed', 'category': observation, 'prior_session_only': True, 'operation_outcomes_preserved': True})
+                    compared += 1
+            smoke.report['checks'].append({'name': trigger, 'status': 'passed', 'category': observation, 'prior_session_only': True, 'compared_retained_operation_outcomes': compared})
             smoke.report['samples'].append({'trigger': trigger, 'milliseconds': round(elapsed, 3), 'outcome': 'success', 'metric': 'process-exit-proof-tooling'})
+            smoke.active_exit_probe = None
             save(smoke)
             before = after
     finally:
@@ -120,6 +148,10 @@ def main():
         smoke.report['error'] = str(error)
         raise
     finally:
+        active = getattr(smoke, 'active_exit_probe', None)
+        if active:
+            trigger, probe_started = active
+            smoke.report['samples'].append({'trigger': trigger, 'milliseconds': round((time.monotonic() - probe_started) * 1000, 3), 'outcome': 'failed', 'metric': 'process-exit-proof-tooling'})
         smoke.report['tooling_milliseconds'] = round((time.monotonic() - started) * 1000, 3)
         save(smoke)
 

@@ -49,7 +49,7 @@
 <a name="current-baseline--29-october-2026"></a>
 ## Current baseline — 2 November 2026
 
-**#48 process-exit diagnostics:** bounded local implementation selected under the issue-completion instruction; focused host checks pass, committed-source synthetic Android acceptance pending. [Contract, tests and remaining native gates](verification/2026-10-21-diagnostics.md#categorical-android-process-exit-adapter--2-november-2026-48). No UI/service/provider changes.
+**#48 process-exit diagnostics — completed:** bounded local adapter, host5/5, Release/both exports and five actual synthetic Android exit/history checks pass; prior-session-only categories, marker privacy and restored installation/settings are verified. [Source-specific results and remaining device limits](verification/2026-10-21-diagnostics.md#categorical-android-process-exit-adapter--2-november-2026-48). No UI/service/provider changes.
 
 **2 November navigation decision (#114):** Manuel retains Flugbuch as a main tab with its preparation notice. Do not move it to secondary navigation solely because the production paper workflow is unfinished.
 

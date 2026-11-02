@@ -1,5 +1,7 @@
 # MoFlight
 
+**2 November Android exit diagnostics (#48):** local prior-session crash/ANR/normal-exit categories, without telemetry or exported markers. Host5/5, Release/both exports and five actual synthetic Android checks pass. [Evidence and limits](docs/verification/2026-10-21-diagnostics.md#categorical-android-process-exit-adapter--2-november-2026-48) · [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-process-exit-2026-11-02-b391ae1/MoFlight-Process-Exit-b391ae1.zip), actual source b391ae18d61fcb1ac8bc35170f27eac84339d61f. The [durable/backup inventory](docs/architecture/local-first-implementation-plan.md#durable-data-and-portable-backup-inventory--22-october-2026) is reconciled with current v1–v5 code; remaining restore/beta decisions stay open.
+
 **2 November backlog package (#24/#123):** corrected compact Action font/viewport label paint and shared identical control geometry. Backup evidence reconciled under #29/#34; owner confirmed removal of obsolete #1/#9 criteria; both issues resumed. [Source-specific checks/limits](docs/verification/2026-11-02-backlog-execution.md) · [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-backlog-2026-11-02-8501e71/MoFlight-Backlog-8501e71.zip), actual source `8501e715e798757352650b5eb5216bcba249ef92`. Other issues remain open where criteria are unmet.
 
 **2 November selected UI package (#116/#122):** bare Start chart with merged header, compact Verein task menu and three local Assistant draft starters. Owner selected only Verein + starters from the experiment; five navigation destinations/current colors remain. [Evidence and limits](docs/verification/2026-11-02-selected-experiment-adoption.md) · [current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-selected-ui-2026-11-02-dbed486/MoFlight-Selected-UI-dbed486.zip), actual source `dbed486fe307dc66ad6a793379ec040442d0c748`.
@@ -37,7 +39,9 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 ## Current delivery
 
-**Backlog fixes: [download current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-backlog-2026-11-02-8501e71/MoFlight-Backlog-8501e71.zip)**, source `8501e715e798757352650b5eb5216bcba249ef92`. [Evidence](docs/verification/2026-11-02-backlog-execution.md).
+**Local Android exit diagnostics: [download current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-process-exit-2026-11-02-b391ae1/MoFlight-Process-Exit-b391ae1.zip)**, source b391ae18d61fcb1ac8bc35170f27eac84339d61f. [Checks and limits](docs/verification/2026-10-21-diagnostics.md#categorical-android-process-exit-adapter--2-november-2026-48).
+
+**Earlier backlog fixes: [download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-backlog-2026-11-02-8501e71/MoFlight-Backlog-8501e71.zip)**, source `8501e715e798757352650b5eb5216bcba249ef92`. [Evidence](docs/verification/2026-11-02-backlog-execution.md).
 
 **Earlier selected UI: [download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-selected-ui-2026-11-02-dbed486/MoFlight-Selected-UI-dbed486.zip)**, actual source `dbed486fe307dc66ad6a793379ec040442d0c748`. [Checks/remaining limits](docs/verification/2026-11-02-selected-experiment-adoption.md).
 
