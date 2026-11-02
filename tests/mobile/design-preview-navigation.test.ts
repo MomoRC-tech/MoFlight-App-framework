@@ -53,6 +53,14 @@ test('Verein preview selects actual source components with synthetic data and pr
  const retained=nodes(render()).find(n=>n.type==='StatisticsOverlay')!;assert.equal(retained.props.initialSection,'roles');assert.equal(retained.props.data.detail,overlay.props.data.detail);
  help.props.onReturn();assert.equal(nodes(render()).some(n=>n.type==='HelpScreen'),false);assert.equal(nodes(render()).find(n=>n.type==='StatisticsOverlay')!.props.initialSection,'roles');
  overlay.props.onClose();assert.ok(nodes(render()).some(n=>n.type==='Dashboard'));
+ nodes(render()).find(n=>n.type==='Action'&&n.children.includes('Cockpit'))!.props.onPress();
+ let cockpit=nodes(render()).find(n=>n.type==='CockpitPreview')!;
+ cockpit.props.onStatistics(2026,'overview','monthly');
+ let monthly=nodes(render()).find(n=>n.type==='StatisticsOverlay')!;assert.equal(monthly.props.initialChart,'monthly');
+ monthly.props.onClose();assert.ok(nodes(render()).some(n=>n.type==='CockpitPreview'),'toolbar return restores the Cockpit caller');
+ cockpit=nodes(render()).find(n=>n.type==='CockpitPreview')!;cockpit.props.onStatistics(2026,'overview','monthly');
+ monthly=nodes(render()).find(n=>n.type==='StatisticsOverlay')!;monthly.props.onBackHandler(()=>false);
+ render();assert.equal(hardwareBack!(),true);assert.ok(nodes(render()).some(n=>n.type==='CockpitPreview'),'native Back also restores the Cockpit caller');
 });
 
 

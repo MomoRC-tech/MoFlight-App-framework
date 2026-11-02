@@ -90,8 +90,7 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
         <Label muted style={{flex:1}}>Letzter Flug · {latest.date}{latest.orderUnknown?' · Reihenfolge offen':''}</Label><SymbolIcon name="right" size={18}/>
       </Pressable>:<Label muted>{startGuidance?.message ?? 'Noch keine datierten gespeicherten Flüge.'}</Label>}
       {ready&&ownFlights&&scope&&<StartSeasonCharts key={scope} scope={scope} persistent={persistDutyTarget} flights={ownFlights.flights} saved={saved} year={year} today={today} onStatistics={()=>onStatistics?.(year,'overview','monthly')}/>}
-      {ready&&facts.current.unknownDurationCount>0&&<Label muted style={styles.small}>{facts.current.unknownDurationCount} Saisonzeiten unbekannt · bekannte Flugzeit</Label>}
-      {ready&&facts.prior.unknownDurationCount>0&&<Label muted style={styles.small}>{year-1}: {facts.prior.unknownDurationCount} Zeiten unbekannt · bekannte Flugzeit</Label>}
+      {ready&&(facts.current.unknownDurationCount>0||facts.prior.unknownDurationCount>0)&&<Label muted style={styles.small}>Zeit unbekannt · {[[year,facts.current.unknownDurationCount],[year-1,facts.prior.unknownDurationCount]].filter(([,count])=>(count??0)>0).map(([y,count])=>`${y}: ${count}`).join(' · ')}</Label>}
       {ready&&facts.current.unknownDateCount>0&&<Label muted style={styles.small}>{facts.current.unknownDateCount} Flüge ohne zugeordnetes Datum.</Label>}
       <Pressable accessibilityRole="button" onPress={onFlights} style={styles.allFlights}><Label style={{color:colors.cyan,fontWeight:'600'}}>Alle Flüge</Label><SymbolIcon name="right" size={24}/></Pressable>
     </View>

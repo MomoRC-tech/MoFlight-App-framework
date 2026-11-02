@@ -577,58 +577,58 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `5e8d8ebc27b9f1a3a09840c7ad074176961580c56b70bb4cb464f09ae97d0d18`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `a3a2c61b534d995ca9bd8459ad840399c4d5b1c2122f8ebcbb137d09e28122b9`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 11` | 106 |
-| `fontSize: 12` | 106, 109 |
-| `fontSize: 13` | 104 |
-| `fontSize: 15` | 107 |
-| `fontSize: 18` | 103 |
-| `fontSize: 22` | 106 |
-| `fontSize: 27` | 106 |
-| `fontWeight: '600'` | 96 |
-| `fontWeight: '700'` | 103, 106 |
-| `lineHeight: 17` | 106 |
-| `lineHeight: 18` | 104, 106, 107, 109 |
-| `lineHeight: 25` | 103 |
-| `lineHeight: 34` | 106 |
+| `fontSize: 11` | 105 |
+| `fontSize: 12` | 105, 108 |
+| `fontSize: 13` | 103 |
+| `fontSize: 15` | 106 |
+| `fontSize: 18` | 102 |
+| `fontSize: 22` | 105 |
+| `fontSize: 27` | 105 |
+| `fontWeight: '600'` | 95 |
+| `fontWeight: '700'` | 102, 105 |
+| `lineHeight: 17` | 105 |
+| `lineHeight: 18` | 103, 105, 106, 108 |
+| `lineHeight: 25` | 102 |
+| `lineHeight: 34` | 105 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
 | `borderRadius: 10` | 60 |
-| `borderRadius: 8` | 104 |
-| `gap: 0` | 101 |
-| `gap: 3` | 105 |
-| `gap: 4` | 104, 107 |
-| `gap: 6` | 60, 103, 108 |
-| `gap: 8` | 102 |
-| `maxWidth: '35%'` | 104 |
+| `borderRadius: 8` | 103 |
+| `gap: 0` | 100 |
+| `gap: 3` | 104 |
+| `gap: 4` | 103, 106 |
+| `gap: 6` | 60, 102, 107 |
+| `gap: 8` | 101 |
+| `maxWidth: '35%'` | 103 |
 | `maxWidth: '45%'` | 58 |
-| `maxWidth: 520` | 101 |
-| `minHeight: 30` | 104 |
-| `minHeight: 48` | 103, 104, 105, 108, 110, 111 |
-| `minHeight: 72` | 107 |
-| `minWidth: 0` | 103 |
-| `minWidth: 116` | 107 |
+| `maxWidth: 520` | 100 |
+| `minHeight: 30` | 103 |
+| `minHeight: 48` | 102, 103, 104, 107, 109, 110 |
+| `minHeight: 72` | 106 |
+| `minWidth: 0` | 102 |
+| `minWidth: 116` | 106 |
 | `minWidth: 330` | 61 |
-| `minWidth: 48` | 111 |
-| `minWidth: 90` | 105 |
+| `minWidth: 48` | 110 |
+| `minWidth: 90` | 104 |
 | `opacity: .4` | 60 |
-| `padding: 0` | 101 |
-| `padding: 12` | 108 |
-| `paddingHorizontal: 12` | 102, 108 |
-| `paddingHorizontal: 5` | 105 |
-| `paddingHorizontal: 8` | 111 |
-| `paddingHorizontal: 9` | 104 |
-| `paddingVertical: 4` | 108 |
-| `paddingVertical: 5` | 104 |
-| `width: '100%'` | 101, 102 |
+| `padding: 0` | 100 |
+| `padding: 12` | 107 |
+| `paddingHorizontal: 12` | 101, 107 |
+| `paddingHorizontal: 5` | 104 |
+| `paddingHorizontal: 8` | 110 |
+| `paddingHorizontal: 9` | 103 |
+| `paddingVertical: 4` | 107 |
+| `paddingVertical: 5` | 103 |
+| `width: '100%'` | 100, 101 |
 
 ## DataUpdateIndicator.tsx
 
@@ -644,7 +644,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `097de2249de29e17a18d55f4e91ae6569f3b1c79ea6f1f12c52fe017a83763fa`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `1e2ff18b55e84ccfbad4505a0f788eb1077dbae998854a538f129be4ed867192`.
 
 ### Typography declarations
 
@@ -1659,16 +1659,16 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/settings-secondar
 
 ## StartSeasonCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StartSeasonCharts.tsx](../../../apps/platform-lab/src/mobile/StartSeasonCharts.tsx); normalized SHA-256 `8f21a3ed403881d4d376bad9f16c2fd5e50dfa88825238997cdf81a7be31c32d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StartSeasonCharts.tsx](../../../apps/platform-lab/src/mobile/StartSeasonCharts.tsx); normalized SHA-256 `db8bdd79d9f9dd134190e5eae726dd37ec29d1d3af91d291d58dda4647eeb5d9`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 32 |
+| `fontSize: 10` | 31 |
 | `fontSize: 11` | 27 |
-| `fontSize: 18` | 28 |
-| `lineHeight: 16` | 27, 32 |
+| `fontSize: 16` | 27 |
+| `lineHeight: 16` | 27, 31 |
 
 ### Geometry / opacity declarations
 
@@ -1679,8 +1679,8 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StartSeasonCharts
 | `gap: 4` | 27 |
 | `gap: 8` | 27 |
 | `height: 10` | 27 |
-| `minHeight: 48` | 28 |
-| `minWidth: 48` | 28 |
+| `minHeight: 48` | 27 |
+| `minWidth: 48` | 27 |
 | `width: 5` | 27 |
 
 ## StatisticsCharts.tsx
