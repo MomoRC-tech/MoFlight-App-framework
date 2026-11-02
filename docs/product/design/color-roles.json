@@ -31,22 +31,22 @@
   ],
   "blue": [
     "action.primary",
-    "Mint filled action and selected-chip base; legacy code key",
+    "Violet filled action and selected-chip base; legacy code key",
     "#031326 action text"
   ],
   "cyan": [
     "accent.general",
-    "Mint links, metrics and selected navigation labels; legacy code key",
+    "Violet links, metrics and selected navigation labels; legacy code key",
     "dark surfaces"
   ],
   "purple": [
     "accent.assistant.family",
-    "Retained assistant-family token; not a shared panel fill",
+    "Muted violet accent strokes",
     "light text; check displayed panel"
   ],
   "orange": [
     "accent.paper.family",
-    "Retained paper-family token; no photographic paper hero",
+    "Apricot comparison and role accent; paper-family symbols retain original artwork",
     "dark action text in context"
   ],
   "green": [

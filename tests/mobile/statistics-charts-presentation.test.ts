@@ -17,7 +17,8 @@ test('every chart is selectable in the same viewport and has a meaningful symbol
   assert.equal(f.nodes().some(n=>n.props.accessibilityLabel==='Nächstes Diagramm'||n.props.accessibilityLabel==='Vorheriges Diagramm'),false);
 });
 test('monthly tap shows current and prior facts and opens only current contributors',()=>{
-  const f=fixture();f.nodes().find(n=>n.props.accessibilityLabel?.startsWith('Mär:'))!.props.onPress();
+  const f=fixture(),plot=f.press('Monat im Flugzeitdiagramm auswählen');
+  plot.props.onPress({nativeEvent:{locationX:(242/12)*2.5}});
   assert.match(JSON.stringify(f.render()),/2026: 1 Flüge/);assert.match(JSON.stringify(f.render()),/2025: 1 Flüge/);
   f.action('Flüge ansehen · 1').props.onPress();assert.deepEqual([...f.opened[0][1]],['flight-0']);
   f.render();assert.equal(f.back(),true);assert.equal(f.nodes().some(n=>n.props.accessibilityLabel==='Auswahl schließen'),false);

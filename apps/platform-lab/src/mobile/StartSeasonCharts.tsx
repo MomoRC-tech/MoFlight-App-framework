@@ -20,7 +20,7 @@ export function StartSeasonCharts({scope,flights,saved,year,today,onFlights,onCh
   const update=(value:ChartPreference)=>{revision.current++;setPreference(value);onChartChange(value.chart);if(persistent)void saveChartPreference(scope,value).then(()=>setError(false),()=>setError(true));};
   onBackHandler?.(()=>preference.expanded&&back.current());
   return <View style={{paddingVertical:4,gap:4}}>
-    <Pressable accessibilityRole="button" accessibilityLabel="Saisondiagramme" accessibilityState={{expanded:preference.expanded}} onPress={()=>update({...preference,expanded:!preference.expanded})} style={{minHeight:48,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}><Label style={{fontWeight:'600'}}>Diagramme</Label><Label style={{color:colors.cyan}}>{preference.expanded?'Einklappen ▴':'Anzeigen ▾'}</Label></Pressable>
+    <Pressable accessibilityRole="button" accessibilityLabel="Saisondiagramme" accessibilityState={{expanded:preference.expanded}} onPress={()=>update({...preference,expanded:!preference.expanded})} style={{minHeight:48,flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}><Label style={{fontWeight:'600'}}>Saisonverlauf</Label><Label style={{color:colors.cyan}}>{preference.expanded?'−':'+'}</Label></Pressable>
     {preference.expanded&&<StatisticsCharts key={`${year}:${preference.chart}`} compact flights={flights} saved={saved} today={today} period={period} initialChart={preference.chart} onChartChange={chart=>update({...preference,chart})} onFlights={onFlights} onBackHandler={handler=>{back.current=handler;}}/>}
     {error&&<Label muted>Diagrammauswahl konnte nicht gespeichert oder gelesen werden; gilt vorerst nur hier.</Label>}
   </View>;

@@ -1,8 +1,8 @@
 # Visual foundations
 
-**29 October Start tiles:** the [selected Issue 108 correction](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) uses separate `startTileSurfaces`: card `#164154`, raised `#235469`, thin outline `#60889E`. Existing `startSurfaces` retain shell decoration. Start per-record Medical badges add green ✓ beyond six months, amber ! within the inclusive window, red × past and gray ? unknown; existing source/date semantics remain.
+**2 November expressive compact redesign (Issue119):** [Owner-authorized graphite/violet amendment](compact-cockpit.md#expressive-compact-graphite--authorized-2-november-2026) supersedes earlier palette/Start composition in scope: denser surfaces, role orbit, seasonal traces and shorter copy. Original logo, five tabs and source/unknown boundaries remain.
 
-**28 October approved surface refinement:** content cards/raised surfaces now separate more clearly from the retained navy canvas. Start and header/bottom decoration explicitly retain their previous surface values; see the [scoped amendment](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026). Text/cyan/logo remain.
+**Historical surface amendments:** the [29 October tile correction](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) and [28 October controls](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026) retain their evidence and Medical date semantics. Their former navy/teal palette is superseded by Issue119; current values follow below.
 
 > **Current appearance authority — 24 October 2026:** [Dark Compact Cockpit](compact-cockpit.md) and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.
 
@@ -16,17 +16,17 @@ Keep surface, text, action, state and chart roles consistent, including foregrou
 <!-- generated:theme:start -->
 | Semantic role / code key | Value | Allowed/current use | Pairing context |
 | --- | --- | --- | --- |
-| surface.canvas / `background` | `#001b29` | Primary dark canvas | text / muted |
-| surface.card / `card` | `#103546` | Opaque shared content panel | text / muted |
-| surface.raised / `raised` | `#1a4356` | Raised / secondary action surface | text |
-| stroke.default / `border` | `#31586b` | Shared card/control outlines | dark surfaces |
-| text.primary / `text` | `#f4f8fc` | Primary readable text | background / card / raised |
-| text.secondary / `muted` | `#a9bed3` | Supporting text and inactive symbols | dark surfaces |
-| action.primary / `blue` | `#27d3d2` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
-| accent.general / `cyan` | `#27d3d2` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
-| accent.assistant.family / `purple` | `#231e63` | Retained assistant-family token; not a shared panel fill | light text; check displayed panel |
-| accent.paper.family / `orange` | `#fc6a2d` | Retained paper-family token; no photographic paper hero | dark action text in context |
-| feedback.saved / `green` | `#48dba5` | Local profile saved text; also a chart-palette color | dark surfaces; meaning needs text |
+| surface.canvas / `background` | `#11131e` | Primary dark canvas | text / muted |
+| surface.card / `card` | `#1c1f30` | Opaque shared content panel | text / muted |
+| surface.raised / `raised` | `#292d43` | Raised / secondary action surface | text |
+| stroke.default / `border` | `#3c4058` | Shared card/control outlines | dark surfaces |
+| text.primary / `text` | `#f4f2fb` | Primary readable text | background / card / raised |
+| text.secondary / `muted` | `#b7b8cc` | Supporting text and inactive symbols | dark surfaces |
+| action.primary / `blue` | `#b8adff` | Violet filled action and selected-chip base; legacy code key | #031326 action text |
+| accent.general / `cyan` | `#b8adff` | Violet links, metrics and selected navigation labels; legacy code key | dark surfaces |
+| accent.assistant.family / `purple` | `#6355a6` | Muted violet accent strokes | light text; check displayed panel |
+| accent.paper.family / `orange` | `#ffb49a` | Apricot comparison and role accent; paper-family symbols retain original artwork | dark action text in context |
+| feedback.saved / `green` | `#7be2c3` | Local profile saved text; also a chart-palette color | dark surfaces; meaning needs text |
 <!-- generated:theme:end -->
 
 The purple/orange exports describe accent families; actual dashboard cards use local variants. A declaration or retained style does not prove that a value is rendered. The [complete inventory](implementation-inventory.md) covers static colors, named color-property values, opacity/gradient declarations and source locations across product mobile UI and app-owned TSX lab/adapter surfaces.
@@ -41,7 +41,7 @@ The purple/orange exports describe accent families; actual dashboard cards use l
 | Attention / recovery | `#ffb39e` | Error/mismatch/unconfirmed association/recovery; ! and a specific explanation. Same source and [ProviderConnection](../../../apps/platform-lab/src/mobile/ProviderConnection.tsx), S04. |
 | Unknown / header control | `colors.muted`; opaque `colors.card` | Neutral ? and explicit unknown Medical tile. Sync/Profile use equal transparent targets; source/status detail remains accessible. ProviderConnection / [MedicalStatus](../../../apps/platform-lab/src/mobile/MedicalStatus.tsx). |
 | App Back | Fill `colors.blue`, no separate border, dark contrast duotone arrow (brightest stop `#123a50`) | Contextual return, distinct from the dark header. [AppHeader](../../../apps/platform-lab/src/mobile/AppHeader.tsx). |
-| Recorded role pill | Fill `#064240`, border `#227f87`, general cyan text | Recorded role, not qualification/completion. MobileApp badge. |
+| Recorded role pill | colors.raised fill, colors.border outline, general accent text | Recorded role, not qualification/completion. MobileApp badge. |
 | AI welcome badge | Fill `#78efdc`, dark contrast duotone sparkle | Category decoration, not AI availability. MobileApp aiBadge. |
 
 The ordinary header green ✓ requires matching confirmed proof younger than 90 seconds; identical previous scope/account/club/timestamp proof may retain its display during checking within that limit. This presentation never changes canonical authentication. Saved-flight freshness stays separate: steady amber recommends synchronization strictly after 72 hours, independent of login. A validated, scoped changed activity count uses the same amber face while leaving the age caption and session mark independent. When both amber reasons apply, both stay explicit. The provider panel retains separately scoped session/recovery presentation. See catalogue H03/S01–S05 and the [current header contract](alternative-ui.md#connection-action--23-october-2026).
@@ -55,7 +55,7 @@ Medical source-date reminders use `#ff7777` for recorded past expiry and `#f9b65
 | Shared card | Opaque colors.card; no gradient | theme ui.card: subtle depth within a bounded card. |
 | Selected chip | Opaque colors.blue fill/border; no glow | theme ui.chipSelected: selected query scope. |
 | Photo shade | Retained Photo default `#00102277`; ordinary header uses the decorative flight illustration | theme Photo: check retained photo text against the displayed crop. |
-| Club heading artwork | Approved brighter v2 image covering the full header; shared `#001b2944` readability shade and title shadow | ClubHeading: decorative image is clipped at the card borders behind a wrapping title in a minimum80 dp header (24 October phone-feedback amendment). |
+| Club heading | Compact graphite/violet gradient; original airfield image retained as reference | ClubHeading: wrapping title in a minimum64 dp header; scope/source labels unchanged. |
 
 The 21 October selected Start simplification removes the photographic paper hero and purple AI promotion; their former local gradients are not current dashboard treatments. The original approved reference/artwork stays preserved. The quiet paper entry retains the paper-tone symbol; other shared palette/category roles remain unchanged.
 
@@ -110,11 +110,11 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 <!-- generated:contrast:start -->
 | Opaque pair | Foreground | Background | Calculated ratio |
 | --- | --- | --- | --- |
-| Primary text / canvas | `#f4f8fc` | `#001b29` | 16.55:1 |
-| Muted text / card | `#a9bed3` | `#103546` | 6.79:1 |
-| Action label / mint action | `#031326` | `#27d3d2` | 10.08:1 |
-| General mint accent / canvas | `#27d3d2` | `#001b29` | 9.53:1 |
-| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#27d3d2` | 6.49:1 |
+| Primary text / canvas | `#f4f2fb` | `#11131e` | 16.68:1 |
+| Muted text / card | `#b7b8cc` | `#1c1f30` | 8.34:1 |
+| Action label / primary action | `#031326` | `#b8adff` | 9.30:1 |
+| General accent / canvas | `#b8adff` | `#11131e` | 9.21:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#b8adff` | 5.99:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography

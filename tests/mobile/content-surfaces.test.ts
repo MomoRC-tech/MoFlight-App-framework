@@ -53,16 +53,17 @@ test('content action separates a compact face from its independent target and re
   assert.equal(calls, 2);
 });
 
-test('Start tiles use separate surfaces without changing shell or ordinary content surfaces', () => {
+test('Start surface roles apply without mutating shared palette or action behavior', () => {
   const { theme } = fixture();
   const shell = { ...theme.colors }, shellStart = { ...theme.startSurfaces };
   const content = flatten(theme.Card({}).props.style);
   const start = flatten(theme.Card({ surface: 'start' }).props.style);
-  assert.notEqual(start.backgroundColor, content.backgroundColor);
-  assert.notEqual(start.borderColor, content.borderColor);
+  assert.equal(start.backgroundColor, theme.startTileSurfaces.card);
+  assert.equal(content.backgroundColor, theme.colors.card);
   assert.ok(start.borderWidth > 0);
   const secondary = (surface: string) => flatten(theme.Action({ secondary: true, surface, onPress() {} }).children[0].props.style);
-  assert.notEqual(secondary('start').backgroundColor, secondary('content').backgroundColor);
+  assert.equal(secondary('start').backgroundColor, theme.startTileSurfaces.raised);
+  assert.equal(secondary('content').backgroundColor, theme.colors.raised);
   assert.deepEqual({ ...theme.colors }, shell);
   assert.deepEqual({ ...theme.startSurfaces }, shellStart);
 });

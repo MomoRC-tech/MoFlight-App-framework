@@ -3,10 +3,10 @@ import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePro
 import { SymbolIcon, legacyIconTone, type SymbolName, type SymbolTone } from './SymbolIcon';
 
 // Content, shell and Start tiles have separately scoped surface roles.
-export const colors = { background: '#001b29', card: '#103546', raised: '#1a4356', border: '#31586b', text: '#f4f8fc', muted: '#a9bed3', blue: '#27d3d2', cyan: '#27d3d2', purple: '#231e63', orange: '#fc6a2d', green: '#48dba5' };
-export const startSurfaces = { card: '#062331', raised: '#0c3041', border: '#183d50' };
-// Brighter Start tiles; keep the header/bottom-navigation palette above unchanged.
-export const startTileSurfaces = { card: '#164154', raised: '#235469', border: '#60889e' };
+export const colors = { background: '#11131e', card: '#1c1f30', raised: '#292d43', border: '#3c4058', text: '#f4f2fb', muted: '#b7b8cc', blue: '#b8adff', cyan: '#b8adff', purple: '#6355a6', orange: '#ffb49a', green: '#7be2c3' };
+export const startSurfaces = { card: '#171a28', raised: '#292d43', border: '#34384d' };
+// Start keeps semantic surface roles within the unified graphite family.
+export const startTileSurfaces = { card: '#1c1f30', raised: '#292d43', border: '#3c4058' };
 export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
   return <SymbolIcon name="glider" size={large ? 68 : 28} tone={legacyIconTone(color)} />;
 }
@@ -45,10 +45,10 @@ export function Photo({ source, children, style, contentStyle, tint, radius = 14
   return <ImageBackground source={source} resizeMode="cover" style={[ui.photo, { borderRadius: radius }, style]} imageStyle={{ borderRadius: radius }}><View style={[ui.shade, tint ? { backgroundColor: tint } : undefined, contentStyle]}>{children}</View></ImageBackground>;
 }
 export const ui = StyleSheet.create({
-  text: { color: colors.text, fontSize: 15, lineHeight: 22 }, muted: { color: colors.muted },
-  title: { color: colors.text, fontSize: 26, fontWeight: '700', letterSpacing: -.6 },
-  heading: { color: colors.text, fontSize: 19, lineHeight: 26, fontWeight: '600' },
-  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 16, gap: 10, overflow: 'hidden' },
+  text: { color: colors.text, fontSize: 14, lineHeight: 20 }, muted: { color: colors.muted },
+  title: { color: colors.text, fontSize: 24, fontWeight: '700', letterSpacing: -.6 },
+  heading: { color: colors.text, fontSize: 17, lineHeight: 23, fontWeight: '600' },
+  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 18, padding: 12, gap: 8, overflow: 'hidden' },
   startCard: { backgroundColor: startTileSurfaces.card, borderColor: startTileSurfaces.border },
   headerAction: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   cockpitImage: { opacity: .82 },
@@ -58,13 +58,13 @@ export const ui = StyleSheet.create({
   column: { flex: 1, minWidth: 0, gap: 8 },
   actionTouch: { minHeight: 48, minWidth: 48, justifyContent: 'center', maxWidth: '100%' },
   secondaryTouch: { alignSelf: 'flex-start' },
-  action: { minHeight: 40, minWidth: 48, alignSelf: 'stretch', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
-  actionText: { color: '#031326', fontSize: 15, lineHeight: 22, fontWeight: '600' },
+  action: { minHeight: 34, minWidth: 48, alignSelf: 'stretch', borderRadius: 10, paddingHorizontal: 11, paddingVertical: 5, backgroundColor: colors.blue, alignItems: 'center', justifyContent: 'center' },
+  actionText: { color: '#031326', fontSize: 14, lineHeight: 20, fontWeight: '600' },
   actionContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 },
   secondary: { backgroundColor: colors.raised, borderWidth: 1, borderColor: colors.border },
   startSecondary: { backgroundColor: startTileSurfaces.raised, borderColor: startTileSurfaces.border },
   chipTouch: { minHeight: 48, justifyContent: 'center' },
-  chip: { minHeight: 40, minWidth: 66, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.card },
+  chip: { minHeight: 30, minWidth: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 4, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.card },
   chipSelected: { backgroundColor: colors.blue, borderColor: colors.blue }, chipText: { color: colors.text, fontSize: 14, lineHeight: 20 },
   section: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   smallAction: { minHeight: 48, justifyContent: 'center', paddingHorizontal: 4 },

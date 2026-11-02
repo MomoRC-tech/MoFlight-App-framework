@@ -88,8 +88,8 @@ def contrast(foreground: str, background: str) -> float:
 def contrast_table(values: dict[str, str]) -> str:
     pairs = [('Primary text / canvas', values['text'], values['background']),
              ('Muted text / card', values['muted'], values['card']),
-             ('Action label / mint action', '#031326', values['blue']),
-             ('General mint accent / canvas', values['cyan'], values['background']),
+             ('Action label / primary action', '#031326', values['blue']),
+             ('General accent / canvas', values['cyan'], values['background']),
              ('Brightest Back arrow gradient stop / opaque Back face', '#123a50', values['blue'])]
     return '\n'.join(['| Opaque pair | Foreground | Background | Calculated ratio |', '| --- | --- | --- | --- |'] +
                      [f'| {name} | `{fg}` | `{bg}` | {contrast(fg,bg):.2f}:1 |' for name,fg,bg in pairs])

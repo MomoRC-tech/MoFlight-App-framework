@@ -18,11 +18,11 @@ export function FlightCard({flight,onPress,style}:{flight:RealFlightListItem;onP
   </Card>;
 }
 const s=StyleSheet.create({
-  row:{flexDirection:'row',alignItems:'center',paddingVertical:7,paddingHorizontal:10,borderRadius:10,gap:8,minHeight:48},
+  row:{flexDirection:'row',alignItems:'center',paddingVertical:7,paddingHorizontal:10,borderRadius:12,gap:8,minHeight:48,borderLeftWidth:2,borderLeftColor:colors.purple},
   info:{flex:1,minWidth:0,gap:2},identity:{flexDirection:'row',flexWrap:'wrap',alignItems:'baseline',gap:7},
   small:{fontSize:12,lineHeight:17},registration:{fontSize:14,lineHeight:19,fontWeight:'600'},
   crew:{flexDirection:'row',flexWrap:'wrap',alignItems:'center',columnGap:9,rowGap:2},person:{fontSize:13,lineHeight:18,flexShrink:1},role:{fontSize:11,lineHeight:16},
   solo:{fontSize:11,lineHeight:16,color:colors.cyan,borderWidth:1,borderColor:colors.border,borderRadius:4,paddingHorizontal:4},
   category:{fontSize:11,lineHeight:16,color:colors.cyan,borderWidth:1,borderColor:colors.border,borderRadius:4,paddingHorizontal:4,flexShrink:1},
-  duration:{fontSize:20,lineHeight:28,fontWeight:'600',maxWidth:'32%',color:colors.text,fontVariant:['tabular-nums']},unclearDuration:{fontSize:12,lineHeight:17,fontWeight:'400',color:colors.muted},
+  duration:{fontSize:21,lineHeight:28,fontWeight:'600',maxWidth:'32%',color:colors.text,fontVariant:['tabular-nums']},unclearDuration:{fontSize:12,lineHeight:17,fontWeight:'400',color:colors.muted},
 });

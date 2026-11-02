@@ -32,7 +32,7 @@ function render(flights:any[], phase='ready', fontScale=1, preview: startPreview
   const modules:Record<string,unknown>={'../start-timing':startTiming,react:{default:react,useMemo,useState,useRef:(initial:any)=>useMemo(()=>({current:initial}),[])},'react-native':{...leaves(['ActivityIndicator','ImageBackground','Pressable','ScrollView','Text','View']),StyleSheet:{create:(x:unknown)=>x}},
     './StartSeasonCharts':leaves(['StartSeasonCharts']),'./start-preview':{...startPreview,startFlightDashboard:(...args:Parameters<typeof startPreview.startFlightDashboard>)=>{calculations+=2;return startPreview.startFlightDashboard(...args);}},'./season-work-hours':workHours, './cockpit-season':cockpit, './flight-role-metric':roles, './DutyTarget':{useDutyTarget:(_scope:unknown,_year:unknown,_persistent:unknown,source:unknown)=>{targetSource=source;return target;},DutyTargetEditor:'DutyTargetEditor'},
     './theme':{...leaves(['Action','Card','GliderMark','IconLabel','Label','Photo','Section']),colors:{},ui:{}},'./SymbolIcon':leaves(['SymbolIcon']),
-    './FlightScene':leaves(['FlightScene']),'./SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':{...dashboardModel,monthlySeasonForCoverage:(...args:Parameters<typeof dashboardModel.monthlySeasonForCoverage>)=>{monthlyCalculations++;return dashboardModel.monthlySeasonForCoverage(...args);}}, './SeasonRing':leaves(['SeasonRing']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
+    './FlightScene':leaves(['FlightScene']),'./SeasonMonthlyCharts':leaves(['SeasonMonthlyCharts']), './season-dashboard-model':{...dashboardModel,monthlySeasonForCoverage:(...args:Parameters<typeof dashboardModel.monthlySeasonForCoverage>)=>{monthlyCalculations++;return dashboardModel.monthlySeasonForCoverage(...args);}}, './SeasonRing':leaves(['SeasonRing','MetricOrbit']),'./season-model':season,'./real-flight-statistics':{...statistics,summarizeRealFlights:(...args:Parameters<typeof statistics.summarizeRealFlights>)=>{calculations++;return statistics.summarizeRealFlights(...args);}},
     './processed-result':processedResults,'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
   const exports:any={};runInNewContext(source,{exports,Date:class extends Date {getFullYear(){return 2026;}},require:(name:string)=>{
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
@@ -90,7 +90,7 @@ test('compact metrics use selected annual hours and keep financial values out of
  assert.match(JSON.stringify(tree),/7:25 geleistet/);assert.match(JSON.stringify(tree),/Lokale Sollstunden 25/);assert.doesNotMatch(JSON.stringify(tree),/90,00/);
  const next=f.changeView({...f.view(),snapshot:{...f.view().snapshot,ownerId:'other'},featureInformation:undefined});assert.doesNotMatch(JSON.stringify(next),/7:25/);
 });
-test('Solo, Dual and PIC+ share the existing horizontal metric row and open role analysis',()=>{
+test('Solo, Dual and PIC+ explain the orbit and retain exact role analysis',()=>{
  const dual=structuredClone(ownFlightFixture().flights[0]!);
  dual.facts.assessment.date={...dual.facts.assessment.date,state:'parsed',value:'2026-06-18'};
  dual.facts.assessment.durations.flight={state:'known',minutes:12,evidence:[]};
@@ -102,8 +102,7 @@ test('Solo, Dual and PIC+ share the existing horizontal metric row and open role
  fields.dualTime={state:'value',label:'Dual-Time',raw:'00:12'};
  fields.picTime={state:'blank',label:'PIC-Time',raw:''};
  const f=render([dual]);
- const row=f.nodes.find(n=>n.type==='ScrollView'&&n.props.horizontal);
- assert.ok(row);assert.equal(row.children.length,6,'three role tiles follow three existing tiles at the same row height');
+ assert.ok(f.nodes.some(n=>n.type==='MetricOrbit'),'role distribution has a composed overview');
  const metrics=f.nodes.filter(n=>n.type==='Pressable'&&/^(Solo|Dual|PIC\+) 2026:/.test(n.props.accessibilityLabel??''));
  assert.deepEqual(metrics.map(n=>n.props.accessibilityLabel.split(' ')[0]),['Solo','Dual','PIC+']);
  assert.match(metrics[1]!.props.accessibilityLabel,/1 Flug gespeichert, 0:12/);
@@ -234,7 +233,7 @@ test('work hours separate actual hours and editable target without the redundant
  const nodes:Element[]=[];const visit=(node:any)=>{if(node?.children){nodes.push(node);node.children.forEach(visit);}};visit(tree);
  const control=nodes.find(n=>n.type==='Pressable'&&String(n.props.accessibilityLabel).includes('Sollstunden bearbeiten'))!;
  const labels=nodes.filter(n=>n.type==='Label').map(n=>n.children.join(''));
- assert.ok(labels.includes('12,5 h'));assert.ok(labels.includes('Arbeitsstunden · Ist'));assert.ok(labels.includes('Soll 25 h'));assert.ok(labels.includes('✎'));
+ assert.ok(labels.includes('12,5 h'));assert.ok(labels.includes('Arbeit'));assert.ok(labels.includes('/ 25 h'));assert.ok(labels.includes('✎'));
  assert.equal(labels.some(label=>/Soll anpassen|Soll vorläufig/.test(label)),false);
  assert.equal(control.props.accessibilityState.expanded,false);
  control.props.onPress();assert.match(JSON.stringify(f.rerender()),/DutyTargetEditor/);

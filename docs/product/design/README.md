@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+**2 November expressive compact redesign (#119):** [Owner-authorized graphite/violet amendment](compact-cockpit.md#expressive-compact-graphite--authorized-2-november-2026) supersedes earlier palette/Start composition in scope: denser surfaces, role orbit, seasonal traces and shorter copy. Original logo, five tabs and source/unknown boundaries remain.
+
 **2 November user-first review:** Manuel delegates needed visual choices under [#114](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/114). The [scoped amendment](compact-cockpit.md#user-first-review--delegated-2-november-2026) and [cross-app review/evidence](../../verification/2026-11-02-whole-app-refactor.md) record metric drilldowns, simpler Statistics controls and chronological exact-value costs. Original logo/dark default and source-data contracts remain; earlier appearance-selection/Start restrictions are superseded only for this authorized review.
 
 **29 October Start correction (#108):** [lighter tile fills, thin visible outlines and per-Medical expiry badges](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) supersede the retained Start tile colors only. Header/navigation and all source/date rules remain separately scoped.

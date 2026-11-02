@@ -273,3 +273,12 @@ Manuel approved the concrete [#94 proposal](https://github.com/MomoRC-tech/MoFli
 Adaptation of current [Material buttons](https://m3.material.io/components/buttons/specs) and [color roles](https://m3.material.io/styles/color/roles): keep MoFlight's vivid navy/cyan, use distinct tonal surfaces, and separate compact visuals from [Google's minimum touch targets](https://developer.android.com/develop/ui/compose/accessibility/api-defaults). Exact hex values and use of existing React Native primitives are product adaptations, with no dependency/framework change. The m3 text fetch requires JavaScript; Google's [component color reference](https://github.com/material-components/material-components-android/blob/master/docs/theming/Color.md) substantiates tonal surface roles.
 
 [Package verification and remaining gates](../../verification/2026-10-26-material-settings.md#compact-controls-and-clearer-dark-surfaces--28-october-2026). Dark-only checks follow the current policy; light, physical/iOS and spoken acceptance remain separate.
+
+
+## Expressive compact graphite — authorized 2 November 2026
+
+Owner request under #119 explicitly authorizes direct implementation of a sophisticated layout, different colors, smaller elements, expressive metrics and less prose. Supersedes earlier navy/cyan, Start-preservation and proposal-pause restrictions for this package. Original logo/assets and data/feature contracts remain. The isolated six-module #116 experiment is not merged; five main tabs and Flugbuch preparation notice remain.
+
+Graphite canvas, violet actions, apricot comparisons and mint count/role accents replace teal panels. Typography and visible control faces are tighter; touch targets remain48dp minimum and text may grow. Season is a role-count distribution orbit beside known flight time and editable work-hours target. Neutral orbit portions mean unresolved roles; a full ring is distribution, never proficiency, completion or target. Unknown totals keep an unfilled track/dash. Role shortcuts retain analysis routes and accessible count/time labels. Prior-year annual observations do not imply equal-period improvement.
+
+Monthly charts use time traces/count markers with units, prior cutoff and coverage gaps; exact contributors remain available. Long explanations stay in Info/details; essential unknown/partial/payment qualifiers stay near the facts. Dark remains master. [Implementation and verification](../../verification/2026-11-02-graphite-ui.md).

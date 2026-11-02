@@ -5,6 +5,29 @@ import type { RingSlice, SeasonDifference } from './season-model';
 
 const thickness = 5;
 
+/** Bounded native arc for the compact metric dial; decoration has no hit targets. */
+function DialArc({size,start,sweep,color}:{size:number;start:number;sweep:number;color:string}) {
+  const radius=size/2-9, pieces=Math.ceil(sweep/6), step=pieces?sweep/pieces:0;
+  return <>{Array.from({length:pieces},(_,i)=>{
+    const angle=start+step*(i+.5), radians=angle*Math.PI/180;
+    const length=2*radius*Math.sin(step*Math.PI/360)+.8;
+    return <View key={i} style={{position:'absolute',left:size/2+radius*Math.cos(radians)-length/2,top:size/2+radius*Math.sin(radians)-4,width:length,height:8,borderRadius:2,backgroundColor:color,transform:[{rotate:`${angle+90}deg`}]}}/>;
+  })}</>;
+}
+
+/** A distribution, never a progress/qualification score. Missing classifications remain neutral. */
+export function MetricOrbit({size=136,total,parts,children}:{size?:number;total:number|null;parts:readonly {value:number;color:string}[];children:React.ReactNode}) {
+  let angle=-90;
+  return <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{width:size,height:size}}>
+    <View style={{position:'absolute',inset:5,borderRadius:size/2,borderWidth:8,borderColor:colors.raised}}/>
+    {total!==null&&total>0&&parts.map((part,i)=>{
+      const sweep=Math.min(360-Math.max(0,angle+90),Math.max(0,part.value)/total*360),start=angle;angle+=sweep;
+      return sweep>0?<DialArc key={i} size={size} start={start+1} sweep={Math.max(0,sweep-2)} color={part.color}/>:null;
+    })}
+    <View style={{position:'absolute',inset:20,alignItems:'center',justifyContent:'center'}}>{children}</View>
+  </View>;
+}
+
 interface SeasonRingLayer {
   year: number; slices: readonly RingSlice[]; value: string; description: string;
 }

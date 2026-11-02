@@ -1,5 +1,7 @@
 # Layout and presentation patterns
 
+**2 November expressive compact redesign (#119):** [Owner-authorized graphite/violet amendment](compact-cockpit.md#expressive-compact-graphite--authorized-2-november-2026) supersedes earlier palette/Start composition in scope: denser surfaces, role orbit, seasonal traces and shorter copy. Original logo, five tabs and source/unknown boundaries remain.
+
 **27 October coherent Club/AI/Settings continuation (#94):** contextual page Back returns to the exact section/caller; temporary AI option details use Back, while Close exits their surface. Per-menu and per-Club-section scrolling is retained. Diagnostics/About/Development stay mounted but hidden/inaccessible under nested routes. Exact AI evidence uses the existing flight list/detail and an owner-scoped return to its retained conversation. [Current contract](compact-cockpit.md#club-ai-and-remaining-settings--authorized-27-october-2026) preserves drafts, source/unknown caveats and account/provider guards.
 
 **27 October flight details (#94):** shared Flights/Statistics content follows the selected grouped detail hierarchy. Raw provider fields are an in-flow disclosure, not a modal or extra navigation level. Preserve exact caller/period/filter/scroll and PIC help; no data or header rewrite. [Scoped contract](compact-cockpit.md#flight-detail-hierarchy--selected-27-october-2026).
