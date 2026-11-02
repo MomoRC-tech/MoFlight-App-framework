@@ -1,5 +1,7 @@
 # MoFlight
 
+**2 November Start restoration (#121):** restores the rollback season-card layout and metric strip while retaining lean tiles, current colors and modern charts. [Source-specific checks and limits](docs/verification/2026-11-02-start-restoration.md); [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-start-restored-2026-11-02-6c898a3/MoFlight-Start-Restored-6c898a3.zip), actual application source `6c898a3b124c59d3d72d16065dffbd4bd9c17673`. The [21-item experiment review](docs/product/design/pilot-experiment-adoption-review.md) is recommendations only under #116; no experimental code is adopted.
+
 **2 November modern charts (Issue120):** true vector area trends, crisp role donuts, time/count switch and tap-to-inspect guides replace the rectangle plots. Costs shares the full-year trend. Native-found legend/role/preview Back issues corrected; affected host and dark MAIN/MIN/WIDE checks pass within [source-specific evidence](docs/verification/2026-11-02-modern-charts.md). [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-modern-charts-2026-11-02-8ca43fc/MoFlight-Modern-Charts-8ca43fc.zip), actual source `8ca43fcf8b435d43683bc7d210380e2595e6a82f`. Existing phone/iOS/light/service gates remain separate.
 
 **2 November visual redesign (Issue119):** implemented graphite/violet/apricot/mint palette, composed role orbit/time/work summary, seasonal traces/count markers, denser controls/cards and shorter copy. Five tabs including Flugbuch remain. [Implementation, screenshots and source-specific checks](docs/verification/2026-11-02-graphite-ui.md). [Download graphite APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-graphite-2026-11-02-bf2c619/MoFlight-Graphite-bf2c619.zip), actual application source `bf2c619c418133fb0dc7ab27eb680c3b1074ceb8`. Physical/iOS/light and broader feature gates remain separate.
@@ -29,7 +31,9 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 ## Current delivery
 
-**Modern charts: [download current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-modern-charts-2026-11-02-8ca43fc/MoFlight-Modern-Charts-8ca43fc.zip)**, actual source `8ca43fcf8b435d43683bc7d210380e2595e6a82f`. [Screenshots/checks](docs/verification/2026-11-02-modern-charts.md). Download, embedded source, APK/ZIP hashes and exact two-file inventory verified.
+**Restored Start, lean tiles: [download current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-start-restored-2026-11-02-6c898a3/MoFlight-Start-Restored-6c898a3.zip)**, actual source `6c898a3b124c59d3d72d16065dffbd4bd9c17673`. [Checks and remaining gates](docs/verification/2026-11-02-start-restoration.md).
+
+**Earlier modern-charts package: [download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-modern-charts-2026-11-02-8ca43fc/MoFlight-Modern-Charts-8ca43fc.zip)**, actual source `8ca43fcf8b435d43683bc7d210380e2595e6a82f`. [Screenshots/checks](docs/verification/2026-11-02-modern-charts.md). Download, embedded source, APK/ZIP hashes and exact two-file inventory verified.
 
 **Earlier graphite UI: [download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-graphite-2026-11-02-bf2c619/MoFlight-Graphite-bf2c619.zip)**, actual source `bf2c619c418133fb0dc7ab27eb680c3b1074ceb8`. [Screenshots, checks and explicit limits](docs/verification/2026-11-02-graphite-ui.md). Published ZIP download, source, hashes and two-file inventory verified.
 

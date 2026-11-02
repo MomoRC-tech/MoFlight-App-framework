@@ -1,0 +1,12 @@
+{
+  "source_commit": "6c898a3b124c59d3d72d16065dffbd4bd9c17673",
+  "apk_sha256": "7d98c72778333f0f290c89e8270660333529f2d12fee5b15c8c7916c888cb980",
+  "zip_sha256": "aef53d851be3bfffb2d68b22404ca4a4dfa05b0686e9a567a0d6dcba642e7204",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "release_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-start-restored-2026-11-02-6c898a3"
+}

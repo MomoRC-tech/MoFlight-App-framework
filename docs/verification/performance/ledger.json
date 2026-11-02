@@ -50922,6 +50922,64 @@
           }
         }
       ]
+    },
+    {
+      "id": "start-restoration-20261102-main",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "6c898a3b124c59d3d72d16065dffbd4bd9c17673",
+      "apk_sha256": "7d98c72778333f0f290c89e8270660333529f2d12fee5b15c8c7916c888cb980",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; requested MAIN390x900/font1, MIN360x900/font1.6, WIDE800x600/font1, density160; actual reached states in evidence",
+      "input": "Fictional nonpersisting Cockpit preview only.",
+      "conditions": "Installed committed-source Release; offline. Original display/network/installation restored.",
+      "method": "Controller active elapsed including model deliberation, ADB, waiting and observer overhead.",
+      "limits": "Tooling wall-clock only, not app latency or controlled speed comparison. Worker outcomes and unexercised routes remain explicit.",
+      "evidence": [
+        "docs/verification/2026-11-02-start-restoration-native-main.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 186609.99999986961,
+          "outcome": "partial",
+          "details": {
+            "actions": 34,
+            "captures": 4,
+            "action_errors": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "start-restoration-20261102-wide",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "6c898a3b124c59d3d72d16065dffbd4bd9c17673",
+      "apk_sha256": "7d98c72778333f0f290c89e8270660333529f2d12fee5b15c8c7916c888cb980",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; requested MAIN390x900/font1, MIN360x900/font1.6, WIDE800x600/font1, density160; actual reached states in evidence",
+      "input": "Fictional nonpersisting Cockpit preview only.",
+      "conditions": "Installed committed-source Release; offline. Original display/network/installation restored.",
+      "method": "Controller active elapsed including model deliberation, ADB, waiting and observer overhead.",
+      "limits": "Tooling wall-clock only, not app latency or controlled speed comparison. Worker outcomes and unexercised routes remain explicit.",
+      "evidence": [
+        "docs/verification/2026-11-02-start-restoration-native-wide.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 116297.00000002049,
+          "outcome": "success",
+          "details": {
+            "actions": 16,
+            "captures": 2,
+            "action_errors": 0
+          }
+        }
+      ]
     }
   ]
 }

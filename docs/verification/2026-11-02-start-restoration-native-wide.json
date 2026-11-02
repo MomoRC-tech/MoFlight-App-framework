@@ -1,0 +1,91 @@
+{
+  "application_commit": "6c898a3b124c59d3d72d16065dffbd4bd9c17673",
+  "apk_sha256": "7d98c72778333f0f290c89e8270660333529f2d12fee5b15c8c7916c888cb980",
+  "actions_used": 16,
+  "captures_used": 2,
+  "active_elapsed_seconds": 116.29700000002049,
+  "android_api": "37",
+  "restoration": {
+    "display": true,
+    "network": true,
+    "installation": true,
+    "cleanup": true
+  },
+  "action_errors": [],
+  "worker_checks": {
+    "U01": {
+      "status": "not_tested",
+      "observation": "Outside the WIDE-only Issue 121 follow-up scope.",
+      "evidence": []
+    },
+    "U02": {
+      "status": "not_tested",
+      "observation": "Outside the WIDE-only Issue 121 follow-up scope.",
+      "evidence": []
+    },
+    "U03": {
+      "status": "not_tested",
+      "observation": "Outside the WIDE-only Issue 121 follow-up scope.",
+      "evidence": []
+    },
+    "U04": {
+      "status": "not_tested",
+      "observation": "Outside the WIDE-only Issue 121 follow-up scope.",
+      "evidence": []
+    },
+    "U05": {
+      "status": "not_tested",
+      "observation": "Outside the WIDE-only Issue 121 follow-up scope.",
+      "evidence": []
+    },
+    "U06": {
+      "status": "not_tested",
+      "observation": "Outside the WIDE-only Issue 121 follow-up scope.",
+      "evidence": []
+    },
+    "U07": {
+      "status": "not_tested",
+      "observation": "Outside the WIDE-only Issue 121 follow-up scope.",
+      "evidence": []
+    },
+    "U08": {
+      "status": "not_tested",
+      "observation": "Outside the WIDE-only Issue 121 follow-up scope.",
+      "evidence": []
+    },
+    "WIDE_ROUTE": {
+      "status": "passed",
+      "observation": "Set 800x600 dp, density 160, font 1.0 before navigation. Profile development-entry became fully visible after two swipes, bounds [160,438][640,508]. Entered Designvorschau then Cockpit; confirmed Übersicht · Demo and populated season metrics. No restart required.",
+      "evidence": [
+        "wide-profile-scroll2.xml",
+        "wide-design-preview.xml",
+        "wide-cockpit-top.xml"
+      ]
+    },
+    "WIDE_SEASON": {
+      "status": "passed",
+      "observation": "Inspected actual Cockpit PNG. Season image/card is centered from approximately x152 to648 (496 dp wide); metric content x165..635 (470 dp). Flight time 5:20, 5 flights, work 7:25 h, Solo 3:55 and Dual 1:25 are readable without overlap. PIC+ lies beyond the intentional horizontal metric viewport; not treated as a defect. Card and chart stay capped rather than stretching across 800 dp.",
+      "evidence": [
+        "wide-cockpit-top.png",
+        "wide-cockpit-top.xml"
+      ]
+    },
+    "WIDE_LOWER": {
+      "status": "not_tested",
+      "observation": "One upward swipe reached the chart body and its unknown-time explanations, which remain within the centered cap without observed overlap. Lower Medical/paper tiles remain below the visible viewport; their visual acceptance is not established. Capture budget exhausted; four action slots retained.",
+      "evidence": [
+        "wide-cockpit-lower.png",
+        "wide-cockpit-lower.xml"
+      ]
+    }
+  },
+  "parent_assessment": {
+    "scope": "Restored season composition and unchanged lean tiles only; no experiment testing.",
+    "horizontal_metrics": "The restored six-metric strip is horizontally scrollable. A partially visible trailing metric at the viewport edge is intentional overflow, not missing data. Individual later-metric swipe interactions were not exercised.",
+    "limits": "Synthetic dark Android only. No phone/iOS runtime/light/provider/model or broad beta acceptance. Controller time includes observer/ADB/model deliberation, not app latency."
+  },
+  "parent_reviewed_images": [
+    "wide-cockpit-lower.png",
+    "wide-cockpit-top.png"
+  ]
+}

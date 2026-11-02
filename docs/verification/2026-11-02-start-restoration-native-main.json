@@ -1,0 +1,108 @@
+{
+  "application_commit": "6c898a3b124c59d3d72d16065dffbd4bd9c17673",
+  "apk_sha256": "7d98c72778333f0f290c89e8270660333529f2d12fee5b15c8c7916c888cb980",
+  "actions_used": 34,
+  "captures_used": 4,
+  "active_elapsed_seconds": 186.60999999986961,
+  "android_api": "37",
+  "restoration": {
+    "display": true,
+    "network": true,
+    "installation": true,
+    "cleanup": true
+  },
+  "action_errors": [],
+  "worker_checks": {
+    "U01": {
+      "status": "not_tested",
+      "observation": "Deliberately excluded by Issue121-only scope.",
+      "evidence": []
+    },
+    "U02": {
+      "status": "not_tested",
+      "observation": "Deliberately excluded by Issue121-only scope.",
+      "evidence": []
+    },
+    "U03": {
+      "status": "not_tested",
+      "observation": "Deliberately excluded by Issue121-only scope.",
+      "evidence": []
+    },
+    "U04": {
+      "status": "not_tested",
+      "observation": "Deliberately excluded by Issue121-only scope.",
+      "evidence": []
+    },
+    "U05": {
+      "status": "not_tested",
+      "observation": "Deliberately excluded by Issue121-only scope.",
+      "evidence": []
+    },
+    "U06": {
+      "status": "not_tested",
+      "observation": "Deliberately excluded by Issue121-only scope.",
+      "evidence": []
+    },
+    "U07": {
+      "status": "not_tested",
+      "observation": "Deliberately excluded by Issue121-only scope.",
+      "evidence": []
+    },
+    "U08": {
+      "status": "not_tested",
+      "observation": "Deliberately excluded by Issue121-only scope.",
+      "evidence": []
+    },
+    "I121_MAIN": {
+      "status": "failed",
+      "observation": "390x900 dp/font1 dark synthetic Cockpit: restored photo season card and first three metrics visible. Solo metric is clipped at the right edge: partial value, label and count only. Year dropdown and work-target pencil are visible; no edit/save attempted.",
+      "evidence": [
+        "main-cockpit-upper.png",
+        "main-cockpit-upper.xml"
+      ]
+    },
+    "I121_MIN": {
+      "status": "failed",
+      "observation": "360x900 dp/font1.6: season heading wraps to three lines; year dropdown visible. Horizontal metric strip clips Arbeitsstunden and places Solo outside visible card. Work-target affordance cannot be fully assessed at this viewport.",
+      "evidence": [
+        "min-cockpit-upper.png",
+        "min-cockpit-upper.xml"
+      ]
+    },
+    "I121_TILES": {
+      "status": "passed",
+      "observation": "Collapsed charts reveal lean Medical/Papierflugbuch tiles side by side at MAIN and stacked at MIN. Club panel and visible service rows readable; MIN club name wraps without overlap. Lower content remains scrollable.",
+      "evidence": [
+        "main-cockpit-tiles.png",
+        "main-cockpit-tiles.xml",
+        "min-cockpit-tiles.png",
+        "min-cockpit-tiles.xml"
+      ]
+    },
+    "I121_WIDE": {
+      "status": "not_tested",
+      "observation": "Viewport set to 800x600/font1 and route reset confirmed. Profile scrolled once; Development still below viewport. Further route/capture actions would consume recovery reserve; scoped Cockpit not captured.",
+      "evidence": [
+        "profile-wide.xml"
+      ]
+    },
+    "PRESERVATION": {
+      "status": "passed",
+      "observation": "No typing, saving, provider/model/finance refresh, installation, seeding or private data access. Exited Profile via contextual Back and confirmed Overview before finish. Controller finish independently verifies original settings and identity.",
+      "evidence": [
+        "cleanup-overview.xml"
+      ]
+    }
+  },
+  "parent_assessment": {
+    "scope": "Restored season composition and unchanged lean tiles only; no experiment testing.",
+    "horizontal_metrics": "The restored six-metric strip is horizontally scrollable. A partially visible trailing metric at the viewport edge is intentional overflow, not missing data. Individual later-metric swipe interactions were not exercised.",
+    "limits": "Synthetic dark Android only. No phone/iOS runtime/light/provider/model or broad beta acceptance. Controller time includes observer/ADB/model deliberation, not app latency."
+  },
+  "parent_reviewed_images": [
+    "main-cockpit-tiles.png",
+    "main-cockpit-upper.png",
+    "min-cockpit-tiles.png",
+    "min-cockpit-upper.png"
+  ]
+}
