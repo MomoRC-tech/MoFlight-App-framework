@@ -135,6 +135,7 @@ export function DesignPreview({onClose=()=>{},onBackHandler}:{onClose?:()=>void;
     <AppHeader title="Designvorschau" back={onClose}><Action secondary onPress={()=>setCockpit(true)}>Cockpit</Action></AppHeader>
     <View style={styles.toolbar}>
       <Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>
+      {!detail&&<>
       {page==='flights'&&<Action secondary label="Vorschau Quellenänderung" onPress={()=>{setSourceChange(true);setReviewSeen(false);setDetail(null);setMode('populated');}}>Quellenänderung</Action>}
       <View style={styles.tabs}>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Synchronisierung" onPress={()=>{syncReturnPage.current=page;setPage('sync');}} style={styles.tab}><Label>Vorschau Sync</Label></Pressable>
@@ -143,6 +144,7 @@ export function DesignPreview({onClose=()=>{},onBackHandler}:{onClose?:()=>void;
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Verein" accessibilityState={{ selected: page === 'club' }} onPress={() => setPage('club')} style={[styles.tab, page === 'club' && styles.selected]}><Label>Vorschau Verein</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Kosten" accessibilityState={{selected:page==='costs'}} onPress={()=>setPage('costs')} style={[styles.tab,page==='costs'&&styles.selected]}><Label>Vorschau Kosten</Label></Pressable>
       </View>
+      </>}
     </View>
     {page === 'start' ? <ScrollView contentContainerStyle={styles.canvas}>
       <Label muted>Festes Demo-Datum: 22.10.2026 · alle Flüge und Belege erfunden.</Label>

@@ -34,12 +34,14 @@ test('Verein preview selects actual source components with synthetic data and pr
  press('Vorschau Fl\u00fcge');assert.ok(nodes(render()).some(n=>n.type==='OwnFlights'));
  const flights=()=>nodes(render()).find(n=>n.type==='OwnFlights')!;
  const selected=flights().props.data.view.flights[0];flights().props.data.openDetail(selected);
+ assert.equal(nodes(render()).some(n=>n.props.accessibilityLabel==='Vorschau Start'),false,'fixture navigation must not consume the detail viewport');
  const flightDetail=flights().props.data.detail;flights().props.onHelp('pic');
  let help=nodes(render()).find(n=>n.type==='HelpScreen')!;assert.equal(help.props.entryId,'pic');
  assert.equal(flights().props.active,false);assert.equal(flights().props.data.detail,flightDetail);
  help.props.onReturn();assert.equal(nodes(render()).some(n=>n.type==='HelpScreen'),false);assert.equal(flights().props.active,true);assert.equal(flights().props.data.detail,flightDetail);
  flights().props.onHelp('pic');render();assert.equal(hardwareBack!(),true);assert.equal(nodes(render()).some(n=>n.type==='HelpScreen'),false);
 
+ flights().props.data.clearDetail();assert.ok(nodes(render()).some(n=>n.props.accessibilityLabel==='Vorschau Start'),'detail Back restores the fixture navigation');
  press('Vorschau Start');assert.ok(nodes(render()).some(n=>n.type==='Dashboard'));
  const start=nodes(render()).find(n=>n.type==='Dashboard')!;assert.equal(start.props.persistDutyTarget,false);start.props.onStatistics(2026,'roles');
  const stats=nodes(render());const overlay=stats.find(n=>n.type==='StatisticsOverlay')!;

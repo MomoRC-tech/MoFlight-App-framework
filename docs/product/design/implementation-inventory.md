@@ -687,32 +687,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DataUpdateIndicat
 
 ## DesignPreview.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `dbd29d68a9a93f0e4c584fc1711f57a82db5b5ab9da60ada9062dc1b72e15dbc`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DesignPreview.tsx](../../../apps/platform-lab/src/mobile/DesignPreview.tsx); normalized SHA-256 `92b4ce94de5f485898b5171f64210907e63852c0b9dbdb386721e5c40a2ca25b`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 13` | 172 |
-| `lineHeight: 19` | 172 |
+| `fontSize: 13` | 174 |
+| `lineHeight: 19` | 174 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 14` | 173 |
-| `borderWidth: 1` | 173 |
+| `borderRadius: 14` | 175 |
+| `borderWidth: 1` | 175 |
 | `gap: 12` | 104 |
-| `gap: 16` | 175 |
-| `gap: 4` | 171 |
-| `gap: 8` | 172 |
-| `maxWidth: 600` | 175 |
-| `minHeight: 48` | 173, 176 |
-| `padding: 18` | 104, 175 |
-| `paddingHorizontal: 12` | 173 |
-| `paddingHorizontal: 18` | 171, 176 |
-| `paddingVertical: 10` | 173, 176 |
-| `width: '100%'` | 175 |
+| `gap: 16` | 177 |
+| `gap: 4` | 173 |
+| `gap: 8` | 174 |
+| `maxWidth: 600` | 177 |
+| `minHeight: 48` | 175, 178 |
+| `padding: 18` | 104, 177 |
+| `paddingHorizontal: 12` | 175 |
+| `paddingHorizontal: 18` | 173, 178 |
+| `paddingVertical: 10` | 175, 178 |
+| `width: '100%'` | 177 |
 
 ## DevelopmentHub.tsx
 

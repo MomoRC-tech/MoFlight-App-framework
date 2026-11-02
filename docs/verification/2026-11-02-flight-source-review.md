@@ -32,4 +32,8 @@ The two controller active windows169,391/215,531ms and all gathered action/captu
 
 ## Remaining boundaries
 
+### Narrow preview controls correction — #94
+
+The partial narrow trial justified a small Development-only correction: while a flight detail is open, retain the synthetic/no-storage notice and hide secondary fixture mode/navigation controls; contextual detail Back restores them. The source comparison, ordinary app, Start and storage are unchanged. Both existing preview route tests pass, extended to verify hidden detail controls and restoration after Back; focused lint and regenerated handbook pass. Reuse the preceding source/store/reader/full-host/MAIN evidence within its source limits. Run only a new committed-source Android enlarged-text comparison check for this actual layout correction; do not repeat the ordinary app matrix or host suite. Logs: build/source-review-chrome-test.log and build/source-review-chrome-handbook.log.
+
 #30 retains independent paper deviations, aggregate-only book markers and resolved-marker lifetime under #7/#11/#18; real book/format integration is not implemented by this package. Supabase/cross-device acknowledgment sync stays parked. Actual ordinary Android seen-state restart/write failure/account transitions, physical phone, iOS, beta light and spoken accessibility retain #8/#16/#107 and feature acceptance. No provider/model requests, source mutation, new dependency or spending.
