@@ -1673,7 +1673,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StartSeasonCharts
 
 ## StatisticsCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.tsx](../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx); normalized SHA-256 `cca2b16a96c87691370a2c8aaec83df5095abebbd17ada002ea8642460e17793`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.tsx](../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx); normalized SHA-256 `cce130a3345f1a42cd659576da261a07b838c73e1966184ebfc7325a599212fe`.
 
 ### Literal colors
 
@@ -2025,7 +2025,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 
 ## TrendChart.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/TrendChart.tsx](../../../apps/platform-lab/src/mobile/TrendChart.tsx); normalized SHA-256 `2a09c9513e994cdbfefba74e111b216f54bdad24b57e0955af9f90476bae62ca`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/TrendChart.tsx](../../../apps/platform-lab/src/mobile/TrendChart.tsx); normalized SHA-256 `fea1b78dfece981a2f7931acbedf3e36c86b39883b4c2c55e27481828736227a`.
 
 ### Typography declarations
 

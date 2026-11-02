@@ -38,7 +38,7 @@ export function TrendChart({values,prior,labels,selectedIndex,onSelect,color=col
         {selectedPrior&&<Circle cx={selectedPrior.x} cy={selectedPrior.y} r={4} stroke={colors.orange} strokeWidth={2} fill={colors.card}/>}
         {selected&&<><Circle cx={selected.x} cy={selected.y} r={11} fill={color} opacity={.16}/><Circle cx={selected.x} cy={selected.y} r={5} fill={colors.text} stroke={color} strokeWidth={2.5}/></>}
       </Svg>
-      <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel} accessibilityHint="Monat wählen. Einzelne Monate und genaue Flüge sind auch unter Werte & Flüge erreichbar." onPress={e=>{if(labels.length)onSelect(Math.max(0,Math.min(labels.length-1,Math.round((e.nativeEvent.locationX-12)/Math.max(1,width-24)*(labels.length-1)))));}} style={{position:'absolute',inset:0,minHeight:48}}/>
+      <Pressable accessibilityRole="button" accessibilityLabel={accessibilityLabel} accessibilityHint="Monat wählen. Die Einzelwerte sind auch über die beschrifteten Optionen erreichbar." onPress={e=>{if(labels.length)onSelect(Math.max(0,Math.min(labels.length-1,Math.round((e.nativeEvent.locationX-12)/Math.max(1,width-24)*(labels.length-1)))));}} style={{position:'absolute',inset:0,minHeight:48}}/>
     </View>
     <View accessibilityLabel="Monatsachse Januar bis Dezember" style={{height:20*fontScale}}>{ticks.map(i=>{const w=Math.min(width,40*fontScale),left=Math.max(0,Math.min(width-w,current.x(i)-w/2));return <View key={i} style={{position:'absolute',left,width:w,alignItems:'center'}}><Label muted style={{fontSize:10,lineHeight:16}}>{labels[i]}</Label></View>;})}</View>
   </View>;

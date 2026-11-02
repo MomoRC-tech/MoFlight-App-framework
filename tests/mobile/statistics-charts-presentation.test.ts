@@ -21,7 +21,7 @@ test('monthly tap shows current and prior facts and opens only current contribut
   plot.props.onSelect(2);
   assert.match(JSON.stringify(f.render()),/2026: 1 Flüge/);assert.match(JSON.stringify(f.render()),/2025: 1 Flüge/);
   f.action('Flüge ansehen · 1').props.onPress();assert.deepEqual([...f.opened[0][1]],['flight-0']);
-  f.render();assert.equal(f.back(),true);assert.equal(f.nodes().some(n=>n.props.accessibilityLabel==='Auswahl schließen'),false);
+  f.render();assert.equal(f.back(),true);assert.equal(f.nodes().some(n=>n.props.accessibilityLabel==='Auswahl schließen'),false);assert.equal(f.press('Monat im Flugzeitdiagramm auswählen').props.selectedIndex,null,'Back clears the plot focus as well as its details');
 });
 test('previous-year accessible values keep their explicit contributor scope',()=>{
   const f=fixture();f.press('Werte und Flüge anzeigen').props.onPress();
