@@ -1,0 +1,262 @@
+{
+  "version": 1,
+  "boundary": "Synthetic non-persisting previews; controller durations include agent deliberation and ADB overhead, not app latency. MAIN only; MIN/wide captures show overview and are not affected-screen acceptance.",
+  "parent_inspected": [
+    "stats-main.png",
+    "stats-min.png",
+    "costs-main.png",
+    "costs-selected.png"
+  ],
+  "sessions": [
+    {
+      "session": "refactor-20261102",
+      "controller_status": "completed",
+      "application_commit": "d15fd2338af22cf02a4f3bbcc146a11a1a9d7363",
+      "apk_sha256": "18e255e838cf23dc902152fa64e896c404b61a0b95890438b47ccdcb758c77a1",
+      "avd": "MoFlight_Synthetic_API37",
+      "android_api": "37",
+      "actions": 7,
+      "captures": 0,
+      "active_elapsed_seconds": 92.25,
+      "action_errors": [
+        {
+          "utc": "2026-11-02T11:54:00.110345+00:00",
+          "number": 4,
+          "command": {
+            "op": "tap",
+            "by": "label",
+            "value": "Profil & Einstellungen \u00c3\u00b6ffnen"
+          },
+          "status": "failed",
+          "error": "ValueError: Expected exactly one enabled fully visible clickable match; got 0."
+        },
+        {
+          "utc": "2026-11-02T11:54:14.429579+00:00",
+          "number": 6,
+          "command": {
+            "op": "tap",
+            "by": "label",
+            "value": "Profil & Einstellungen \u00c3\u00b6ffnen, Anmeldung aktuell ungepr\u00c3\u00bcft."
+          },
+          "status": "failed",
+          "error": "ValueError: Selector not in this session navigation allowlist; ask parent to scope it."
+        },
+        {
+          "utc": "2026-11-02T11:54:27.775139+00:00",
+          "number": 7,
+          "command": {
+            "op": "tap",
+            "by": "label",
+            "value": "Flugzeit 2026: unbekannt Stunden und Minuten. 2025: unbekannt. Monatsvergleich \u00c3\u00b6ffnen"
+          },
+          "status": "failed",
+          "error": "ValueError: Selector not in this session navigation allowlist; ask parent to scope it."
+        }
+      ],
+      "cleanup_errors": [],
+      "original_display": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "1.0"
+      },
+      "restored_display": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "1.0"
+      },
+      "network_preserved": true,
+      "identity_preserved": true,
+      "checks": {
+        "U02": {
+          "evidence": [],
+          "observation": "Baseline deliberately excluded by narrow changed-UI scope.",
+          "status": "not_tested"
+        },
+        "U03": {
+          "evidence": [],
+          "observation": "Baseline deliberately excluded by narrow changed-UI scope.",
+          "status": "not_tested"
+        },
+        "U06": {
+          "evidence": [],
+          "observation": "Baseline deliberately excluded by narrow changed-UI scope.",
+          "status": "not_tested"
+        },
+        "U01": {
+          "evidence": [],
+          "observation": "Baseline deliberately excluded by narrow changed-UI scope.",
+          "status": "not_tested"
+        },
+        "U08": {
+          "evidence": [],
+          "observation": "Baseline deliberately excluded by narrow changed-UI scope.",
+          "status": "not_tested"
+        },
+        "U05": {
+          "evidence": [],
+          "observation": "Baseline deliberately excluded by narrow changed-UI scope.",
+          "status": "not_tested"
+        },
+        "C02": {
+          "evidence": [
+            "main-start.xml"
+          ],
+          "observation": "Start metric label Flugzeit 2026: unbekannt Stunden und Minuten. 2025: unbekannt. Monatsvergleich \u00c3\u00b6ffnen refused by navigation allowlist. Statistics/Costs flows and viewport matrix not reached.",
+          "status": "blocked"
+        },
+        "U07": {
+          "evidence": [],
+          "observation": "Baseline deliberately excluded by narrow changed-UI scope.",
+          "status": "not_tested"
+        },
+        "C01": {
+          "evidence": [
+            "initial.xml",
+            "main-start.xml"
+          ],
+          "observation": "Profile base label had zero matches. Fresh MAIN XML exact label was Profil & Einstellungen \u00c3\u00b6ffnen, Anmeldung aktuell ungepr\u00c3\u00bcft.; exact retry refused by controller navigation allowlist. No UI defect inferred.",
+          "status": "blocked"
+        },
+        "U04": {
+          "evidence": [],
+          "observation": "Baseline deliberately excluded by narrow changed-UI scope.",
+          "status": "not_tested"
+        }
+      },
+      "inspected_pngs": []
+    },
+    {
+      "session": "refactor-20261102-scoped",
+      "controller_status": "completed",
+      "application_commit": "d15fd2338af22cf02a4f3bbcc146a11a1a9d7363",
+      "apk_sha256": "18e255e838cf23dc902152fa64e896c404b61a0b95890438b47ccdcb758c77a1",
+      "avd": "MoFlight_Synthetic_API37",
+      "android_api": "37",
+      "actions": 39,
+      "captures": 6,
+      "active_elapsed_seconds": 215.14100000006147,
+      "action_errors": [
+        {
+          "utc": "2026-11-02T11:59:11.875357+00:00",
+          "number": 37,
+          "command": {
+            "op": "tap",
+            "by": "label",
+            "value": "Statistik"
+          },
+          "status": "failed",
+          "error": "ValueError: Selector not in this session navigation allowlist; ask parent to scope it."
+        }
+      ],
+      "cleanup_errors": [],
+      "original_display": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "1.0"
+      },
+      "restored_display": {
+        "size": "Physical size: 1080x1920",
+        "density": "Physical density: 420",
+        "font": "1.0"
+      },
+      "network_preserved": true,
+      "identity_preserved": true,
+      "checks": {
+        "U01": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Deliberately excluded by parent changed-UI scope."
+        },
+        "U02": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Deliberately excluded by parent changed-UI scope."
+        },
+        "U03": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Deliberately excluded by parent changed-UI scope."
+        },
+        "U04": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Deliberately excluded by parent changed-UI scope."
+        },
+        "U05": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Deliberately excluded by parent changed-UI scope."
+        },
+        "U06": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Deliberately excluded by parent changed-UI scope."
+        },
+        "U07": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Deliberately excluded by parent changed-UI scope."
+        },
+        "U08": {
+          "status": "not_tested",
+          "evidence": [],
+          "observation": "Deliberately excluded by parent changed-UI scope."
+        },
+        "S01": {
+          "status": "passed",
+          "evidence": [
+            "preview.xml",
+            "stats-main.xml",
+            "stats-main.png"
+          ],
+          "observation": "At MAIN 390x900 dp/font 1.0, Start Flugzeit metric opened Flugstatistik with monthly chart, 5 flights, 5:20 h and one unknown time. Actual PNG readable; no visible overlap in captured viewport."
+        },
+        "S02": {
+          "status": "passed",
+          "evidence": [
+            "stats-before-back.xml",
+            "back-to-preview-start.xml",
+            "back-to-preview-start.png"
+          ],
+          "observation": "Contextual Back from Flugstatistik returned to synthetic Designvorschau Start with same 5:20, 5 flights and 7:25 h."
+        },
+        "S03": {
+          "status": "passed",
+          "evidence": [
+            "costs-main.xml",
+            "costs-main.png",
+            "costs-selected.xml",
+            "costs-selected.png"
+          ],
+          "observation": "Costs MAIN shows Jan unknown, Feb 0,00 EUR, Mar 6,40 EUR and Apr 153,00 EUR distinctly. Tapping Mar highlighted its card and updated selected demo month from 6 to 3. Labels and exact amounts readable in actual PNGs."
+        },
+        "S04": {
+          "status": "blocked",
+          "evidence": [
+            "stats-min.xml",
+            "stats-min.png",
+            "stats-wide.xml",
+            "stats-wide.png",
+            "stats-wide-settled.xml"
+          ],
+          "observation": "Viewport changes reset app to loading overview, losing preview. MIN 360x900/font 1.6 and WIDE 800x600/font 1.0 PNGs are overview, not Statistics. No affected Stats/Costs matrix acceptance. Re-entry used remaining action budget."
+        },
+        "S05": {
+          "status": "blocked",
+          "evidence": [
+            "stats-final.xml"
+          ],
+          "observation": "Direct Statistik selector refused by controller allowlist; no blind retry. Monthly chart selection/detail not exercised. Metric drilldown itself was successful."
+        }
+      },
+      "inspected_pngs": [
+        "stats-main.png",
+        "stats-min.png",
+        "stats-wide.png",
+        "costs-main.png",
+        "costs-selected.png",
+        "back-to-preview-start.png"
+      ]
+    }
+  ]
+}

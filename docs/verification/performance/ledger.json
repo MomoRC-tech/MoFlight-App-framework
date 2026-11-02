@@ -50499,6 +50499,51 @@
         }
       ],
       "id": "sync-verification-stage-observations-30oct-e4fb675"
+    },
+    {
+      "id": "2026-11-02-refactor-ui-controller",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "d15fd2338af22cf02a4f3bbcc146a11a1a9d7363",
+      "apk_sha256": "18e255e838cf23dc902152fa64e896c404b61a0b95890438b47ccdcb758c77a1",
+      "device": "MoFlight_Synthetic_API37 Android API37 x86_64; MAIN390x900 density160 font1.0; attempted MIN360x900 font1.6/WIDE800x600 font1.0; restored1080x1920 density420 font1.0",
+      "input": "Synthetic non-persisting flight/Costs design previews; no provider or financial-store reads",
+      "conditions": "Offline, headless emulator; bounded UI controller includes worker deliberation, idle time, ADB and observer overhead",
+      "method": "Controller active_started to close; tool-session duration only, not app latency; first selector-blocked attempt and qualified corrected-scope attempt",
+      "limits": [
+        "Not comparable app performance, no speedup or phone timing claim.",
+        "First attempt blocked; second establishes MAIN preview checks only. MIN/wide captures show overview, not affected screens.",
+        "Original display/network/install identity restored. Pre-existing dirty ledger entries preserved separately."
+      ],
+      "evidence": [
+        "docs/verification/2026-11-02-whole-app-refactor.md#android-checkpoint-and-delivery",
+        "docs/verification/2026-11-02-refactor-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "refactor-20261102",
+          "metric": "ui-controller-session",
+          "milliseconds": 92250.0,
+          "outcome": "blocked",
+          "details": {
+            "actions": 7,
+            "captures": 0,
+            "selectorFailures": 3
+          }
+        },
+        {
+          "id": "refactor-20261102-scoped",
+          "metric": "ui-controller-session",
+          "milliseconds": 215141.0,
+          "outcome": "partial",
+          "details": {
+            "actions": 39,
+            "captures": 6,
+            "selectorFailures": 1
+          }
+        }
+      ]
     }
   ]
 }
