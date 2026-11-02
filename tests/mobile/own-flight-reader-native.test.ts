@@ -56,7 +56,7 @@ function detailGuardFixture(openRegistry?: () => Promise<RealOwnerRegistry>) {
   const lease={ownerId:'owner',storeId:'store',leaseId:'lease',selectionSeq:1};
   const flights=ownFlightFixture();
   const calls={restore:0,owner:0,selectionOpens:0,selects:0,identities:[] as string[],selectionCloses:0,registryCloses:0,candidateCloses:0,disposes:0};
-  const state={failRestoreAt:0,failOwnerAt:0,failSelection:false,missingSelection:false,failClose:false,pendingCommand:false,pendingRestore:false,previewText:null as string|null,providerScope:null as any,cacheSaves:0};
+  const state={failRestoreAt:0,failOwnerAt:0,failSelection:false,missingSelection:false,failClose:false,pendingCommand:false,pendingRestore:false,previewText:null as string|null,providerScope:null as any,selectionIdentity:'verified-activation-chain',cacheSaves:0};
   const evidenceFlags:boolean[]=[];
   class Service {
     constructor(private readonly owner:string,private readonly store:string,_lease:unknown,private readonly ports:any){}
@@ -88,8 +88,8 @@ function detailGuardFixture(openRegistry?: () => Promise<RealOwnerRegistry>) {
         if(state.missingSelection)return null;
         return {
           listRestorePreparations:async()=>state.pendingRestore?[{status:'pending'}]:[],
-          select:async()=>{calls.selects++;return {selectionIdentity:'verified-activation-chain',candidate:{close:async()=>{calls.candidateCloses++;}},recoveryRequired:false,warning:null};},
-          assertIdentity:async(identity:string)=>{calls.identities.push(identity);if(state.failSelection)throw new Error('Selection changed');},
+          select:async()=>{calls.selects++;return {selectionIdentity:state.selectionIdentity,candidate:{close:async()=>{calls.candidateCloses++;}},recoveryRequired:false,warning:null};},
+          assertIdentity:async(identity:string)=>{calls.identities.push(identity);if(state.failSelection||identity!==state.selectionIdentity)throw new Error('Selection changed');},
           close:async()=>{calls.selectionCloses++;if(state.failClose)throw new Error('Selection close failed');},
         };
       },
@@ -235,6 +235,18 @@ test('native cache stores verified Start values and unchanged revalidation avoid
   session=await h.ports.open();
   assert.ok(await session.readStartPreview());
   await session.saveStartPreview(f.view);assert.equal(h.state.cacheSaves,1);
+  const reconnectedScope={...f.scope,connectionId:'reconnected'};
+  h.state.providerScope=reconnectedScope;
+  await session.saveStartPreview(f.view);
+  assert.equal(h.state.cacheSaves,2,'same-account reconnection refreshes the admission envelope despite an unchanged flight revision');
+  assert.deepEqual(JSON.parse(h.state.previewText!).providerScope,reconnectedScope);
+  assert.deepEqual((await session.readStartPreview())!.providerScope,reconnectedScope,'the rewritten cache is admissible under the current provider scope');
+  const reactivatedContext={...f.view,detailContext:{...f.view.detailContext!,selectionIdentity:'verified-activation-chain-next'}};
+  h.state.selectionIdentity=reactivatedContext.detailContext!.selectionIdentity;
+  await session.saveStartPreview(reactivatedContext);
+  assert.equal(h.state.cacheSaves,3,'same revision under a new activation identity refreshes the admission envelope');
+  assert.deepEqual(JSON.parse(h.state.previewText!).context,reactivatedContext.detailContext);
+  assert.deepEqual((await session.readStartPreview())!.context,reactivatedContext.detailContext,'the rewritten cache is admissible under the current activation identity');
   await session.saveStartPreview({...f.view,snapshot:{...f.snapshot,recovery:{readOnly:true,warning:'Synthetic recovery'}}});
   assert.equal(h.state.previewText,null,'recovery invalidates cache even when its source revision is unchanged');
   await session.close();

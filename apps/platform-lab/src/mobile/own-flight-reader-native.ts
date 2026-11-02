@@ -109,7 +109,9 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
           if(!selected||selected.context.accountNumber!==view.snapshot.account?.accountRef||view.snapshot.ownerId!==lease.ownerId||view.snapshot.storeId!==lease.storeId)return;
           const now=Date.now();
           const revision=await hash(canonical([startDay(now),view.snapshot.generation,view.snapshot.savedRetrievals,view.medical??null,view.duties??null,view.featureInformation?.workSummary??null]));
-          if(admittedPreview?.revision===revision)return;
+          if(admittedPreview?.revision===revision&&admittedPreview.ownerId===view.snapshot.ownerId&&
+            admittedPreview.storeId===view.snapshot.storeId&&admittedPreview.accountRef===selected.context.accountNumber&&
+            canonical(admittedPreview.providerScope)===canonical(selected)&&canonical(admittedPreview.context)===canonical(view.detailContext))return;
           const preview=makeStartPreview(view,selected,now,revision);
           if(!preview){await clearStartPreviewCache(lease.storeId);return;}
           const gate=async()=>{
