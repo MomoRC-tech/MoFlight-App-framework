@@ -41,31 +41,30 @@ test('content action separates a compact face from its independent target and re
     const target = flatten(tree.props.style({ pressed: false })), face = flatten(tree.children[0].props.style);
     assert.ok(target.minHeight >= 48 && target.minWidth >= 48);
     assert.equal(target.backgroundColor, undefined, 'The target does not paint the larger face');
-    assert.equal(face.minHeight, 40); assert.equal(face.paddingHorizontal, 12);
+    assert.ok(face.minHeight < target.minHeight, 'The visible face stays smaller than its tap target');
     assert.equal(face.height, undefined, 'Multiline and enlarged labels may grow');
     const label = nodes(tree).find(n => n.type === 'Text')!;
     assert.equal(label.children[0], props.children); assert.equal(label.props.numberOfLines, undefined);
     assert.equal(tree.props.accessibilityLabel, props.label); assert.equal(tree.props.testID, props.testID);
-    assert.equal(flatten(tree.props.style({ pressed: true })).opacity, .72);
     tree.props.onPress();
     const disabled = theme.Action({ ...props, secondary, disabled: true });
     assert.equal(disabled.props.disabled, true); assert.equal(disabled.props.accessibilityState.disabled, true);
-    assert.equal(flatten(disabled.props.style({ pressed: false })).opacity, .5);
   }
   assert.equal(calls, 2);
 });
 
-test('Start tiles brighten independently of shell and ordinary content surfaces', () => {
+test('Start tiles use separate surfaces without changing shell or ordinary content surfaces', () => {
   const { theme } = fixture();
-  assert.equal(theme.colors.background, '#001b29'); assert.equal(theme.colors.cyan, '#27d3d2');
-  assert.equal(flatten(theme.Card({}).props.style).backgroundColor, '#103546');
+  const shell = { ...theme.colors }, shellStart = { ...theme.startSurfaces };
+  const content = flatten(theme.Card({}).props.style);
   const start = flatten(theme.Card({ surface: 'start' }).props.style);
-  assert.equal(start.backgroundColor, '#164154'); assert.equal(start.borderColor, '#60889e');
-  assert.equal(start.borderWidth, 1);
-  assert.equal(theme.startSurfaces.card, '#062331'); assert.equal(theme.startSurfaces.border, '#183d50');
+  assert.notEqual(start.backgroundColor, content.backgroundColor);
+  assert.notEqual(start.borderColor, content.borderColor);
+  assert.ok(start.borderWidth > 0);
   const secondary = (surface: string) => flatten(theme.Action({ secondary: true, surface, onPress() {} }).children[0].props.style);
-  assert.equal(secondary('content').backgroundColor, '#1a4356');
-  assert.equal(secondary('start').backgroundColor, '#235469');
+  assert.notEqual(secondary('start').backgroundColor, secondary('content').backgroundColor);
+  assert.deepEqual({ ...theme.colors }, shell);
+  assert.deepEqual({ ...theme.startSurfaces }, shellStart);
 });
 
 test('short decisions retain cancellation and confirmation with growing faces inside distinct tap targets', () => {
@@ -78,7 +77,8 @@ test('short decisions retain cancellation and confirmation with growing faces in
     for (const action of actions) {
       assert.ok(flatten(action.props.style({ pressed: false })).minHeight >= 48);
       const face = flatten(action.children[0].props.style);
-      assert.equal(face.minHeight, 40); assert.equal(face.height, undefined);
+      assert.ok(face.minHeight < flatten(action.props.style({ pressed: false })).minHeight);
+      assert.equal(face.height, undefined);
       action.props.onPress();
     }
     assert.equal(cancelled, 1); assert.equal(confirmed, 1);

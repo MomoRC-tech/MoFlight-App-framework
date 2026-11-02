@@ -26,6 +26,8 @@ Launching or reviewing checks through an assistant still uses conversation token
 
 ## Work in bounded packages
 
+**2 November whole-app review (#114/#115):** use focused checks during editing and one shared host checkpoint for a stable package. Test observable behavior and independently specified boundaries; avoid exact color/padding/opacity assertions as substitutes for native visual acceptance. Ordinary benchmark harness tests use two independent trials (12 samples across the two runners); explicit native measurements retain the default five trials. Sample reduction is deterministic work reduction, not a measured wall-clock speedup. Preserve identity, atomicity, unknown-value, recovery and process-exit regressions; a large test count alone is not a reason to delete them. Reuse unchanged evidence instead of repeating builds for small wording changes.
+
 **25 October refinement from Manuel:** gather related small increments and UI corrections before extensive testing. Do not turn each wording/presentation adjustment into its own Release/native cycle. Focused checks during editing and one broader checkpoint for the stable package are the default; repeat only checks justified by changed behavior, a failure or material risk. The classification package's repeated wording/build cycles prompted this clarification.
 
 1. Read current authorization and relevant source/evidence. Reuse the matching GitHub Issue; capture distinct work before implementing it.

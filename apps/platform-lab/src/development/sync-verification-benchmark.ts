@@ -14,8 +14,9 @@ import {responsivenessSource} from './android-flight-responsiveness';
  * files. Every trial starts from identical closed seeds, and closes all handles
  * during the simulated provider wait. Both variants use current code; the
  * control omits the disposable verification scope. */
-export async function runSyncVerificationBenchmark(active:()=>boolean,onProgress:(value:string)=>void,count=101){
+export async function runSyncVerificationBenchmark(active:()=>boolean,onProgress:(value:string)=>void,count=101,trials=5){
   if(!Number.isSafeInteger(count)||count<1||count>500)throw new Error('Invalid synthetic size');
+  if(!Number.isSafeInteger(trials)||trials<1||trials>5)throw new Error('Invalid synthetic trial count');
   const root=new Directory(Paths.cache,`moflight-sync-verification-v1-${count}`);root.create({idempotent:true,intermediates:true});
   const seeds=new Directory(root,'seeds');seeds.create({idempotent:true,intermediates:true});
   const run=new Directory(root,`run-${Date.now()}`);run.create();
@@ -53,8 +54,8 @@ export async function runSyncVerificationBenchmark(active:()=>boolean,onProgress
   const seedDigests=await Promise.all(['history.sqlite','commands.sqlite'].map(async name=>hash(await new File(seeds,name).base64())));
   const samples:{variant:'control'|'reuse';trial:number;milliseconds:number;stages:Record<string,number>;hashCalls:number;openReplays:number;graphHits:number;commandHits:number;graphSha256:string;receipts:number}[]=[];
   let expected:string|undefined;
-  for(let trial=0;trial<5;trial++)for(const variant of ['control','reuse'] as const){
-    requireActive();onProgress(`${variant==='control'?'Bisherige Prüfung':'Wiederverwendung'} ${trial+1}/5`);
+  for(let trial=0;trial<trials;trial++)for(const variant of ['control','reuse'] as const){
+    requireActive();onProgress(`${variant==='control'?'Bisherige Prüfung':'Wiederverwendung'} ${trial+1}/${trials}`);
     const libraryName=`${variant}-${trial}.sqlite`,journalName=`${variant}-${trial}-commands.sqlite`;
     await new File(seeds,'history.sqlite').copy(new File(run,libraryName));await new File(seeds,'commands.sqlite').copy(new File(run,journalName));
     const digests=await Promise.all([libraryName,journalName].map(async name=>hash(await new File(run,name).base64())));

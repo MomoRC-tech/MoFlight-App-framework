@@ -10,8 +10,9 @@ import {RECOVERY_AT,RECOVERY_MANIFEST,RECOVERY_OWNER,RECOVERY_STORE,recoveryPerm
 import {responsivenessSource} from './android-flight-responsiveness';
 
 /** Build-only synthetic proof. Every trial starts from byte-identical closed SQLite seeds. */
-export async function runSyncNativeBenchmark(onProgress:(value:string)=>void,count=101){
+export async function runSyncNativeBenchmark(onProgress:(value:string)=>void,count=101,trials=5){
   if(!Number.isSafeInteger(count)||count<1||count>500)throw new Error('Invalid synthetic benchmark size');
+  if(!Number.isSafeInteger(trials)||trials<1||trials>5)throw new Error('Invalid synthetic trial count');
   const root=new Directory(Paths.cache,`moflight-fixed-sync-benchmark-v4-${count}`);root.create({idempotent:true,intermediates:true});
   const seeds=new Directory(root,'seeds');seeds.create({idempotent:true,intermediates:true});
   const run=new Directory(root,`run-${Date.now()}`);run.create();
@@ -43,8 +44,8 @@ export async function runSyncNativeBenchmark(onProgress:(value:string)=>void,cou
   for(const scenario of ['first','unchanged','changed','reopened'] as const){
     const base=scenario==='first'?'empty':'populated';let expectedGraph:string|undefined;
     const seedHashes=await Promise.all([hash(await new File(seeds,`${base}.sqlite`).base64()),hash(await new File(seeds,`${base}-commands.sqlite`).base64())]);seedDigests[base]=seedHashes;
-    for(let trial=0;trial<5;trial++){
-      onProgress(`${scenario} ${trial+1}/5`);sequence=100;
+    for(let trial=0;trial<trials;trial++){
+      onProgress(`${scenario} ${trial+1}/${trials}`);sequence=100;
       const name=`${scenario}-${trial}`,libraryName=`${name}.sqlite`,journalName=`${name}-commands.sqlite`;
       await new File(seeds,`${base}.sqlite`).copy(new File(run,libraryName));await new File(seeds,`${base}-commands.sqlite`).copy(new File(run,journalName));
       if(await hash(await new File(run,libraryName).base64())!==seedHashes[0]||await hash(await new File(run,journalName).base64())!==seedHashes[1])throw new Error('Seed clone differs');
@@ -68,6 +69,6 @@ export async function runSyncNativeBenchmark(onProgress:(value:string)=>void,cou
       }finally{current.dispose();}
     }
   }
-  const report={version:1,flights:count,scope:'Synthetic Android native SQLite; five byte-identical seed clones per scenario, no provider/network/physical-phone claim',seedDigests,samples};
+  const report={version:1,flights:count,scope:`Synthetic Android native SQLite; ${trials} byte-identical seed clones per scenario, no provider/network/physical-phone claim`,seedDigests,samples};
   new File(run,'report.json').write(JSON.stringify(report));console.info('MOFLIGHT_SYNC_BENCHMARK '+JSON.stringify({...report,samples:samples.length}));return report;
 }
