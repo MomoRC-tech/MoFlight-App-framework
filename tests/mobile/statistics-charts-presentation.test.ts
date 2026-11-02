@@ -65,3 +65,27 @@ test('all-history defaults to a usable duration view instead of an unavailable m
   assert.ok(f.press('Information zu Flugdauer im Jahr'));
   assert.doesNotMatch(JSON.stringify(f.render()),/Für den Monatsvergleich bitte ein Jahr/);
 });
+
+
+test('aircraft and launch comparisons label count and known time and retain exact unknown-time contributors',()=>{
+  for(const chart of ['aircraft','launch']){
+    const f=fixture(chart),rows=structuredClone(ownFlightFixture().flights);
+    rows.forEach((row,i)=>{
+      row.facts.assessment.date={...row.facts.assessment.date,state:'parsed',value:'2026-03-01'};
+      row.facts.assessment.durations.flight=i===2?{state:'unknown',minutes:null,evidence:[]}:{state:'known',minutes:i===0?0:180,evidence:[]};
+      for(const [label,raw] of [['Luftfahrzeugart','Segelflugzeug'],['S.-Art','Winde']]){
+        const observation=row.facts.assessment.observation,index=observation.headers.indexOf(label!);
+        if(index>=0)observation.row.values[index]=raw!;else{observation.headers.push(label!);observation.row.values.push(raw!);}
+      }
+    });
+    f.props.flights=rows;
+    const group=f.nodes().find(n=>n.type==='Pressable'&&n.props.accessibilityLabel?.includes('3 Flüge, 3:00 h, 1 unbekannte Dauern'))!;
+    assert.ok(group);const text=JSON.stringify(group);
+    assert.match(text,/Bekannte Flugzeit/);assert.match(text,/3:00 h/);assert.match(text,/Zeiten unbekannt/);assert.doesNotMatch(text,/Raute/);
+    group.props.onPress();f.action('Flüge ansehen · 3').props.onPress();assert.deepEqual([...f.opened[0][1]],['flight-0','flight-1','flight-2']);
+    rows[1]!.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
+    assert.ok(f.nodes().find(n=>n.type==='Pressable'&&n.props.accessibilityLabel?.includes('3 Flüge, 0:00 h, 2 unbekannte Dauern')),'known zero is retained separately from unknown');
+    rows[0]!.facts.assessment.durations.flight={state:'unknown',minutes:null,evidence:[]};
+    assert.ok(f.nodes().find(n=>n.type==='Pressable'&&n.props.accessibilityLabel?.includes('3 Flüge, Zeit unbekannt, 3 unbekannte Dauern')));
+  }
+});

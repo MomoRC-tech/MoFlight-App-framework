@@ -146,7 +146,7 @@ export function AiChat({
   const transcript=useRef<ScrollView>(null),positions=useRef<Record<string,number>>({}),follow=useRef(true);
   const key=selectedId??'new';
   const cannotCreate=busy||!storageReady;
-  const cannotSend=!draft.trim()||!storageReady;
+  const cannotSend=!draft.trim()||!storageReady||!enabled||!active;
   useEffect(()=>{follow.current=positions.current[key]===undefined;setShowLatest(false);setInputHeight(44);},[key]);
   useEffect(()=>{if(!active){setSheet(null);Keyboard.dismiss();}},[active]);
   const open=(next:NonNullable<typeof sheet>)=>{Keyboard.dismiss();setSheet(next);};
@@ -185,7 +185,7 @@ export function AiChat({
       <View style={styles.composerRow}>
         <Pressable accessibilityRole="button" accessibilityLabel="Chatwerkzeuge öffnen" onPress={()=>open('tasks')} style={styles.iconButton}><SymbolIcon name="plus" size={22}/></Pressable>
         <TextInput accessibilityLabel="Frage oder Nachrichtenentwurf" accessibilityHint="Wird lokal gespeichert. Senden erfolgt nur mit der Sendetaste." editable={!busy&&storageReady} accessibilityState={{disabled:busy||!storageReady}} maxLength={16000} multiline scrollEnabled value={draft} onChangeText={onDraft} placeholder="Nachricht …" placeholderTextColor={colors.muted} selectionColor={colors.cyan} onContentSizeChange={e=>setInputHeight(e.nativeEvent.contentSize.height)} style={[styles.composer,{minHeight:composerMinHeight,maxHeight:composerMaxHeight,height:Math.max(composerMinHeight,Math.min(composerMaxHeight,inputHeight))}]}/>
-        {busy?<Pressable accessibilityRole="button" accessibilityLabel="Laufende Antwort abbrechen" onPress={onCancel} style={styles.iconButton}><SymbolIcon name="close" size={22}/></Pressable>:<Pressable accessibilityRole="button" accessibilityLabel="Nachricht senden" disabled={cannotSend} accessibilityState={{disabled:cannotSend}} onPress={()=>{bottom();onSend();}} style={[styles.iconButton,cannotSend&&styles.disabled]}><SymbolIcon name="send" size={24}/></Pressable>}
+        {busy?<Pressable accessibilityRole="button" accessibilityLabel="Laufende Antwort abbrechen" onPress={onCancel} style={styles.iconButton}><SymbolIcon name="close" size={22}/></Pressable>:<Pressable accessibilityRole="button" accessibilityLabel="Nachricht senden" accessibilityHint={!enabled?'KI-Anfragen sind ausgeschaltet. Status und Freigabe über die KI-Statuszeile öffnen.':undefined} disabled={cannotSend} accessibilityState={{disabled:cannotSend}} onPress={()=>{if(cannotSend)return;bottom();onSend();}} style={[styles.iconButton,cannotSend&&styles.disabled]}><SymbolIcon name="send" size={24}/></Pressable>}
       </View>
     </View>
     {sheet&&active&&<Modal transparent animationType="slide" onRequestClose={closeSheet} statusBarTranslucent><KeyboardAvoidingView behavior={Platform.OS==='ios'?'padding':'height'} style={[styles.scrim,width>=600&&styles.wideScrim]}>

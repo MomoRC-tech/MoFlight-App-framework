@@ -867,6 +867,8 @@ test('remaining Settings pages use contextual headers and retain their mounted c
 
 test('all Club sections use concise page headers and restore their independent scroll on Back',()=>{
  const f=fixture();f.press('Pressable','Verein');
+ const navigation=f.nodes().find(n=>n.props.accessibilityLabel==='Vereinsbereiche')!;assert.equal(navigation.type,'View');
+ assert.deepEqual(navigation.children.filter((n:any)=>n?.type==='Chip').map((n:any)=>n.props.title),['Übersicht','Termine','Dienste','Dokumente','Arbeitsstunden','Aufgaben']);
  for(const section of ['Termine','Dienste','Dokumente','Arbeitsstunden','Aufgaben']){
   const chip=f.nodes().find(n=>n.type==='Chip'&&n.props.title===section)!;chip.props.onPress();f.render();
   assert.equal(f.headers()[0]!.props.title,section);assert.equal(f.headers()[0]!.props.variant,'page');

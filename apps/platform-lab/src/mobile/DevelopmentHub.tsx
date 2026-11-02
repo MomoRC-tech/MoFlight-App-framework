@@ -57,7 +57,7 @@ export function DevelopmentHub({ onDetailHttpPoc, onFlights, onBooks, onImportPr
         <Action secondary disabled={proofBusy} onPress={()=>void runFinancialProof(true)}>Finanznachweis offline wieder öffnen</Action>
         {financialProof&&<View accessibilityLiveRegion="polite"><Label selectable>{financialProof}</Label></View>}
       </SettingsContentDisclosure>
-      {onDesignPreview && <SettingsContentRow title="Designvorschau" summary="Fiktive Flüge, leere Listen und Fehlerzustände. Keine Speicherung und kein Anbieterzugriff." onPress={onDesignPreview} />}
+      {onDesignPreview && <SettingsContentRow testID="development-design-preview" title="Designvorschau" summary="Fiktive Flüge, leere Listen und Fehlerzustände. Keine Speicherung und kein Anbieterzugriff." onPress={onDesignPreview} />}
       <SettingsContentDisclosure title="Sollstunden-Dateinachweis" summary="Nur fest abgegrenzte synthetische Konten" testID="development-target-proof-details">
         <Label muted>Prüft lokale Dateien und stellt deren vorherigen Inhalt wieder her; keine Anbieterabfrage.</Label>
         <Action disabled={proofBusy} onPress={() => void runTargetProof()}>{proofBusy ? 'Nachweis läuft …' : 'Sollstunden-Dateinachweis starten'}</Action>

@@ -41,3 +41,11 @@ test('background, unmount and stale native reads cannot publish; returning start
 test('custom range validates real calendar dates and sheet Back preserves period without provider activity',async()=>{
  const f=fixture();f.render();f.effect();f.pending[0]!.resolve(null);await settle();f.nodes().find(n=>n.type==='Chip'&&n.props.title==='2026')!.props.onPress();f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Eigener Zeitraum')!.props.onPress();let nodes=f.nodes();nodes.find(n=>n.type==='TextInput'&&n.props.accessibilityLabel==='Kosten von')!.props.onChangeText('2026-02-30');nodes=f.nodes();assert.equal(nodes.find(n=>n.type==='Action'&&n.children.includes('Anwenden'))!.props.disabled,true);nodes.find(n=>n.type==='TextInput'&&n.props.accessibilityLabel==='Kosten von')!.props.onChangeText('2026-02-01');nodes=f.nodes();nodes.find(n=>n.type==='Action'&&n.children.includes('Anwenden'))!.props.onPress();assert.equal(f.period().mode,'custom');assert.equal(f.refresh(),0);f.render();assert.equal(f.back(),false);f.unmount();
 });
+
+test('annual reconciliation is progressive detail and Back preserves the selected period without retrieval',async()=>{
+ const f=fixture();f.render();f.effect();f.pending[0]!.resolve(await data());await settle();let nodes=f.nodes();
+ assert.equal(nodes.some(n=>n.props.title==='Pauschalgebühr'),false);
+ nodes.find(n=>n.props.accessibilityLabel==='Jahresabgleich anzeigen')!.props.onPress();nodes=f.nodes();
+ assert.ok(nodes.some(n=>n.props.title==='Pauschalgebühr'));assert.ok(nodes.some(n=>n.props.title==='Nachweislich abgedeckt'));
+ assert.equal(f.back(),true);assert.equal(f.period().mode,'year');assert.equal(f.refresh(),0);f.unmount();
+});

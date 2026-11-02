@@ -2,14 +2,14 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, AppState, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import type { ExpensePeriod } from '../expenses/expense-types';
 import { readFinancialAnalysisNative, type FinancialExpectedOwner } from '../vereinsflieger/expense-analysis-native';
-import { expenseDate, expenseMoney, expenseMonths, expensePeriodLabel, financialAnalysisView, type FinancialAnalysisData } from './financial-analysis-model';
+import { expenseDate, expenseMoney, expenseMonths, expensePeriodLabel, financialAnalysisView, financialMonthlyComparison, type FinancialAnalysisData } from './financial-analysis-model';
 import { validStatisticsRange } from './statistics-overlay-model';
 import { Action, Card, Chip, Empty, Label, Section, colors } from './theme';
 import { ExpenseMonthlyChart } from './ExpenseMonthlyChart';
 
-type Sheet = null | 'period' | 'sources' | {aircraft:string|null} | {account:number};
+type Sheet = null | 'period' | 'sources' | 'annual' | {aircraft:string|null} | {account:number};
 /** Opening/filtering is entirely local. Only the explicit refresh enters the provider controller. */
-export function ExpensesView({expected,reloadKey,period,onPeriod,onRefresh,onBackHandler}:{expected:FinancialExpectedOwner|null;reloadKey:number;period:ExpensePeriod;onPeriod:(value:ExpensePeriod)=>void;onRefresh:()=>void;onBackHandler:(handler:()=>boolean)=>void}) {
+export function ExpensesView({expected,reloadKey,period,onPeriod,onRefresh,onBackHandler,readData=readFinancialAnalysisNative}:{expected:FinancialExpectedOwner|null;reloadKey:number;period:ExpensePeriod;onPeriod:(value:ExpensePeriod)=>void;onRefresh:()=>void;onBackHandler:(handler:()=>boolean)=>void;readData?:typeof readFinancialAnalysisNative}) {
   const [stored,setStored]=useState<{key:string;data:FinancialAnalysisData|null}|null>(null),[readPhase,setPhase]=useState<'loading'|'ready'|'failed'>('loading'),[retry,setRetry]=useState(0);
   const [sheet,setSheet]=useState<Sheet>(null),[from,setFrom]=useState(''),[through,setThrough]=useState(''),[year,setYear]=useState(''),[month,setMonth]=useState(1);
   const [periodMode,setPeriodMode]=useState<ExpensePeriod['mode']>('year');
@@ -20,13 +20,15 @@ export function ExpensesView({expected,reloadKey,period,onPeriod,onRefresh,onBac
     let mounted=true;const read=()=>{const id=++generation.current;setStored(null);setPhase('loading');
       if(!owner||!store||!account){setPhase('ready');return;}
       const current=()=>{if(!mounted||id!==generation.current||AppState.currentState!=='active')throw Error('Financial view changed.');};
-      void readFinancialAnalysisNative({ownerId:owner,storeId:store,accountRef:account},current).then(value=>{current();setStored({key,data:value});setPhase('ready');}).catch(()=>{if(mounted&&id===generation.current)setPhase('failed');});};
+      void readData({ownerId:owner,storeId:store,accountRef:account},current).then(value=>{current();setStored({key,data:value});setPhase('ready');}).catch(()=>{if(mounted&&id===generation.current)setPhase('failed');});};
     if(AppState.currentState==='active')read();
     const sub=AppState.addEventListener('change',state=>{generation.current++;setStored(null);if(state==='active')read();else setPhase('loading');});
     return()=>{mounted=false;generation.current++;sub.remove();};
-  },[owner,store,account,reloadKey,retry]);
+  },[owner,store,account,reloadKey,retry,readData]);
   onBackHandler(()=>{if(sheet){setSheet(null);return true;}return false;});
-  const view=useMemo(()=>data?financialAnalysisView(data,period):null,[data,period]);
+  const comparisonYear=period.mode==='custom'?null:period.year;
+  const monthly=useMemo(()=>data&&comparisonYear!==null?financialMonthlyComparison(data,comparisonYear):[],[data,comparisonYear]);
+  const view=useMemo(()=>data?financialAnalysisView(data,period,monthly):null,[data,period,monthly]);
   const openPeriod=()=>{setPeriodMode(period.mode);setYear(String(period.mode==='custom'?Number(period.from.slice(0,4)):period.year));setMonth(period.mode==='month'?period.month:1);setFrom(period.mode==='custom'?period.from:`${period.mode==='year'||period.mode==='month'?period.year:new Date().getFullYear()}-01-01`);setThrough(period.mode==='custom'?period.through:`${period.mode==='year'||period.mode==='month'?period.year:new Date().getFullYear()}-12-31`);setSheet('period');};
   const yearValid=/^\d{4}$/.test(year)&&Number(year)>=1900&&Number(year)<=9999;
   const valid=periodMode==='custom'?validStatisticsRange(from,through):yearValid;
@@ -40,7 +42,7 @@ export function ExpensesView({expected,reloadKey,period,onPeriod,onRefresh,onBac
       <Card style={s.hero}>
         <Label muted>ERFASSTE FLUGKOSTEN</Label><Label style={s.amount}>{expenseMoney(p!.flying.knownMinor)}</Label>
         <Label style={{color:p!.state==='conflict'?colors.orange:colors.cyan,fontWeight:'700'}}>{p!.state==='conflict'?'Widersprüchliche Belege':p!.flying.knownMinor===null?'Betrag noch unbekannt':'Bekannter Teilbetrag'}</Label>
-        <Label muted>Volle abgerechnete Flugpreise nach Buchungsdatum. Kein vollständiger Zeitraum und keine Aussage über bezahlte Beträge.</Label>
+        <Label muted>Nach Buchungsdatum · Zeitraum unvollständig · nicht gleich bezahlt.</Label>
         <Label muted>{p!.contributions.length} belegte Flugabrechnung(en) · {p!.issues.length} offene Prüfung(en)</Label>
         <Action secondary onPress={()=>setSheet('sources')}>Quellen & offene Angaben</Action>
       </Card>
@@ -48,22 +50,26 @@ export function ExpensesView({expected,reloadKey,period,onPeriod,onRefresh,onBac
         <ExpenseMonthlyChart months={view.monthly} selectedMonth={period.mode==='month'?period.month:undefined} onMonth={row=>onPeriod({mode:'month',year:row.year,month:row.month})}/>
       </Card>}
       <Card><Section title="Nach Flugzeug"/>{!p!.aircraft.length?<Label muted>Keine belegten Flugkosten in diesem Zeitraum.</Label>:p!.aircraft.map(row=><Pressable key={row.aircraftRef??'unknown'} accessibilityRole="button" onPress={()=>setSheet({aircraft:row.aircraftRef})} style={s.row}><Label style={s.grow}>{row.aircraftRef??'Kennzeichen unbekannt'}</Label><Label style={s.number}>{expenseMoney(row.amount.knownMinor)}</Label><Label muted>›</Label></Pressable>)}</Card>
-      {p!.annual&&<Card><Section title="Jahresabgleich"/><Label muted>Die Pauschale wird nur hier betrachtet. Ohne belegte Zuordnung wird sie nicht von Flugpreisen abgezogen.</Label><MoneyRow title="Pauschalgebühr" value={p!.annual.allowanceFee.knownMinor}/><MoneyRow title="Nachweislich abgedeckt" value={p!.annual.covered.knownMinor}/><MoneyRow title="Zusätzliche Flugkosten" value={p!.annual.extraFlying.knownMinor}/><MoneyRow title="Eigener Jahresgesamtbetrag" value={p!.annual.overallOwn.knownMinor}/><Label muted>Unbekannt, bis Gebühren, Deckung und Zuordnung belegt sind.</Label></Card>}
-      <Card><Section title="Verein & Konten"/><MoneyRow title="Vereinskosten" value={p!.club.knownMinor}/><Label muted>Kontobewegungen und Rechnungen werden separat angezeigt und nicht zu Flugkosten addiert. Zahlung, Erstattung und Pauschalentransfer sind ohne eindeutigen Quellnachweis nicht klassifiziert.</Label>
+      {p!.annual&&<Card><Pressable accessibilityRole="button" accessibilityLabel="Jahresabgleich anzeigen" onPress={()=>setSheet('annual')} style={{minHeight:48,gap:8}}><Section title="Jahresabgleich"/><MoneyRow title="Eigener Jahresgesamtbetrag" value={p!.annual.overallOwn.knownMinor}/><Label muted>Pauschale und Deckung im Detail ansehen ›</Label></Pressable></Card>}
+      <Card><Section title="Verein & Konten"/><MoneyRow title="Vereinskosten" value={p!.club.knownMinor}/><Label muted>Konten und Rechnungen bleiben getrennt von Flugkosten.</Label>
         {view.accounts.map((item,index)=><Pressable key={item.observation.sourceAccount.selector} accessibilityRole="button" onPress={()=>setSheet({account:index})} style={s.account}><Label style={{fontWeight:'600'}}>{item.observation.sourceAccount.label}</Label><Label muted>{item.rows.length} erfasste Zeile(n) im Zeitraum · Saldo nach letzter angezeigter Buchung{item.balanceDateRaw?` (${item.balanceDateRaw})`:''}</Label><Label style={s.number}>{expenseMoney(item.balanceMinor)} ›</Label></Pressable>)}
         {!view.accounts.length&&<Label muted>Keine Kontobelege gespeichert.</Label>}
         <Action secondary onPress={()=>setSheet('sources')}>Rechnungen ansehen</Action>
       </Card>
-      <Label muted>{latest?`Letzter Quellenabruf: ${new Date(latest.retrievedAt).toLocaleString('de-DE')}. ${latest.selection.sourceFlightRefs.length} eigene Quellflüge geprüft; ${latest.unknown.length} ohne auswertbare Abrechnung.`:'Noch keine dauerhafte Rechnungszuordnung gespeichert.'} Aktuell sichtbare Anbieterzeilen sind begrenzt. Ältere und andere Kosten können fehlen.</Label>
+      <Label muted>{latest?`Zuletzt abgerufen: ${new Date(latest.retrievedAt).toLocaleString('de-DE')}. ${latest.selection.sourceFlightRefs.length} Flüge geprüft; ${latest.unknown.length} ohne auswertbare Abrechnung.`:'Noch keine Rechnungszuordnung gespeichert.'}</Label>
     </>}
     <Modal transparent visible={sheet!==null} animationType="slide" onRequestClose={()=>setSheet(null)}>
       <KeyboardAvoidingView style={s.scrim} behavior={Platform.OS==='ios'?'padding':'height'}><View style={s.sheet}>
-        <View style={s.sheetHeader}><Label style={{fontSize:20,fontWeight:'700',flex:1}}>{sheet==='period'?'Zeitraum':accountDetail?'Kontobelege':aircraft!==undefined?aircraft??'Kennzeichen unbekannt':'Quellen & offene Angaben'}</Label><Action secondary onPress={()=>setSheet(null)}>Schließen</Action></View>
+        <View style={s.sheetHeader}><Label style={{fontSize:20,fontWeight:'700',flex:1}}>{sheet==='period'?'Zeitraum':sheet==='annual'?'Jahresabgleich':accountDetail?'Kontobelege':aircraft!==undefined?aircraft??'Kennzeichen unbekannt':'Quellen & offene Angaben'}</Label><Action secondary onPress={()=>setSheet(null)}>Schließen</Action></View>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{padding:18,gap:16,paddingBottom:36}}>
           {sheet==='period'?<>
             <View style={s.wrap}>{(['year','month','custom'] as const).map((mode,index)=><Chip key={mode} title={['Jahr','Monat','Eigener Zeitraum'][index]!} selected={periodMode===mode} onPress={()=>setPeriodMode(mode)}/>)}</View>
             {periodMode==='custom'?<><Label>Von · JJJJ-MM-TT</Label><TextInput accessibilityLabel="Kosten von" value={from} onChangeText={setFrom} placeholder="2026-01-01" placeholderTextColor={colors.muted} style={s.input} maxLength={10}/><Label>Bis einschließlich · JJJJ-MM-TT</Label><TextInput accessibilityLabel="Kosten bis" value={through} onChangeText={setThrough} placeholder="2026-12-31" placeholderTextColor={colors.muted} style={s.input} maxLength={10}/></>:<><Label>Jahr</Label><TextInput accessibilityLabel="Kosten Jahr" value={year} onChangeText={setYear} keyboardType="number-pad" maxLength={4} style={s.input}/>{periodMode==='month'&&<View style={s.wrap}>{expenseMonths.map((label,index)=><Chip key={label} title={label} selected={month===index+1} onPress={()=>setMonth(index+1)}/>)}</View>}</>}
             {!valid&&<Label>Bitte einen gültigen Zeitraum eingeben.</Label>}<Action disabled={!valid} onPress={()=>{if(!valid)return;onPeriod(periodMode==='custom'?{mode:'custom',from,through}:periodMode==='year'?{mode:'year',year:Number(year)}:{mode:'month',year:Number(year),month});setSheet(null);}}>Anwenden</Action>
+          </>:sheet==='annual'?<>
+            <Label muted>Die Pauschale wird nur hier betrachtet. Ohne belegte Zuordnung wird sie nicht von Flugpreisen abgezogen.</Label>
+            <MoneyRow title="Pauschalgebühr" value={p?.annual?.allowanceFee.knownMinor??null}/><MoneyRow title="Nachweislich abgedeckt" value={p?.annual?.covered.knownMinor??null}/><MoneyRow title="Zusätzliche Flugkosten" value={p?.annual?.extraFlying.knownMinor??null}/><MoneyRow title="Eigener Jahresgesamtbetrag" value={p?.annual?.overallOwn.knownMinor??null}/>
+            <Label muted>Unbekannt, bis Gebühren, Deckung und Zuordnung belegt sind. Vollständige Jahreskosten werden nicht aus einem Teilbetrag abgeleitet.</Label>
           </>:accountDetail?<>
             <Label style={{fontWeight:'700'}}>{accountDetail.observation.sourceAccount.label}</Label><Label muted>Unveränderte Quellwerte. Saldo ist der Stand nach der jeweiligen Buchung; keine vollständige Kontohistorie.</Label>
             {accountDetail.rows.map((row,index)=><Card key={index}>{accountDetail.observation.capture.columns.map((column,i)=><Label key={column.key}>{column.label}: {row.values[i]||'unbekannt / leer'}</Label>)}</Card>)}{!accountDetail.rows.length&&<Label>Keine erfassten Zeilen im gewählten Zeitraum.</Label>}
@@ -71,7 +77,8 @@ export function ExpensesView({expected,reloadKey,period,onPeriod,onRefresh,onBac
             <Label muted>Belegte Abrechnungen nach Buchungsdatum; keine automatische Auswahl einer neueren Fassung.</Label>
             {contributions.map(row=>{const receipts=data?.receipts.filter(receipt=>receipt.kind==='billed-flight'&&row.evidenceRefs.includes(`bill:${receipt.id}`))??[];return <Card key={row.chargeRef}><Label style={{fontWeight:'700'}}>{expenseMoney(row.amountMinor)}</Label><Label>Buchungsdatum: {expenseDate(row.bookingDate)}</Label><Label muted>Quellflug: {row.chargeRef}</Label>{receipts.map(receipt=>{const value=receipt.value as import('../vereinsflieger/expense-flight-billing').FlightBillingObservation;return <View key={receipt.id} style={{gap:6}}><Label>Leistungsdatum: {value.source.dateRaw}</Label><Label muted>Abgerechnet: {value.source.billedRaw} · {value.source.billingModeRaw}</Label>{value.source.lines.map(line=><View key={line.position} style={{gap:3}}><Label>{line.descriptionRaw}</Label><Label muted>{line.recipientRaw} · {line.amountRaw}</Label></View>)}<Label>Quellsumme: {value.source.statedTotalRaw}</Label></View>;})}{row.evidenceRefs.map(ref=><Label selectable muted key={ref}>Beleg: {ref}</Label>)}</Card>;})}
           </>:<>
-            <Label muted>Rechnungsbeträge dienen der Quellenprüfung. Sie werden nicht zusätzlich zu Flugpreisen summiert.</Label>
+            <Label muted>Volle abgerechnete Flugpreise werden nach Buchungsdatum angezeigt; sie belegen keine Zahlung. Sichtbare Anbieterzeilen sind begrenzt, ältere und andere Kosten können fehlen.</Label>
+            <Label muted>Rechnungsbeträge werden nicht zusätzlich zu Flugpreisen summiert. Zahlung, Erstattung und Pauschalentransfer sind ohne eindeutigen Quellnachweis nicht klassifiziert.</Label>
             {view?.statements.map((row,index)=><Card key={index}><Label style={{fontWeight:'700'}}>{row.titleRaw||`Rechnung ${row.numberRaw}`}</Label><Label>Rechnung {row.numberRaw} · Rechnungsdatum {row.dateRaw}</Label><Label>{expenseMoney(row.amountMinor)}</Label><Label muted>Empfänger: {row.recipientRaw}</Label></Card>)}
             {!view?.statements.length&&<Label>Keine erfassten Rechnungen im Zeitraum.</Label>}
             <Section title="Offene Angaben"/><Label muted>Vollständigkeit, Quellrevisionen, Zahlungs- und Erstattungsarten sowie Pauschalendeckung sind nicht bewiesen. Leere oder fehlende Werte sind keine Nullbeträge.</Label>

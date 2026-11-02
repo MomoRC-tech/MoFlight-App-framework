@@ -68,11 +68,27 @@ The first UI-controller attempt was blocked by an exact Profile-label mismatch (
 
 The two retained controller active durations (92.25 s and 215.141 s) include model deliberation, idle time and ADB/observer overhead; they are **not app runtime latency**, comparable performance trials or a measured speedup. They and action/capture/failure counts are recorded under #90 as qualified tooling observations. Pre-existing dirty ledger entries are preserved and excluded from the new commit through scoped staging.
 
-## Remaining packages and major decisions
+## Continued implementation — owner correction
 
-- #114/#13: separate AI context validation from expensive projection, retaining exact content/availability checks; no live activation.
-- #101: scoped validated financial read sharing; preserve fresh async identity/inventory fences. Reduce repeated coverage copy through existing disclosures in a later visual increment.
-- #94/#9: clearer aircraft/count/time comparison rows, fewer initially visible metrics, discoverable Club sections and progressive advanced charts; retain source semantics.
+The owner explicitly required continuous work until completion after the first delivery. Tracking #114 remains active through the following concrete packages, rather than treating a review report/first APK as completion:
+
+- AI current-context fences now share the original flight/source-review validation, without building aliases, detached source maps and tool/display rows that the fence discards. No cache or generation-only shortcut; fresh owner/store/recovery/source checks remain. Same-generation valid edits retain prior behavior, while malformed/conflicting evidence is still rejected. Focused 54/54 checks pass.
+- The financial adapter returns its already validated, detached raw receipts with its interpreted snapshot, removing a second native archive validation. Existing exact raw/evidence inventory gates remain. React memoization retains monthly comparisons while selecting another month in the same source/year. Initial focused regression compared newest-first history to ascending archive order; corrected the assertion to the documented sequence ordering, without changing application behavior.
+- Aircraft/launch charts now use directly labelled count and known-time comparison rows with separate stated scales, preserving exact contributors and unknown/zero distinctions. Club sections wrap visibly. Other chart forms retain their distinct purposes; replacing them further has no demonstrated user benefit.
+- Costs keeps its incomplete/subtotal/payment caveat beside the value, moves longer source explanations to existing details, and opens annual allowance reconciliation as a child sheet rather than showing four empty totals. The non-persisting Development preview now mounts the real Costs page with a synthetic local read port, permitting actual presentation checks without financial file/provider access.
+- AI Send respects disabled/inactive state while drafts and important notices remain visible. Preview PIC Help mounts the real offline Help screen and preserves its caller through Back. The owner-selected Flugbuch primary tab remains.
+- UI controller Profile aliases are finite, exact known statuses. Additional navigation IDs require explicit parent admission; no wildcard/contains matching. Generated tasks show the actual allowlist/budgets and require viewport → route re-entry → screen confirmation → capture, with recovery reserve. Focused 35/35 tests pass; an intermediate Windows HTTP abort passed individually and in the unchanged full rerun.
+- Contributor/flight filtering uses request-local Sets, preserving exact scopes/order without a global cache. Existing selector/navigation regressions cover this equivalent change.
+
+The separate owner-directed #116 redesign branch remains isolated and is not merged by this main refactor. No service provisioning, paid model/CI call, new dependency, storage/schema change or invented operator data follows.
+
+**Stable host checkpoint:** `build/host-checks/20261102T121816Z-708fa29e` passes all five checks. A subsequent status-copy correction retains important AI local/service notices while disabled; only affected presentation tests/lint are repeated. One committed-source native checkpoint follows for the stable app; completed first-wave evidence remains source-specific.
+
+## Feature gates outside this refactor
+
+- #13/#72–79: actual AI service activation/evaluation remains gated by service/input/cohort/funding choices; context validation refactoring is implemented above.
+- #101: financial read sharing and coverage disclosure refinements are implemented; ordinary live/source/restore and broader device acceptance retain their existing gates.
+- #94/#9: count/time comparisons, discoverable Club sections and progressive chart detail are implemented; affected native inspection follows in the completion checkpoint.
 - #29/#34/#101: actual preserved same-file aggregate resume, exact re-export, update and ordinary recovery acceptance remain open; do not erase pending operations.
 - **Owner decision, 2 November:** keep the unfinished Flugbuch main tab with its preparation notice. Current implementation already matches; no navigation change is required.
 - Existing beta decisions: operator/audience and privacy/distribution facts (#21/#97/#98), plus explicit live-AI service/input/funding scope (#13/#72–79). This review does not authorize spending or invent those facts.

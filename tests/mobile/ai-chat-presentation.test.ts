@@ -212,15 +212,19 @@ test('disclosure identifies recipients, monthly EUR limit, unencrypted backup an
   }
 });
 
-test('loading and service-unavailable notices do not disable an existing local draft', () => {
+test('unavailable requests keep local drafts editable and block Send while status remains actionable', () => {
   const f = fixture({ loading: true, enabled: false, notice: 'Dienst vorübergehend nicht verfügbar.' });
   const input = f.requireNode('TextInput');
   const send = f.requireNode('Pressable', node => node.props.accessibilityLabel === 'Nachricht senden');
   assert.equal(input.props.value, 'Durable draft');
   assert.equal(input.props.editable, true);
-  assert.equal(send.props.disabled, false);
+  assert.equal(send.props.disabled, true);
+  assert.match(send.props.accessibilityHint,/ausgeschaltet/);
+  send.props.onPress();assert.equal(f.calls.send,0);assert.equal(f.calls.bottom,0);
+  input.props.onChangeText('Keep this local');assert.deepEqual(f.calls.drafts,['Keep this local']);
   assert.ok(f.text().includes('Dienst vorübergehend nicht verfügbar.'));
-  assert.equal(f.calls.send, 0);
+  f.open('KI-Status und Details öffnen');assert.ok(f.text().includes('Dienst vorübergehend nicht verfügbar.'));
+  assert.equal(f.calls.toggle.length,0);assert.equal(f.calls.send,0);
 });
 
 

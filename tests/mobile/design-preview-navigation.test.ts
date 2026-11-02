@@ -6,12 +6,13 @@ import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import { createDesignPreviewData, DESIGN_PREVIEW_NOW } from '../../apps/platform-lab/src/mobile/design-preview-data';
+import { financialPreviewOwner, readFinancialPreview } from '../../apps/platform-lab/src/mobile/financial-preview-data';
 test('Verein preview selects actual source components with synthetic data and preserves flight/start navigation',()=>{
  const code=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/DesignPreview.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React}}).outputText;
  type Element={type:unknown;props:Record<string,any>;children:any[]};
- const hooks:unknown[]=[];let index=0;
- const react={createElement:(type:unknown,props:any,...children:any[]):Element=>({type,props:props??{},children:children.flat(Infinity)}),useMemo:(fn:()=>unknown)=>fn(),useCallback:(fn:unknown)=>fn,useState:(initial:unknown)=>{const i=index++;if(!(i in hooks))hooks[i]=initial;return [hooks[i],(value:unknown)=>{hooks[i]=value;}];},useRef:(initial:unknown)=>{const i=index++;if(!(i in hooks))hooks[i]={current:initial};return hooks[i];}};
- const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{Pressable:'Pressable',ScrollView:'ScrollView',View:'View',StyleSheet:{create:(value:unknown)=>value},useWindowDimensions:()=>({width:390,fontScale:1})},'./CockpitPreview':{CockpitPreview:'CockpitPreview'},'./Dashboard':{Dashboard:'Dashboard'},'./OwnFlights':{OwnFlights:'OwnFlights'},'./AppHeader':{AppHeader:'AppHeader'},'./StatisticsOverlay':{StatisticsOverlay:'StatisticsOverlay'},'./ClubInformation':{ClubEvents:'ClubEvents',ClubDocumentNotices:'ClubDocumentNotices'},'./theme':{Action:'Action',Card:'Card',Label:'Label',colors:{},ui:{}},'./design-preview-data':{createDesignPreviewData,DESIGN_PREVIEW_NOW}};
+ const hooks:unknown[]=[];let index=0;let hardwareBack:(()=>boolean)|undefined;
+ const react={createElement:(type:unknown,props:any,...children:any[]):Element=>({type,props:props??{},children:children.flat(Infinity)}),useEffect:(fn:()=>unknown)=>{fn();},useMemo:(fn:()=>unknown)=>fn(),useCallback:(fn:unknown)=>fn,useState:(initial:unknown)=>{const i=index++;if(!(i in hooks))hooks[i]=initial;return [hooks[i],(value:unknown)=>{hooks[i]=value;}];},useRef:(initial:unknown)=>{const i=index++;if(!(i in hooks))hooks[i]={current:initial};return hooks[i];}};
+ const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{BackHandler:{addEventListener:(_event:string,handler:()=>boolean)=>{hardwareBack=handler;return{remove(){hardwareBack=undefined;}};}},Keyboard:{dismiss(){}},Pressable:'Pressable',ScrollView:'ScrollView',View:'View',StyleSheet:{create:(value:unknown)=>value},useWindowDimensions:()=>({width:390,fontScale:1})},'./CockpitPreview':{CockpitPreview:'CockpitPreview'},'./Dashboard':{Dashboard:'Dashboard'},'./HelpScreen':{HelpScreen:'HelpScreen'},'./ExpensesView':{ExpensesView:'ExpensesView'},'./financial-preview-data':{financialPreviewOwner,readFinancialPreview},'./OwnFlights':{OwnFlights:'OwnFlights'},'./AppHeader':{AppHeader:'AppHeader'},'./StatisticsOverlay':{StatisticsOverlay:'StatisticsOverlay'},'./ClubInformation':{ClubEvents:'ClubEvents',ClubDocumentNotices:'ClubDocumentNotices'},'./theme':{Action:'Action',Card:'Card',Label:'Label',colors:{},ui:{}},'./design-preview-data':{createDesignPreviewData,DESIGN_PREVIEW_NOW}};
  Object.assign(modules,{'./sync-status':{syncStatus},'./StatusBadge':{StatusBadge:'StatusBadge'},'./ShellIcons':{ProfileIcon:'ProfileIcon'},'./sync-progress':syncProgress,'./SyncProgress':{SyncProgress:'SyncProgress'},'./DutyRoster':{DutyRoster:'DutyRoster'},'./DataUpdateIndicator':{DataUpdateIndicator:'DataUpdateIndicator'},'./UpdateResult':{UpdateResult:'UpdateResult'}});
  const exports:Record<string,()=>Element>={};runInNewContext(code,{exports,require:(id:string)=>{assert.ok(id in modules,'Unexpected dependency '+id);return modules[id];}});
  const render=()=>{index=0;return exports.DesignPreview!();};
@@ -31,12 +32,24 @@ test('Verein preview selects actual source components with synthetic data and pr
  nodes(render()).find(n=>n.type==='UpdateResult')!.props.onDismiss();assert.equal(nodes(render()).some(n=>n.type==='UpdateResult'),false);
  nodes(render()).find(n=>n.type==='DataUpdateIndicator')!.props.onPress();assert.equal(nodes(render()).some(n=>n.type==='UpdateResult'),true);
  press('Vorschau Fl\u00fcge');assert.ok(nodes(render()).some(n=>n.type==='OwnFlights'));
+ const flights=()=>nodes(render()).find(n=>n.type==='OwnFlights')!;
+ const selected=flights().props.data.view.flights[0];flights().props.data.openDetail(selected);
+ const flightDetail=flights().props.data.detail;flights().props.onHelp('pic');
+ let help=nodes(render()).find(n=>n.type==='HelpScreen')!;assert.equal(help.props.entryId,'pic');
+ assert.equal(flights().props.active,false);assert.equal(flights().props.data.detail,flightDetail);
+ help.props.onReturn();assert.equal(nodes(render()).some(n=>n.type==='HelpScreen'),false);assert.equal(flights().props.active,true);assert.equal(flights().props.data.detail,flightDetail);
+ flights().props.onHelp('pic');render();assert.equal(hardwareBack!(),true);assert.equal(nodes(render()).some(n=>n.type==='HelpScreen'),false);
+
  press('Vorschau Start');assert.ok(nodes(render()).some(n=>n.type==='Dashboard'));
  const start=nodes(render()).find(n=>n.type==='Dashboard')!;assert.equal(start.props.persistDutyTarget,false);start.props.onStatistics(2026,'roles');
  const stats=nodes(render());const overlay=stats.find(n=>n.type==='StatisticsOverlay')!;
  assert.equal(overlay.props.data.phase,'ready');assert.equal(overlay.props.data.view.flights.length,createDesignPreviewData().view.flights.length);
  assert.equal(overlay.props.today,'2026-10-22');assert.equal(overlay.props.initialSection,'roles');assert.equal(typeof overlay.props.onClose,'function');
  assert.ok(JSON.stringify(stats).includes('Synthetische UI-Vorschau'));
+ overlay.props.onHelp('pic');
+ help=nodes(render()).find(n=>n.type==='HelpScreen')!;assert.equal(help.props.entryId,'pic');
+ const retained=nodes(render()).find(n=>n.type==='StatisticsOverlay')!;assert.equal(retained.props.initialSection,'roles');assert.equal(retained.props.data.detail,overlay.props.data.detail);
+ help.props.onReturn();assert.equal(nodes(render()).some(n=>n.type==='HelpScreen'),false);assert.equal(nodes(render()).find(n=>n.type==='StatisticsOverlay')!.props.initialSection,'roles');
  overlay.props.onClose();assert.ok(nodes(render()).some(n=>n.type==='Dashboard'));
 });
 

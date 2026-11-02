@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { BackHandler, Keyboard, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { ClubEvents, ClubDocumentNotices } from './ClubInformation';
 import { Dashboard } from './Dashboard';
 import { AppHeader } from './AppHeader';
@@ -21,7 +21,11 @@ import { UpdateResult } from './UpdateResult';
 import {SyncProgress} from './SyncProgress';
 import {idleSyncProgress,idleSyncNotice,completedSyncProgress,type SyncProgress as Progress} from './sync-progress';
 import { CockpitPreview } from './CockpitPreview';
-import { ExpenseMonthlyChart } from './ExpenseMonthlyChart';
+import { ExpensesView } from './ExpensesView';
+import { financialPreviewOwner, readFinancialPreview } from './financial-preview-data';
+import type { ExpensePeriod } from '../expenses/expense-types';
+import { HelpScreen } from './HelpScreen';
+import type { HelpCategory } from './help-catalog';
 
 /** Mount directly in the shell's flex content area; OwnFlights owns its list scrolling. */
 export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
@@ -29,7 +33,14 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
   const fixture = useMemo(createDesignPreviewData, []);
   const emptyView = useMemo(() => ({ ...fixture.view, flights: [] }), [fixture]);
   const [page, setPage] = useState<'start' | 'flights' | 'club' | 'sync' | 'costs'>('start');
-  const [costMonth, setCostMonth] = useState(6);
+  const [costPeriod, setCostPeriod] = useState<ExpensePeriod>({mode:'year',year:2026});
+  const costBack=useRef<()=>boolean>(()=>false);
+  const [helpOpen,setHelpOpen]=useState(false),[helpEntry,setHelpEntry]=useState<string|null>(null),[helpQuery,setHelpQuery]=useState('');
+  const [helpCategory,setHelpCategory]=useState<HelpCategory|null>(null),[helpReplayToken,setHelpReplayToken]=useState(0);
+  const syncReturnPage=useRef<typeof page>('start');
+  const closeHelp=()=>{Keyboard.dismiss();setHelpOpen(false);};
+  const openHelp=(entryId:string)=>{Keyboard.dismiss();setHelpEntry(entryId);setHelpQuery('');setHelpCategory(null);setHelpOpen(true);};
+  useEffect(()=>{const subscription=BackHandler.addEventListener('hardwareBackPress',()=>{if(helpOpen){closeHelp();return true;}return page==='costs'&&costBack.current();});return()=>subscription.remove();},[helpOpen,page]);
   const [progress,setProgress]=useState<Progress>({state:'active',last:'account',current:'flights'});
   const [mode, setMode] = useState<'populated' | 'empty' | 'error'>('populated');
   const [request, setRequest] = useState<OwnFlightRequest | null>(null);
@@ -62,13 +73,23 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
     detailError: mode === 'error' ? 'Synthetischer Lesefehler für die UI-Vorschau. Erneut prüfen zeigt wieder die erfundenen Flüge; echte Daten bleiben unberührt.' : null,
     openDetail, clearDetail, reload,
   };
-  if(cockpit)return <CockpitPreview onClose={()=>setCockpit(false)} onFlights={()=>{setCockpit(false);setPage('flights');}} onStatistics={(year,section='overview',chart,contributors)=>{setStatisticsChart(chart);setStatisticsContributors(contributors);setStatisticsYear(year);setStatisticsSection(section);setCockpit(false);setStatisticsOpen(true);}}/>;
+
   const syncReceived=syncState==='never'?null:syncState==='age'?'2026-10-18T12:00:00.000Z':new Date(DESIGN_PREVIEW_NOW).toISOString();
   const syncRead=syncState==='read-error'?'failed':'ready';
   const syncNotice=idleSyncNotice({receivedAt:syncReceived,readState:syncRead,now:DESIGN_PREVIEW_NOW,activityChanged:syncState==='changed'});
   const syncPresentation=syncStatus({receivedAt:syncReceived,readState:syncRead,now:DESIGN_PREVIEW_NOW,activityChanged:syncState==='changed',completed:syncCompleted,progress});
-  if(page==='sync')return <View style={styles.root}>
-    <AppHeader title="Synchronisierung" back={()=>setPage('start')} profile={<Pressable accessibilityRole="button" accessibilityLabel="Vorschau Anmeldestatus umschalten" onPress={()=>setLoginPreview(loginPreview==='unknown'?'connected':loginPreview==='connected'?'required':'unknown')} style={ui.headerAction}><ProfileIcon/><StatusBadge mark={loginPreview==='connected'?'✓':loginPreview==='required'?'→':'?'} tone={loginPreview==='connected'?'success':loginPreview==='required'?'advice':'neutral'}/></Pressable>}><DataUpdateIndicator progress={progress} completed={syncCompleted} receivedAt={syncReceived} readState={syncRead} activityChanged={syncState==='changed'} incomplete={progress.state==='failed'||progress.state==='partial'} now={DESIGN_PREVIEW_NOW} syncing={progress.state==='active'||progress.state==='waiting'} onPress={()=>setProgress({state:'active',last:'account',current:'flights'})}/></AppHeader>
+  const withHelp=(content:React.ReactNode)=><View style={styles.root}>
+    <View style={[styles.root,helpOpen&&{display:'none'}]} pointerEvents={helpOpen?'none':'auto'} accessibilityElementsHidden={helpOpen} importantForAccessibility={helpOpen?'no-hide-descendants':'auto'}>{content}</View>
+    {helpOpen&&<View style={styles.root}><AppHeader variant="page" title="Hilfe" back={closeHelp}>{null}</AppHeader><ScrollView key={helpEntry??'help-home'} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.canvas}>
+      <Label muted>Synthetische UI-Vorschau · Offline-Hilfe</Label>
+      <HelpScreen entryId={helpEntry} query={helpQuery} category={helpCategory} onQuery={setHelpQuery} onCategory={setHelpCategory} onEntry={setHelpEntry} onReturn={closeHelp} returnLabel="Zurück zur Vorschau" helpEnabled
+        onReplay={()=>{closeHelp();setStatisticsOpen(false);setCockpit(false);setPage('flights');setHelpReplayToken(value=>value+1);}}
+        onStatus={()=>{syncReturnPage.current=page;closeHelp();setPage('sync');}}/>
+    </ScrollView></View>}
+  </View>;
+  if(cockpit)return withHelp(<CockpitPreview onClose={()=>setCockpit(false)} onFlights={()=>{setCockpit(false);setPage('flights');}} onStatistics={(year,section='overview',chart,contributors)=>{setStatisticsChart(chart);setStatisticsContributors(contributors);setStatisticsYear(year);setStatisticsSection(section);setCockpit(false);setStatisticsOpen(true);}}/>);
+  if(page==='sync')return withHelp(<View style={styles.root}>
+    <AppHeader title="Synchronisierung" back={()=>setPage(syncReturnPage.current)} profile={<Pressable accessibilityRole="button" accessibilityLabel="Vorschau Anmeldestatus umschalten" onPress={()=>setLoginPreview(loginPreview==='unknown'?'connected':loginPreview==='connected'?'required':'unknown')} style={ui.headerAction}><ProfileIcon/><StatusBadge mark={loginPreview==='connected'?'✓':loginPreview==='required'?'→':'?'} tone={loginPreview==='connected'?'success':loginPreview==='required'?'advice':'neutral'}/></Pressable>}><DataUpdateIndicator progress={progress} completed={syncCompleted} receivedAt={syncReceived} readState={syncRead} activityChanged={syncState==='changed'} incomplete={progress.state==='failed'||progress.state==='partial'} now={DESIGN_PREVIEW_NOW} syncing={progress.state==='active'||progress.state==='waiting'} onPress={()=>setProgress({state:'active',last:'account',current:'flights'})}/></AppHeader>
     <SyncProgress notice={syncNotice} progress={progress} retry={()=>setProgress({state:'active',last:null,current:'account'})} details={()=>setSyncDetails(!syncDetails)}/>
     <ScrollView contentContainerStyle={{padding:18,gap:12}}>
       <Label muted>Synthetische UI-Vorschau · keine Speicherung</Label>
@@ -81,10 +102,10 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
       <Action onPress={()=>{setSyncState('saved');setProgress({state:'failed',last:'account',current:null,message:'Synthetischer Abruffehler. Gespeicherte Daten bleiben verfügbar.'});}}>Vorschau: Fehler</Action>
       <Action onPress={()=>{setSyncState('saved');setSyncCompleted(true);setLoginPreview('connected');setProgress(idleSyncProgress);}}>Vorschau: Fertig</Action>
     </ScrollView>
-  </View>;
-  if (statisticsOpen) return <View style={styles.root}>
-    <StatisticsOverlay initialChart={statisticsChart} initialContributors={statisticsContributors} initialYear={statisticsYear} initialSection={statisticsSection} data={data} today="2026-10-22" fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} onClose={() => setStatisticsOpen(false)} feedback={<Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>} />
-  </View>;
+  </View>);
+  if (statisticsOpen) return withHelp(<View style={styles.root}>
+    <StatisticsOverlay onHelp={openHelp} initialChart={statisticsChart} initialContributors={statisticsContributors} initialYear={statisticsYear} initialSection={statisticsSection} data={data} today="2026-10-22" fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} onClose={() => setStatisticsOpen(false)} feedback={<Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>} />
+  </View>);
   const showFlights = (flightId?: string) => {
     setMode('populated');
     clearDetail(); setRequest({ year: null, ...(flightId ? { flightId } : {}) }); setPage('flights');
@@ -100,12 +121,12 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
       detail={syncDetails} onDetails={()=>setSyncDetails(true)} onDismiss={()=>setSyncReceiptVisible(false)}/>}
     {syncDetails&&<Action secondary onPress={()=>setSyncDetails(false)}>Vorschau Syncdetails schließen</Action>}
   </>;
-  return <View style={styles.root}>
+  return withHelp(<View style={styles.root}>
     <AppHeader title="Designvorschau" back={onClose}><Action secondary onPress={()=>setCockpit(true)}>Cockpit</Action></AppHeader>
     <View style={styles.toolbar}>
       <Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>
       <View style={styles.tabs}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Synchronisierung" onPress={()=>setPage('sync')} style={styles.tab}><Label>Vorschau Sync</Label></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Synchronisierung" onPress={()=>{syncReturnPage.current=page;setPage('sync');}} style={styles.tab}><Label>Vorschau Sync</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Start" accessibilityState={{ selected: page === 'start' }} onPress={() => setPage('start')} style={[styles.tab, page === 'start' && styles.selected]}><Label>Vorschau Start</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Flüge" accessibilityState={{ selected: page === 'flights' }} onPress={() => showFlights()} style={[styles.tab, page === 'flights' && styles.selected]}><Label>Vorschau Flüge</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Verein" accessibilityState={{ selected: page === 'club' }} onPress={() => setPage('club')} style={[styles.tab, page === 'club' && styles.selected]}><Label>Vorschau Verein</Label></Pressable>
@@ -120,10 +141,8 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
       <Action secondary onPress={() => showState('empty')}>Leere Liste ansehen</Action>
       <Action secondary onPress={() => showState('error')}>Lesefehler ansehen</Action>
     </ScrollView> : page === 'costs' ? <ScrollView contentContainerStyle={styles.canvas}>
-      <Card><Label style={{fontSize:20,fontWeight:'700'}}>Monatsvergleich 2026</Label><Label muted>Erfundene Beträge · keine Finanzdatei und kein Abruf</Label>
-        <ExpenseMonthlyChart selectedMonth={costMonth} months={['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'].map((label,i)=>({label,year:2026,month:i+1,knownMinor:[null,0,640,15300,9876,5400,12000,8300,4600,2350,null,null][i]??null,state:i===8?'conflict':'partial'}))} onMonth={month=>setCostMonth(month.month)}/>
-        <View accessibilityLiveRegion="polite"><Label>Ausgewählter Demo-Monat: {costMonth}</Label></View>
-      </Card>
+      <Label muted>Erfundene Beträge · keine Finanzdatei und kein Abruf</Label>
+      <ExpensesView expected={financialPreviewOwner} reloadKey={0} period={costPeriod} onPeriod={setCostPeriod} readData={readFinancialPreview} onRefresh={()=>{syncReturnPage.current='costs';setPage('sync');}} onBackHandler={handler=>{costBack.current=handler;}}/>
     </ScrollView> : page === 'club' ? <ScrollView contentContainerStyle={styles.canvas}>
       <Label muted>Erfundene Dienste, Termine und Dokumentenhinweise. Fester Demo-Abruf: 22.10.2026.</Label>
       {syncPreview}
@@ -133,9 +152,9 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
       <ClubDocumentNotices information={fixture.view.featureInformation} />
     </ScrollView> : <View style={styles.root}>
       {header.back && <Pressable accessibilityRole="button" accessibilityLabel="Zurück zur Vorschau Flugliste" onPress={header.back} style={styles.back}><Label>Zurück · {header.title}</Label></Pressable>}
-      <OwnFlights active data={data} filterRequest={request} onHeaderChange={setHeader} />
+      <OwnFlights active={!helpOpen} onHelp={openHelp} replayHintToken={helpReplayToken} data={data} filterRequest={request} onHeaderChange={setHeader} />
     </View>}
-  </View>;
+  </View>);
 }
 const styles = StyleSheet.create({
   root: { flex: 1 }, toolbar: { paddingHorizontal: 18, paddingTop: 6, gap: 4 },
