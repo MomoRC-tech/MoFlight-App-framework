@@ -369,11 +369,12 @@ export class RealFlightLibrary {
     return measuredValue('stored-list-derivation', timing, () => {
     const binding = latestRealFlightValues<StoredBinding>(graph.records, 'binding')[0];
     if (!binding) return {graph,flights:[]};
+    const factsById = new Map(latestRealFlightRecords(graph.records, 'facts').map(record => [record.id, record]));
     const rows: RealFlightListItem[] = [];
     for (const flightRow of latestRealFlightRecords(graph.records, 'flight')) {
       const flight = JSON.parse(flightRow.payload) as StoredFlight;
       if (flight.bindingId !== binding.bindingId || flight.accountRef !== binding.accountRef) throw new Error('Foreign real flight record.');
-      const factsRow = latestRealFlightRecord(graph.records, 'facts', flightRow.id);
+      const factsRow = factsById.get(flightRow.id);
       if (!factsRow) throw new Error('Saved real flight has no validated facts.');
       const stored = JSON.parse(factsRow.payload) as StoredFacts;
       rows.push({ flightId: factsRow.id, bindingId: binding.bindingId, accountRef: binding.accountRef,

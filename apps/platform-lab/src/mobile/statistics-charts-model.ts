@@ -38,8 +38,12 @@ export function flightModel(f: RealFlightListItem): string {
 export function quantile(values: readonly number[], p: number): number | null {
   if (!values.length) return null;
   if (p < 0 || p > 1 || !Number.isFinite(p)) throw new Error('Invalid quantile');
-  const a = [...values].sort((a, b) => a - b), i = (a.length - 1) * p, lo = Math.floor(i);
-  return a[lo]! + (a[Math.ceil(i)]! - a[lo]!) * (i - lo);
+  return sortedQuantile([...values].sort((a, b) => a - b), p);
+}
+function sortedQuantile(values: readonly number[], p: number): number | null {
+  if (!values.length) return null;
+  const i = (values.length - 1) * p, lo = Math.floor(i);
+  return values[lo]! + (values[Math.ceil(i)]! - values[lo]!) * (i - lo);
 }
 export function filterChartFlights(flights: readonly RealFlightListItem[], filters: ChartFilters) {
   return flights.filter(f => (!filters.category || classifyAircraft(f.facts.assessment).key === filters.category)
@@ -50,7 +54,8 @@ export function filterChartFlights(flights: readonly RealFlightListItem[], filte
 export function summarizeGroup(key: string, label: string, rows: readonly RealFlightListItem[]): ChartGroup {
   const summary = summarizeStatisticsFlights(rows);
   const minutes = rows.map(flightMinutes).filter((n): n is number => n !== null);
-  return { key, label, ...summary, minutes, median: quantile(minutes, .5), q1: quantile(minutes, .25), q3: quantile(minutes, .75) };
+  const sorted = [...minutes].sort((a, b) => a - b);
+  return { key, label, ...summary, minutes, median: sortedQuantile(sorted, .5), q1: sortedQuantile(sorted, .25), q3: sortedQuantile(sorted, .75) };
 }
 export function groupChartFlights(flights: readonly RealFlightListItem[], dimension: AircraftGrouping | 'launch' | 'roles') {
   const groups = new Map<string, { label: string; rows: RealFlightListItem[] }>();

@@ -418,6 +418,16 @@ test('corrections append facts revisions while conflicting same-reference varian
   assert.equal((await library.snapshot()).records.filter(record => record.kind === 'pending').length, 1);
 });
 
+test('stored rows preserve flight order and latest facts across interleaved corrections and additions', async t => {
+  const { library } = await setup(t); await bind(library);
+  await save(library, source('interleaved-original', [row('301', '12'), row('302', '20')]), 2);
+  await save(library, source('interleaved-update', [row('301', '14'), row('303', '30')]), 3);
+  const { flights } = await library.readStored();
+  assert.deepEqual(flights.map(flight => [flight.sourceFlightRef, flight.factsRevision, flight.facts.assessment.durations.flight.minutes]),
+    [['301', 2, 14], ['302', 1, 20], ['303', 1, 30]]);
+  for (const flight of flights) assert.deepEqual((await library.detail(flight.flightId))?.facts, flight.facts);
+});
+
 test('empty complete windows persist capture and coverage without deleting saved flights; missing references remain pending', async t => {
   const { library } = await setup(t); await bind(library, source('capture-bind-empty', [row('401')]), 30);
   await save(library, source('capture-before-empty', [row('401')]), 31);

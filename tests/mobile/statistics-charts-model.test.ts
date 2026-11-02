@@ -26,8 +26,9 @@ test('known zero, unknown durations, distinct same-day flights and exact repeats
 test('duration summaries use actual median and interpolated quartiles',()=>{
   assert.equal(quantile([40,10,30,20],.5),25);assert.equal(quantile([40,10,30,20],.25),17.5);assert.equal(quantile([40,10,30,20],.75),32.5);
   assert.equal(quantile([],.5),null);assert.equal(quantile([0],.5),0);assert.equal(quantile([12,12],.75),12);
-  const groups=groupChartFlights([10,20,30,40].map((v,i)=>flight(String(i),'2026-03-01',v)),'launch');
+  const groups=groupChartFlights([40,10,30,20].map((v,i)=>flight(String(i),'2026-03-01',v)),'launch');
   assert.equal(groups[0]!.knownMinutes,100);assert.equal(groups[0]!.median,25);assert.equal(groups[0]!.q1,17.5);
+  assert.equal(groups[0]!.q3,32.5);assert.deepEqual(groups[0]!.minutes,[40,10,30,20]);
 });
 test('combined filters and period use the same contributor set for totals and points',()=>{
   const rows=[flight('glider','2026-03-01',10),flight('powered','2026-03-01',30,'Motorflugzeug'),flight('prior','2025-03-01',50)];

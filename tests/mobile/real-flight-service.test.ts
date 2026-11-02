@@ -16,6 +16,7 @@ import type { RealFlightRepositorySession } from '../../apps/platform-lab/src/ve
 import { readAiFlightSnapshot } from '../../apps/platform-lab/src/ai/flight-context.ts';
 import { AiFlightTools } from '../../apps/platform-lab/src/ai/flight-tools.ts';
 import { DiagnosticJournal } from '../../apps/platform-lab/src/diagnostics.ts';
+import { collectSavedSourceReview } from '../../apps/platform-lab/src/vereinsflieger/real-flight-review-evidence.ts';
 
 const ownerId = '11111111-1111-4111-8111-111111111111', storeId = '22222222-2222-4222-8222-222222222222';
 const at = '2026-10-20T10:00:00.000Z';
@@ -509,7 +510,11 @@ test('combined stored view keeps summary and rows coherent with one repository s
     assert.deepEqual(stored,{snapshot:expectedSnapshot,flights:expectedFlights});
     stored.flights.length=0;stored.snapshot.coverage.length=0;
     assert.deepEqual(await service.readStored(),{snapshot:expectedSnapshot,flights:expectedFlights});
-    f.switchOwner();await assert.rejects(service.readStored(),/foreign/);service.dispose();
+    const graph=await service.readBindingEvidence();
+    assert.equal(graph.generation,expectedSnapshot.generation);
+    assert.deepEqual(await service.readReviewEvidence(),collectSavedSourceReview(graph));
+    f.switchOwner();await assert.rejects(service.readStored(),/foreign/);
+    await assert.rejects(service.readBindingEvidence(),/foreign/);await assert.rejects(service.readReviewEvidence(),/foreign/);service.dispose();
   }finally{await f.cleanup();}
 });
 
