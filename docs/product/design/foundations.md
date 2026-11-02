@@ -1,6 +1,8 @@
 # Visual foundations
 
-**29 October Start tiles:** the [selected Issue 108 correction](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) uses separate `startTileSurfaces`: card `#164154`, raised `#235469`, thin outline `#60889E`. Existing `startSurfaces` retain shell decoration. Start per-record Medical badges add green ✓ beyond six months, amber ! within the inclusive window, red × past and gray ? unknown; existing source/date semantics remain.
+**Pilot-hub branch (Issue 116), 2 November:** the [implementation plan](pilot-hub-implementation-plan.md) supersedes earlier color-preservation prose on this experimental branch. Generated roles below reflect ink/slate/mint. New cards use 22-dp corners/20-dp padding, a warm paper surface, scalable text and labelled 48-dp-minimum controls. Existing image/symbol assets retain their original colors; original logo is unchanged. This is implemented for review, not final owner selection or whole-app accessibility acceptance.
+
+**Earlier 29 October Start tiles:** the [Issue 108 correction](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) preserves the historical teal card/raised/outline values. This branch replaces those surface exports with the palette below and moves Medical to a compact reminder linked to its full details. The recorded expiry meanings remain green ✓ beyond six months, amber ! within the inclusive window, red × past and gray ? unknown; existing source/date semantics remain.
 
 **28 October approved surface refinement:** content cards/raised surfaces now separate more clearly from the retained navy canvas. Start and header/bottom decoration explicitly retain their previous surface values; see the [scoped amendment](compact-cockpit.md#compact-controls-and-clearer-dark-surfaces--authorized-28-october-2026). Text/cyan/logo remain.
 
@@ -16,14 +18,14 @@ Keep surface, text, action, state and chart roles consistent, including foregrou
 <!-- generated:theme:start -->
 | Semantic role / code key | Value | Allowed/current use | Pairing context |
 | --- | --- | --- | --- |
-| surface.canvas / `background` | `#001b29` | Primary dark canvas | text / muted |
-| surface.card / `card` | `#103546` | Opaque shared content panel | text / muted |
-| surface.raised / `raised` | `#1a4356` | Raised / secondary action surface | text |
-| stroke.default / `border` | `#31586b` | Shared card/control outlines | dark surfaces |
-| text.primary / `text` | `#f4f8fc` | Primary readable text | background / card / raised |
-| text.secondary / `muted` | `#a9bed3` | Supporting text and inactive symbols | dark surfaces |
-| action.primary / `blue` | `#27d3d2` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
-| accent.general / `cyan` | `#27d3d2` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
+| surface.canvas / `background` | `#0b1220` | Primary dark canvas | text / muted |
+| surface.card / `card` | `#151f30` | Opaque shared content panel | text / muted |
+| surface.raised / `raised` | `#1e2c41` | Raised / secondary action surface | text |
+| stroke.default / `border` | `#2e3d54` | Shared card/control outlines | dark surfaces |
+| text.primary / `text` | `#f3f6fb` | Primary readable text | background / card / raised |
+| text.secondary / `muted` | `#a5b4c8` | Supporting text and inactive symbols | dark surfaces |
+| action.primary / `blue` | `#8ce5dc` | Mint filled action and selected-chip base; legacy code key | #031326 action text |
+| accent.general / `cyan` | `#8ce5dc` | Mint links, metrics and selected navigation labels; legacy code key | dark surfaces |
 | accent.assistant.family / `purple` | `#231e63` | Retained assistant-family token; not a shared panel fill | light text; check displayed panel |
 | accent.paper.family / `orange` | `#fc6a2d` | Retained paper-family token; no photographic paper hero | dark action text in context |
 | feedback.saved / `green` | `#48dba5` | Local profile saved text; also a chart-palette color | dark surfaces; meaning needs text |
@@ -110,11 +112,11 @@ Generated ratios use standard sRGB relative luminance on fully opaque pairs. The
 <!-- generated:contrast:start -->
 | Opaque pair | Foreground | Background | Calculated ratio |
 | --- | --- | --- | --- |
-| Primary text / canvas | `#f4f8fc` | `#001b29` | 16.55:1 |
-| Muted text / card | `#a9bed3` | `#103546` | 6.79:1 |
-| Action label / mint action | `#031326` | `#27d3d2` | 10.08:1 |
-| General mint accent / canvas | `#27d3d2` | `#001b29` | 9.53:1 |
-| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#27d3d2` | 6.49:1 |
+| Primary text / canvas | `#f3f6fb` | `#0b1220` | 17.28:1 |
+| Muted text / card | `#a5b4c8` | `#151f30` | 7.84:1 |
+| Action label / mint action | `#031326` | `#8ce5dc` | 12.76:1 |
+| General mint accent / canvas | `#8ce5dc` | `#0b1220` | 12.80:1 |
+| Brightest Back arrow gradient stop / opaque Back face | `#123a50` | `#8ce5dc` | 8.22:1 |
 <!-- generated:contrast:end -->
 
 ## Branding and photography

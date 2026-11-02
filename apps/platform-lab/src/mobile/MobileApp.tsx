@@ -13,8 +13,12 @@ import { formatDuration } from './flight-model';
 import { AiChatRoute } from './AiChatRoute';
 import { openAiWorkspaceNative } from '../ai/workspace-native';
 import { aiAnswerFlightIds } from '../ai/answer-navigation';
-import { Dashboard } from './Dashboard';
-import { PlaneIcon, ProfileIcon, BookIcon } from './ShellIcons';
+import { PilotHome } from './PilotHome';
+import { PilotClubOverview } from './PilotClubOverview';
+import { PaperWorkspace } from './PaperWorkspace';
+import { pilotTitles, type PilotTab } from './pilot-navigation';
+import { SubappNavigation, type Subapp } from './SubappNavigation';
+import { ProfileIcon } from './ShellIcons';
 import { SymbolIcon } from './SymbolIcon';
 import { ProfileSettings, SyntheticProfileSettings } from './ProfileSettings';
 import { HelpScreen } from './HelpScreen';
@@ -40,7 +44,6 @@ import { createSyncConfirmation } from './sync-confirmation';
 import { SyncConfirmationDialog } from './SyncConfirmationDialog';
 import { AppHeader } from './AppHeader';
 import { MedicalDetails } from './MedicalStatus';
-import { OverviewTiles } from './OverviewTiles';
 import { DevelopmentHub, DevelopmentNotice } from './DevelopmentHub';
 import { LibraryBackup } from './LibraryBackup';
 import { PaperStatus } from './PaperStatus';
@@ -65,8 +68,7 @@ import { useStartClock } from './use-start-clock';
 
 const mountain = require('../../assets/aviation/mountain-header-v2.jpg');
 const clubAirfield = require('../../assets/aviation/club-airfield.jpg');
-const tabs = [{ id: 'home', title: 'Übersicht' }, { id: 'flights', title: 'Flüge' }, { id: 'logbook', title: 'Flugbuch' }, { id: 'club', title: 'Verein' }, { id: 'ai', title: 'AI' }] as const;
-type Tab = typeof tabs[number]['id'];
+type Tab = PilotTab;
 type ClubSection = 'Übersicht' | 'Termine' | 'Dienste' | 'Dokumente' | 'Arbeitsstunden' | 'Aufgaben';
 type Sheet = 'designPreview' | 'diagnostics' | 'paper' | 'development' | 'importPreview' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | 'statistics' | 'help' | null;
 const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : 'Datum unbekannt';
@@ -120,9 +122,12 @@ export default function MobileApp() {
 }
 function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,financialFlowOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus,syncRunning=false,syncControls=null,syncProgress=idleSyncProgress}:{onDetailHttpPoc?:()=>void;onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean,destination?:OptionsDestination)=>void;coreFlightsOpen?:boolean;financialFlowOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus;syncRunning?:boolean;syncControls?:SyncControls|null;syncProgress?:SyncProgressState}={}) {
   const [tab, setTab] = useState<Tab>('home');
+  const [flightOrigin,setFlightOrigin]=useState<Tab>('home');
+  const openFlightModule=(origin:Tab='home',flightId?:string)=>{setFlightOrigin(origin);setFlightRequest({year:null,...(flightId?{flightId}:{})});setTab('flights');};
   const [statisticsContributors,setStatisticsContributors]=useState<ChartContributors|undefined>(undefined);
   const [statisticsChart,setStatisticsChart]=useState<ChartKind|undefined>(undefined);
   const [statisticsYear,setStatisticsYear]=useState<number|undefined>(undefined);
+  const [statisticsMode,setStatisticsMode]=useState<'flights'|'costs'>('flights');
   const [statisticsSection,setStatisticsSection]=useState<StatisticsSection>('overview');
   const [sheet, setSheet] = useState<Sheet>(null);
   const [detail, setDetail] = useState<Flight | null>(null);
@@ -190,7 +195,6 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
   const [clubSection, setClubSection] = useState<ClubSection>('Übersicht');
   const clubOffsets=useRef<Partial<Record<ClubSection,number>>>({});
   const openClubSection=(section:ClubSection)=>{Keyboard.dismiss();setClubSection(section);};
-  const dashboardBack=useRef<()=>boolean>(()=>false);
   const [flightRequest, setFlightRequest] = useState<OwnFlightRequest | null>(null);
   const [flightHeader, setFlightHeader] = useState<OwnFlightHeader>({title:'Flüge'});
   const [aiEvidenceScope, setAiEvidenceScope] = useState<string | null>(null);
@@ -266,11 +270,11 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
       if (detail || sheet) { closeOverlay(); return true; }
       if (tab === 'flights' && ownFlightBack) { ownFlightBack(); return true; }
       if (tab === 'club' && clubSection !== 'Übersicht') { openClubSection('Übersicht'); return true; }
-      if (tab === 'home' && dashboardBack.current()) return true;
+      if (tab === 'flights') {setTab(flightOrigin);return true;}
       if (tab !== 'home') { setTab('home'); return true; }
       return false;
     }); return () => listener.remove();
-  }, [detail, sheet, helpEntryId, tab, screenBusy, flightHeader,clubSection,coreFlightsOpen,aiEvidenceScope,statisticsScopeKey]);
+  }, [detail, sheet, helpEntryId, tab, screenBusy, flightHeader,clubSection,coreFlightsOpen,aiEvidenceScope,statisticsScopeKey,flightOrigin]);
   const openFlightFlow = (intent:ConnectionIntent='options',destination:OptionsDestination='settings') => {
     if(intent!=='update'){diagnosticJournal.record('action','open-flight-tools');onCoreFlights(intent,false,destination);return true;}
     const ticket=syncConfirmation.request(syncAdmission.current.scope,syncAdmission.current.allowed);
@@ -291,7 +295,8 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
   useEffect(() => { diagnosticJournal.record('screen', coreFlightsOpen ? 'provider-options' : detail ? 'flight-detail' : sheet ?? tab); }, [tab,sheet,detail,coreFlightsOpen]);
   useEffect(() => { const listener=AppState.addEventListener('change',state=>{if(state!=='active'){syncConfirmation.invalidate();setSyncPrompt(null);}if(state==='active'||state==='background'||state==='inactive')diagnosticJournal.record('lifecycle',state);});return()=>listener.remove(); }, []);
   const openBooks = () => openHeaderSheet('paper');
-  const pageTitle = tabs.find(item => item.id === tab)!.title;
+  const pageTitle = pilotTitles[tab];
+  const openStatistics=(mode:'flights'|'costs'='flights')=>{setStatisticsMode(mode);setStatisticsYear(Number(today.slice(0,4)));setStatisticsSection('overview');setStatisticsChart(undefined);setStatisticsContributors(undefined);ownFlights.clearDetail();openHeaderSheet('statistics');};
   const readState=ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready';
   const notice=idleSyncNotice({receivedAt,readState,now,activityChanged});
   const completed=!!updateForOwner&&completedSyncProgress(updateForOwner).state==='idle';
@@ -301,15 +306,28 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
   const loginStatus=presentSession(selected?.snapshot.account?.accountRef?statisticsScopeKey:null,flightStatusController.connection,now);
   const statusDetails=<SyncStatusDetails status={indicatorStatus} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={readState} now={now} activityChanged={activityChanged}/>;
   const settingsSummary=<>{statusDetails}{ownFlights.phase !== 'failed' && !!(ownFlights.view?.pendingCommand || ownFlights.view?.snapshot.recovery?.readOnly) && <Label>Eine Speicherung oder Wiederherstellung muss geprüft werden. Der letzte geprüfte Stand bleibt lesbar.</Label>}</>;
+  const goHome=()=>{if(screenBusy)return;Keyboard.dismiss();overlayHistory.current=[];setDetail(null);setSheet(null);setTab('home');};
+  const homeControl=tab!=='home'||overlayOpen?<Pressable accessibilityRole="button" accessibilityLabel="Start öffnen" onPress={goHome} disabled={screenBusy} accessibilityState={{disabled:screenBusy}} style={ui.headerAction}><SymbolIcon name="home" size={22}/></Pressable>:null;
   const statusControls = <>
     <DataUpdateIndicator progress={syncProgress} completed={completed} incomplete={syncProgress.state==='failed'||syncProgress.state==='partial'} activityChanged={activityChanged} scopeKey={selected?.snapshot.account?.accountRef?statisticsScopeKey:null} connection={flightStatusController.connection} receivedAt={receivedAt} readState={ownFlights.phase==='failed'?'failed':ownFlights.phase==='loading'?'loading':'ready'}
       now={now} syncing={syncProgress.state==='active'||syncProgress.state==='waiting'} disabled={screenBusy} onPress={() => openFlightFlow('update')} />
 
   </>;
   const profileControl = <Pressable accessibilityRole="button" accessibilityLabel="Profil & Einstellungen öffnen" accessibilityValue={{text:loginStatus.description}} accessibilityState={{ disabled: screenBusy }} disabled={screenBusy} onPress={() => openHeaderSheet('profile')} style={ui.headerAction}><ProfileIcon /><StatusBadge testID="login-status-badge" mark={loginStatus.mark} tone={loginStatus.state==='connected'?'success':loginStatus.state==='login-required'?'advice':loginStatus.mark==='!'?'error':'neutral'}/></Pressable>;
-  const header = <AppHeader variant={tab==='club'||tab==='ai'||tab==='flights'?'page':undefined} profile={profileControl} source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'MoFlight AI' : tab === 'flights' ? flightHeader.title : tab==='club'&&clubSection!=='Übersicht'?clubSection:pageTitle} back={tab === 'flights' ? ownFlightBack : tab==='club'&&clubSection!=='Übersicht'?()=>openClubSection('Übersicht'):undefined}
-    subtitle={tab === 'home' ? 'Guten Tag!' : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{statusControls}</AppHeader>;
-  return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
+  const header = <AppHeader variant={tab!=='home'?'page':undefined} profile={profileControl} source={tab === 'club' ? clubAirfield : mountain} title={tab === 'ai' ? 'Assistent' : tab === 'flights' ? flightHeader.title : tab==='club'&&clubSection!=='Übersicht'?clubSection:pageTitle} back={tab === 'flights' ? ownFlightBack??(()=>setTab(flightOrigin)) : tab==='club'&&clubSection!=='Übersicht'?()=>openClubSection('Übersicht'):tab!=='home'?()=>setTab('home'):undefined}
+    subtitle={tab === 'home' ? 'Guten Tag!' : tab === 'ai' ? 'Dein Segelflug-Assistent' : 'MoFlight'}>{homeControl}{statusControls}</AppHeader>;
+  const activeModule:Subapp|null=statisticsPageOpen?statisticsMode==='costs'?'costs':'statistics':tab==='home'?null:tab;
+  const navigation=<SubappNavigation disabled={screenBusy} selected={activeModule} rail={wide} onHome={goHome} onSelect={destination=>{
+    if(screenBusy||activeModule===destination&&(sheet===null||sheet==='statistics'))return;
+    Keyboard.dismiss();overlayHistory.current=[];setDetail(null);setAiEvidenceScope(null);
+    diagnosticJournal.record('action',destination==='costs'?'statistics':destination);
+    if(destination==='costs'||destination==='statistics'){
+      ownFlights.clearDetail();
+      setStatisticsMode(destination==='costs'?'costs':'flights');setStatisticsYear(Number(today.slice(0,4)));setStatisticsSection('overview');setStatisticsChart(undefined);setStatisticsContributors(undefined);setSheet('statistics');
+    }else{setSheet(null);if(destination==='flights'){setFlightOrigin('home');}setTab(destination);}
+  }}/>;
+  return <SafeAreaView edges={['top', 'left', 'right', 'bottom']} style={[s.root,wide&&{flexDirection:'row'}, keyboardOverlap > 0 && { paddingBottom: keyboardOverlap }]}>
+    {wide&&navigation}
     <View collapsable={false} style={{ flex: 1 }}>
     <View collapsable={false} style={[{ flex: 1 }, overlayOpen && s.hidden]} pointerEvents={overlayOpen ? 'none' : 'auto'} aria-hidden={overlayOpen} accessibilityElementsHidden={overlayOpen} importantForAccessibility={overlayOpen ? 'no-hide-descendants' : 'auto'}>
     <StatusBar barStyle="light-content" backgroundColor={colors.background} />
@@ -318,10 +336,10 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
     <View style={[s.content, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }]}>
       <View style={[s.page, tab !== 'home' && s.hidden]} accessibilityElementsHidden={tab !== 'home'} importantForAccessibility={tab === 'home' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={s.canvas} keyboardShouldPersistTaps="handled">
-          <View style={{width:'100%',maxWidth:wide?920:520,alignSelf:'center',flexDirection:wide?'row':'column',alignItems:'flex-start',gap:12}}>
-          <View style={{width:'100%',flex:wide?1:undefined,gap:10}}><Dashboard preview={startPreview} onBackHandler={handler=>{dashboardBack.current=handler;}} now={now} ownFlights={ownFlights.view} ownFlightPhase={ownFlights.phase} pending={null} width={width} fontScale={fontScale} onFlight={flightId=>{setFlightRequest({year:null,flightId});setTab('flights');}} onPaper={() => setTab('logbook')} onStatistics={(year,section='overview',chart,contributors) => { setStatisticsContributors(contributors);setStatisticsChart(chart);setStatisticsYear(year);setStatisticsSection(section);ownFlights.clearDetail(); openHeaderSheet('statistics'); }} onFlights={() => { overlayHistory.current=[]; setDetail(null); setSheet(null); setFlightRequest({year:null}); setTab('flights'); }} /><OverviewTiles medicalLoading={medicalLoading&&!startMedical} medical={startMedical} now={now} onMedical={()=>openHeaderSheet('medical')} onPaper={()=>setTab('logbook')}/></View>
-          {<View style={{width:'100%',flex:wide?1:undefined}}>{dutyContent(false,'start',startDutyOverview)}</View>}
-          </View>
+          <PilotHome view={ownFlights.view} preview={startPreview} phase={ownFlights.phase} now={now} duties={startDutyOverview} medical={startMedical} medicalLoading={medicalLoading&&!startMedical}
+            active={tab==='home'&&!overlayOpen&&!coreFlightsOpen&&!syncRunning} reload={flightReload} onUpdate={()=>openFlightFlow('update')}
+            onPaper={()=>setTab('logbook')} onFlights={()=>openFlightModule()} onFlight={flightId=>openFlightModule('home',flightId)}
+            onStatistics={()=>openStatistics()} onCosts={()=>openStatistics('costs')} onDuties={openDuties} onClub={()=>{openClubSection('Übersicht');setTab('club');}} onAssistant={()=>setTab('ai')} onMedical={()=>openHeaderSheet('medical')}/>
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'flights' && s.hidden]} accessibilityElementsHidden={tab !== 'flights'} importantForAccessibility={tab === 'flights' ? 'auto' : 'no-hide-descendants'}>
@@ -330,20 +348,19 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
       </View>
       <View style={[s.page, tab !== 'logbook' && s.hidden]} accessibilityElementsHidden={tab !== 'logbook'} importantForAccessibility={tab === 'logbook' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView contentContainerStyle={[s.canvas, { paddingTop: 10 }]}>
-          <View style={{ width: '100%', maxWidth: 480, alignSelf: 'center', gap: 10 }}>
-            <Card><SymbolIcon name="book" size={40} tone="paper"/><Section title="Dein Papierflugbuch" /><Label style={{color:colors.cyan}}>In Vorbereitung</Label><Label>Das Einrichten deines Papierflugbuchs und die Zuordnung deiner Flüge werden noch vorbereitet.</Label><Label muted>Du kannst deine eigenen Flüge bereits laden, offline ansehen und auswerten. Dafür brauchst du kein Flugbuch.</Label><Action testID="paper-flights-entry" onPress={() => setTab('flights')}>Flüge ansehen</Action></Card>
-          </View>
+          <PaperWorkspace onFlights={()=>openFlightModule('logbook')}/>
         </ScrollView>
       </View>
       <View style={[s.page, tab !== 'club' && s.hidden]} accessibilityElementsHidden={tab !== 'club'} importantForAccessibility={tab === 'club' ? 'auto' : 'no-hide-descendants'}>
         <ScrollView key={clubSection} contentOffset={{x:0,y:clubOffsets.current[clubSection]??0}} onScroll={event=>{clubOffsets.current[clubSection]=event.nativeEvent.contentOffset.y;}} scrollEventThrottle={32} contentContainerStyle={s.canvas}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>{(['Übersicht', 'Termine', 'Dienste', 'Dokumente', 'Arbeitsstunden', 'Aufgaben'] as const).map(section => <Chip key={section} title={section} selected={clubSection === section} onPress={() => {diagnosticJournal.record('filter','club-section');openClubSection(section);}} />)}</ScrollView>
+          {clubSection!=='Übersicht'&&<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chips}>{(['Übersicht', 'Termine', 'Dienste', 'Dokumente', 'Arbeitsstunden', 'Aufgaben'] as const).map(section => <Chip key={section} title={section} selected={clubSection === section} onPress={() => {diagnosticJournal.record('filter','club-section');openClubSection(section);}} />)}</ScrollView>}
+          {clubSection==='Übersicht'&&<PilotClubOverview duties={dutyOverview} information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} onSection={openClubSection}/>}
           <View style={[s.clubBody, tablet && clubSection==='Übersicht' && s.clubBodyWide, clubSection!=='Übersicht'&&s.clubDetail]}>
-          {(clubSection === 'Übersicht' || clubSection === 'Dienste') && dutyContent(clubSection==='Dienste','club')}
-          {(clubSection === 'Übersicht' || clubSection === 'Termine') && <View style={[s.clubSectionCard, tablet && clubSection==='Übersicht' && s.clubHalf]}><ClubEvents information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={clubSection === 'Übersicht'} onOpen={() => openClubSection('Termine')} /></View>}
-          {(clubSection === 'Übersicht' || clubSection === 'Dokumente') && <View style={[s.clubSectionCard, tablet && clubSection==='Übersicht' && s.clubHalf]}><ClubDocumentNotices information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={clubSection === 'Übersicht'} onOpen={() => openClubSection('Dokumente')} /></View>}
-          {(clubSection === 'Übersicht' || clubSection === 'Arbeitsstunden') && <View style={[s.clubSectionCard, tablet && clubSection==='Übersicht' && s.clubHalf]}><ClubWorkSummary information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={clubSection === 'Übersicht'} onOpen={() => openClubSection('Arbeitsstunden')} /></View>}
-          {(clubSection === 'Übersicht' || clubSection === 'Aufgaben') && <View style={[s.clubSectionCard, tablet && clubSection==='Übersicht' && s.clubHalf]}><ClubOwnTasks information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={clubSection === 'Übersicht'} onOpen={() => openClubSection('Aufgaben')} /></View>}
+          {(clubSection === 'Dienste') && dutyContent(clubSection==='Dienste','club')}
+          {(clubSection === 'Termine') && <View style={s.clubSectionCard}><ClubEvents information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={false} onOpen={() => openClubSection('Termine')} /></View>}
+          {(clubSection === 'Dokumente') && <View style={s.clubSectionCard}><ClubDocumentNotices information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={false} onOpen={() => openClubSection('Dokumente')} /></View>}
+          {(clubSection === 'Arbeitsstunden') && <View style={s.clubSectionCard}><ClubWorkSummary information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={false} onOpen={() => openClubSection('Arbeitsstunden')} /></View>}
+          {(clubSection === 'Aufgaben') && <View style={s.clubSectionCard}><ClubOwnTasks information={selected?.featureInformation} readFailed={selected?.featureInformationReadFailed} compact={false} onOpen={() => openClubSection('Aufgaben')} /></View>}
           </View>
           <Pressable accessibilityRole="button" onPress={() => openHeaderSheet('status')} style={ui.smallAction}><IconLabel name="right" size={16} muted>Verbindung & Datenstatus</IconLabel></Pressable>
         </ScrollView>
@@ -361,11 +378,11 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
       </KeyboardAvoidingView>
     </View>
     {!aiKeyboard && <Label style={{ width: '100%', textAlign: 'center', color: '#8ba4bc', fontSize: 10, lineHeight: 16 }}>Entwicklungsversion</Label>}
-    <View style={[s.nav, wrapTabs && s.navWrap, wide && { maxWidth: 960 }, tablet && !wide && { maxWidth: 600 }, aiKeyboard && s.hidden]} accessibilityRole="tablist">{tabs.map(item => <Pressable key={item.id} testID={`tab-${item.id}`} accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.id }} onPress={() => { diagnosticJournal.record('action',item.id);setAiEvidenceScope(null);setTab(item.id); }} style={({ pressed }) => [s.navItem, tab === item.id && s.navSelected, wrapTabs && s.navItemWrap, pressed && ui.pressed]}>{item.id === 'flights' ? <PlaneIcon color={tab === item.id ? colors.cyan : colors.muted} /> : item.id === 'logbook' ? <BookIcon color={tab === item.id ? colors.cyan : colors.muted} /> : item.id === 'club' ? <ClubMark color={tab === item.id ? colors.cyan : colors.muted} /> : <SymbolIcon name={item.id === 'home' ? 'home' : 'sparkle'} size={28} tone={tab === item.id ? 'default' : 'muted'} />}<Text style={[s.navLabel, tab === item.id && s.active]}>{item.title}</Text></Pressable>)}</View>
+
     </View>
     {overlayOpen && <View style={[StyleSheet.absoluteFill, s.modal]} accessibilityViewIsModal>
       {statisticsPageOpen && <KeyboardAvoidingView style={[{ flex: 1, minHeight: 0 }, sheet !== 'statistics' && s.hidden]} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} accessibilityElementsHidden={sheet !== 'statistics'} importantForAccessibility={sheet === 'statistics' ? 'auto' : 'no-hide-descendants'}>
-        <StatisticsOverlay onRefreshFinancial={()=>openFlightFlow('options','financial')} reloadKey={flightReload} initialContributors={statisticsContributors} initialChart={statisticsChart} helpEnabled={helpEnabled === true} onHelp={entryId=>openHelp(entryId,true)} initialYear={statisticsYear} initialSection={statisticsSection} key={statisticsScopeKey} data={ownFlights} today={today} fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} onClose={closeOverlay} headerActions={statusControls} feedback={<SyncProgress notice={notice} cancel={syncControls?.cancel} canCancel={syncControls?.canCancel} progress={syncProgress} retry={()=>openFlightFlow('update')} details={()=>openHeaderSheet('status')}/>} />
+        <StatisticsOverlay separateModules initialMode={statisticsMode} onRefreshFinancial={()=>openFlightFlow('options','financial')} reloadKey={flightReload} initialContributors={statisticsContributors} initialChart={statisticsChart} helpEnabled={helpEnabled === true} onHelp={entryId=>openHelp(entryId,true)} initialYear={statisticsYear} initialSection={statisticsSection} key={statisticsScopeKey+':'+statisticsMode} data={ownFlights} today={today} fontScale={fontScale} onBackHandler={handler => { statisticsBack.current = handler; }} onClose={closeOverlay} headerActions={<>{homeControl}{statusControls}</>} feedback={<SyncProgress notice={notice} cancel={syncControls?.cancel} canCancel={syncControls?.canCancel} progress={syncProgress} retry={()=>openFlightFlow('update')} details={()=>openHeaderSheet('status')}/>} />
       </KeyboardAvoidingView>}
       {sheet !== 'statistics' && <>
       {sheet !== 'designPreview'&&<AppHeader variant={['profile','help','medical','status','diagnostics','credits','development'].includes(sheet ?? '')?'page':'branded'} profile={['profile','help','medical','status','diagnostics','credits','development'].includes(sheet ?? '')?undefined:profileControl} source={mountain} back={closeOverlay} backDisabled={screenBusy} title={detail ? 'Flugdetails' : sheet === 'paper' ? 'Papierflugbuch' : sheet === 'development' ? 'Entwicklung' : sheet === 'importPreview' ? 'Importvorschau' : sheet === 'flightLab' ? 'Datensatztest' : sheet === 'bookLab' ? 'Flugbuchtest' : sheet === 'backup' ? 'Synthetische Sicherung' : sheet === 'diagnostics' ? 'Diagnose' : sheet === 'profile' ? 'Profil & Einstellungen' : sheet === 'help' ? 'Hilfe & Einführung' : sheet === 'medical' ? 'Medical' : sheet==='status'?'Verbindung & Datenstatus':sheet==='selectBook'?'Synthetisches Flugbuch':sheet==='credits'?'Über MoFlight':'MoFlight'}>{statusControls}</AppHeader>}
@@ -407,12 +424,13 @@ function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,finan
       </>}
     </View>}
     </View>
+    {!wide&&!aiKeyboard&&navigation}
     {syncPrompt && <SyncConfirmationDialog onCancel={syncPrompt.cancel} onConfirm={syncPrompt.confirm} />}
   </SafeAreaView>;
 }
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background }, content: { flex: 1, alignSelf: 'center', width: '100%', maxWidth: 599 },
-  page: { flex: 1 }, hidden: { display: 'none' }, canvas: { padding: 12, paddingTop: 6, gap: 12, paddingBottom: 28 }, flightCanvas: { padding: 10, paddingTop: 0, paddingBottom: 20 },
+  page: { flex: 1 }, hidden: { display: 'none' }, canvas: { padding: 20, paddingTop: 6, gap: 16, paddingBottom: 32 }, flightCanvas: { padding: 10, paddingTop: 0, paddingBottom: 20 },
   headerBook: { minHeight: 36, justifyContent: 'center', alignSelf: 'flex-start' },
   stateBanner: { gap: 3, padding: 4, marginTop: 8 }, provenance: { fontSize: 10, lineHeight: 16, color: '#8ba4bc', letterSpacing: .6 },
   metric: { flex: 1, minWidth: 0, alignItems: 'center', gap: 1 }, metricValue: { color: colors.cyan, fontSize: 20, lineHeight: 25, fontWeight: '600' }, metricLabel: { fontSize: 11, textAlign: 'center', lineHeight: 16 },

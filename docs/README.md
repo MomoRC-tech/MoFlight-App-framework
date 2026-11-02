@@ -7,6 +7,7 @@
 | What should happen next? | [Current plan](project-plan.md#next-executable-packages) and [GitHub Issues](https://github.com/MomoRC-tech/MoFlight-App-framework/issues) |
 | What should the app do? | [Product contracts](product/README.md) |
 | What should it look like? | [Selected design handbook](product/design/README.md) |
+| How is the isolated pilot-hub redesign progressing? | [Dedicated implementation plan](product/design/pilot-hub-implementation-plan.md), [synthetic review](product/design/proposals/pilot-hub-review.html) and [focused evidence](verification/2026-11-02-pilot-hub.md), Issue 116 |
 | Where is the latest project/phone review? | [28 October project/plan review](verification/2026-10-17-current-status-and-open-issues.md#28-october-project-and-implementation-plan-review) |
 | What did the next bounded roadmap batch establish? | [Sync/backup regressions, proposal and remaining decisions](verification/2026-10-17-current-status-and-open-issues.md#25-october-bounded-continuation--sync-and-preservation) |
 | Where is the complete UI interaction and consistency review? | [24 October interaction tree and findings](verification/2026-10-24-ui-interaction-review.md) |

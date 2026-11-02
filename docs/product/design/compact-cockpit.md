@@ -1,5 +1,7 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+**Isolated branch amendment, 2 November 2026 (#116):** the owner requests a completely rethought UI from the rollback release. On `codex/pilot-ui-redesign` only, the [pilot-hub implementation plan](pilot-hub-implementation-plan.md) supersedes appearance, Start preservation and five-destination navigation below. Six persistent modules, six Start summaries and ink/slate/mint surfaces are implemented for review. Original logo, source/unknown/account and unfinished-feature contracts remain. Main's previous appearance is preserved; no final visual/native acceptance is claimed.
+
 ## Calculated annual Pflicht target — selected 29 October 2026
 
 Under [#110](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/110), Manuel selected `rate = Geleistet EUR / Geleistet h`, then `Pflicht h = Pflicht EUR / rate`, only when the monetary totals differ and the earned money/hours are positive. Use one explicit selected-year row from the already scoped, ready saved summary; unknown/ambiguous/truncated/malformed input cannot update. Round only the final hours to two decimals, within the existing 0–999 range. This is an owner-selected calculated estimate, not an independently verified club quota; it supersedes the earlier no-conversion restriction only within this rule.

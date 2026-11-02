@@ -29,7 +29,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
   let index = 0;
   const hooks: any[] = [], effects: (() => void)[] = [];
   const react = {
-    createElement: (type: unknown, props: Element['props'], ...children: unknown[]): Element => ({ type, props: props ?? {}, children: children.flat(Infinity).map(child=>type==='UpdateDialog'&&typeof child==='function'?child(40):child) }),
+    createElement: (type: unknown, props: Element['props'], ...children: unknown[]): Element => ({ type, props: props ?? {}, children: (type==='SubappNavigation'?[react.createElement('Pressable',{accessibilityLabel:'Start',onPress:props.onHome}),...(['flights','logbook','club','costs','statistics','ai'] as const).map(id=>react.createElement('Pressable',{accessibilityRole:'tab',accessibilityLabel:({flights:'Flüge',logbook:'Flugbuch',club:'Verein',costs:'Kosten',statistics:'Statistik',ai:'Assistent'})[id],accessibilityState:{selected:props.selected===id},onPress:()=>props.onSelect(id)},react.createElement('Text',{},({flights:'Flüge',logbook:'Flugbuch',club:'Verein',costs:'Kosten',statistics:'Statistik',ai:'Assistent'})[id])))]:children).flat(Infinity).map(child=>type==='UpdateDialog'&&typeof child==='function'?child(40):child) }),
     useRef(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = { current: initial }; return hooks[i]; },
     useState(initial: unknown) { const i = index++; if (!(i in hooks)) hooks[i] = typeof initial==='function'?(initial as ()=>unknown)():initial; return [hooks[i], (value: unknown) => { hooks[i] = typeof value==='function'?(value as (old:unknown)=>unknown)(hooks[i]):value; }]; },
     useMemo(make:()=>unknown,deps:unknown[]) { const i=index++,previous=hooks[i];if(!previous||deps.some((v,n)=>v!==previous.deps[n]))hooks[i]={deps,value:make()};return hooks[i].value; },
@@ -74,7 +74,7 @@ function fixture(width = 390, fontScale = 1, root = false) {
     './use-library': { useLibrary: (value: boolean) => { suspended = value; return library; } },
     './flight-model': { flightYears: () => [2026], selectFlights: () => library.flights, summarizeFlights: () => ({ count: 1, knownMinutes: 30 }), formatDuration: () => '0:30' },
     './local-insights': { localQuestions: [], localInsight: () => '' },
-    './Dashboard': { Dashboard: 'Dashboard' }, './StatisticsOverlay': { StatisticsOverlay: 'StatisticsOverlay' }, './ShellIcons': leaves(['PlaneIcon', 'ProfileIcon', 'BookIcon']),
+    './PilotHome': {PilotHome:'PilotHome'}, './PaperWorkspace':{PaperWorkspace:'PaperWorkspace'}, './PilotClubOverview':{PilotClubOverview:'PilotClubOverview'}, './pilot-navigation':{pilotTitles:{home:'Start',flights:'Flüge',logbook:'Papierflugbuch',club:'Verein',ai:'Assistent'}}, './SubappNavigation':{SubappNavigation:'SubappNavigation'}, './StatisticsOverlay': { StatisticsOverlay: 'StatisticsOverlay' }, './ShellIcons': leaves(['PlaneIcon', 'ProfileIcon', 'BookIcon']),
     './AiChatRoute':leaves(['AiChatRoute']), '../ai/workspace-native':{openAiWorkspaceNative:async(gate:()=>Promise<void>)=>{await gate();return {identity:async()=>({accountRef:'synthetic-account'}),tools:async()=>({assertCurrent:gate,context:{},references:{},dispose(){calls.push('dispose-ai-evidence');}}),close:async()=>{calls.push('close-ai-evidence');}};}}, '../ai/answer-navigation':{aiAnswerFlightIds:(_message:unknown,ids:string[])=>ids},
     './DesignPreview':leaves(['DesignPreview']),'./Diagnostics': leaves(['Diagnostics']),'./AboutCredits':leaves(['AboutCredits']), './diagnostics-native': {initializeDiagnostics() {}}, '../diagnostics': diagnostics,
     './ProfileSettings': { ProfileSettings: 'ProfileSettings', SyntheticProfileSettings:'SyntheticProfileSettings' }, '../book-storage': { PILOT: 'synthetic-pilot' },
@@ -132,6 +132,33 @@ function fixture(width = 390, fontScale = 1, root = false) {
     setTime:(time:number)=>{clockNow=time;render();}, clockDeadlines:()=>clockDeadlines,
     appState:(state:string)=>{if(state!=='active')providerStatus=unknownProviderStatus;appStateListener?.(state);render();} };
 }
+
+test('six-module navigation keeps Costs and Statistics distinct through nested Help and explicit Start',()=>{
+  const f=fixture();f.press('Pressable','Kosten');
+  assert.equal(f.find('StatisticsOverlay').props.initialMode,'costs');
+  assert.equal(f.find('StatisticsOverlay').props.separateModules,true);
+  assert.equal(f.find('SubappNavigation').props.selected,'costs');
+  f.find('StatisticsOverlay').props.onHelp('pic');f.render();
+  assert.equal(f.find('SubappNavigation').props.selected,'costs');
+  f.press('Pressable','Statistik');
+  assert.equal(f.find('StatisticsOverlay').props.initialMode,'flights');
+  assert.equal(f.find('SubappNavigation').props.selected,'statistics');
+  f.find('SubappNavigation').props.onHome();f.render();
+  assert.equal(f.headers()[0]!.props.title,'Start');
+  assert.equal(f.nodes().some(n=>n.type==='StatisticsOverlay'),false);
+  assert.deepEqual(f.coreRoutes,[]);
+});
+
+test('paper flight review returns to paper on toolbar and system Back',()=>{
+  const f=fixture();f.press('Pressable','Flugbuch');
+  for(const mode of ['toolbar','system']){
+    f.find('PaperWorkspace').props.onFlights();f.render();
+    assert.equal(f.find('OwnFlights').props.active,true);
+    if(mode==='toolbar')f.headers()[0]!.props.back();else f.hardwareBack();
+    f.render();assert.equal(f.headers()[0]!.props.title,'Papierflugbuch');
+  }
+  assert.deepEqual(f.coreRoutes,[]);
+});
 
 test('Profile switch gates contextual Help while retaining manual Help and handles save failure', async () => {
   const f=fixture();await Promise.resolve();f.render();
@@ -216,14 +243,14 @@ test('Medical header and details use the real selected library projection rather
   const medical={id:'real-medical',owner:'real-owner',rows:[{values:['Klasse 2','31.12.2027']}]};
   Object.assign(f.controller,{informationCaptures:[{id:'legacy-medical',owner:'synthetic-pilot',category:'medical'}]});
   f.showLoad(null,{snapshot:{ownerId:'real-owner',account:{accountRef:'101'}},medical});
-  assert.equal(f.find('OverviewTiles').props.medical,medical);
-  f.find('OverviewTiles').props.onMedical();f.render();assert.equal(f.find('MedicalDetails').props.capture,medical);
-  f.showLoad(null,null);assert.equal(f.find('OverviewTiles').props.medical,null);
+  assert.equal(f.find('PilotHome').props.medical,medical);
+  f.find('PilotHome').props.onMedical();f.render();assert.equal(f.find('MedicalDetails').props.capture,medical);
+  f.showLoad(null,null);assert.equal(f.find('PilotHome').props.medical,null);
 });
 
 test('app headers retain Data and Medical with a separate profile action on every tab', () => {
   const f = fixture();
-  for (const title of ['Übersicht', 'Flüge', 'Flugbuch', 'Verein', 'AI']) {
+  for (const title of ['Start', 'Flüge', 'Flugbuch', 'Verein', 'Assistent']) {
     f.press('Pressable', title);
     const controls = f.nodes().filter(n => n.type === 'DataUpdateIndicator' || n.type === 'MedicalIndicator' || n.props.accessibilityLabel === 'Profil & Einstellungen öffnen');
     assert.deepEqual(controls.map(n => n.type), ['DataUpdateIndicator', 'Pressable']);
@@ -269,18 +296,18 @@ test('synthetic import preview opens without seeding or provider work, retains i
 });
 
 test('Start paper tile uses the existing product tab without duplicate sheet or synthetic progress',()=>{
-  const f=fixture();f.find('Dashboard').props.onPaper();f.render();
+  const f=fixture();f.find('PilotHome').props.onPaper();f.render();
   assert.equal(f.nodes().some(n=>n.type==='PaperStatus'),false);
-  assert.ok(f.nodes().some(n=>n.type==='Section'&&n.props.title==='Dein Papierflugbuch'));
-  assert.equal(f.headers().at(-1)!.props.title,'Flugbuch');assert.deepEqual(f.calls,[]);
-  f.hardwareBack();f.render();assert.equal(f.headers().at(-1)!.props.title,'Übersicht');
+  assert.ok(f.find('PaperWorkspace'));
+  assert.equal(f.headers().at(-1)!.props.title,'Papierflugbuch');assert.deepEqual(f.calls,[]);
+  f.hardwareBack();f.render();assert.equal(f.headers().at(-1)!.props.title,'Start');
 });
 
 test('Medical opens without provider work and returns through nested overlays', () => {
   const f = fixture();
   f.press('Pressable', 'Flüge');
   f.find('OwnFlights').props.onHeaderChange({title:'Flugfilter',back:()=>{}}); f.render();
-  f.find('OverviewTiles').props.onMedical();f.render();
+  f.find('PilotHome').props.onMedical();f.render();
   assert.equal(f.headers().at(-1)!.props.title, 'Medical');
   assert.ok(f.find('MedicalDetails'));
   assert.ok(f.find('MedicalDetails'));
@@ -345,7 +372,7 @@ test('shell Back remains contextual after requesting the shared connection', () 
 test('ordinary paper is deferred while Development retains synthetic paper and backup without launching experiments', () => {
   const f = fixture();
   assert.equal(f.nodes().some(n => n.props.accessibilityLabel === 'Flugworkflow öffnen'), false);
-  f.press('Pressable','Flugbuch');assert.ok(f.nodes().some(n=>n.props.testID==='paper-flights-entry'));
+  f.press('Pressable','Flugbuch');assert.equal(typeof f.find('PaperWorkspace').props.onFlights,'function');
   assert.equal(f.nodes().some(n=>n.props.testID==='paper-assistant-entry'),false);
   f.press('Pressable','Profil & Einstellungen öffnen');f.find('ProfileSettings').props.onTools();f.render();f.find('DevelopmentHub').props.onPaper();f.render();
   assert.ok(f.find('PaperStatus'));
@@ -447,7 +474,7 @@ test('nested settings preserve the unsaved profile draft and each sheet scroll o
 
 test('Start offers the general Flüge route without provider work', () => {
   const f=fixture();
-  f.find('Dashboard').props.onFlights();f.render();assert.equal(f.find('OwnFlights').props.active,true);
+  f.find('PilotHome').props.onFlights();f.render();assert.equal(f.find('OwnFlights').props.active,true);
   f.press('Pressable','Flüge');
   assert.equal(f.find('OwnFlights').props.active,true);
   assert.deepEqual(f.calls,[]);
@@ -455,7 +482,7 @@ test('Start offers the general Flüge route without provider work', () => {
 });
 
 test('Meine Saison opens a full child page, hides Start, and restores nested Back without provider work',()=>{
- const f=fixture(390);const dashboard=f.find('Dashboard');dashboard.props.onStatistics();f.render();
+ const f=fixture(390);const dashboard=f.find('PilotHome');dashboard.props.onStatistics();f.render();
  const page=f.find('StatisticsOverlay');
  assert.equal(page.props.data.phase,'missing');assert.equal(typeof page.props.onBackHandler,'function');
  assert.equal(typeof page.props.onClose,'function');
@@ -465,12 +492,12 @@ test('Meine Saison opens a full child page, hides Start, and restores nested Bac
  assert.equal(shell.props.importantForAccessibility,'no-hide-descendants');
  assert.ok(shell.props.style.some((item:any)=>item?.display==='none'),'Start remains mounted and fully hidden while Statistics owns the viewport');
  assert.ok(!shell.props.style.some((item:any)=>item?.opacity!==undefined),'Start is not dimmed beneath a scrim');
- assert.equal(f.find('Dashboard').props.ownFlights,dashboard.props.ownFlights);
+ assert.equal(f.find('PilotHome').props.view,dashboard.props.view);
  for(let ancestor=f.parent(page);ancestor;ancestor=f.parent(ancestor)){
   const styles=[ancestor.props.style].flat(Infinity).filter(Boolean);
   assert.ok(!styles.some((style:any)=>style.borderRadius||style.borderWidth||style.paddingHorizontal),'The Statistics page has no framed outer container');
  }
- assert.equal(page.props.headerActions,f.headers()[0]!.children[0],'Statistics receives the same data action as Start');
+ assert.equal(page.props.headerActions.children[1],f.headers()[0]!.children[1],'Statistics receives the same data action as Start alongside explicit Start');
  assert.equal(page.props.feedback.type,'SyncProgress');
  page.props.onBackHandler(()=>true);assert.equal(f.hardwareBack(),true);f.render();assert.ok(f.find('StatisticsOverlay'),'Android Back first delegates to the internal route');
  f.find('StatisticsOverlay').props.feedback.props.details();f.render();
@@ -491,11 +518,11 @@ test('tab round trips retain the same shell flight projection for Start and flig
   f.showLoad(null,view);
   for(let i=0;i<3;i++){
     const list=f.find('OwnFlights');assert.equal(list.props.data.view,view);
-    assert.equal(f.find('Dashboard').props.ownFlights,view);
+    assert.equal(f.find('PilotHome').props.view,view);
     f.press('Pressable','Flüge');f.render();
     assert.equal(f.find('OwnFlights').props.data.view,view);
     assert.equal(f.hardwareBack(),true);f.render();
-    assert.equal(f.find('Dashboard').props.ownFlights,view);
+    assert.equal(f.find('PilotHome').props.view,view);
   }
   assert.deepEqual(f.calls,[]);
   assert.ok(f.readEnabled.every(Boolean), 'Tab changes must not suspend or restart the reader');
@@ -538,7 +565,7 @@ test('font and width changes preserve every navigation destination, selected sta
   const tabs=()=>f.nodes().filter(n=>n.props.accessibilityRole==='tab');
   for(const [width,fontScale] of [[360,1.6],[390,1.6],[412,1.6],[390,1],[600,1.6],[840,1]] as const){
     f.resize(width,fontScale);
-    const items=tabs();assert.deepEqual(items.map(n=>n.props.accessibilityLabel),['Übersicht','Flüge','Flugbuch','Verein','AI']);
+    const items=tabs();assert.deepEqual(items.map(n=>n.props.accessibilityLabel),['Flüge','Flugbuch','Verein','Kosten','Statistik','Assistent']);
     assert.equal(items.filter(n=>n.props.accessibilityState.selected).length,1);
     assert.equal(items.find(n=>n.props.accessibilityState.selected)!.props.accessibilityLabel,'Flugbuch');
     for(const item of items){
@@ -603,7 +630,7 @@ test('covered Settings never consumes Android Back on behalf of the backup task'
   f.find('ProfileSettings').props.onBackup();f.setCoreOpen(true);
   assert.equal(f.hardwareBack(),false,'The active foundation owns Back, regardless of listener registration order');
   assert.equal(f.headers().at(-1)!.props.title,'Profil & Einstellungen');
-  f.setCoreOpen(false);f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Übersicht');
+  f.setCoreOpen(false);f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Start');
 });
 
 test('non-header legacy connection intents are normalized to offline administration without provider admission',()=>{
@@ -636,7 +663,7 @@ test('the retained root preserves the failed calendar name when a saved-flight r
 
 
 test('recent-flight entry carries exact identity into the ordinary list and does not open provider UI',()=>{
- const f=fixture();f.find('Dashboard').props.onFlight('saved-flight-123');f.render();
+ const f=fixture();f.find('PilotHome').props.onFlight('saved-flight-123');f.render();
  assert.equal(f.find('OwnFlights').props.active,true);
  assert.equal(f.find('OwnFlights').props.filterRequest.flightId,'saved-flight-123');
  assert.equal(f.find('OwnFlights').props.filterRequest.year,null);assert.equal(f.coreRoutes.length,0);
@@ -644,8 +671,8 @@ test('recent-flight entry carries exact identity into the ordinary list and does
 
 
 test('all recent flights replaces the previous detail request with a fresh unfiltered list request',()=>{
- const f=fixture();f.find('Dashboard').props.onFlight('saved-flight-123');f.render();const previous=f.find('OwnFlights').props.filterRequest;
- f.press('Pressable','Übersicht');f.find('Dashboard').props.onFlights();f.render();
+ const f=fixture();f.find('PilotHome').props.onFlight('saved-flight-123');f.render();const previous=f.find('OwnFlights').props.filterRequest;
+ f.press('Pressable','Start');f.find('PilotHome').props.onFlights();f.render();
  const request=f.find('OwnFlights').props.filterRequest;assert.notEqual(request,previous);assert.equal(request.flightId,undefined);assert.equal(request.year,null);assert.equal(f.find('OwnFlights').props.active,true);
 });
 
@@ -685,8 +712,8 @@ test('Details never exposes results across a same-owner store or account switch'
 test('Verein uses selected account sources in overview and detail routes',()=>{
  const f=fixture();const information={events:{status:'partial',items:[]},documentNotices:{status:'unavailable',items:[]}};
  f.showLoad(null,{snapshot:{ownerId:'owner-a',account:{accountRef:'101'}},featureInformation:information,featureInformationReadFailed:true});f.press('Pressable','Verein');
- assert.equal(f.find('ClubEvents').props.information,information);assert.equal(f.find('ClubEvents').props.readFailed,true);
- f.find('ClubEvents').props.onOpen();f.render();assert.equal(f.find('ClubEvents').props.compact,false);
+ assert.equal(f.find('PilotClubOverview').props.information,information);assert.equal(f.find('PilotClubOverview').props.readFailed,true);
+ f.find('PilotClubOverview').props.onSection('Termine');f.render();assert.equal(f.find('ClubEvents').props.compact,false);
  assert.equal(f.nodes().some(n=>n.type==='ClubDocumentNotices'),false);
 });
 
@@ -736,7 +763,7 @@ test('Settings uses a child-page header and keeps caller context and recovery ev
 
 test('Help, Medical and Status share child-page headers and return without provider work',()=>{
  const f=fixture();
- f.find('OverviewTiles').props.onMedical();f.render();
+ f.find('PilotHome').props.onMedical();f.render();
  assert.equal(f.headers().at(-1)!.props.variant,'page');
  assert.equal(f.headers().at(-1)!.props.title,'Medical');
  assert.equal(f.headers().at(-1)!.props.profile,undefined);
@@ -769,8 +796,8 @@ test('activity advice is shown only for the selected owner library and provider 
 });
 
 
-test('overview-selected year opens Statistics in that same season',()=>{
- const f=fixture();f.find('Dashboard').props.onStatistics(2025,'roles');f.render();assert.equal(f.find('StatisticsOverlay').props.initialYear,2025);assert.equal(f.find('StatisticsOverlay').props.initialSection,'roles');assert.deepEqual(f.coreRoutes,[]);
+test('Start season opens Statistics in the current season',()=>{
+ const f=fixture();f.find('PilotHome').props.onStatistics();f.render();assert.equal(f.find('StatisticsOverlay').props.initialYear,2026);assert.equal(f.find('StatisticsOverlay').props.initialSection,'overview');assert.deepEqual(f.coreRoutes,[]);
 });
 
 
@@ -800,11 +827,11 @@ test('club expansion restores overview scroll on both toolbar and Android Back',
  const f=fixture();f.press('Pressable','Verein');
  const scroll=()=>f.nodes().find(n=>n.type==='ScrollView'&&n.props.onScroll&&n.props.key==='Übersicht')!;
  scroll().props.onScroll({nativeEvent:{contentOffset:{y:240}}});
- f.find('ClubEvents').props.onOpen();f.render();
+ f.find('PilotClubOverview').props.onSection('Termine');f.render();
   assert.equal(f.headers()[0]!.props.title,'Termine');
  f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Verein');
  assert.equal(scroll().props.contentOffset.y,240);
- f.find('ClubEvents').props.onOpen();f.render();f.headers()[0]!.props.back();f.render();
+ f.find('PilotClubOverview').props.onSection('Termine');f.render();f.headers()[0]!.props.back();f.render();
  assert.equal(scroll().props.contentOffset.y,240);
 });
 
@@ -868,19 +895,19 @@ test('remaining Settings pages use contextual headers and retain their mounted c
 test('all Club sections use concise page headers and restore their independent scroll on Back',()=>{
  const f=fixture();f.press('Pressable','Verein');
  for(const section of ['Termine','Dienste','Dokumente','Arbeitsstunden','Aufgaben']){
-  const chip=f.nodes().find(n=>n.type==='Chip'&&n.props.title===section)!;chip.props.onPress();f.render();
+  f.find('PilotClubOverview').props.onSection(section);f.render();
   assert.equal(f.headers()[0]!.props.title,section);assert.equal(f.headers()[0]!.props.variant,'page');
   const scroll=()=>f.nodes().find(n=>n.type==='ScrollView'&&n.props.key===section)!;
   scroll().props.onScroll({nativeEvent:{contentOffset:{y:235}}});
   f.headers()[0]!.props.back();f.render();assert.equal(f.headers()[0]!.props.title,'Verein');
-  f.nodes().find(n=>n.type==='Chip'&&n.props.title===section)!.props.onPress();f.render();assert.equal(scroll().props.contentOffset.y,235);
+  f.find('PilotClubOverview').props.onSection(section);f.render();assert.equal(scroll().props.contentOffset.y,235);
   f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Verein');
  }
- f.press('Pressable','Übersicht');assert.equal(f.headers()[0]!.props.variant,undefined);assert.equal(f.headers()[0]!.props.title,'Übersicht');
+ f.press('Pressable','Start');assert.equal(f.headers()[0]!.props.variant,undefined);assert.equal(f.headers()[0]!.props.title,'Start');
 });
 
 test('AI evidence list has contextual Back to the retained conversation; detail Back is consumed first',async()=>{
- const f=fixture();f.press('Pressable','AI');assert.equal(f.headers()[0]!.props.variant,'page');
+ const f=fixture();f.press('Pressable','Assistent');assert.equal(f.headers()[0]!.props.variant,'page');
  const ai=f.find('AiChatRoute');await ai.props.onEvidence({},['exact-2','exact-1']);f.render();
  assert.deepEqual(f.find('OwnFlights').props.filterRequest.flightIds,['exact-2','exact-1']);
  assert.equal(f.find('AiChatRoute').props.active,false);
@@ -888,16 +915,16 @@ test('AI evidence list has contextual Back to the retained conversation; detail 
  f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Flüge');
  assert.equal(f.find('AiChatRoute').props.active,false);
  f.headers()[0]!.props.back();f.render();assert.equal(f.find('AiChatRoute').props.active,true);
- assert.equal(f.headers()[0]!.props.title,'MoFlight AI');
+ assert.equal(f.headers()[0]!.props.title,'Assistent');
  assert.ok(f.calls.includes('dispose-ai-evidence')&&f.calls.includes('close-ai-evidence'));
 });
 
 test('AI evidence return is revoked by owner change or deliberate tab navigation',async()=>{
  for(const change of ['owner','tab']){
-  const f=fixture();f.press('Pressable','AI');await f.find('AiChatRoute').props.onEvidence({},['exact']);f.render();
+  const f=fixture();f.press('Pressable','Assistent');await f.find('AiChatRoute').props.onEvidence({},['exact']);f.render();
   if(change==='owner')f.showLoad(null,{snapshot:{ownerId:'other',storeId:'store',account:{accountRef:'account'},savedRetrievals:[]},flights:[]});
   else {f.press('Pressable','Verein');f.press('Pressable','Flüge');}
-  assert.equal(f.headers()[0]!.props.back,undefined);
+  assert.equal(typeof f.headers()[0]!.props.back,'function');f.headers()[0]!.props.back();f.render();assert.equal(f.find('AiChatRoute').props.active,false);
  }
 });
 
@@ -907,18 +934,18 @@ test('ordinary Flights uses the selected page header without changing Start or l
  f.press('Pressable','Flüge');assert.equal(f.headers()[0]!.props.variant,'page');assert.equal(f.headers()[0]!.props.title,'Flüge');
  f.openOwnDetail();assert.equal(f.headers()[0]!.props.variant,'page');assert.equal(f.headers()[0]!.props.title,'Flugdetails');
  f.hardwareBack();f.render();assert.equal(f.headers()[0]!.props.title,'Flüge');
- f.press('Pressable','Übersicht');assert.equal(f.headers()[0]!.props.variant,undefined);
+ f.press('Pressable','Start');assert.equal(f.headers()[0]!.props.variant,undefined);
 });
 
 test('Statistics PIC Help retains the mounted caller and returns without clearing its detail',()=>{
- const f=fixture();f.find('Dashboard').props.onStatistics(2025,'roles');f.render();
+ const f=fixture();f.find('PilotHome').props.onStatistics();f.render();
  const page=f.find('StatisticsOverlay'),calls=[...f.calls];page.props.onHelp('pic');f.render();
  assert.equal(f.find('HelpScreen').props.entryId,'pic');
  assert.equal(f.find('StatisticsOverlay').props.key,page.props.key);
  assert.equal(f.parent(f.find('StatisticsOverlay')).props.accessibilityElementsHidden,true);
  f.find('HelpScreen').props.onReturn();f.render();
  assert.equal(f.parent(f.find('StatisticsOverlay')).props.accessibilityElementsHidden,false);
- assert.equal(f.find('StatisticsOverlay').props.initialYear,2025);
+ assert.equal(f.find('StatisticsOverlay').props.initialYear,2026);
  assert.deepEqual(f.calls,calls);
 });
 
@@ -927,12 +954,12 @@ test('shell uses saved card data only on Start and drops the preview when the ve
   const h=fixture(),f=startPreviewFixture();h.setTime(f.now);
   const medical:any={id:'saved-medical',owner:'owner',rows:[]};
   h.setPreview({...f.preview,medical,duties:{scope:f.scope,snapshot:null}});
-  assert.equal(h.find('Dashboard').props.preview.accountRef,'101');
-  assert.equal(h.find('OverviewTiles').props.medical,medical);
-  h.find('OverviewTiles').props.onMedical();h.render();
+  assert.equal(h.find('PilotHome').props.preview.accountRef,'101');
+  assert.equal(h.find('PilotHome').props.medical,medical);
+  h.find('PilotHome').props.onMedical();h.render();
   assert.equal(h.find('MedicalDetails').props.capture,null,'cached card is not verified detail data');
   h.showLoad(null,{snapshot:{ownerId:'other',storeId:'other',account:{accountRef:'202'}},sections:{medical:'loading',duties:'loading'}});
-  assert.equal(h.find('Dashboard').props.preview,null);assert.equal(h.find('OverviewTiles').props.medical,null);
+  assert.equal(h.find('PilotHome').props.preview,null);assert.equal(h.find('PilotHome').props.medical,null);
 });
 
 

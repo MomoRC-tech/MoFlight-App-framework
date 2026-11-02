@@ -16,13 +16,13 @@ import type { ExpensePeriod } from '../expenses/expense-types';
 
 type FlightData = ReturnType<typeof useOwnFlights>;
 type Route = { kind:'section'; key:string } | { kind:'flights'; title:string; ids:string[]; scope:StatisticsPeriod; key:string } | { kind:'detail'; flightId:string; title:string; key:string };
-export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClose, headerActions, feedback, helpEnabled=true, onHelp, initialYear, initialSection='overview', initialChart, initialContributors, onRefreshFinancial, reloadKey=0 }: {
-  onRefreshFinancial?:()=>void; reloadKey?:number;
+export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClose, headerActions, feedback, helpEnabled=true, onHelp, initialYear, initialMode='flights', initialSection='overview', initialChart, initialContributors, onRefreshFinancial, reloadKey=0, separateModules=false }: {
+  separateModules?:boolean; onRefreshFinancial?:()=>void; reloadKey?:number;
   data:FlightData; today:string; fontScale:number; onBackHandler:(handler:()=>boolean)=>void; onClose:()=>void;
   headerActions?:React.ReactNode; feedback?:React.ReactNode; helpEnabled?:boolean; onHelp?:(entryId:string)=>void;
-  initialYear?:number; initialSection?:StatisticsSection; initialChart?:ChartKind; initialContributors?:ChartContributors;
+  initialMode?:'flights'|'costs'; initialYear?:number; initialSection?:StatisticsSection; initialChart?:ChartKind; initialContributors?:ChartContributors;
 }) {
-  const [mode,setMode]=useState<'flights'|'costs'>('flights');
+  const [mode,setMode]=useState<'flights'|'costs'>(initialMode);
   const [expensePeriod,setExpensePeriod]=useState<ExpensePeriod>({mode:'year',year:initialYear??Number(today.slice(0,4))});
   const expenseBack=useRef<()=>boolean>(()=>false);
   const [period,setPeriod]=useState<StatisticsPeriod>({kind:'year',year:initialYear??Number(today.slice(0,4))});
@@ -59,7 +59,7 @@ export function StatisticsOverlay({ data, today, fontScale, onBackHandler, onClo
   return <View style={styles.content}>
     <AppHeader variant="page" back={()=>{if(!back())onClose();}} title={mode==='costs'?'Kosten':route.kind==='section'?'Flugstatistik':route.title}>{headerActions}</AppHeader>
     {feedback}
-    {(route.kind==='section'||mode==='costs')&&<View style={{flexDirection:'row',gap:8,paddingHorizontal:12,width:'100%',maxWidth:600,alignSelf:'center'}}><Chip title="Flüge" selected={mode==='flights'} onPress={()=>setMode('flights')}/>{onRefreshFinancial&&<Chip title="Kosten" selected={mode==='costs'} onPress={()=>setMode('costs')}/>}</View>}
+    {!separateModules&&(route.kind==='section'||mode==='costs')&&<View style={{flexDirection:'row',gap:8,paddingHorizontal:12,width:'100%',maxWidth:600,alignSelf:'center'}}><Chip title="Flüge" selected={mode==='flights'} onPress={()=>setMode('flights')}/>{onRefreshFinancial&&<Chip title="Kosten" selected={mode==='costs'} onPress={()=>setMode('costs')}/>}</View>}
     <ScrollView ref={scroll} contentOffset={{x:0,y:scrollOffsets.current[mode==='costs'?'costs':route.key]??0}}
       onScroll={event=>{scrollOffsets.current[mode==='costs'?'costs':route.key]=event.nativeEvent.contentOffset.y;}} scrollEventThrottle={32}
       onContentSizeChange={()=>scroll.current?.scrollTo({y:scrollOffsets.current[mode==='costs'?'costs':route.key]??0,animated:false})}

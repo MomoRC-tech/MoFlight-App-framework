@@ -1,5 +1,7 @@
 # Components, symbols and shapes
 
+**Pilot-hub branch (#116), 2 November:** `PilotHome`, `SubappNavigation`, `HomeCosts`, `PilotClubOverview` and `PaperWorkspace` implement the [branch contract](pilot-hub-implementation-plan.md), superseding earlier dashboard/navigation entries below on this branch. Six persistent labelled destinations use a compact bottom bar or wide rail. Shared content panels use slate surfaces, 22-dp corners and 20-dp padding. Existing detail modules and their source/unknown/confirmation/recovery semantics remain.
+
 **29 October Start correction (#108):** [selected tile/badge amendment](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) overrides earlier Start tile surface values. Medical rows retain name/date plus a small green ✓ / orange ! / red × / gray ? date-status badge, with complete date relationships on the parent action. No independent badge action.
 
 The same-day Medical refinement scales the initial badges to 80% and paints a navy gradient/header motif behind the existing title. Absolute decoration uses the existing inset and adds no vertical row/padding; native text still scales.

@@ -167,7 +167,9 @@ export function AiChat({
       onContentSizeChange={()=>{if(follow.current)transcript.current?.scrollToEnd({animated:false});}} onLayout={()=>{if(follow.current)transcript.current?.scrollToEnd({animated:false});}}>
       {loading&&<View accessible accessibilityLiveRegion="polite" accessibilityRole="progressbar" accessibilityLabel="Unterhaltungen werden geladen" accessibilityState={{busy:true}} style={styles.progress}><ActivityIndicator color={colors.cyan}/><Label muted>Unterhaltungen werden geladen …</Label></View>}
       {!loading&&onRetryLoad&&<Action secondary label="Gespeicherte Chats erneut laden" onPress={onRetryLoad}>Erneut lokal laden</Action>}
-      {storageReady&&!loading&&!selected?.messages.length&&<View style={styles.welcome}><Label>Was möchtest du über deine Flüge wissen?</Label><Label muted>Schreibe eine Frage. Dein Entwurf bleibt lokal.</Label></View>}
+      {storageReady&&!loading&&!selected?.messages.length&&<View style={styles.welcome}><SymbolIcon name="sparkle" size={40}/><Label style={{fontSize:27,lineHeight:35,fontWeight:'600'}}>Mehr aus deinen Flügen mitnehmen.</Label><Label muted>Eine Frage zu deinen Daten oder zum Segelfliegen? Beginne hier.</Label>
+        {['Wie hat sich meine Flugzeit entwickelt?', 'Mit welchen Flugzeugen bin ich geflogen?', 'Erkläre mir den Begriff Sollfahrt.'].map(prompt=><Pressable key={prompt} accessibilityRole="button" disabled={busy} accessibilityState={{disabled:busy}} onPress={()=>onDraft(prompt)} style={({pressed})=>[{minHeight:52,padding:14,borderRadius:16,backgroundColor:colors.card,justifyContent:'center'},pressed&&ui.pressed]}><Label>{prompt} ›</Label></Pressable>)}
+        <Label muted style={{fontSize:12,lineHeight:19}}>Beispiele setzen nur einen lokalen Entwurf ein. Der AI-Dienst ist noch nicht freigeschaltet.</Label></View>}
       {selected?.messages.map(message=><View key={message.id} style={styles.exchange}>
         <View style={styles.userMessage}><Label selectable>{message.input}</Label></View>
         {message.status!=='complete'&&<Label muted style={styles.messageHeading}>{statusLabels[message.status]}</Label>}

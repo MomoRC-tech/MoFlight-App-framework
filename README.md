@@ -1,5 +1,7 @@
 # MoFlight
 
+**Experimental UI branch — 2 November:** `codex/pilot-ui-redesign` starts at published rollback `eeda7a0`. It implements a Start hub with six subapp summaries, six persistent destinations, an adaptive rail and a new ink/slate/mint palette. [Implementation plan](docs/product/design/pilot-hub-implementation-plan.md) · [interactive synthetic review](docs/product/design/proposals/pilot-hub-review.html) · [focused verification and limits](docs/verification/2026-11-02-pilot-hub.md). Design selection and native acceptance are pending; main and its release are preserved.
+
 **29 October Statistics refresh:** implemented compact Start information, shared offline charts and simplified Statistics filters. [Contract](docs/product/design/compact-cockpit.md#hybrid-season-and-statistics--authorized-29-october-2026) · [source-specific checks and limits](docs/verification/2026-10-20-real-flight-statistics.md#hybrid-chart-package--29-october-2026). Application source `58851de`; download below.
 
 <p align="center">

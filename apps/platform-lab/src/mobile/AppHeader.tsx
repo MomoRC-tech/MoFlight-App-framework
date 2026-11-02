@@ -17,10 +17,10 @@ export function AppHeader({ title, back, backDisabled = false, children, profile
 }
 const styles = StyleSheet.create({
   header: { width: '100%', maxWidth: 960, alignSelf: 'center', backgroundColor: colors.background, paddingHorizontal: 12, paddingVertical: 6 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 60 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 64 },
   body: { flex: 1, minWidth: 0 }, controls: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  brand: { color: colors.text, fontSize: 19, lineHeight: 25, fontWeight: '700' }, ai: { color: colors.cyan, fontSize: 13 },
+  brand: { color: colors.text, fontSize: 20, lineHeight: 27, fontWeight: '600' }, ai: { color: colors.cyan, fontSize: 12 },
   title: { color: colors.muted, fontSize: 12, lineHeight: 18 }, logo: { width: 48, height: 48, borderRadius: 8 },
   pageTitle: { color: colors.text, fontSize: 22, lineHeight: 28, fontWeight: '600' },
-  back: { width: 48, height: 48, borderRadius: 14, backgroundColor: startSurfaces.card, borderWidth: 1, borderColor: startSurfaces.border, alignItems: 'center', justifyContent: 'center' },
+  back: { width: 48, height: 48, borderRadius: 24, backgroundColor: startSurfaces.card, alignItems: 'center', justifyContent: 'center' },
 });
