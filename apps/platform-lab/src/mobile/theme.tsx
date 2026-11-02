@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImageBackground, Pressable, StyleSheet, Text, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
+import { ImageBackground, Pressable, StyleSheet, Text, View, useWindowDimensions, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 import { SymbolIcon, legacyIconTone, type SymbolName, type SymbolTone } from './SymbolIcon';
 
 // Content, shell and Start tiles have separately scoped surface roles.
@@ -27,7 +27,10 @@ export function Card({ children, style, onPress, label, surface = 'content' }: {
   return <View style={cardStyle}>{children}</View>;
 }
 export function Action({ children, onPress, secondary = false, disabled = false, label, testID, icon, surface = 'content' }: { children: React.ReactNode; onPress: () => void; secondary?: boolean; disabled?: boolean; label?: string; testID?: string; icon?: SymbolName; surface?: 'content' | 'start' }) {
-  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.actionTouch, secondary && ui.secondaryTouch, disabled && { opacity: .5 }, pressed && ui.pressed]}><View style={[ui.action, secondary && ui.secondary, secondary && surface === 'start' && ui.startSecondary]}><View style={ui.actionContent}>{icon && <SymbolIcon name={icon} size={20} tone={secondary ? 'default' : 'contrast'} />}<Text style={[ui.actionText, { flexShrink: 1 }, secondary && { color: colors.text }]}>{children}</Text></View></View></Pressable>;
+  const {width,fontScale}=useWindowDimensions();
+  // Recreate native text measurement after a viewport/font configuration change.
+  // Android can otherwise retain a shortened glyph layout inside the correct face.
+  return <Pressable testID={testID} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [ui.actionTouch, secondary && ui.secondaryTouch, disabled && { opacity: .5 }, pressed && ui.pressed]}><View key={`${width}:${fontScale}`} style={[ui.action, secondary && ui.secondary, secondary && surface === 'start' && ui.startSecondary]}><View style={ui.actionContent}>{icon && <SymbolIcon name={icon} size={20} tone={secondary ? 'default' : 'contrast'} />}<Text style={[ui.actionText, { flexShrink: 1 }, secondary && { color: colors.text }]}>{children}</Text></View></View></Pressable>;
 }
 export function Chip({ title, selected, onPress, disabled = false, icon }: { title: string; selected?: boolean; onPress: () => void; disabled?: boolean; icon?: SymbolName }) {
   // Recreate the native label when weight changes. Android retained the earlier

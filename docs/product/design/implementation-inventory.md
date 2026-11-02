@@ -1989,17 +1989,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx]
 
 ## theme.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `07cc55281fa20896a49ef78472273eda03b1877d613a7fc199276817efce044a`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `34ac6d02640db894cab223d854e2a2681ee40cdcf639ed58cd982d6ba0e90501`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00102277` | 79 |
-| `#001b2944` | 55 |
-| `#031326` | 35, 62 |
+| `#00102277` | 82 |
+| `#001b2944` | 58 |
+| `#031326` | 38, 65 |
 | `#11151e` | 6 |
-| `#162a42` | 78 |
+| `#162a42` | 81 |
 | `#171a28` | 7 |
 | `#1b2330` | 6, 9 |
 | `#263447` | 6, 9 |
@@ -2018,52 +2018,52 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 73 |
-| `fontSize: 13` | 62, 68 |
-| `fontSize: 14` | 48 |
-| `fontSize: 17` | 50 |
-| `fontSize: 24` | 49 |
-| `fontWeight: '600'` | 41, 50, 62, 74 |
-| `fontWeight: '700'` | 35, 49 |
-| `letterSpacing: -.6` | 49 |
-| `lineHeight: 18` | 62, 68, 73 |
-| `lineHeight: 20` | 48 |
-| `lineHeight: 23` | 50 |
+| `fontSize: 12` | 76 |
+| `fontSize: 13` | 65, 71 |
+| `fontSize: 14` | 51 |
+| `fontSize: 17` | 53 |
+| `fontSize: 24` | 52 |
+| `fontWeight: '600'` | 44, 53, 65, 77 |
+| `fontWeight: '700'` | 38, 52 |
+| `letterSpacing: -.6` | 52 |
+| `lineHeight: 18` | 65, 71, 76 |
+| `lineHeight: 20` | 51 |
+| `lineHeight: 23` | 53 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 78 |
-| `borderRadius: 18` | 51 |
-| `borderRadius: 8` | 61, 67, 71 |
-| `borderWidth: 1` | 51, 64, 67 |
-| `gap: 10` | 56 |
-| `gap: 2` | 69 |
-| `gap: 4` | 77 |
+| `borderRadius: 16` | 81 |
+| `borderRadius: 18` | 54 |
+| `borderRadius: 8` | 64, 70, 74 |
+| `borderWidth: 1` | 54, 67, 70 |
+| `gap: 10` | 59 |
+| `gap: 2` | 72 |
+| `gap: 4` | 80 |
 | `gap: 5` | 19 |
-| `gap: 6` | 63, 79 |
-| `gap: 8` | 51, 57, 58, 75 |
-| `height: 48` | 53 |
-| `maxWidth: '100%'` | 59 |
-| `minHeight: 28` | 67, 71 |
-| `minHeight: 30` | 61 |
-| `minHeight: 48` | 59, 66, 70, 76 |
-| `minWidth: 0` | 38, 58 |
-| `minWidth: 48` | 59, 61, 67, 70 |
-| `opacity: .45` | 35 |
-| `opacity: .5` | 30 |
-| `opacity: .72` | 77 |
-| `opacity: .82` | 54 |
-| `padding: 12` | 51, 79 |
-| `paddingHorizontal: 10` | 61 |
-| `paddingHorizontal: 4` | 76 |
-| `paddingHorizontal: 9` | 67, 71 |
-| `paddingVertical: 4` | 67, 71 |
-| `paddingVertical: 5` | 61, 77 |
-| `width: '100%'` | 38 |
-| `width: '40%'` | 38 |
-| `width: 48` | 53 |
+| `gap: 6` | 66, 82 |
+| `gap: 8` | 54, 60, 61, 78 |
+| `height: 48` | 56 |
+| `maxWidth: '100%'` | 62 |
+| `minHeight: 28` | 70, 74 |
+| `minHeight: 30` | 64 |
+| `minHeight: 48` | 62, 69, 73, 79 |
+| `minWidth: 0` | 41, 61 |
+| `minWidth: 48` | 62, 64, 70, 73 |
+| `opacity: .45` | 38 |
+| `opacity: .5` | 33 |
+| `opacity: .72` | 80 |
+| `opacity: .82` | 57 |
+| `padding: 12` | 54, 82 |
+| `paddingHorizontal: 10` | 64 |
+| `paddingHorizontal: 4` | 79 |
+| `paddingHorizontal: 9` | 70, 74 |
+| `paddingVertical: 4` | 70, 74 |
+| `paddingVertical: 5` | 64, 80 |
+| `width: '100%'` | 41 |
+| `width: '40%'` | 41 |
+| `width: 48` | 56 |
 
 ## TrendChart.tsx
 
