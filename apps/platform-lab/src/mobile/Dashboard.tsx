@@ -74,7 +74,7 @@ export function Dashboard({ preview, ownFlights, ownFlightPhase, onFlights, onFl
           </Pressable>
           <View style={styles.instrumentCopy}>
             <Pressable testID="start-time-statistics" accessibilityRole="button" accessibilityLabel={`Flugzeit ${year}: ${ready?facts.current.time:'unbekannt'} Stunden und Minuten. ${year-1}: ${ready?facts.prior.time:'unbekannt'}. Monatsvergleich öffnen`} onPress={()=>onStatistics?.(year,'overview','monthly')} style={styles.timeMetric}>
-              <Label muted style={styles.eyebrow}>FLUGZEIT</Label><View style={{flexDirection:'row',alignItems:'baseline',gap:5,flexWrap:'wrap'}}><Label style={styles.value}>{ready?facts.current.time:'—'}</Label><Label muted style={styles.metricLabel}>h:min ↗</Label></View>
+              <Label muted style={styles.eyebrow}>{facts.current.unknownDurationCount?'BEKANNTE FLUGZEIT':'FLUGZEIT'}</Label><View style={{flexDirection:'row',alignItems:'baseline',gap:5,flexWrap:'wrap'}}><Label style={styles.value}>{ready?facts.current.time:'—'}</Label><Label muted style={styles.metricLabel}>h:min ↗</Label></View>
               <Label muted style={styles.prior}>{year-1} · {ready?facts.prior.time:'—'} h:min · {ready?facts.prior.starts:'—'} Flüge</Label>
             </Pressable>
             <Pressable accessibilityRole="button" accessibilityLabel={`Arbeitsstunden ${year}: ${ready?(ownFlights?.sections?.information==='loading'?'wird geladen':workHours??'unbekannt'):'unbekannt'} geleistet. Lokale Sollstunden ${target.hours}. Sollstunden bearbeiten`} accessibilityState={{expanded:targetOpen}} disabled={!ownFlights} onPress={()=>setTargetOpen(!targetOpen)} style={styles.workMetric}>

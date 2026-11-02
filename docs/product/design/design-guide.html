@@ -14,6 +14,7 @@
 <noscript>All content and the complete text area remain readable/selectable without JavaScript. Copy/download buttons require JavaScript.</noscript>
 <nav class="jump" aria-label="Handbook sections"><a href="#chapter-overview">Overview</a> <a href="#chapter-compact-cockpit">compact-cockpit</a> <a href="#chapter-alternative-ui">alternative-ui</a> <a href="#chapter-foundations">foundations</a> <a href="#chapter-components">components</a> <a href="#chapter-patterns">patterns</a> <a href="#chapter-implementation-inventory">implementation-inventory</a> <a href="#chapter-history">history</a> <a href="#component-examples">Examples</a> <a href="#symbol-catalogue">Symbols</a> <a href="#copy-area">Copy text</a></nav>
 <div id="reference-content"><section class="chapter" id="chapter-overview"><h2 id="chapter-overview-moflight-ui-design-handbook">MoFlight UI design handbook</h2>
+<p><strong>2 November modern charts (Issue120):</strong> <a href="#chapter-compact-cockpit-modern-vector-charts--authorized-2-november-2026">Vector chart amendment</a> replaces line/arc strips with native paths, area gradients, one time/count viewport and focused selection. Unknown gaps and exact routes remain.</p>
 <p><strong>2 November expressive compact redesign (#119):</strong> <a href="#chapter-compact-cockpit-expressive-compact-graphite--authorized-2-november-2026">Owner-authorized graphite/violet amendment</a> supersedes earlier palette/Start composition in scope: denser surfaces, role orbit, seasonal traces and shorter copy. Original logo, five tabs and source/unknown boundaries remain.</p>
 <p><strong>2 November user-first review:</strong> Manuel delegates needed visual choices under <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/114">#114</a>. The <a href="#chapter-compact-cockpit-user-first-review--delegated-2-november-2026">scoped amendment</a> and <a href="../../verification/2026-11-02-whole-app-refactor.md">cross-app review/evidence</a> record metric drilldowns, simpler Statistics controls and chronological exact-value costs. Original logo/dark default and source-data contracts remain; earlier appearance-selection/Start restrictions are superseded only for this authorized review.</p>
 <p><strong>29 October Start correction (#108):</strong> <a href="#chapter-compact-cockpit-start-tile-contrast-and-medical-badges--authorized-29-october-2026">lighter tile fills, thin visible outlines and per-Medical expiry badges</a> supersede the retained Start tile colors only. Header/navigation and all source/date rules remain separately scoped.</p>
@@ -246,7 +247,10 @@
 <h3 id="chapter-compact-cockpit-expressive-compact-graphite--authorized-2-november-2026">Expressive compact graphite — authorized 2 November 2026</h3>
 <p>Owner request under #119 explicitly authorizes direct implementation of a sophisticated layout, different colors, smaller elements, expressive metrics and less prose. Supersedes earlier navy/cyan, Start-preservation and proposal-pause restrictions for this package. Original logo/assets and data/feature contracts remain. The isolated six-module #116 experiment is not merged; five main tabs and Flugbuch preparation notice remain.</p>
 <p>Graphite canvas, violet actions, apricot comparisons and mint count/role accents replace teal panels. Typography and visible control faces are tighter; touch targets remain48dp minimum and text may grow. Season is a role-count distribution orbit beside known flight time and editable work-hours target. Neutral orbit portions mean unresolved roles; a full ring is distribution, never proficiency, completion or target. Unknown totals keep an unfilled track/dash. Role shortcuts retain analysis routes and accessible count/time labels. Prior-year annual observations do not imply equal-period improvement.</p>
-<p>Monthly charts use time traces/count markers with units, prior cutoff and coverage gaps; exact contributors remain available. Long explanations stay in Info/details; essential unknown/partial/payment qualifiers stay near the facts. Dark remains master. <a href="../../verification/2026-11-02-graphite-ui.md">Implementation and verification</a>.</p></section>
+<p>Monthly charts use time traces/count markers with units, prior cutoff and coverage gaps; exact contributors remain available. Long explanations stay in Info/details; essential unknown/partial/payment qualifiers stay near the facts. Dark remains master. <a href="../../verification/2026-11-02-graphite-ui.md">Implementation and verification</a>.</p>
+<h3 id="chapter-compact-cockpit-modern-vector-charts--authorized-2-november-2026">Modern vector charts — authorized 2 November 2026</h3>
+<p>Owner requests substantially more modern chart quality under Issue120. Native SVG paths replace rectangle strips for smooth curves, filled trends and crisp donut arcs. Monthly time/count share one switchable viewport, prior is a quiet dashed trace, selected month receives a guide/point and exact value. Role analysis uses a distribution donut with labelled contributor rows. Costs uses a full-year vector trend with compact accessible month choices; twelve repeated prices and swipe instructions are removed.</p>
+<p>Smoothing is presentation interpolation only: endpoint-height controls prevent invented extrema, and paths/fills break at missing or uncertain observations. Future values stay absent, known zero remains zero, conflicting costs stay visibly marked and selected details retain exact source routes. Prior cutoff/account/book/storage contracts remain. The single Expo57-bundled SVG library is a rendering dependency, not a chart/data framework; its license is included under About. <a href="../../verification/2026-11-02-modern-charts.md">Implementation and evidence</a>.</p></section>
 <section class="chapter" id="chapter-alternative-ui"><h2 id="chapter-alternative-ui-alternative-ui--22-october-2026">Alternative UI — 22 October 2026</h2>
 <p>&gt; <strong>Current appearance authority — 24 October 2026:</strong> <a href="#chapter-compact-cockpit">Dark Compact Cockpit</a> and its approved reference supersede conflicting older appearance/composition statements below. Data, feature and verification boundaries retain their scope.</p>
 <p><a href="#chapter-overview">Handbook</a> · <a href="https://github.com/MomoRC-tech/MoFlight-App-framework/issues/55">#55</a> · branch <code>ui/alternative-flight-experience</code>.</p>
@@ -579,7 +583,7 @@
 <p>The explicit Costs “Belege abrufen” action is a scoped exception to the earlier header-only retrieval rule: financial retrieval is independent of flight Sync and opening/filtering Costs remains offline. It enters the existing retained controller, with progress/cancel, guarded saving, original-provider login when needed, retry and contextual return. PDFs and provider writes remain excluded. <a href="../../verification/2026-10-30-financials-completion.md">Implementation/evidence</a>.</p></section>
 <section class="chapter" id="chapter-implementation-inventory"><h2 id="chapter-implementation-inventory-platform-lab-ui-implementation-inventory">Platform-lab UI implementation inventory</h2>
 <p><a href="#chapter-overview">Handbook entry point</a>. Generated by <code>python scripts/design_handbook.py</code>; do not hand-edit.</p>
-<p>Scope: 130 product mobile TypeScript/model and app-owned TSX UI/adapter files; 83 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
+<p>Scope: 132 product mobile TypeScript/model and app-owned TSX UI/adapter files; 84 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.</p>
 <h3 id="chapter-implementation-inventory-apptsx">App.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/App.tsx">apps/platform-lab/src/App.tsx</a>; normalized SHA-256 <code>00e90dbdf13115e9cffa98b6123f015dc87f095cdd8736daa20f73edab02e7e6</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors">Literal colors</h4>
@@ -1026,7 +1030,7 @@
 <tr><td><code>width: &#x27;100%&#x27;</code></td><td>74, 232, 241, 1085</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-dashboardtsx">Dashboard.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>c4b0e4b3f1637aa8afc442c0a4e5085ba75625d38d3ef2d7e4a9e569d27a5d5b</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/Dashboard.tsx">apps/platform-lab/src/mobile/Dashboard.tsx</a>; normalized SHA-256 <code>db3b734476410fb94cf594f5b90b7955d7c0d8230cd8fa8cc5e3fdc0d6bc8c95</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-8">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><i class="swatch" style="background:#1c1f3000" aria-hidden="true"></i><code>#1c1f3000</code></td><td>119</td></tr>
@@ -1177,32 +1181,40 @@
 <tr><td><code>padding: 10</code></td><td>110</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-expensemonthlycharttsx">ExpenseMonthlyChart.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx">apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx</a>; normalized SHA-256 <code>717eed5ca66f1aa697c27ae8257761392fadd0e9c840e1ef923a7ec4035cc435</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx">apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx</a>; normalized SHA-256 <code>571140ae5562be74669dd8441e36328ffebe38d4036324ed6429825ca3effe5f</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-9">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>transparent</code></td><td>32</td></tr>
+<tr><td><i class="swatch" style="background:#ffb49a22" aria-hidden="true"></i><code>#ffb49a22</code></td><td>56</td></tr>
+<tr><td><code>transparent</code></td><td>52</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-15">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 12</code></td><td>37</td></tr>
-<tr><td><code>fontSize: 13</code></td><td>36</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>35</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>37</td></tr>
-<tr><td><code>lineHeight: 20</code></td><td>36</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>57, 62</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>54, 59, 61</td></tr>
+<tr><td><code>fontSize: 15</code></td><td>60</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>54</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>60, 61</td></tr>
+<tr><td><code>fontWeight: &#x27;800&#x27;</code></td><td>57</td></tr>
+<tr><td><code>lineHeight: 15</code></td><td>57</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>62</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>54, 59, 61</td></tr>
+<tr><td><code>lineHeight: 22</code></td><td>60</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-28">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>32</td></tr>
-<tr><td><code>borderRadius: 3</code></td><td>20</td></tr>
-<tr><td><code>borderWidth: 1</code></td><td>32</td></tr>
-<tr><td><code>gap: 4</code></td><td>31, 32</td></tr>
-<tr><td><code>gap: 8</code></td><td>13</td></tr>
-<tr><td><code>height: 72</code></td><td>34</td></tr>
-<tr><td><code>minHeight: 124</code></td><td>32</td></tr>
-<tr><td><code>minWidth: 80</code></td><td>32</td></tr>
-<tr><td><code>padding: 8</code></td><td>32</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>31</td></tr>
-<tr><td><code>width: 20</code></td><td>19</td></tr>
+<tr><td><code>borderRadius: 16</code></td><td>52</td></tr>
+<tr><td><code>borderRadius: 8</code></td><td>56</td></tr>
+<tr><td><code>borderWidth: 1</code></td><td>52</td></tr>
+<tr><td><code>gap: 4</code></td><td>50, 51, 52</td></tr>
+<tr><td><code>gap: 8</code></td><td>58</td></tr>
+<tr><td><code>height: 16</code></td><td>56</td></tr>
+<tr><td><code>minHeight: 36</code></td><td>58</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>52</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>52</td></tr>
+<tr><td><code>paddingHorizontal: 10</code></td><td>52</td></tr>
+<tr><td><code>paddingHorizontal: 4</code></td><td>58, 62</td></tr>
+<tr><td><code>paddingVertical: 2</code></td><td>51</td></tr>
+<tr><td><code>width: 16</code></td><td>56</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-expensesviewtsx">ExpensesView.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/ExpensesView.tsx">apps/platform-lab/src/mobile/ExpensesView.tsx</a>; normalized SHA-256 <code>9605c5c58137c0793d07f46b436aac4e27b8c23ba8092f0b8d3c860814d45eb1</code>.</p>
@@ -1848,31 +1860,27 @@
 <tr><td><code>width: 8</code></td><td>33</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-seasonringtsx">SeasonRing.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonRing.tsx">apps/platform-lab/src/mobile/SeasonRing.tsx</a>; normalized SHA-256 <code>b5e807f57213f0fb8156377f3e03da893958472b36e920f50bbd2165a18cb7ac</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/SeasonRing.tsx">apps/platform-lab/src/mobile/SeasonRing.tsx</a>; normalized SHA-256 <code>e95a8239ef9ebcf552ca5438b8bd978097b99ecee9b2c1a42d4d4f54018cf848</code>.</p>
 <h4 id="chapter-implementation-inventory-typography-declarations-29">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>100</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>99, 101</td></tr>
-<tr><td><code>fontSize: 14</code></td><td>96, 98</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>98, 99, 101</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>96</td></tr>
-<tr><td><code>lineHeight: 14</code></td><td>100</td></tr>
-<tr><td><code>lineHeight: 17</code></td><td>99</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>101</td></tr>
-<tr><td><code>lineHeight: 19</code></td><td>96, 98</td></tr>
+<tr><td><code>fontSize: 10</code></td><td>114</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>113, 115</td></tr>
+<tr><td><code>fontSize: 14</code></td><td>110, 112</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>112, 113, 115</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>110</td></tr>
+<tr><td><code>lineHeight: 14</code></td><td>114</td></tr>
+<tr><td><code>lineHeight: 17</code></td><td>113</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>115</td></tr>
+<tr><td><code>lineHeight: 19</code></td><td>110, 112</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-48">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 2</code></td><td>14</td></tr>
-<tr><td><code>borderWidth: 8</code></td><td>22</td></tr>
-<tr><td><code>gap: 2</code></td><td>97</td></tr>
-<tr><td><code>gap: 4</code></td><td>90</td></tr>
-<tr><td><code>gap: 7</code></td><td>91</td></tr>
-<tr><td><code>height: 8</code></td><td>14</td></tr>
-<tr><td><code>minHeight: 36</code></td><td>43</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>90</td></tr>
-<tr><td><code>minWidth: 40</code></td><td>80</td></tr>
-<tr><td><code>opacity: .5</code></td><td>94</td></tr>
+<tr><td><code>gap: 2</code></td><td>111</td></tr>
+<tr><td><code>gap: 4</code></td><td>106</td></tr>
+<tr><td><code>gap: 7</code></td><td>107</td></tr>
+<tr><td><code>minHeight: 36</code></td><td>68</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>106</td></tr>
+<tr><td><code>minWidth: 40</code></td><td>96</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-settings-secondary-contenttsx">settings-secondary-content.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/settings-secondary-content.tsx">apps/platform-lab/src/mobile/settings-secondary-content.tsx</a>; normalized SHA-256 <code>8fe405680ec5f3a351bac1a3cedc57fcf12a3a1553d63b34aa6d1ee89b89cadf</code>.</p>
@@ -1916,71 +1924,70 @@
 <tr><td><code>paddingVertical: 4</code></td><td>22</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-statisticschartstsx">StatisticsCharts.tsx</h3>
-<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx">apps/platform-lab/src/mobile/StatisticsCharts.tsx</a>; normalized SHA-256 <code>13e017a7de7444f980225a827dff83064ebf2e22cab8074bf791f40d0061a0ab</code>.</p>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx">apps/platform-lab/src/mobile/StatisticsCharts.tsx</a>; normalized SHA-256 <code>cca2b16a96c87691370a2c8aaec83df5095abebbd17ada002ea8642460e17793</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-23">Literal colors</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><i class="swatch" style="background:#efc37a" aria-hidden="true"></i><code>#efc37a</code></td><td>17</td></tr>
+<tr><td><i class="swatch" style="background:#efc37a" aria-hidden="true"></i><code>#efc37a</code></td><td>19</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-typography-declarations-32">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>fontSize: 10</code></td><td>132</td></tr>
-<tr><td><code>fontSize: 11</code></td><td>184, 235</td></tr>
-<tr><td><code>fontSize: 12</code></td><td>185, 235</td></tr>
-<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>201, 235</td></tr>
-<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>216, 224</td></tr>
-<tr><td><code>lineHeight: 16</code></td><td>235</td></tr>
-<tr><td><code>lineHeight: 18</code></td><td>235</td></tr>
+<tr><td><code>fontSize: 11</code></td><td>101, 136, 152, 188</td></tr>
+<tr><td><code>fontSize: 12</code></td><td>100, 137, 188</td></tr>
+<tr><td><code>fontSize: 13</code></td><td>152</td></tr>
+<tr><td><code>fontSize: 28</code></td><td>103</td></tr>
+<tr><td><code>fontSize: 30</code></td><td>152</td></tr>
+<tr><td><code>fontWeight: &#x27;600&#x27;</code></td><td>103, 152, 154, 188</td></tr>
+<tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>169, 177</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>188</td></tr>
+<tr><td><code>lineHeight: 18</code></td><td>188</td></tr>
+<tr><td><code>lineHeight: 36</code></td><td>103, 152</td></tr>
 </tbody></table></div>
 <h4 id="chapter-implementation-inventory-geometry--opacity-declarations-51">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
-<tr><td><code>borderRadius: 12</code></td><td>235</td></tr>
-<tr><td><code>borderRadius: 2</code></td><td>97, 235</td></tr>
-<tr><td><code>borderRadius: 3</code></td><td>117, 193, 235</td></tr>
-<tr><td><code>borderRadius: 4</code></td><td>235</td></tr>
-<tr><td><code>borderRadius: 5</code></td><td>109</td></tr>
-<tr><td><code>gap: 10</code></td><td>197</td></tr>
-<tr><td><code>gap: 14</code></td><td>193</td></tr>
-<tr><td><code>gap: 2</code></td><td>189</td></tr>
-<tr><td><code>gap: 3</code></td><td>184, 235</td></tr>
-<tr><td><code>gap: 4</code></td><td>78, 140, 186, 193, 225, 235</td></tr>
-<tr><td><code>gap: 6</code></td><td>235</td></tr>
-<tr><td><code>gap: 8</code></td><td>162, 176, 184, 189, 235</td></tr>
-<tr><td><code>height: 1</code></td><td>70, 74, 143, 148</td></tr>
-<tr><td><code>height: 10</code></td><td>109</td></tr>
-<tr><td><code>height: 100</code></td><td>189</td></tr>
-<tr><td><code>height: 12</code></td><td>186</td></tr>
-<tr><td><code>height: 126</code></td><td>189</td></tr>
-<tr><td><code>height: 14</code></td><td>133</td></tr>
-<tr><td><code>height: 18</code></td><td>132, 193</td></tr>
-<tr><td><code>height: 2</code></td><td>97</td></tr>
-<tr><td><code>height: 20</code></td><td>67, 184</td></tr>
-<tr><td><code>height: 28</code></td><td>193</td></tr>
-<tr><td><code>height: 3</code></td><td>235</td></tr>
-<tr><td><code>height: 32</code></td><td>193</td></tr>
-<tr><td><code>height: 48</code></td><td>235</td></tr>
-<tr><td><code>height: 5</code></td><td>193</td></tr>
-<tr><td><code>height: 6</code></td><td>117</td></tr>
-<tr><td><code>height: 7</code></td><td>235</td></tr>
-<tr><td><code>height: 8</code></td><td>235</td></tr>
-<tr><td><code>minHeight: 48</code></td><td>139, 222, 235</td></tr>
-<tr><td><code>minHeight: 76</code></td><td>193</td></tr>
-<tr><td><code>minWidth: 0</code></td><td>235</td></tr>
-<tr><td><code>minWidth: 48</code></td><td>235</td></tr>
-<tr><td><code>padding: 12</code></td><td>235</td></tr>
-<tr><td><code>paddingVertical: 10</code></td><td>235</td></tr>
-<tr><td><code>paddingVertical: 4</code></td><td>235</td></tr>
-<tr><td><code>width: &#x27;100%&#x27;</code></td><td>74, 189, 235</td></tr>
-<tr><td><code>width: &#x27;65%&#x27;</code></td><td>189</td></tr>
-<tr><td><code>width: 1.5</code></td><td>116</td></tr>
-<tr><td><code>width: 10</code></td><td>109</td></tr>
-<tr><td><code>width: 12</code></td><td>186</td></tr>
-<tr><td><code>width: 13</code></td><td>235</td></tr>
-<tr><td><code>width: 16</code></td><td>136</td></tr>
-<tr><td><code>width: 2</code></td><td>193</td></tr>
-<tr><td><code>width: 48</code></td><td>235</td></tr>
-<tr><td><code>width: 5</code></td><td>193</td></tr>
-<tr><td><code>width: 6</code></td><td>117</td></tr>
-<tr><td><code>width: 7</code></td><td>235</td></tr>
+<tr><td><code>borderRadius: 11</code></td><td>100</td></tr>
+<tr><td><code>borderRadius: 12</code></td><td>188</td></tr>
+<tr><td><code>borderRadius: 14</code></td><td>100</td></tr>
+<tr><td><code>borderRadius: 3</code></td><td>145, 188</td></tr>
+<tr><td><code>borderRadius: 4</code></td><td>152</td></tr>
+<tr><td><code>gap: 10</code></td><td>149</td></tr>
+<tr><td><code>gap: 12</code></td><td>101</td></tr>
+<tr><td><code>gap: 14</code></td><td>145</td></tr>
+<tr><td><code>gap: 16</code></td><td>152</td></tr>
+<tr><td><code>gap: 2</code></td><td>100, 141</td></tr>
+<tr><td><code>gap: 3</code></td><td>136, 188</td></tr>
+<tr><td><code>gap: 4</code></td><td>81, 101, 138, 145, 152, 178, 188</td></tr>
+<tr><td><code>gap: 6</code></td><td>188</td></tr>
+<tr><td><code>gap: 8</code></td><td>98, 99, 103, 114, 128, 136, 141, 152, 188</td></tr>
+<tr><td><code>height: 1</code></td><td>73, 77</td></tr>
+<tr><td><code>height: 100</code></td><td>141</td></tr>
+<tr><td><code>height: 12</code></td><td>138</td></tr>
+<tr><td><code>height: 126</code></td><td>141</td></tr>
+<tr><td><code>height: 18</code></td><td>145</td></tr>
+<tr><td><code>height: 20</code></td><td>70, 136</td></tr>
+<tr><td><code>height: 28</code></td><td>145</td></tr>
+<tr><td><code>height: 32</code></td><td>145</td></tr>
+<tr><td><code>height: 48</code></td><td>188</td></tr>
+<tr><td><code>height: 5</code></td><td>145</td></tr>
+<tr><td><code>height: 7</code></td><td>152</td></tr>
+<tr><td><code>height: 8</code></td><td>188</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>100, 152, 175, 188</td></tr>
+<tr><td><code>minHeight: 76</code></td><td>145</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>188</td></tr>
+<tr><td><code>minWidth: 48</code></td><td>188</td></tr>
+<tr><td><code>padding: 12</code></td><td>188</td></tr>
+<tr><td><code>paddingHorizontal: 12</code></td><td>100</td></tr>
+<tr><td><code>paddingHorizontal: 3</code></td><td>100</td></tr>
+<tr><td><code>paddingVertical: 10</code></td><td>188</td></tr>
+<tr><td><code>paddingVertical: 12</code></td><td>152</td></tr>
+<tr><td><code>paddingVertical: 4</code></td><td>188</td></tr>
+<tr><td><code>paddingVertical: 6</code></td><td>100</td></tr>
+<tr><td><code>width: &#x27;100%&#x27;</code></td><td>77, 141, 188</td></tr>
+<tr><td><code>width: &#x27;65%&#x27;</code></td><td>141</td></tr>
+<tr><td><code>width: 12</code></td><td>101, 138</td></tr>
+<tr><td><code>width: 2</code></td><td>145</td></tr>
+<tr><td><code>width: 48</code></td><td>188</td></tr>
+<tr><td><code>width: 5</code></td><td>145</td></tr>
+<tr><td><code>width: 7</code></td><td>152</td></tr>
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-statisticsexplorertsx">StatisticsExplorer.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/StatisticsExplorer.tsx">apps/platform-lab/src/mobile/StatisticsExplorer.tsx</a>; normalized SHA-256 <code>4f945cd8b9a528cd588aac325b48bf31a98a0d1863ebc1b3c7d7231bd752e236</code>.</p>
@@ -2208,6 +2215,22 @@
 <tr><td><code>width: &#x27;40%&#x27;</code></td><td>38</td></tr>
 <tr><td><code>width: 48</code></td><td>53</td></tr>
 </tbody></table></div>
+<h3 id="chapter-implementation-inventory-trendcharttsx">TrendChart.tsx</h3>
+<p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/TrendChart.tsx">apps/platform-lab/src/mobile/TrendChart.tsx</a>; normalized SHA-256 <code>2a09c9513e994cdbfefba74e111b216f54bdad24b57e0955af9f90476bae62ca</code>.</p>
+<h4 id="chapter-implementation-inventory-typography-declarations-38">Typography declarations</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>fontSize: 10</code></td><td>25, 43</td></tr>
+<tr><td><code>lineHeight: 16</code></td><td>25, 43</td></tr>
+</tbody></table></div>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-59">Geometry / opacity declarations</h4>
+<div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
+<tr><td><code>borderRadius: 18</code></td><td>23</td></tr>
+<tr><td><code>gap: 4</code></td><td>24</td></tr>
+<tr><td><code>height: 18</code></td><td>25</td></tr>
+<tr><td><code>height: 20</code></td><td>43</td></tr>
+<tr><td><code>minHeight: 48</code></td><td>41</td></tr>
+<tr><td><code>minWidth: 0</code></td><td>24</td></tr>
+</tbody></table></div>
 <h3 id="chapter-implementation-inventory-updatedialogtsx">UpdateDialog.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateDialog.tsx">apps/platform-lab/src/mobile/UpdateDialog.tsx</a>; normalized SHA-256 <code>3b4cc186f42eff757bb423ea35364f4cf2cd4420afa26742be97c42196ef3829</code>.</p>
 <h4 id="chapter-implementation-inventory-literal-colors-30">Literal colors</h4>
@@ -2215,7 +2238,7 @@
 <tr><td><i class="swatch" style="background:#000000" aria-hidden="true"></i><code>#000000</code></td><td>29</td></tr>
 <tr><td><i class="swatch" style="background:#000712bd" aria-hidden="true"></i><code>#000712bd</code></td><td>27</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-59">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-60">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 22</code></td><td>28</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>28</td></tr>
@@ -2223,12 +2246,12 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-updateresulttsx">UpdateResult.tsx</h3>
 <p>Product mobile UI/model. Source: <a href="../../../apps/platform-lab/src/mobile/UpdateResult.tsx">apps/platform-lab/src/mobile/UpdateResult.tsx</a>; normalized SHA-256 <code>f5306d4bd4ef18f871e3c01179c58bef1519e76c54a445400f3faf50bd1bb95f</code>.</p>
-<h4 id="chapter-implementation-inventory-typography-declarations-38">Typography declarations</h4>
+<h4 id="chapter-implementation-inventory-typography-declarations-39">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 13</code></td><td>27, 44</td></tr>
 <tr><td><code>lineHeight: 18</code></td><td>27, 44</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-60">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-61">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 14</code></td><td>42</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>42</td></tr>
@@ -2255,7 +2278,7 @@
 <tr><td><i class="swatch" style="background:#fff" aria-hidden="true"></i><code>#fff</code></td><td>50</td></tr>
 <tr><td><code>white</code></td><td>50</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-typography-declarations-39">Typography declarations</h4>
+<h4 id="chapter-implementation-inventory-typography-declarations-40">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 14</code></td><td>50</td></tr>
 <tr><td><code>fontSize: 15</code></td><td>50</td></tr>
@@ -2263,7 +2286,7 @@
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>50</td></tr>
 <tr><td><code>lineHeight: 21</code></td><td>50</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-61">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-62">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>50</td></tr>
 <tr><td><code>borderWidth: 1</code></td><td>50</td></tr>
@@ -2285,12 +2308,12 @@
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>52</td></tr>
 <tr><td><code>white</code></td><td>11</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-typography-declarations-40">Typography declarations</h4>
+<h4 id="chapter-implementation-inventory-typography-declarations-41">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 22</code></td><td>52</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>52</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-62">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-63">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>52</td></tr>
 <tr><td><code>gap: 10</code></td><td>52</td></tr>
@@ -2301,7 +2324,7 @@
 </tbody></table></div>
 <h3 id="chapter-implementation-inventory-detailhttppoctsx">DetailHttpPoc.tsx</h3>
 <p>Retained app-owned lab/adapter surface; document its existing appearance as an exception. Source: <a href="../../../apps/platform-lab/src/vereinsflieger/DetailHttpPoc.tsx">apps/platform-lab/src/vereinsflieger/DetailHttpPoc.tsx</a>; normalized SHA-256 <code>4ee684bf2330f57cd689263c773287394c439c6684b38b47d16f67efd7673f4d</code>.</p>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-63">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-64">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>gap: 10</code></td><td>51</td></tr>
 <tr><td><code>gap: 8</code></td><td>55</td></tr>
@@ -2315,12 +2338,12 @@
 <tr><td><i class="swatch" style="background:#174c72" aria-hidden="true"></i><code>#174c72</code></td><td>80</td></tr>
 <tr><td><code>white</code></td><td>12</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-typography-declarations-41">Typography declarations</h4>
+<h4 id="chapter-implementation-inventory-typography-declarations-42">Typography declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>fontSize: 22</code></td><td>80</td></tr>
 <tr><td><code>fontWeight: &#x27;700&#x27;</code></td><td>80</td></tr>
 </tbody></table></div>
-<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-64">Geometry / opacity declarations</h4>
+<h4 id="chapter-implementation-inventory-geometry--opacity-declarations-65">Geometry / opacity declarations</h4>
 <div class="table-wrap"><table><thead><tr><th>Value / declaration</th><th>Source line(s)</th></tr></thead><tbody>
 <tr><td><code>borderRadius: 6</code></td><td>80</td></tr>
 <tr><td><code>gap: 10</code></td><td>80</td></tr>
@@ -2774,6 +2797,8 @@
 
 # MoFlight UI design handbook
 
+**2 November modern charts (Issue120):** [Vector chart amendment](compact-cockpit.md#modern-vector-charts--authorized-2-november-2026) replaces line/arc strips with native paths, area gradients, one time/count viewport and focused selection. Unknown gaps and exact routes remain.
+
 **2 November expressive compact redesign (#119):** [Owner-authorized graphite/violet amendment](compact-cockpit.md#expressive-compact-graphite--authorized-2-november-2026) supersedes earlier palette/Start composition in scope: denser surfaces, role orbit, seasonal traces and shorter copy. Original logo, five tabs and source/unknown boundaries remain.
 
 **2 November user-first review:** Manuel delegates needed visual choices under [#114](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/114). The [scoped amendment](compact-cockpit.md#user-first-review--delegated-2-november-2026) and [cross-app review/evidence](../../verification/2026-11-02-whole-app-refactor.md) record metric drilldowns, simpler Statistics controls and chronological exact-value costs. Original logo/dark default and source-data contracts remain; earlier appearance-selection/Start restrictions are superseded only for this authorized review.
@@ -3154,6 +3179,13 @@ Owner request under #119 explicitly authorizes direct implementation of a sophis
 Graphite canvas, violet actions, apricot comparisons and mint count/role accents replace teal panels. Typography and visible control faces are tighter; touch targets remain48dp minimum and text may grow. Season is a role-count distribution orbit beside known flight time and editable work-hours target. Neutral orbit portions mean unresolved roles; a full ring is distribution, never proficiency, completion or target. Unknown totals keep an unfilled track/dash. Role shortcuts retain analysis routes and accessible count/time labels. Prior-year annual observations do not imply equal-period improvement.
 
 Monthly charts use time traces/count markers with units, prior cutoff and coverage gaps; exact contributors remain available. Long explanations stay in Info/details; essential unknown/partial/payment qualifiers stay near the facts. Dark remains master. [Implementation and verification](../../verification/2026-11-02-graphite-ui.md).
+
+
+## Modern vector charts — authorized 2 November 2026
+
+Owner requests substantially more modern chart quality under Issue120. Native SVG paths replace rectangle strips for smooth curves, filled trends and crisp donut arcs. Monthly time/count share one switchable viewport, prior is a quiet dashed trace, selected month receives a guide/point and exact value. Role analysis uses a distribution donut with labelled contributor rows. Costs uses a full-year vector trend with compact accessible month choices; twelve repeated prices and swipe instructions are removed.
+
+Smoothing is presentation interpolation only: endpoint-height controls prevent invented extrema, and paths/fills break at missing or uncertain observations. Future values stay absent, known zero remains zero, conflicting costs stay visibly marked and selected details retain exact source routes. Prior cutoff/account/book/storage contracts remain. The single Expo57-bundled SVG library is a rendering dependency, not a chart/data framework; its license is included under About. [Implementation and evidence](../../verification/2026-11-02-modern-charts.md).
 
 # Alternative UI — 22 October 2026
 
@@ -3670,7 +3702,7 @@ The explicit Costs “Belege abrufen” action is a scoped exception to the earl
 
 [Handbook entry point](README.md). Generated by `python scripts/design_handbook.py`; do not hand-edit.
 
-Scope: 130 product mobile TypeScript/model and app-owned TSX UI/adapter files; 83 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
+Scope: 132 product mobile TypeScript/model and app-owned TSX UI/adapter files; 84 distinct hexadecimal color literals (spelling variants such as #fff and #ffffff are separate literals). Colors include all static hex and named color-property literals, even in retained/unused declarations. Gradients and literal numeric/string typography/geometry are listed; computed expressions, conditional combinations, effective hit regions and actual rendering still require reading the linked source. Older lab surfaces retain their existing visual exceptions. Source declarations are implementation evidence, not visual approval. Line numbers refer to the current normalized source snapshot. No provider data or runtime state is read.
 
 ## App.tsx
 
@@ -4245,7 +4277,7 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/CoreFlightFoundat
 
 ## Dashboard.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `c4b0e4b3f1637aa8afc442c0a4e5085ba75625d38d3ef2d7e4a9e569d27a5d5b`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/Dashboard.tsx](../../../apps/platform-lab/src/mobile/Dashboard.tsx); normalized SHA-256 `db3b734476410fb94cf594f5b90b7955d7c0d8230cd8fa8cc5e3fdc0d6bc8c95`.
 
 ### Literal colors
 
@@ -4436,39 +4468,47 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/DutyTarget.tsx](.
 
 ## ExpenseMonthlyChart.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx](../../../apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx); normalized SHA-256 `717eed5ca66f1aa697c27ae8257761392fadd0e9c840e1ef923a7ec4035cc435`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx](../../../apps/platform-lab/src/mobile/ExpenseMonthlyChart.tsx); normalized SHA-256 `571140ae5562be74669dd8441e36328ffebe38d4036324ed6429825ca3effe5f`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `transparent` | 32 |
+| `#ffb49a22` | 56 |
+| `transparent` | 52 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 37 |
-| `fontSize: 13` | 36 |
-| `fontWeight: &#x27;600&#x27;` | 35 |
-| `lineHeight: 18` | 37 |
-| `lineHeight: 20` | 36 |
+| `fontSize: 11` | 57, 62 |
+| `fontSize: 12` | 54, 59, 61 |
+| `fontSize: 15` | 60 |
+| `fontWeight: &#x27;600&#x27;` | 54 |
+| `fontWeight: &#x27;700&#x27;` | 60, 61 |
+| `fontWeight: &#x27;800&#x27;` | 57 |
+| `lineHeight: 15` | 57 |
+| `lineHeight: 16` | 62 |
+| `lineHeight: 18` | 54, 59, 61 |
+| `lineHeight: 22` | 60 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 32 |
-| `borderRadius: 3` | 20 |
-| `borderWidth: 1` | 32 |
-| `gap: 4` | 31, 32 |
-| `gap: 8` | 13 |
-| `height: 72` | 34 |
-| `minHeight: 124` | 32 |
-| `minWidth: 80` | 32 |
-| `padding: 8` | 32 |
-| `paddingVertical: 4` | 31 |
-| `width: 20` | 19 |
+| `borderRadius: 16` | 52 |
+| `borderRadius: 8` | 56 |
+| `borderWidth: 1` | 52 |
+| `gap: 4` | 50, 51, 52 |
+| `gap: 8` | 58 |
+| `height: 16` | 56 |
+| `minHeight: 36` | 58 |
+| `minHeight: 48` | 52 |
+| `minWidth: 48` | 52 |
+| `paddingHorizontal: 10` | 52 |
+| `paddingHorizontal: 4` | 58, 62 |
+| `paddingVertical: 2` | 51 |
+| `width: 16` | 56 |
 
 ## ExpensesView.tsx
 
@@ -5251,36 +5291,32 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonMonthlyChar
 
 ## SeasonRing.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonRing.tsx](../../../apps/platform-lab/src/mobile/SeasonRing.tsx); normalized SHA-256 `b5e807f57213f0fb8156377f3e03da893958472b36e920f50bbd2165a18cb7ac`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SeasonRing.tsx](../../../apps/platform-lab/src/mobile/SeasonRing.tsx); normalized SHA-256 `e95a8239ef9ebcf552ca5438b8bd978097b99ecee9b2c1a42d4d4f54018cf848`.
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 100 |
-| `fontSize: 12` | 99, 101 |
-| `fontSize: 14` | 96, 98 |
-| `fontWeight: &#x27;600&#x27;` | 98, 99, 101 |
-| `fontWeight: &#x27;700&#x27;` | 96 |
-| `lineHeight: 14` | 100 |
-| `lineHeight: 17` | 99 |
-| `lineHeight: 18` | 101 |
-| `lineHeight: 19` | 96, 98 |
+| `fontSize: 10` | 114 |
+| `fontSize: 12` | 113, 115 |
+| `fontSize: 14` | 110, 112 |
+| `fontWeight: &#x27;600&#x27;` | 112, 113, 115 |
+| `fontWeight: &#x27;700&#x27;` | 110 |
+| `lineHeight: 14` | 114 |
+| `lineHeight: 17` | 113 |
+| `lineHeight: 18` | 115 |
+| `lineHeight: 19` | 110, 112 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 2` | 14 |
-| `borderWidth: 8` | 22 |
-| `gap: 2` | 97 |
-| `gap: 4` | 90 |
-| `gap: 7` | 91 |
-| `height: 8` | 14 |
-| `minHeight: 36` | 43 |
-| `minWidth: 0` | 90 |
-| `minWidth: 40` | 80 |
-| `opacity: .5` | 94 |
+| `gap: 2` | 111 |
+| `gap: 4` | 106 |
+| `gap: 7` | 107 |
+| `minHeight: 36` | 68 |
+| `minWidth: 0` | 106 |
+| `minWidth: 40` | 96 |
 
 ## settings-secondary-content.tsx
 
@@ -5337,78 +5373,77 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StartSeasonCharts
 
 ## StatisticsCharts.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.tsx](../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx); normalized SHA-256 `13e017a7de7444f980225a827dff83064ebf2e22cab8074bf791f40d0061a0ab`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsCharts.tsx](../../../apps/platform-lab/src/mobile/StatisticsCharts.tsx); normalized SHA-256 `cca2b16a96c87691370a2c8aaec83df5095abebbd17ada002ea8642460e17793`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#efc37a` | 17 |
+| `#efc37a` | 19 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 132 |
-| `fontSize: 11` | 184, 235 |
-| `fontSize: 12` | 185, 235 |
-| `fontWeight: &#x27;600&#x27;` | 201, 235 |
-| `fontWeight: &#x27;700&#x27;` | 216, 224 |
-| `lineHeight: 16` | 235 |
-| `lineHeight: 18` | 235 |
+| `fontSize: 11` | 101, 136, 152, 188 |
+| `fontSize: 12` | 100, 137, 188 |
+| `fontSize: 13` | 152 |
+| `fontSize: 28` | 103 |
+| `fontSize: 30` | 152 |
+| `fontWeight: &#x27;600&#x27;` | 103, 152, 154, 188 |
+| `fontWeight: &#x27;700&#x27;` | 169, 177 |
+| `lineHeight: 16` | 188 |
+| `lineHeight: 18` | 188 |
+| `lineHeight: 36` | 103, 152 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 235 |
-| `borderRadius: 2` | 97, 235 |
-| `borderRadius: 3` | 117, 193, 235 |
-| `borderRadius: 4` | 235 |
-| `borderRadius: 5` | 109 |
-| `gap: 10` | 197 |
-| `gap: 14` | 193 |
-| `gap: 2` | 189 |
-| `gap: 3` | 184, 235 |
-| `gap: 4` | 78, 140, 186, 193, 225, 235 |
-| `gap: 6` | 235 |
-| `gap: 8` | 162, 176, 184, 189, 235 |
-| `height: 1` | 70, 74, 143, 148 |
-| `height: 10` | 109 |
-| `height: 100` | 189 |
-| `height: 12` | 186 |
-| `height: 126` | 189 |
-| `height: 14` | 133 |
-| `height: 18` | 132, 193 |
-| `height: 2` | 97 |
-| `height: 20` | 67, 184 |
-| `height: 28` | 193 |
-| `height: 3` | 235 |
-| `height: 32` | 193 |
-| `height: 48` | 235 |
-| `height: 5` | 193 |
-| `height: 6` | 117 |
-| `height: 7` | 235 |
-| `height: 8` | 235 |
-| `minHeight: 48` | 139, 222, 235 |
-| `minHeight: 76` | 193 |
-| `minWidth: 0` | 235 |
-| `minWidth: 48` | 235 |
-| `padding: 12` | 235 |
-| `paddingVertical: 10` | 235 |
-| `paddingVertical: 4` | 235 |
-| `width: &#x27;100%&#x27;` | 74, 189, 235 |
-| `width: &#x27;65%&#x27;` | 189 |
-| `width: 1.5` | 116 |
-| `width: 10` | 109 |
-| `width: 12` | 186 |
-| `width: 13` | 235 |
-| `width: 16` | 136 |
-| `width: 2` | 193 |
-| `width: 48` | 235 |
-| `width: 5` | 193 |
-| `width: 6` | 117 |
-| `width: 7` | 235 |
+| `borderRadius: 11` | 100 |
+| `borderRadius: 12` | 188 |
+| `borderRadius: 14` | 100 |
+| `borderRadius: 3` | 145, 188 |
+| `borderRadius: 4` | 152 |
+| `gap: 10` | 149 |
+| `gap: 12` | 101 |
+| `gap: 14` | 145 |
+| `gap: 16` | 152 |
+| `gap: 2` | 100, 141 |
+| `gap: 3` | 136, 188 |
+| `gap: 4` | 81, 101, 138, 145, 152, 178, 188 |
+| `gap: 6` | 188 |
+| `gap: 8` | 98, 99, 103, 114, 128, 136, 141, 152, 188 |
+| `height: 1` | 73, 77 |
+| `height: 100` | 141 |
+| `height: 12` | 138 |
+| `height: 126` | 141 |
+| `height: 18` | 145 |
+| `height: 20` | 70, 136 |
+| `height: 28` | 145 |
+| `height: 32` | 145 |
+| `height: 48` | 188 |
+| `height: 5` | 145 |
+| `height: 7` | 152 |
+| `height: 8` | 188 |
+| `minHeight: 48` | 100, 152, 175, 188 |
+| `minHeight: 76` | 145 |
+| `minWidth: 0` | 188 |
+| `minWidth: 48` | 188 |
+| `padding: 12` | 188 |
+| `paddingHorizontal: 12` | 100 |
+| `paddingHorizontal: 3` | 100 |
+| `paddingVertical: 10` | 188 |
+| `paddingVertical: 12` | 152 |
+| `paddingVertical: 4` | 188 |
+| `paddingVertical: 6` | 100 |
+| `width: &#x27;100%&#x27;` | 77, 141, 188 |
+| `width: &#x27;65%&#x27;` | 141 |
+| `width: 12` | 101, 138 |
+| `width: 2` | 145 |
+| `width: 48` | 188 |
+| `width: 5` | 145 |
+| `width: 7` | 152 |
 
 ## StatisticsExplorer.tsx
 
@@ -5687,6 +5722,28 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 | `width: &#x27;100%&#x27;` | 38 |
 | `width: &#x27;40%&#x27;` | 38 |
 | `width: 48` | 53 |
+
+## TrendChart.tsx
+
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/TrendChart.tsx](../../../apps/platform-lab/src/mobile/TrendChart.tsx); normalized SHA-256 `2a09c9513e994cdbfefba74e111b216f54bdad24b57e0955af9f90476bae62ca`.
+
+### Typography declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `fontSize: 10` | 25, 43 |
+| `lineHeight: 16` | 25, 43 |
+
+### Geometry / opacity declarations
+
+| Value / declaration | Source line(s) |
+| --- | --- |
+| `borderRadius: 18` | 23 |
+| `gap: 4` | 24 |
+| `height: 18` | 25 |
+| `height: 20` | 43 |
+| `minHeight: 48` | 41 |
+| `minWidth: 0` | 24 |
 
 ## UpdateDialog.tsx
 
@@ -6489,7 +6546,7 @@ States / limits: Recreated approved variant, not a byte-identical copy of an old
 Source: docs/assets/branding/moflight-app-icon-ai.png
 docs/assets/branding/README.md; app.json
 </textarea></section>
-<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 81ae0021766d820fd6902ae357cfe6f25caee3a4bc56b832e080b6bbc0477e21. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
+<footer>Generated by scripts/design_handbook.py; edit the maintained Markdown, symbols.json and template inputs. Input SHA-256: 4d141d0d25333810e7a7550a879c0de66f4b5509e1f44d88e27837b3bcc372aa. Source/verification limits are in the handbook. Original artwork and photographic licenses remain applicable.</footer>
 </main><script>
 'use strict';
 const brief = document.querySelector('#brief');

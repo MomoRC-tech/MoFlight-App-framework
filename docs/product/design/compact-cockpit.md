@@ -282,3 +282,10 @@ Owner request under #119 explicitly authorizes direct implementation of a sophis
 Graphite canvas, violet actions, apricot comparisons and mint count/role accents replace teal panels. Typography and visible control faces are tighter; touch targets remain48dp minimum and text may grow. Season is a role-count distribution orbit beside known flight time and editable work-hours target. Neutral orbit portions mean unresolved roles; a full ring is distribution, never proficiency, completion or target. Unknown totals keep an unfilled track/dash. Role shortcuts retain analysis routes and accessible count/time labels. Prior-year annual observations do not imply equal-period improvement.
 
 Monthly charts use time traces/count markers with units, prior cutoff and coverage gaps; exact contributors remain available. Long explanations stay in Info/details; essential unknown/partial/payment qualifiers stay near the facts. Dark remains master. [Implementation and verification](../../verification/2026-11-02-graphite-ui.md).
+
+
+## Modern vector charts — authorized 2 November 2026
+
+Owner requests substantially more modern chart quality under Issue120. Native SVG paths replace rectangle strips for smooth curves, filled trends and crisp donut arcs. Monthly time/count share one switchable viewport, prior is a quiet dashed trace, selected month receives a guide/point and exact value. Role analysis uses a distribution donut with labelled contributor rows. Costs uses a full-year vector trend with compact accessible month choices; twelve repeated prices and swipe instructions are removed.
+
+Smoothing is presentation interpolation only: endpoint-height controls prevent invented extrema, and paths/fills break at missing or uncertain observations. Future values stay absent, known zero remains zero, conflicting costs stay visibly marked and selected details retain exact source routes. Prior cutoff/account/book/storage contracts remain. The single Expo57-bundled SVG library is a rendering dependency, not a chart/data framework; its license is included under About. [Implementation and evidence](../../verification/2026-11-02-modern-charts.md).

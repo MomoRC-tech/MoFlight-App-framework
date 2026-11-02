@@ -169,15 +169,21 @@ test('latest-flight card discloses ambiguous same-day starts without losing exac
   assert.doesNotMatch(render([a,a]).text,/Reihenfolge am selben Tag unbekannt/);
 });
 
-test('shared starts and time ring renderer fades only the prior year while preserving hues and unknown tracks',()=>{
+test('shared starts and time rings use native SVG arcs, preserve hues, fade prior values and retain unknown tracks',()=>{
  const ringSource=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/SeasonRing.tsx',import.meta.url),'utf8'),{
    compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false},
  }).outputText;
  const react={createElement:(type:string,props:Element['props'],...children:any[]):Element=>({type,props:props??{},children:children.flat(Infinity)})};
  let fontScale=1;
- const modules:Record<string,unknown>={react:{default:react,memo:(component:unknown)=>component},'react-native':{View:'View',StyleSheet:{create:(s:unknown)=>s,absoluteFill:{position:'absolute'}},useWindowDimensions:()=>({fontScale})},'./theme':{Label:'Label',colors:{border:'#334455'}}};
+ const modules:Record<string,unknown>={react:{default:react,memo:(component:unknown)=>component},'react-native':{View:'View',StyleSheet:{create:(s:unknown)=>s},useWindowDimensions:()=>({fontScale})},'react-native-svg':{default:'Svg',Circle:'Circle',G:'G',Path:'Path'},'./theme':{Label:'Label',colors:{border:'#334455',raised:'#292d43'}}};
  const exports:any={};runInNewContext(ringSource,{exports,require:(name:string)=>modules[name]});
  const style=(node:Element)=>Object.assign({},...[node.props.style].flat().filter(Boolean));
+ const paintedSweep=(path:Element,cx:number,cy:number)=>{
+   const match=String(path.props.d).match(/^M ([^ ]+) ([^ ]+) A [^ ]+ [^ ]+ 0 [01] 1 ([^ ]+) ([^ ]+)$/)!;
+   const from=Math.atan2(Number(match[2])-cy,Number(match[1])-cx)*180/Math.PI;
+   const to=Math.atan2(Number(match[4])-cy,Number(match[3])-cx)*180/Math.PI;
+   return (to-from+360)%360;
+ };
  const colors=['#46ccff','#f9b65b'];
  const slices=colors.map((color,index)=>({color,start:-90+index*180,sweep:180}));
  for(const scale of [1,1.6]) for(const label of ['Starts','Flugzeit']) {
@@ -186,15 +192,23 @@ test('shared starts and time ring renderer fades only the prior year while prese
    const before=JSON.stringify(layers);
    const difference=season.seasonDifference(300,60,label==='Starts'?'starts':'minutes');
    const tree=exports.SeasonRing({layers,label,difference}) as Element;
-   const body=tree.children[1] as Element, ring=body.children[0] as Element;
-   const [outer,inner]=ring.children as Element[];
-   assert.equal(style(outer!).opacity??1,1);
-   assert.ok(style(inner!).opacity>0&&style(inner!).opacity<1,'Prior year remains visible but subdued');
-   assert.equal(inner!.props.needsOffscreenAlphaCompositing,true,'Overlapping strips fade together without seams');
-   for(const layer of [outer!,inner!]) assert.deepEqual([...new Set(layer.children.slice(1).map((arc:Element)=>style(arc).backgroundColor))],colors);
+   const body=tree.children[1] as Element, ring=body.children[0] as Element, svg=ring.children[0] as Element;
+   assert.equal(svg.type,'Svg');
+   const [outer,inner]=svg.children as Element[];
+   assert.equal(outer!.type,'G');assert.equal(outer!.props.opacity,1);
+   assert.equal(inner!.type,'G');assert.ok(inner!.props.opacity>0&&inner!.props.opacity<1,'Prior year remains visible but subdued');
+   for(const layer of [outer!,inner!]) {
+     const track=layer.children[0] as Element;
+     assert.equal(track.type,'Circle');assert.equal(track.props.stroke,'#334455');
+     const arcs=layer.children.slice(1) as Element[];
+     assert.equal(arcs.length,2);
+     assert.deepEqual(arcs.map(arc=>arc.props.stroke),colors);
+     assert.ok(arcs.every(arc=>arc.type==='Path'&&arc.props.strokeLinecap==='round'&&arc.props.d.includes(' A ')),'Each aircraft share is one native vector arc');
+     assert.ok(Math.abs(paintedSweep(arcs[0]!,44*scale,44*scale)-paintedSweep(arcs[1]!,44*scale,44*scale))<.01,'Equal shares retain equal painted sweeps with separators');
+   }
    assert.match(tree.props.accessibilityLabel,/Außen, Wert in der Mitte 2026.*Innen 2025/);
    assert.match(tree.props.accessibilityLabel,/Differenz gespeicherter Jahreswerte.*Zeiträume können unterschiedlich oder unvollständig sein/);
-   const center=ring.children[2] as Element, outside=body.children[1] as Element;
+   const center=ring.children[1] as Element, outside=body.children[1] as Element;
    assert.equal(center.children[0].children[0],2026);
    assert.equal(center.children[1].children[0],'2');
    assert.equal(style(center).position,'absolute');
@@ -205,10 +219,19 @@ test('shared starts and time ring renderer fades only the prior year while prese
    assert.equal(outside.children.some((node:Element)=>node.props.numberOfLines),false);
    assert.equal(JSON.stringify(layers),before,'Visual emphasis cannot change share data or aircraft colors');
    const unknown=exports.SeasonRing({layers:layers.map(layer=>({...layer,slices:[],value:'—',description:`${layer.year}: unbekannt`})),label,difference:season.seasonDifference(null,null,'minutes')}) as Element;
-   const unknownRing=(unknown.children[1] as Element).children[0] as Element;
-   assert.ok(unknownRing.children.slice(0,2).every((layer:Element)=>layer.children.length===1),'Unknown values retain unfilled tracks');
+   const unknownSvg=((unknown.children[1] as Element).children[0] as Element).children[0] as Element;
+   assert.ok(unknownSvg.children.every((layer:Element)=>layer.children.length===1&&layer.children[0].type==='Circle'),'Unknown values retain unfilled tracks');
    assert.match(unknown.props.accessibilityLabel,/unbekannt/);
  }
+ const orbit=exports.MetricOrbit({size:140,total:10,parts:[{value:3,color:colors[0]},{value:7,color:colors[1]}],children:'metric'}) as Element;
+ const orbitSvg=orbit.children[0] as Element;
+ assert.equal(orbitSvg.type,'Svg');
+ assert.equal(orbitSvg.children[0].type,'Circle','The orbit keeps one subtle track');
+ assert.deepEqual(orbitSvg.children.slice(1).map((arc:Element)=>arc.props.stroke),colors);
+ assert.ok(orbitSvg.children.slice(1).every((arc:Element)=>arc.type==='Path'&&arc.props.strokeLinecap==='round'));
+ assert.ok(Math.abs((paintedSweep(orbitSvg.children[2] as Element,70,70)-paintedSweep(orbitSvg.children[1] as Element,70,70))-144)<.01,'A common separator preserves the difference between the 30/70 distribution sweeps');
+ const unknownOrbit=exports.MetricOrbit({size:140,total:null,parts:[{value:3,color:colors[0]}],children:'metric'}) as Element;
+ assert.equal(unknownOrbit.children[0].children.length,1,'Unknown metric totals retain a neutral track without a fabricated slice');
 });
 
 

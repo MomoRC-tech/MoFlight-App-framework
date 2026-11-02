@@ -1,0 +1,7 @@
+# Modern vector charts — 2 November 2026
+
+Owner-authorized Issue120/M1–M4. Native vector curves/area gradients, smooth role donuts, quiet grid/prior series, focused selection and a single time/count viewport replace the earlier rectangle/point plots. Costs uses the same full-year trend with compact exact-month choices and one selected price. Original palette/logo/navigation remain; all source calculations, scopes and persistence stay unchanged.
+
+One dependency: react-native-svg15.15.4, the exact version in the installed Expo57 bundledNativeModules manifest. [Official Expo SVG guidance](https://docs.expo.dev/versions/latest/sdk/svg/) confirms native Android/iOS SVG primitives/interactivity; latest online recommended15.16.0 differs from this pinned SDK manifest. No paid service or larger chart framework. Library MIT notice is available in About. Material3 color roles were consulted again; m3 text returns a JavaScript shell. Existing [Google Material3/Reply adaptations](2026-11-02-graphite-ui.md#completed-source-and-verification) remain relevant.
+
+Visual interpolation is bounded between observed values and never connects across missing or uncertain points. Tests cover actual cubic controls/extrema, gaps, signed values, known zero, future selection rejection, time/count selection and exact current/prior contributors. Host app coverage uses focused checks; native acceptance follows after a committed-source Release, because adding SVG changes the native module set. Physical/iOS runtime/light/service gates remain distinct.

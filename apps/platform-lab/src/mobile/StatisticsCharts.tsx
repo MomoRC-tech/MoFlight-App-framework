@@ -3,6 +3,8 @@ import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 're
 import type { RealFlightListItem } from '../vereinsflieger/real-flight-library';
 import type { SavedFlightRetrieval } from '../vereinsflieger/retrieval-policy';
 import { Card, Label, Action, Chip, colors, ui } from './theme';
+import { MetricOrbit } from './SeasonRing';
+import { TrendChart } from './TrendChart';
 import { SymbolIcon, type SymbolName } from './SymbolIcon';
 import { formatReportedMinutes } from './real-flight-statistics';
 import { type StatisticsPeriod, statisticsPeriodBounds } from './statistics-overlay-model';
@@ -14,11 +16,11 @@ import {
   type ChartKind, type ChartFilters, type AircraftGrouping, type ChartGroup,
 } from './statistics-charts-model';
 
-const priorColor = colors.orange, secondColor = colors.blue, medianColor = '#efc37a';
+const secondColor = colors.blue, medianColor = '#efc37a';
 const monthNames = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
 const icons: Record<ChartKind, SymbolName> = { monthly: 'chart', timeline: 'glider', aircraft: 'flight-paper-plane', launch: 'arrow', launchDuration: 'clock', duration: 'clock', roles: 'club', days: 'calendar-neutral' };
 const explanations: Record<ChartKind, string> = {
-  monthly: 'Die Linien zeigen bekannte Flugzeit für das ausgewählte Jahr und das Vorjahr bis zum gleichen Kalendertag. Eine Linie verbindet nur aufeinanderfolgende Monate mit vollständiger Abdeckung und bekannten Zeiten; Punkte bei lückenhafter Abdeckung bleiben einzeln. Mintfarbene und apricotfarbene Striche zeigen die gespeicherte Fluganzahl. · kennzeichnet lückenhafte Abdeckung, ? unbekannte Flugzeit und / zukünftige Monate. Tippe ins Diagramm oder öffne Werte & Flüge für Monat, Werte und genaue Flüge.',
+  monthly: 'Flugzeit oder Fluganzahl teilen sich eine Monatsachse. Die geglättete Linie ist nur Darstellung zwischen beobachteten Monatswerten, kein zusätzlicher Messwert. Flächen enden an Lücken; offene Punkte bleiben unverbunden. Die Linien zeigen bekannte Flugzeit für das ausgewählte Jahr und das Vorjahr bis zum gleichen Kalendertag. Eine Linie verbindet nur aufeinanderfolgende Monate mit vollständiger Abdeckung und bekannten Zeiten; Punkte bei lückenhafter Abdeckung bleiben einzeln. Die Auswahl Flüge zeigt die gespeicherte Fluganzahl. Zukünftige Monate bleiben leer; offene Punkte kennzeichnen unvollständige Werte. Tippe ins Diagramm oder öffne Werte & Flüge für Monat, Werte und genaue Flüge.',
   timeline: 'Ein Punkt je Flug mit bekanntem Datum und bekannter Dauer. Goldene Abschnitte zeigen den Median des Monats, ohne Monate zu verbinden. Der Median teilt die bekannten Dauern in zwei gleich große Gruppen. Tippe auf einen Punkt; gleiche Werte bleiben gemeinsam erreichbar. Längere Flüge belegen keinen Ausbildungsfortschritt.',
   aircraft: 'Je Gruppe siehst du die Anzahl Flüge und die bekannte gemeldete Flugzeit. Beide Balken beginnen bei null und haben jeweils eine gemeinsame Skala über alle Gruppen. Die Skalen haben unterschiedliche Einheiten; Balkenlängen nur innerhalb derselben Kennzahl vergleichen. Fehlende Dauern sind keine Nullzeiten.',
   launch: 'Nur ausdrücklich als Segelflugzeug erfasste Flüge. Jede Startart zeigt Anzahl und bekannte gemeldete Flugzeit auf getrennten, über alle Gruppen gleichen Skalen. Fehlende Dauer bleibt unbekannt. Startart wird nicht aus dem Flugzeug abgeleitet. Die Detailansicht zeigt Dauer und Streuung; sie erklärt keine Ursache.',
@@ -44,7 +46,8 @@ export function StatisticsCharts({ flights, saved, today, period, dataset: provi
   const [picker, setPicker] = useState(false), [info, setInfo] = useState(false), [values, setValues] = useState(false);
   const [grouping, setGrouping] = useState<AircraftGrouping>('category'), [calendar, setCalendar] = useState(false);
   const [selection, setSelection] = useState<Selection | null>(null), [width, setWidth] = useState(280);
-  useEffect(()=>{setSelection(null);},[flights,period,filters]);
+  const [measure,setMeasure]=useState<'time'|'count'>('time'),[monthFocus,setMonthFocus]=useState<number|null>(null);
+  useEffect(()=>{setSelection(null);setMonthFocus(null);},[flights,period,filters]);
   const dataset = useMemo(() => providedDataset ?? chartDataset(flights, period, today, filters), [providedDataset, flights, period, today, filters]);
   const bounds = statisticsPeriodBounds(period, today);
   const monthly = useMemo(() => chart === 'monthly' && period.kind === 'year' ? monthlyChartGroups(flights, saved, period.year, today, filters) : [], [chart, flights, saved, period, today, filters]);
@@ -81,76 +84,25 @@ export function StatisticsCharts({ flights, saved, today, period, dataset: provi
   if (chart === 'monthly') {
     if (period.kind !== 'year') content = <Label muted>Für den Monatsvergleich bitte ein Jahr im Filter auswählen.</Label>;
     else {
-      const priorGroups=monthly.map(pair=>pair[1]!);
-      const currentGroups=monthly.map(pair=>pair[0]!);
-      const monthlyPlotWidth=Math.max(1,width-38), slotWidth=monthlyPlotWidth/12;
-      const monthX=(index:number)=>slotWidth*(index+.5);
-      const timeHeight=100, countHeight=54;
-      const timeMax=Math.max(60,...monthly.flatMap((pair)=>pair.filter(g=>!g.future&&g.validComparison&&(g.covered||g.knownDurationCount>0)).map(g=>g.knownMinutes)));
-      const countMax=Math.max(1,...monthly.flatMap(pair=>pair.map(g=>g.count)));
-      const timeY=(minutes:number)=>5+(timeHeight-10)*(1-minutes/timeMax);
-      const countY=(count:number)=>5+(countHeight-10)*(1-count/countMax);
-      const canPlotDuration=(g:typeof currentGroups[number],isPrior:boolean)=>!g.future&&(!isPrior||g.validComparison)&&(g.knownDurationCount>0||g.count===0&&g.covered);
-      const canConnect=(g:typeof currentGroups[number],isPrior:boolean)=>!g.future&&(!isPrior||g.validComparison)&&g.covered&&(g.count===0||g.unknownDurationCount===0);
-      const connector=(x1:number,y1:number,x2:number,y2:number,color:string,key:string,opacity=1)=>{
-        const dx=x2-x1,dy=y2-y1,length=Math.sqrt(dx*dx+dy*dy),angle=Math.atan2(dy,dx);
-        return <View key={key} style={{position:'absolute',left:(x1+x2-length)/2,top:(y1+y2-2)/2,width:length,height:2,borderRadius:2,backgroundColor:color,opacity,transform:[{rotate:`${angle}rad`}]}}/>;
+      const current=monthly.map(pair=>pair[0]!),previous=monthly.map(pair=>pair[1]!);
+      const value=(g:typeof current[number],prior=false)=>g.future||prior&&!g.validComparison?null:measure==='count'?(g.count>0||g.covered?g.count:null):(g.knownDurationCount>0||g.count===0&&g.covered?g.knownMinutes:null);
+      const format=(n:number)=>measure==='time'?time(n):`${n} Flüge`;
+      const focused=monthFocus===null?null:current[monthFocus],focusedPrior=monthFocus===null?null:previous[monthFocus];
+      const selectMonth=(index:number)=>{
+        const now=current[index]!,prior=previous[index]!;if(now.future)return;
+        setMonthFocus(index);
+        const fact=(g:typeof now)=>`${g.key.slice(0,4)}: ${g.count} Flüge · ${durationText(g)} · ${g.covered?'abgedeckt':'Abdeckung lückenhaft'}${g.unknownDurationCount?` · ${g.unknownDurationCount} Zeiten unbekannt`:''}${!g.validComparison?' · kein gleicher Kalendertag im Vorjahr':''}`;
+        const scope=(g:typeof now):StatisticsPeriod=>({kind:'custom',from:g.from,to:g.to});
+        setSelection({title:`${monthNames[index]} · ${period.year}`,lines:[fact(now),fact(prior)],ids:now.supportingIds,scope:scope(now),additional:prior.supportingIds.length?[{label:`Vorjahresflüge ansehen · ${prior.supportingIds.length}`,title:`${monthNames[index]} · ${period.year-1}`,ids:prior.supportingIds,scope:scope(prior)}]:undefined});
       };
-      const series=[{groups:currentGroups,color:colors.cyan,isPrior:false},{groups:priorGroups,color:priorColor,isPrior:true}];
-      const timeLines=series.flatMap(({groups:rows,color,isPrior})=>rows.slice(0,11).flatMap((from,index)=>{
-        const to=rows[index+1]!;
-        return canConnect(from,isPrior)&&canConnect(to,isPrior)
-          ? [connector(monthX(index),timeY(from.knownMinutes),monthX(index+1),timeY(to.knownMinutes),color,`${isPrior?'prior':'current'}-${index}`,isPrior ? .78 : 1)]
-          : [];
-      }));
-      const timePoints=series.flatMap(({groups:rows,color,isPrior})=>rows.map((g,index)=>{
-        if(!canPlotDuration(g,isPrior))return null;
-        const partial=g.unknownDurationCount>0;
-        return <View key={`${isPrior?'prior':'current'}-point-${index}`} style={{position:'absolute',left:monthX(index)-5+(isPrior?2:-2),top:timeY(g.knownMinutes)-5,width:10,height:10,borderRadius:5,backgroundColor:partial?colors.background:color,borderWidth:partial?2:0,borderColor:color,opacity:g.covered?(isPrior ? .82 : 1):.5}}/>;
-      }));
-      const countStems=series.flatMap(({groups:rows,isPrior})=>rows.map((g,index)=>{
-        if(g.future||isPrior&&!g.validComparison||!g.covered&&!g.count)return null;
-        const color=isPrior?priorColor:colors.green;
-        const x=monthX(index)+(isPrior?3:-3),y=countY(g.count),base=countHeight-5;
-        return <React.Fragment key={`${isPrior?'prior':'current'}-count-${index}`}>
-          {g.count>0&&<View style={{position:'absolute',left:x-.75,top:y,width:1.5,height:Math.max(1,base-y),backgroundColor:color,opacity:g.covered?(isPrior ? .78 : 1):.45}}/>}
-          <View style={{position:'absolute',left:x-3,top:y-3,width:6,height:6,borderRadius:3,backgroundColor:g.covered?color:colors.background,borderWidth:g.covered?0:1.5,borderColor:color,opacity:g.covered?(isPrior ? .82 : 1):.65}}/>
-        </React.Fragment>;
-      }));
-      const monthlyFact=(g:typeof currentGroups[number])=>{
-        const duration=g.knownDurationCount?`${time(g.knownMinutes)} bekannt`:g.count===0&&g.covered?'0:00 h':'Zeit unbekannt';
-        return `${g.key.slice(0,4)}: ${g.count} Flüge · ${duration} · ${g.covered?'abgedeckt':'Abdeckung lückenhaft'}${g.unknownDurationCount?` · ${g.unknownDurationCount} Zeiten unbekannt`:''}${!g.validComparison?' · kein gleicher Kalendertag im Vorjahr':''}`;
-      };
-      const selectMonthlyIndex=(x:number)=>{
-        const index=Math.max(0,Math.min(11,Math.floor(x/slotWidth)));
-        const current=currentGroups[index]!,previous=priorGroups[index]!;
-        if(current.future)return;
-        const monthScope=(g:typeof currentGroups[number]):StatisticsPeriod=>({kind:'custom',from:g.from,to:g.to});
-        setSelection({title:`${monthNames[index]} · ${period.year}`,lines:[monthlyFact(current),monthlyFact(previous)],ids:current.supportingIds,scope:monthScope(current),additional:previous.supportingIds.length?[{label:`Vorjahresflüge ansehen · ${previous.supportingIds.length}`,title:`${monthNames[index]} · ${period.year-1}`,ids:previous.supportingIds,scope:monthScope(previous)}]:undefined});
-      };
-      const visibleMonths=monthlyPlotWidth/fontScale>=480?monthNames.map((_,i)=>i):monthlyPlotWidth/fontScale>=170?[0,2,4,6,8,11]:[0,4,8,11];
-      const axesMonthLabels=<View accessibilityLabel="Monatsachse Januar bis Dezember" style={{height:18*fontScale,marginLeft:38,width:monthlyPlotWidth,position:'relative'}}>{visibleMonths.map(index=>{const labelWidth=Math.min(monthlyPlotWidth,40*fontScale),left=Math.max(0,Math.min(monthlyPlotWidth-labelWidth,monthX(index)-labelWidth/2));return <View key={index} style={{position:'absolute',left,width:labelWidth,height:18*fontScale,alignItems:'center'}}><Label muted style={[s.tick,{fontSize:10,textAlign:'center'}]}>{monthNames[index]}</Label></View>;})}</View>;
-      const monthMarkers=<View style={{height:14*fontScale,marginLeft:38,width:monthlyPlotWidth,position:'relative'}}>{monthly.map((pair,index)=>{
-        const current=pair[0]!;
-        const marker=current.future?'/':`${!current.covered?'·':''}${current.unknownDurationCount?'?':''}`;
-        return marker?<View key={index} style={{position:'absolute',left:monthX(index)-8,width:16,alignItems:'center'}}><Label muted style={s.tick}>{marker}</Label></View>:null;
-      })}</View>;
-      const hasMonthMarkers=currentGroups.some(g=>g.future||!g.covered||g.unknownDurationCount>0);
-      const axisPress=(label:string,height:number)=><Pressable accessibilityRole="button" accessibilityLabel={label} accessibilityHint="Werte und Flüge bietet dieselben Monate einzeln mit genauen Beiträgen." onPress={e=>selectMonthlyIndex(e.nativeEvent.locationX)} style={{position:'absolute',left:38,right:0,top:0,height,minHeight:48}}/>;
-      content=<View style={{gap:4}}>
-        <View style={s.monthLegend}><Label muted style={s.small}>Flugzeit · h</Label><View style={ui.row}><View style={[s.legendLine,{backgroundColor:colors.cyan}]}/><Label muted style={s.tick}>{period.year}</Label><View style={[s.legendLine,{backgroundColor:priorColor}]}/><Label muted style={s.tick}>{period.year-1}</Label></View></View>
-        <View style={{height:timeHeight+8,position:'relative'}}>
-          {[0,.5,1].map(v=><View key={v} style={{position:'absolute',top:5+(timeHeight-10)*(1-v),left:0,right:0,height:1}}><Label muted style={[s.tick,{position:'absolute',left:0,top:-8}]}>{(v*timeMax/60).toLocaleString('de-DE',{maximumFractionDigits:1})}</Label><View style={{marginLeft:38,height:1,backgroundColor:colors.border}}/></View>)}
-          <View pointerEvents="none" style={{position:'absolute',left:38,right:0,top:0,height:timeHeight}}>{timeLines}{timePoints}</View>{axisPress('Monat im Flugzeitdiagramm auswählen',timeHeight+8)}
+      content=<View style={{gap:8}}>
+        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
+          <View style={{flexDirection:'row',backgroundColor:colors.raised,borderRadius:14,paddingHorizontal:3,gap:2}}>{(['time','count'] as const).map(key=><Pressable key={key} accessibilityRole="button" accessibilityLabel={key==='time'?'Flugzeit im Diagramm':'Fluganzahl im Diagramm'} accessibilityState={{selected:measure===key}} onPress={()=>setMeasure(key)} style={{minHeight:48,justifyContent:'center'}}><View style={{paddingHorizontal:12,paddingVertical:6,borderRadius:11,backgroundColor:measure===key?colors.card:'transparent'}}><Label style={{fontSize:12,fontWeight:measure===key?'700':'400',color:measure===key?colors.text:colors.muted}}>{key==='time'?'Flugzeit':'Flüge'}</Label></View></Pressable>)}</View>
+          <View style={{flexDirection:'row',gap:12,alignItems:'center'}}><Label style={{fontSize:11,color:colors.cyan}}>● {period.year}</Label><View style={{flexDirection:"row",alignItems:"center",gap:4}}><View style={{width:12,borderTopWidth:1.5,borderColor:colors.orange,borderStyle:"dashed"}}/><Label style={{fontSize:11,color:colors.orange}}>{period.year-1}</Label></View></View>
         </View>
-        <View style={s.monthLegend}><Label muted style={s.small}>Flüge</Label><View style={ui.row}><View style={[s.legendDot,{backgroundColor:colors.green}]}/><Label muted style={s.tick}>{period.year}</Label><View style={[s.legendDot,{backgroundColor:priorColor}]}/><Label muted style={s.tick}>{period.year-1}</Label></View></View>
-        <View style={{height:countHeight+8,position:'relative'}}>
-          {[0,1].map((v,i)=><View key={v} style={{position:'absolute',top:i===0?countHeight-5:5,left:0,right:0,height:1}}><Label muted style={[s.tick,{position:'absolute',left:0,top:-8}]}>{i===0?'0':countMax}</Label><View style={{marginLeft:38,height:1,backgroundColor:colors.border}}/></View>)}
-          <View pointerEvents="none" style={{position:'absolute',left:38,right:0,top:0,height:countHeight}}>{countStems}</View>{axisPress('Monat im Fluganzahldiagramm auswählen',countHeight+8)}
-        </View>
-        {monthMarkers}{axesMonthLabels}
-        {hasMonthMarkers&&<Label muted style={s.small}>· Lücke · ? Zeit offen · / Zukunft</Label>}
-        {monthly.some(pair=>!pair[1]!.future&&!pair[1]!.validComparison)&&<Label muted style={s.small}>Für den Schalttag ist kein Vorjahreswert bis zum gleichen Tag verfügbar.</Label>}
+        {focused&&<View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'baseline',gap:8,flexWrap:'wrap'}}><View><Label muted style={s.small}>{monthNames[monthFocus!]} {period.year}</Label><Label style={{fontSize:28,lineHeight:36,fontWeight:'600',fontVariant:['tabular-nums']}}>{value(focused)===null?'—':format(value(focused)!)}</Label></View><Label muted style={s.small}>{period.year-1} · {focusedPrior&&value(focusedPrior,true)!==null?format(value(focusedPrior,true)!):'—'}</Label></View>}
+        <TrendChart values={current.map(g=>value(g))} prior={previous.map(g=>value(g,true))} uncertain={current.map(g=>!g.covered||measure==='time'&&g.unknownDurationCount>0)} priorUncertain={previous.map(g=>!g.covered||measure==='time'&&g.unknownDurationCount>0)} labels={monthNames} selectedIndex={monthFocus} onSelect={selectMonth} height={compact?150:190} color={measure==='time'?colors.cyan:colors.green} formatValue={format} accessibilityLabel={measure==='time'?'Monat im Flugzeitdiagramm auswählen':'Monat im Fluganzahldiagramm auswählen'}/>
+        {(current.some(g=>!g.future&&(!g.covered||g.unknownDurationCount>0)))&&<Label muted style={s.small}>Offene Punkte · unvollständige Werte</Label>}
       </View>;
     }
   } else if (chart === 'timeline') {
@@ -197,12 +149,13 @@ export function StatisticsCharts({ flights, saved, today, period, dataset: provi
     content=<View style={{gap:10}}>{chart==='aircraft'&&<View style={s.wrap}>{(['category','model','registration'] as const).map(key=><Chip key={key} title={{category:'Art',model:'Muster',registration:'Kennzeichen'}[key]} selected={grouping===key} onPress={()=>{setGrouping(key);setSelection(null);}}/>)}</View>}
       {(chart==='launch')&&<Label muted style={s.small}>Nur Segelflug · {count} Flüge · {time(total)} bekannt</Label>}
       {chart!=='roles'&&groups.length>0&&<Label muted style={s.small}>Getrennte Skalen · Flüge: 0–{maxCount} · bekannte Zeit: {groups.some(g=>g.knownDurationCount>0)?`0–${time(Math.max(0,...groups.map(g=>g.knownMinutes)))}`:'unbekannt'}</Label>}
-      {visibleGroups.map(g=><Pressable key={g.key} accessibilityRole="button" accessibilityLabel={`${g.label}, ${g.count} Flüge, ${durationText(g)}${g.unknownDurationCount?`, ${g.unknownDurationCount} unbekannte Dauern`:''}`} onPress={()=>selectGroup(g)} style={[s.barRow,chart!=='roles'&&s.comparisonRow]}>
+      {chart==='roles'&&groups.length>0&&<View style={{flexDirection:fontScale>1.3?'column':'row',alignItems:'center',gap:16,paddingVertical:12}}><MetricOrbit size={148} total={count} parts={groups.map(g=>({value:g.count,color:({solo:colors.cyan,dualInstruction:colors.green,picWithCompanion:colors.orange} as Record<string,string>)[g.key]??colors.muted}))}><Label style={{fontSize:30,lineHeight:36,fontWeight:'600'}}>{count}</Label><Label muted style={s.small}>Flüge</Label></MetricOrbit><View style={{flex:1,alignSelf:'stretch',justifyContent:'center',gap:4}}>{groups.map(g=><Pressable key={g.key} accessibilityRole="button" accessibilityLabel={`${g.label}, ${g.count} Flüge, ${durationText(g)}${g.unknownDurationCount?`, ${g.unknownDurationCount} unbekannte Dauern`:''}`} onPress={()=>selectGroup(g)} style={{minHeight:48,flexDirection:'row',alignItems:'center',gap:8}}><View style={{width:7,height:7,borderRadius:4,backgroundColor:({solo:colors.cyan,dualInstruction:colors.green,picWithCompanion:colors.orange} as Record<string,string>)[g.key]??colors.muted}}/><Label style={{flex:1,fontSize:13}}>{g.label}</Label><View style={{alignItems:'flex-end'}}><Label style={{fontSize:13,fontWeight:'600',fontVariant:['tabular-nums']}}>{g.count}</Label><Label muted style={{fontSize:11}}>{durationText(g)}</Label></View><Label muted>›</Label></Pressable>)}</View></View>}
+      {(chart==='roles'?[]:visibleGroups).map(g=><Pressable key={g.key} accessibilityRole="button" accessibilityLabel={`${g.label}, ${g.count} Flüge, ${durationText(g)}${g.unknownDurationCount?`, ${g.unknownDurationCount} unbekannte Dauern`:''}`} onPress={()=>selectGroup(g)} style={[s.barRow,chart!=='roles'&&s.comparisonRow]}>
         <View style={ui.row}><Label style={{flex:1,fontWeight:'600'}}>{g.label}</Label><Label muted>›</Label></View>
-        {chart==='roles'?<><View style={s.track}><View style={[s.fill,{width:`${count?g.count/count*100:0}%`}]}/></View><Label muted style={s.small}>{g.count} Flüge · {durationText(g)}</Label></>:<>
+        <>
           <View style={s.measure}><View style={s.measureLabel}><Label muted style={s.small}>Flüge</Label><Label style={s.number}>{g.count}</Label></View><View style={s.track}><View style={[s.fill,{backgroundColor:secondColor,width:`${g.count/maxCount*100}%`}]}/></View></View>
           <View style={s.measure}><View style={s.measureLabel}><Label muted style={s.small}>Bekannte Flugzeit</Label><Label style={s.number}>{durationText(g)}</Label></View><View style={s.track}>{g.knownDurationCount>0&&<View style={[s.fill,{width:`${g.knownMinutes/maxMinutes*100}%`}]}/>}</View></View>
-        </>}
+        </>
         {g.unknownDurationCount>0&&<Label muted style={s.small}>{g.unknownDurationCount} Zeiten unbekannt</Label>}
       </Pressable>)}
       {chart==='roles'&&supervisedSolo.length>0&&<Action secondary onPress={()=>onFlights('Solo mit Fluggenehmigung',supervisedSolo.map(f=>f.flightId))}>Davon Solo mit Fluggenehmigung · {supervisedSolo.length}</Action>}
@@ -232,5 +185,5 @@ export function StatisticsCharts({ flights, saved, today, period, dataset: provi
   </View>;
 }
 const s=StyleSheet.create({
-  viewer:{gap:8,minWidth:0,width:'100%'},heading:{flexDirection:'row',alignItems:'center',gap:8},title:{flex:1,minHeight:48,justifyContent:'center'},control:{minHeight:48,minWidth:48,alignItems:'center',justifyContent:'center'},wrap:{flexDirection:'row',flexWrap:'wrap',gap:6},small:{fontSize:12,lineHeight:18},tick:{fontSize:11,lineHeight:16},monthLegend:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:6},legendLine:{width:13,height:3,borderRadius:2},legendDot:{width:7,height:7,borderRadius:4},monthPanel:{gap:6},monthPlot:{flexDirection:'row',alignItems:'flex-end',borderBottomWidth:1,borderColor:colors.border},monthSlot:{flex:1,alignItems:'center',justifyContent:'flex-end',minWidth:0,minHeight:48},barRow:{minHeight:48,paddingVertical:4,gap:3},comparisonRow:{paddingVertical:10,gap:8,borderBottomWidth:1,borderBottomColor:colors.border},measure:{gap:4},measureLabel:{flexDirection:'row',flexWrap:'wrap',alignItems:'baseline',justifyContent:'space-between',gap:8},number:{fontVariant:['tabular-nums'],fontWeight:'600'},track:{height:8,backgroundColor:colors.raised,borderRadius:3},fill:{height:8,backgroundColor:colors.cyan,borderRadius:3},footer:{flexDirection:'row',alignItems:'center',gap:3},information:{backgroundColor:colors.raised,padding:12,borderRadius:12,gap:6},callout:{gap:6},day:{width:48,height:48,alignItems:'center',justifyContent:'center',borderRadius:3},
+  viewer:{gap:8,minWidth:0,width:'100%'},heading:{flexDirection:'row',alignItems:'center',gap:8},title:{flex:1,minHeight:48,justifyContent:'center'},control:{minHeight:48,minWidth:48,alignItems:'center',justifyContent:'center'},wrap:{flexDirection:'row',flexWrap:'wrap',gap:6},small:{fontSize:12,lineHeight:18},tick:{fontSize:11,lineHeight:16},monthPlot:{flexDirection:'row',alignItems:'flex-end',borderBottomWidth:1,borderColor:colors.border},monthSlot:{flex:1,alignItems:'center',justifyContent:'flex-end',minWidth:0,minHeight:48},barRow:{minHeight:48,paddingVertical:4,gap:3},comparisonRow:{paddingVertical:10,gap:8,borderBottomWidth:1,borderBottomColor:colors.border},measure:{gap:4},measureLabel:{flexDirection:'row',flexWrap:'wrap',alignItems:'baseline',justifyContent:'space-between',gap:8},number:{fontVariant:['tabular-nums'],fontWeight:'600'},track:{height:8,backgroundColor:colors.raised,borderRadius:3},fill:{height:8,backgroundColor:colors.cyan,borderRadius:3},footer:{flexDirection:'row',alignItems:'center',gap:3},information:{backgroundColor:colors.raised,padding:12,borderRadius:12,gap:6},callout:{gap:6},day:{width:48,height:48,alignItems:'center',justifyContent:'center',borderRadius:3},
 });

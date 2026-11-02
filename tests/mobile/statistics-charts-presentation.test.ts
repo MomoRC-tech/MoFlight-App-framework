@@ -18,7 +18,7 @@ test('every chart is selectable in the same viewport and has a meaningful symbol
 });
 test('monthly tap shows current and prior facts and opens only current contributors',()=>{
   const f=fixture(),plot=f.press('Monat im Flugzeitdiagramm auswählen');
-  plot.props.onPress({nativeEvent:{locationX:(242/12)*2.5}});
+  plot.props.onSelect(2);
   assert.match(JSON.stringify(f.render()),/2026: 1 Flüge/);assert.match(JSON.stringify(f.render()),/2025: 1 Flüge/);
   f.action('Flüge ansehen · 1').props.onPress();assert.deepEqual([...f.opened[0][1]],['flight-0']);
   f.render();assert.equal(f.back(),true);assert.equal(f.nodes().some(n=>n.props.accessibilityLabel==='Auswahl schließen'),false);
@@ -27,6 +27,16 @@ test('previous-year accessible values keep their explicit contributor scope',()=
   const f=fixture();f.press('Werte und Flüge anzeigen').props.onPress();
   f.nodes().find(n=>n.type==='Action'&&n.children.some((c:any)=>typeof c==='string'&&c.startsWith('03.2025')))!.props.onPress();
   f.action('Flüge ansehen · 1').props.onPress();assert.deepEqual([...f.opened[0][1]],['flight-1']);assert.equal(f.opened[0][2].from,'2025-03-01');
+});
+
+test('time/count switching retains the selected month and exact current/prior routes',()=>{
+  const f=fixture();f.press('Monat im Flugzeitdiagramm auswählen').props.onSelect(2);
+  f.press('Fluganzahl im Diagramm').props.onPress();
+  const trend=f.press('Monat im Fluganzahldiagramm auswählen');
+  assert.equal(trend.props.selectedIndex,2);assert.equal(trend.props.values[2],1);assert.equal(trend.props.prior[2],1);
+  trend.props.onSelect(11);assert.equal(f.press('Monat im Fluganzahldiagramm auswählen').props.selectedIndex,2,'future month cannot replace selection');
+  f.action('Vorjahresflüge ansehen · 1').props.onPress();assert.deepEqual([...f.opened[0][1]],['flight-1']);assert.equal(f.opened[0][2].from,'2025-03-01');
+  f.action('Flüge ansehen · 1').props.onPress();assert.deepEqual([...f.opened[1][1]],['flight-0']);
 });
 test('timeline overlap selection exposes every matching flight without clipping longest values',()=>{
   const f=fixture('timeline');const clone=structuredClone(f.props.flights[0]);clone.flightId='other';f.props.flights=[...f.props.flights,clone];

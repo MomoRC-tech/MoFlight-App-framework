@@ -1,30 +1,55 @@
 import React, { memo } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import Svg, { Circle, G, Path } from 'react-native-svg';
 import { Label, colors } from './theme';
 import type { RingSlice, SeasonDifference } from './season-model';
 
 const thickness = 5;
 
-/** Bounded native arc for the compact metric dial; decoration has no hit targets. */
-function DialArc({size,start,sweep,color}:{size:number;start:number;sweep:number;color:string}) {
-  const radius=size/2-9, pieces=Math.ceil(sweep/6), step=pieces?sweep/pieces:0;
-  return <>{Array.from({length:pieces},(_,i)=>{
-    const angle=start+step*(i+.5), radians=angle*Math.PI/180;
-    const length=2*radius*Math.sin(step*Math.PI/360)+.8;
-    return <View key={i} style={{position:'absolute',left:size/2+radius*Math.cos(radians)-length/2,top:size/2+radius*Math.sin(radians)-4,width:length,height:8,borderRadius:2,backgroundColor:color,transform:[{rotate:`${angle+90}deg`}]}}/>;
-  })}</>;
+function pointAt(cx: number, cy: number, radius: number, angle: number) {
+  const radians = angle * Math.PI / 180;
+  return { x: cx + radius * Math.cos(radians), y: cy + radius * Math.sin(radians) };
+}
+
+function arcPath(cx: number, cy: number, radius: number, start: number, sweep: number) {
+  const from = pointAt(cx, cy, radius, start);
+  const to = pointAt(cx, cy, radius, start + sweep);
+  return `M ${from.x} ${from.y} A ${radius} ${radius} 0 ${sweep > 180 ? 1 : 0} 1 ${to.x} ${to.y}`;
+}
+
+function arcGap(sweep: number, count: number) {
+  return count > 1 ? Math.min(10, sweep / 3) : 0;
 }
 
 /** A distribution, never a progress/qualification score. Missing classifications remain neutral. */
-export function MetricOrbit({size=136,total,parts,children}:{size?:number;total:number|null;parts:readonly {value:number;color:string}[];children:React.ReactNode}) {
-  let angle=-90;
-  return <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{width:size,height:size}}>
-    <View style={{position:'absolute',inset:5,borderRadius:size/2,borderWidth:8,borderColor:colors.raised}}/>
-    {total!==null&&total>0&&parts.map((part,i)=>{
-      const sweep=Math.min(360-Math.max(0,angle+90),Math.max(0,part.value)/total*360),start=angle;angle+=sweep;
-      return sweep>0?<DialArc key={i} size={size} start={start+1} sweep={Math.max(0,sweep-2)} color={part.color}/>:null;
-    })}
-    <View style={{position:'absolute',inset:20,alignItems:'center',justifyContent:'center'}}>{children}</View>
+export function MetricOrbit({ size = 136, total, parts, children }: {
+  size?: number; total: number | null; parts: readonly { value: number; color: string }[]; children: React.ReactNode;
+}) {
+  let angle = -90;
+  let remaining = 360;
+  const slices = total !== null && total > 0
+    ? parts.flatMap((part) => {
+      const fraction = Number.isFinite(part.value) ? Math.max(0, part.value) / total : 0;
+      const sweep = Math.min(remaining, fraction * 360);
+      remaining -= sweep;
+      if (sweep <= 0) return [];
+      const slice = { start: angle, sweep, color: part.color };
+      angle += sweep;
+      return [slice];
+    })
+    : [];
+  return <View pointerEvents="none" accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ width: size, height: size }}>
+    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} accessible={false}>
+      <Circle cx={size / 2} cy={size / 2} r={size / 2 - 9} fill="none" stroke={colors.raised} strokeWidth={8} />
+      {slices.map((slice, index) => {
+        const gap = arcGap(slice.sweep, slices.length), radius = size / 2 - 9;
+        if (slice.sweep >= 359.999) return <Circle key={index} cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={slice.color} strokeWidth={8} />;
+        const sweep = slice.sweep - gap;
+        return sweep > 0 ? <Path key={index} d={arcPath(size / 2, size / 2, radius, slice.start + gap / 2, sweep)} fill="none"
+          stroke={slice.color} strokeWidth={8} strokeLinecap="round" /> : null;
+      })}
+    </Svg>
+    <View style={{ position: 'absolute', inset: 20, alignItems: 'center', justifyContent: 'center' }}>{children}</View>
   </View>;
 }
 
@@ -40,38 +65,29 @@ export const SeasonRing = memo(function SeasonRing({ layers, label, difference }
   const scale = Math.max(1, fontScale), size = 88 * scale;
   const symbol = { up: '↑', down: '↓', equal: '↔', unknown: 'Δ' }[difference.direction];
   return <View accessible accessibilityLabel={`${label}. ${layers.map((layer, index) => `${index === 0 ? 'Außen, Wert in der Mitte' : 'Innen'} ${layer.description}`).join('; ')}. Differenz gespeicherter Jahreswerte: ${difference.value === null ? 'unbekannt' : difference.text}. Zeiträume können unterschiedlich oder unvollständig sein.`} style={styles.group}>
-    <Label muted style={[styles.label,{minHeight:36*scale}]}>{label}</Label>
+    <Label muted style={[styles.label, { minHeight: 36 * scale }]}>{label}</Label>
     <View style={styles.body}>
       <View style={[styles.ring, { width: size, height: size }]}>
-        {layers.map((layer, layerIndex) => {
-          const diameter = size - layerIndex * 18 * scale;
-          const radius = (diameter - thickness) / 2;
-          const inset = (size - diameter) / 2;
-          // Fade the composed prior-year ring, preserving aircraft hues and
-          // avoiding visible overlap seams between its small arc strips.
-          return <View key={layer.year} needsOffscreenAlphaCompositing={layerIndex > 0} style={[StyleSheet.absoluteFill, layerIndex > 0 && styles.priorYear]}>
-            <View style={[styles.track, { left: inset, top: inset, width: diameter, height: diameter, borderRadius: diameter / 2 }]} />
-            {layer.slices.flatMap((slice, sliceIndex) => {
-              const gap = layer.slices.length > 1 ? Math.min(2, slice.sweep / 5) : 0;
-              const sweep = slice.sweep - gap;
-              const strips = Math.max(1, Math.ceil(sweep / 3));
-              const step = sweep / strips;
-              const chord = 2 * radius * Math.sin(step * Math.PI / 360);
-              return Array.from({ length: strips }, (_, index) => {
-                const atBoundary = layer.slices.length > 1 && (index === 0 || index === strips - 1);
-                const length = chord + (atBoundary ? .25 : 1.75);
-                const angle = slice.start + gap / 2 + step * (index + .5);
-                const radians = angle * Math.PI / 180;
-                return <View key={`${sliceIndex}-${index}`} style={{
-                  position: 'absolute', width: length, height: thickness,
-                  left: size / 2 + radius * Math.cos(radians) - length / 2,
-                  top: size / 2 + radius * Math.sin(radians) - thickness / 2,
-                  backgroundColor: slice.color, transform: [{ rotate: `${angle + 90}deg` }],
-                }} />;
-              });
-            })}
-          </View>;
-        })}
+        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} accessible={false}>
+          {layers.map((layer, layerIndex) => {
+            const diameter = size - layerIndex * 18 * scale;
+            const radius = (diameter - thickness) / 2;
+            return <G key={layer.year} opacity={layerIndex > 0 ? .5 : 1}>
+              <Circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke={colors.border} strokeWidth={thickness} />
+              {layer.slices.map((slice, sliceIndex) => {
+                const gap = arcGap(slice.sweep, layer.slices.length);
+                const sweep = slice.sweep - gap;
+                if (!(sweep > 0) || !Number.isFinite(sweep)) return null;
+                if (slice.sweep >= 359.999 && layer.slices.length === 1) {
+                  return <Circle key={sliceIndex} cx={size / 2} cy={size / 2} r={radius} fill="none"
+                    stroke={slice.color} strokeWidth={thickness} />;
+                }
+                return <Path key={sliceIndex} d={arcPath(size / 2, size / 2, radius, slice.start + gap / 2, sweep)}
+                  fill="none" stroke={slice.color} strokeWidth={thickness} strokeLinecap="round" />;
+              })}
+            </G>;
+          })}
+        </Svg>
         <View style={[styles.center, { left: 18 * scale, right: 18 * scale, top: 18 * scale, bottom: 18 * scale }]}>
           <Label muted style={styles.year}>{layers[0]?.year}</Label>
           <Label style={styles.currentValue}>{layers[0]?.value ?? '—'}</Label>
@@ -90,8 +106,6 @@ const styles = StyleSheet.create({
   group: { flex: 1, minWidth: 0, gap: 4 },
   body: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 7 },
   ring: { flexShrink: 0 },
-  track: { position: 'absolute', borderWidth: thickness, borderColor: colors.border },
-  priorYear: { opacity: .5 },
   center: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
   currentValue: { fontSize: 14, lineHeight: 19, fontWeight: '700', textAlign: 'center' },
   values: { flex: 1, gap: 2 },
