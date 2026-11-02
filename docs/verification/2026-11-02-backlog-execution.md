@@ -1,0 +1,17 @@
+# Backlog execution — 2 November 2026
+
+Owner requests working through issues, closing only fulfilled scopes and pausing conflicting requirements for a later consolidated decision. Initial inventory:48 open issues. This is the first bounded execution package, not full backlog/beta completion. GitHub remains the backlog source of truth.
+
+| Issues | Action and limits |
+| --- | --- |
+| #123 / #94 | Correct compact Action native measurement after viewport/font changes. Inner face remounts on configuration changes; touch target, callbacks, disabled state and geometry remain. Three existing behavior checks, types/lint pass. Committed-source127e96d Android Release/iOS export and bounded MIN360x900/font1.6 → WIDE800x600/font1 native trial paint full Zur Übersicht and all starter labels. Parent inspected both PNGs. This fixes the observed case, without claiming the Android renderer's full root cause or all-button acceptance. |
+| #24 | Complete the bounded first shared-token increment: four identical 28dp face geometry values reused by segment and Assistant faces. Preserve separate colors, surfaces, borders, typography and alignment. One-off old/new resolved key/value parity: segment5 keys, starter7 keys; focused AI/content23 checks, typecheck/lint pass. No brittle retained value/pixel snapshot test. #123 Action body unchanged; reuse its source-specific native rendering evidence, not a new transition run. |
+| #29 / #34 | Reconcile current v3 default, raw financial v4 and evidence v5 documentation. Later cc22902 repeated-save/cancel/retry proof supersedes abe76e8 failure. Same-operation v5 restore/re-export preserves six sections; installed build attributed by chronology only, not independent APK hash. Keep remaining settings/version/owner/recovery/first-beta/platform gates open. Documentation checks only. |
+| #9 | Pause conflicting collapse-persistence acceptance: current lean Start is always visible and does not read/write collapse preferences. Do not reverse the current UI without owner decision. Other account/data/phone gates remain. |
+| #1 | Pause conflicting two-product-app identity wording against selected single-app scope. No new provisioning; actual Free setup, two sessions/Auth/recovery/isolation gates remain. |
+| #13 / #79 and AI service issues | Local starter implementation does not revoke the previously selected live-AI beta requirement. Activation/evaluation remain gated by service, allowed inputs/privacy and explicit funding. No paid/model calls or deployment performed. |
+| #97 / #98 / #107 / optional features | Publisher/distribution facts, actual physical-device acceptance, and optional learning/webcam/WeGlide/standalone-HA inputs remain. Do not invent facts, add navigation destinations or accept existing scopes by assumption. |
+
+Independent targeted reviews found no other audited issue fully met its explicit remaining acceptance; implementation alone is not a reason to close it. No full app suite, repeated whole-repository audit, live-provider session manipulation, private-data upload or new paid execution.
+
+Native #123 trial is on the named offline synthetic AVD only. Original display/font/network/install identity restore without cleanup errors; initially stopped AVD is stopped after review. Tooling wall-clock is recorded under #90, not app latency or a speedup. Final integrated source/build/download evidence follows below. Six pre-existing dirty historical timing groups remain preserved and excluded from commits.

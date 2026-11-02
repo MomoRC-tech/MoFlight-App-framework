@@ -181,7 +181,7 @@ Retained app-owned lab/adapter surface; document its existing appearance as an e
 
 ## AiChat.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `8d5f0a11b0e6604e91fbf9f8cf76e6f4985d911484973c85dda3d5d202f3b67d`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../../../apps/platform-lab/src/mobile/AiChat.tsx); normalized SHA-256 `d0f6c55e90be898590048e07a133a4f3989c166030d3a1eb6093c23a3c1c611c`.
 
 ### Literal colors
 
@@ -219,7 +219,6 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../..
 | `borderRadius: 16` | 269, 270, 272 |
 | `borderRadius: 18` | 271 |
 | `borderRadius: 28` | 271 |
-| `borderRadius: 8` | 269 |
 | `borderWidth: 1` | 269, 271, 272 |
 | `gap: 10` | 272 |
 | `gap: 12` | 271 |
@@ -233,7 +232,6 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../..
 | `maxWidth: 520` | 271 |
 | `maxWidth: 600` | 268 |
 | `minHeight: 0` | 268, 269, 271 |
-| `minHeight: 28` | 269 |
 | `minHeight: 48` | 268, 269, 270 |
 | `minHeight: 52` | 271 |
 | `minHeight: 56` | 271, 272 |
@@ -249,11 +247,10 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/AiChat.tsx](../..
 | `paddingHorizontal: 14` | 267, 270 |
 | `paddingHorizontal: 16` | 271, 272 |
 | `paddingHorizontal: 6` | 268, 270 |
-| `paddingHorizontal: 9` | 269 |
 | `paddingVertical: 10` | 270 |
 | `paddingVertical: 12` | 271, 272 |
 | `paddingVertical: 24` | 269 |
-| `paddingVertical: 4` | 269, 270 |
+| `paddingVertical: 4` | 270 |
 | `paddingVertical: 8` | 267 |
 | `width: '100%'` | 268, 271 |
 
@@ -1989,17 +1986,17 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/SyncProgress.tsx]
 
 ## theme.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `34ac6d02640db894cab223d854e2a2681ee40cdcf639ed58cd982d6ba0e90501`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../../apps/platform-lab/src/mobile/theme.tsx); normalized SHA-256 `af7de4b5147af9b066befc42824652cc960f2e37ac5af1df94ee5c930601f0c0`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#00102277` | 82 |
-| `#001b2944` | 58 |
-| `#031326` | 38, 65 |
+| `#00102277` | 84 |
+| `#001b2944` | 59 |
+| `#031326` | 39, 66 |
 | `#11151e` | 6 |
-| `#162a42` | 81 |
+| `#162a42` | 83 |
 | `#171a28` | 7 |
 | `#1b2330` | 6, 9 |
 | `#263447` | 6, 9 |
@@ -2018,52 +2015,52 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/theme.tsx](../../
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 12` | 76 |
-| `fontSize: 13` | 65, 71 |
-| `fontSize: 14` | 51 |
-| `fontSize: 17` | 53 |
-| `fontSize: 24` | 52 |
-| `fontWeight: '600'` | 44, 53, 65, 77 |
-| `fontWeight: '700'` | 38, 52 |
-| `letterSpacing: -.6` | 52 |
-| `lineHeight: 18` | 65, 71, 76 |
-| `lineHeight: 20` | 51 |
-| `lineHeight: 23` | 53 |
+| `fontSize: 12` | 78 |
+| `fontSize: 13` | 66, 72 |
+| `fontSize: 14` | 52 |
+| `fontSize: 17` | 54 |
+| `fontSize: 24` | 53 |
+| `fontWeight: '600'` | 45, 54, 66, 79 |
+| `fontWeight: '700'` | 39, 53 |
+| `letterSpacing: -.6` | 53 |
+| `lineHeight: 18` | 66, 72, 78 |
+| `lineHeight: 20` | 52 |
+| `lineHeight: 23` | 54 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 16` | 81 |
-| `borderRadius: 18` | 54 |
-| `borderRadius: 8` | 64, 70, 74 |
-| `borderWidth: 1` | 54, 67, 70 |
-| `gap: 10` | 59 |
-| `gap: 2` | 72 |
-| `gap: 4` | 80 |
-| `gap: 5` | 19 |
-| `gap: 6` | 66, 82 |
-| `gap: 8` | 54, 60, 61, 78 |
-| `height: 48` | 56 |
-| `maxWidth: '100%'` | 62 |
-| `minHeight: 28` | 70, 74 |
-| `minHeight: 30` | 64 |
-| `minHeight: 48` | 62, 69, 73, 79 |
-| `minWidth: 0` | 41, 61 |
-| `minWidth: 48` | 62, 64, 70, 73 |
-| `opacity: .45` | 38 |
-| `opacity: .5` | 33 |
-| `opacity: .72` | 80 |
-| `opacity: .82` | 57 |
-| `padding: 12` | 54, 82 |
-| `paddingHorizontal: 10` | 64 |
-| `paddingHorizontal: 4` | 79 |
-| `paddingHorizontal: 9` | 70, 74 |
-| `paddingVertical: 4` | 70, 74 |
-| `paddingVertical: 5` | 64, 80 |
-| `width: '100%'` | 41 |
-| `width: '40%'` | 41 |
-| `width: 48` | 56 |
+| `borderRadius: 16` | 83 |
+| `borderRadius: 18` | 55 |
+| `borderRadius: 8` | 10, 65, 71 |
+| `borderWidth: 1` | 55, 68, 71 |
+| `gap: 10` | 60 |
+| `gap: 2` | 73 |
+| `gap: 4` | 82 |
+| `gap: 5` | 20 |
+| `gap: 6` | 67, 84 |
+| `gap: 8` | 55, 61, 62, 80 |
+| `height: 48` | 57 |
+| `maxWidth: '100%'` | 63 |
+| `minHeight: 28` | 10, 71 |
+| `minHeight: 30` | 65 |
+| `minHeight: 48` | 63, 70, 74, 81 |
+| `minWidth: 0` | 42, 62 |
+| `minWidth: 48` | 63, 65, 71, 74 |
+| `opacity: .45` | 39 |
+| `opacity: .5` | 34 |
+| `opacity: .72` | 82 |
+| `opacity: .82` | 58 |
+| `padding: 12` | 55, 84 |
+| `paddingHorizontal: 10` | 65 |
+| `paddingHorizontal: 4` | 81 |
+| `paddingHorizontal: 9` | 10, 71 |
+| `paddingVertical: 4` | 10, 71 |
+| `paddingVertical: 5` | 65, 82 |
+| `width: '100%'` | 42 |
+| `width: '40%'` | 42 |
+| `width: 48` | 57 |
 
 ## TrendChart.tsx
 

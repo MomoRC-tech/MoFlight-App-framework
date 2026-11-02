@@ -7,6 +7,7 @@ export const colors = { background: '#11151e', card: '#1b2330', raised: '#263447
 export const startSurfaces = { card: '#171a28', raised: '#292d43', border: '#34384d' };
 // Start keeps its lean composition with the shared cool-blue surface family.
 export const startTileSurfaces = { card: '#1b2330', raised: '#263447', border: '#394c62' };
+const compactControlFace = { minHeight: 28, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8 } satisfies ViewStyle;
 export function GliderMark({ color = colors.text, large = false }: { color?: string; large?: boolean }) {
   return <SymbolIcon name="glider" size={large ? 68 : 28} tone={legacyIconTone(color)} />;
 }
@@ -71,7 +72,8 @@ export const ui = StyleSheet.create({
   chipSelected: { backgroundColor: colors.blue, borderColor: colors.blue }, chipText: { color: colors.text, fontSize: 13, lineHeight: 18 },
   segmented: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   segmentTouch: { minHeight: 48, minWidth: 48, justifyContent: 'center' },
-  segmentFace: { minHeight: 28, paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8, justifyContent: 'center' },
+  compactControlFace,
+  segmentFace: { ...compactControlFace, justifyContent: 'center' },
   segmentSelected: { backgroundColor: colors.raised },
   segmentText: { color: colors.muted, fontSize: 12, lineHeight: 18 },
   segmentTextSelected: { color: colors.cyan, fontWeight: '600' },
