@@ -1,4 +1,6 @@
 import { canonical } from '@moflight/flight-logbook';
+import { compareFlightSourceFields, flightReviewSummary, type FlightAcknowledgment, type FlightRevisionDigest,
+  type FlightReviewSummary, type FlightSourceReview } from './flight-source-review';
 import type { SyncVerificationScope } from './sync-verification-scope';
 import type { Connection, Driver, Hash } from '../../../../packages/local-data/src/index';
 import { REAL_HISTORY_BACKUP_LIMIT, REAL_HISTORY_SCHEMA, realHistoryUuid, validateRealHistoryManifest,
@@ -124,8 +126,31 @@ export type RealFlightReceiptRecovery =
 export class RealFlightDetailSource {
   private readonly graphText: string;
   private graph: RealFlightGraph | null = null;
-  constructor(graph: RealFlightGraph) { this.graphText = canonical(graph); }
+  private readonly reviewRevisions = new Map<string, FlightRevisionDigest[]>();
+  constructor(graph: RealFlightGraph) {
+    this.graphText = canonical(graph);
+    for (const row of graph.records) if (row.kind === 'facts') {
+      const revisions = this.reviewRevisions.get(row.id) ?? [];
+      revisions.push({ revision: row.revision, payloadSha256: row.payload_sha256 });
+      this.reviewRevisions.set(row.id, revisions);
+    }
+  }
   sameEvidence(other: RealFlightDetailSource): boolean { return this === other || this.graphText === other.graphText; }
+  reviewSummaries(acknowledgments: readonly FlightAcknowledgment[]): Record<string, FlightReviewSummary> {
+    const seen = new Map(acknowledgments.map(item => [item.flightId, item]));
+    return Object.fromEntries([...this.reviewRevisions].map(([id, rows]) => [id, flightReviewSummary(rows, seen.get(id))]));
+  }
+  sourceReview(flightId: string, acknowledgment?: FlightAcknowledgment): FlightSourceReview | null {
+    const revisions = this.reviewRevisions.get(flightId);
+    if (!revisions) return null;
+    const summary = flightReviewSummary(revisions, acknowledgment?.flightId === flightId ? acknowledgment : undefined);
+    if (!summary.changed) return null;
+    const detail = this.detail(flightId)!;
+    const before = detail.factHistory[revisions.findIndex(row => row.revision === summary.baselineRevision)]!;
+    const fields = compareFlightSourceFields(before.facts, detail.facts);
+    return { ...summary, fields, reverted: fields.length === 0,
+      acknowledgment: { flightId, revision: summary.currentRevision, payloadSha256: revisions.at(-1)!.payloadSha256 } };
+  }
   detail(flightId: string): RealFlightDetail | null {
     // Most snapshots only support exact view reuse. Parse their already-detached
     // evidence on the first detail request, keeping full byte equality above.

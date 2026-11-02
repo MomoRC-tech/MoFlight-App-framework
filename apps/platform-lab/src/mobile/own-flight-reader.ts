@@ -7,6 +7,7 @@ import { buildFeatureInformation, type FeatureInformation } from './feature-info
 import type { ProviderScope } from '../vereinsflieger/scope-store';
 import type { DiagnosticOperation, DiagnosticStage, DiagnosticSpanStarter } from '../diagnostics';
 import type { StartPreview } from './start-preview';
+import { validateFlightAcknowledgment, type FlightAcknowledgment, type FlightReviewSummary } from '../vereinsflieger/flight-source-review';
 
 export interface OwnFlightDetailContext { ownerSelectionSeq: number; selectionIdentity: string }
 /** Registry leases expire at session close; the append-only selection survives reopening. */
@@ -28,6 +29,8 @@ export interface OwnFlightReadSession extends OwnFlightScope {
   readFeatureInformation?(accountRef:string):Promise<{scope:ProviderScope;captures:InformationCapture[]}|null>;
   readMedical?(accountRef:string):Promise<InformationCapture|null>;
   readDuties?(accountRef:string):Promise<{scope:ProviderScope;snapshot:DutyRosterSnapshot|null}|null>;
+  readFlightAcknowledgments?(accountRef: string): Promise<FlightAcknowledgment[]>;
+  saveFlightAcknowledgment?(detail: RealFlightDetail, acknowledgment: FlightAcknowledgment, context: OwnFlightDetailContext, current: () => boolean): Promise<void>;
   close(): Promise<void>;
 }
 export interface OwnFlightReadPorts { open(timing?: DiagnosticSpanStarter): Promise<OwnFlightReadSession | null> }
@@ -64,6 +67,9 @@ export interface OwnFlightReadProgress {
 }
 export class OwnFlightReadCancelled extends Error {}
 export interface OwnFlightView {
+  flightAcknowledgments?: FlightAcknowledgment[];
+  sourceReviews?: Record<string, FlightReviewSummary>;
+  reviewReadFailed?: boolean;
   detailSource?: RealFlightDetailSource;
   detailContext?: OwnFlightDetailContext;
   sections?: { medical: LocalSectionState; duties: LocalSectionState; information: LocalSectionState };
@@ -111,6 +117,13 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts, timing?: Pick
       throw new Error('Foreign own-flight projection.');
     }
     const detailContext = result.detailSource ? session.detailContext?.() : undefined;
+    let flightAcknowledgments: FlightAcknowledgment[] = [], reviewReadFailed = false;
+    if (result.snapshot.account && result.detailSource?.reviewSummaries && session.readFlightAcknowledgments) {
+      try { flightAcknowledgments = await session.readFlightAcknowledgments(result.snapshot.account.accountRef); }
+      catch { reviewReadFailed = true; }
+      check(); await session.assertCurrent();
+    }
+    const sourceReviews = result.detailSource?.reviewSummaries?.(flightAcknowledgments);
     const sections: NonNullable<OwnFlightView['sections']> = {
       medical: result.snapshot.account && session.readMedical ? 'loading' : 'missing',
       duties: result.snapshot.account && session.readDuties ? 'loading' : 'missing',
@@ -119,7 +132,8 @@ export async function readOwnFlightView(ports: OwnFlightReadPorts, timing?: Pick
     let medical:InformationCapture|null=null,medicalReadFailed=false;
     let duties:OwnFlightView['duties']=null,dutiesReadFailed=false;
     let featureInformation:FeatureInformation|null=null,featureInformationReadFailed=false;
-    const view = (): OwnFlightView => ({ ...result, ...(detailContext ? {detailContext} : {}), pendingCommand, medical, medicalReadFailed, duties, dutiesReadFailed,
+    const view = (): OwnFlightView => ({ ...result, ...(detailContext ? {detailContext} : {}),
+      ...(sourceReviews ? { sourceReviews, flightAcknowledgments, reviewReadFailed } : {}), pendingCommand, medical, medicalReadFailed, duties, dutiesReadFailed,
       featureInformation, featureInformationReadFailed, ...(progress ? { sections: { ...sections } } : {}) });
     const publish = () => { check(); progress?.publish(view()); };
     publish();
@@ -188,4 +202,33 @@ export async function readOwnFlightDetail(ports: OwnFlightReadPorts, scope: OwnF
       detail.bindingId !== selected.bindingId || detail.sourceFlightRef !== selected.sourceFlightRef || detail.factsRevision !== selected.factsRevision) throw new OwnFlightChangedError();
     return detail;
   } finally { await traceLocalRead('session-close', () => session.close()); }
+}
+
+/** Mark only the exact displayed revision seen after an ordinary fresh local read.
+ * A later revision cannot inherit this acknowledgment, even in a commit race. */
+export async function acknowledgeOwnFlightReview(ports: OwnFlightReadPorts, view: OwnFlightView, displayed: RealFlightDetail,
+  acknowledgment: FlightAcknowledgment, current: () => boolean): Promise<void> {
+  const context = view.detailContext && { ...view.detailContext }, pinned = { ...acknowledgment };
+  validateFlightAcknowledgment(pinned);
+  const expected = { ownerId: view.snapshot.ownerId, storeId: view.snapshot.storeId, accountRef: view.snapshot.account?.accountRef,
+    flightId: displayed.flightId, bindingId: displayed.bindingId, sourceFlightRef: displayed.sourceFlightRef,
+    factsRevision: displayed.factsRevision, evidenceKey: displayed.facts.evidenceKey };
+  const check = () => { if (!current()) throw new OwnFlightChangedError(); };
+  check();
+  if (!context || view.pendingCommand || view.snapshot.recovery?.readOnly) throw new OwnFlightChangedError();
+  const session = await ports.open();
+  if (!session) throw new OwnFlightChangedError();
+  try {
+    check(); await session.assertCurrent();
+    if (!session.saveFlightAcknowledgment || !session.assertDetailContext || session.ownerId !== expected.ownerId ||
+        session.storeId !== expected.storeId || await session.pendingCommand()) throw new OwnFlightChangedError();
+    await session.assertDetailContext(context); check();
+    const fresh = await session.service.detail(expected.flightId);
+    check();
+    if (!fresh || fresh.flightId !== expected.flightId || fresh.flightId !== pinned.flightId || fresh.bindingId !== expected.bindingId ||
+        fresh.accountRef !== expected.accountRef || fresh.sourceFlightRef !== expected.sourceFlightRef || fresh.factsRevision !== pinned.revision ||
+        fresh.factsRevision !== expected.factsRevision || fresh.facts.evidenceKey !== expected.evidenceKey) throw new OwnFlightChangedError();
+    await session.saveFlightAcknowledgment(fresh, pinned, context, current);
+    check(); await session.assertCurrent();
+  } finally { await session.close(); }
 }

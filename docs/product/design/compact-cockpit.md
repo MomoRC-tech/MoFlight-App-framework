@@ -1,5 +1,11 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## Source-change review — continued 2 November 2026
+
+Under #30 and the owner's “proceed”, reuse the current compact card and disclosure patterns: a small labelled amber “Geändert” marker on Flights/Statistics contributors, plus a collapsed comparison at the top of saved details. Expand to show only changed exact source fields, baseline/current revisions and a compact “Gesehen” action. A reversal remains reviewable with a short explanation. Opening a detail is not acknowledgment; source attention and paper correction remain independent. Use wrapping paired fields, the existing capped detail group and existing small action faces/full touch targets. Start is unchanged.
+
+The [Material badge guidance](https://m3.material.io/components/badges/overview), its [Android example](https://developer.android.com/develop/ui/compose/components/badges) and [card guidance](https://developer.android.com/develop/ui/compose/components/card) inform the pattern. MoFlight uses a written status inside the existing flight row rather than a red icon dot or count, keeping the meaning visible without color alone. All comparison detail stays in one expandable task card. These are product-specific adaptations, not a new palette or general page redesign. [Source-specific implementation and verification limits](../../verification/2026-11-02-flight-source-review.md).
+
 ## User-first review — delegated 2 November 2026
 
 Under [#114](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/114), Manuel requested a whole-app review/refactor and explicitly delegated any needed visual changes. For this work, that delegation supersedes earlier requirements for a new appearance selection and Start preservation where a concrete improvement needs it. The original logo, dark default, source uncertainty, offline behavior and exact record boundaries remain. Major product/service/privacy choices remain separate.

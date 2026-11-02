@@ -5,7 +5,7 @@ import { Dashboard } from './Dashboard';
 import { AppHeader } from './AppHeader';
 import { OwnFlights, type OwnFlightHeader } from './OwnFlights';
 import { Action, Card, Label, colors, ui } from './theme';
-import { createDesignPreviewData, DESIGN_PREVIEW_NOW } from './design-preview-data';
+import { createDesignPreviewData, designPreviewSourceReview, DESIGN_PREVIEW_NOW } from './design-preview-data';
 import type { useOwnFlights } from './use-own-flights';
 import type { OwnFlightRequest } from './own-flight-model';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
@@ -30,7 +30,8 @@ import type { HelpCategory } from './help-catalog';
 /** Mount directly in the shell's flex content area; OwnFlights owns its list scrolling. */
 export function DesignPreview({onClose=()=>{},onBackHandler}:{onClose?:()=>void;onBackHandler?:(handler:()=>boolean)=>void}={}) {
   const [cockpit,setCockpit]=useState(false);
-  const fixture = useMemo(createDesignPreviewData, []);
+  const [sourceChange,setSourceChange]=useState(false),[reviewSeen,setReviewSeen]=useState(false);
+  const fixture = useMemo(()=>createDesignPreviewData(sourceChange?'source-change':'default'), [sourceChange]);
   const emptyView = useMemo(() => ({ ...fixture.view, flights: [] }), [fixture]);
   const [page, setPage] = useState<'start' | 'flights' | 'club' | 'sync' | 'costs'>('start');
   const [costPeriod, setCostPeriod] = useState<ExpensePeriod>({mode:'year',year:2026});
@@ -75,10 +76,12 @@ export function DesignPreview({onClose=()=>{},onBackHandler}:{onClose?:()=>void;
   }, [fixture, mode]);
   const reload = useCallback(async () => { setDetail(null); setMode('populated'); setRequest({ year: null }); }, []);
   const data: ReturnType<typeof useOwnFlights> = {preview:null,
-    view: mode === 'error' ? null : mode === 'empty' ? emptyView : fixture.view,
+    view: mode === 'error' ? null : mode === 'empty' ? emptyView : reviewSeen ? {...fixture.view,sourceReviews:{}} : fixture.view,
     phase: mode === 'error' ? 'failed' : 'ready', detail, detailBusy: false,
     detailError: mode === 'error' ? 'Synthetischer Lesefehler für die UI-Vorschau. Erneut prüfen zeigt wieder die erfundenen Flüge; echte Daten bleiben unberührt.' : null,
     openDetail, clearDetail, reload,
+    detailReview:sourceChange&&detail&&!reviewSeen?designPreviewSourceReview(detail):null,
+    acknowledgeDetail:async()=>{setReviewSeen(true);},reviewBusy:false,reviewError:null,
   };
 
   const syncReceived=syncState==='never'?null:syncState==='age'?'2026-10-18T12:00:00.000Z':new Date(DESIGN_PREVIEW_NOW).toISOString();
@@ -132,6 +135,7 @@ export function DesignPreview({onClose=()=>{},onBackHandler}:{onClose?:()=>void;
     <AppHeader title="Designvorschau" back={onClose}><Action secondary onPress={()=>setCockpit(true)}>Cockpit</Action></AppHeader>
     <View style={styles.toolbar}>
       <Label muted style={styles.notice}>Synthetische UI-Vorschau · keine Speicherung</Label>
+      {page==='flights'&&<Action secondary label="Vorschau Quellenänderung" onPress={()=>{setSourceChange(true);setReviewSeen(false);setDetail(null);setMode('populated');}}>Quellenänderung</Action>}
       <View style={styles.tabs}>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Synchronisierung" onPress={()=>{syncReturnPage.current=page;setPage('sync');}} style={styles.tab}><Label>Vorschau Sync</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Start" accessibilityState={{ selected: page === 'start' }} onPress={() => setPage('start')} style={[styles.tab, page === 'start' && styles.selected]}><Label>Vorschau Start</Label></Pressable>

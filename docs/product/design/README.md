@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+**2 November source-change review (#30):** [compact labelled attention and expandable exact comparison](compact-cockpit.md#source-change-review--continued-2-november-2026) follow the current card/disclosure system. Start is unchanged; local seen-state does not correct paper.
+
 **2 November owner selection:** [lean Start chrome and selected Club/Assistant packages](compact-cockpit.md#lean-start-chrome-and-selected-clubassistant-packages--authorized-2-november-2026). No text beneath the Start chart; Verein menu and local draft starters selected. Five existing navigation destinations remain.
 
 **2 November compact monthly Start (#122):** [Owner-requested cool cyan/blue accents, paired monthly bars and small consistent controls](compact-cockpit.md#cool-accents-and-compact-monthly-start--authorized-2-november-2026) supersede lavender/apricot accents and the large embedded Start chart. Restored upper composition and lean tiles remain.

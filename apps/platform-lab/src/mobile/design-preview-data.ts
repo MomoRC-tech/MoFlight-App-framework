@@ -1,4 +1,5 @@
 import { adaptHistoryFacts } from '../vereinsflieger/history-facts';
+import { compareFlightSourceFields, type FlightSourceReview } from '../vereinsflieger/flight-source-review';
 import type { RealFlightDetail } from '../vereinsflieger/real-flight-library';
 import type { FeatureInformation } from './feature-information';
 import type { OwnFlightView } from './own-flight-reader';
@@ -11,7 +12,7 @@ export const DESIGN_PREVIEW_SCOPE = {
 } as const;
 
 /** Presentation-only facts. No storage, service, session, or provider is opened. */
-export function createDesignPreviewData(scenario: 'default' | 'undated' | 'same-day' = 'default'): { view: OwnFlightView; details: RealFlightDetail[]; dutyOverview: DutyOverview } {
+export function createDesignPreviewData(scenario: 'default' | 'undated' | 'same-day' | 'source-change' = 'default'): { view: OwnFlightView; details: RealFlightDetail[]; dutyOverview: DutyOverview } {
   const headers = ['Datum', 'Lfz.', 'Start', 'Landung', 'Flugzeit', 'Lfz.-Muster', 'Pilot', 'PIC', 'Begleiter/FI', 'Startort', 'Landeort', 'Bemerkung'];
   let rows = [
     ['21.10.2026', 'D-SYN1', '12:10', '13:35', '85', 'ASK 21 · Demo', 'Demo Pilot A', 'Demo Pilot A', 'Demo Trainer', 'Demo Talwiese', 'Demo Talwiese', 'Synthetischer Übungsflug'],
@@ -51,6 +52,15 @@ export function createDesignPreviewData(scenario: 'default' | 'undated' | 'same-
     factHistory: [{ version: 1, bindingId: flight.bindingId, flightId: flight.flightId, facts: flight.facts,
       predecessor: null, reason: 'source-change', captureId: capture.captureId, rowIndex }],
   }));
+  if(scenario==='source-change'){
+    const first=details[0]!, observation=first.facts.assessment.observation;
+    const previousValues=[...observation.row.values];previousValues[4]='80';previousValues[11]='Früherer synthetischer Beleg';
+    const previous=adaptHistoryFacts(first.facts.scope,{captureId:'synthetic-design-before',headers:observation.headers,
+      rows:[{...observation.row,values:previousValues}]},0);
+    first.factsRevision=2;flights[0]!.factsRevision=2;
+    first.factHistory=[{...first.factHistory[0]!,facts:previous,captureId:'synthetic-design-before'},
+      {...first.factHistory[0]!,predecessor:1}];
+  }
   const featureInformation: FeatureInformation = {
     workSummary: { status: 'partial', retrievedAt: '2026-10-22T10:00:00.000Z', filters: [], truncated: false,
       items: [{key:'synthetic-work-2026',period:'Jahr 2026',obligation:'90,00 \u20ac',performed:'21,50 \u20ac',hours:'07:25'}] },
@@ -75,11 +85,20 @@ export function createDesignPreviewData(scenario: 'default' | 'undated' | 'same-
     columns:[{key:'duty',label:'Dienst',index:0},{key:'period',label:'Zeitraum',index:1},{key:'people',label:'Person(en)',index:2}],
     rows:[{position:0,values:[row.duty,row.period,row.people]}],filters:[],empty:false,coverage:{kind:'visible-page',truncated:false,pagination:'unverified'}}));
   const dutyOverview=buildDutyOverview(dutySnapshot.scope,dutySnapshot,'2026-10-22',DESIGN_PREVIEW_NOW);
-  return { details, dutyOverview, view: { featureInformation, featureInformationReadFailed: false, flights, pendingCommand: false, snapshot: {
+  return { details, dutyOverview, view: { featureInformation, featureInformationReadFailed: false, flights, pendingCommand: false,
+    ...(scenario==='source-change'?{sourceReviews:{[flights[0]!.flightId]:{baselineRevision:1,currentRevision:2,changed:true,changeCount:1}}}: {}), snapshot: {
     version: 1, ownerId: DESIGN_PREVIEW_SCOPE.ownerId, storeId: DESIGN_PREVIEW_SCOPE.storeId, generation: 1,
     account: { provider: 'vereinsflieger', accountRef: DESIGN_PREVIEW_SCOPE.accountRef }, coverage: [],
     savedRetrievals: [{ from: '2025-01-01', to: '2025-12-31', retrievedAt: '2026-10-22T10:00:00.000Z', savedAt: '2026-10-22T10:01:00.000Z' },
       { from: '2026-01-01', to: '2026-10-22', retrievedAt: '2026-10-22T10:00:00.000Z', savedAt: '2026-10-22T10:01:00.000Z' }],
     pending: [], latestSavedResult: null, recovery: { readOnly: false, warning: null },
   } } };
+}
+
+/** Fictional presentation only: never grants a storage/write capability. */
+export function designPreviewSourceReview(detail: RealFlightDetail): FlightSourceReview | null {
+  if(detail.factHistory.length<2)return null;
+  return {baselineRevision:1,currentRevision:2,changed:true,changeCount:1,reverted:false,
+    fields:compareFlightSourceFields(detail.factHistory[0]!.facts,detail.facts),
+    acknowledgment:{flightId:detail.flightId,revision:2,payloadSha256:'a'.repeat(64)}};
 }

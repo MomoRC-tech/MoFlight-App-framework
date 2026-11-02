@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { RealFlightDetail } from '../vereinsflieger/real-flight-library';
 import { reviewDuration, reviewParsedField, reviewRawField } from '../vereinsflieger/capture-review';
@@ -6,15 +6,17 @@ import { Action, Card, Label, Section, colors } from './theme';
 import { ownFlightClassification, ownFlightCrew } from './own-flight-model';
 import { SymbolIcon } from './SymbolIcon';
 import { helpEntry } from './help-catalog';
+import type { FlightReviewValue, FlightSourceReview } from '../vereinsflieger/flight-source-review';
 
 const picHelp = helpEntry('pic')!;
 
 /** Shared source presentation; callers own identity validation and return state. */
-export function FlightDetails({detail,rawPage,onRawPage,rawExpanded=false,onToggleRaw,picHelpOpen=false,onTogglePicHelp,onMorePicHelp}:{detail:RealFlightDetail;rawPage:number;onRawPage:(page:number)=>void;rawExpanded?:boolean;onToggleRaw:()=>void;picHelpOpen?:boolean;onTogglePicHelp?:()=>void;onMorePicHelp?:()=>void}) {
+export function FlightDetails({detail,rawPage,onRawPage,rawExpanded=false,onToggleRaw,picHelpOpen=false,onTogglePicHelp,onMorePicHelp,sourceReview,onAcknowledge,reviewBusy=false,reviewError,onReviewRetry}:{detail:RealFlightDetail;rawPage:number;onRawPage:(page:number)=>void;rawExpanded?:boolean;onToggleRaw:()=>void;picHelpOpen?:boolean;onTogglePicHelp?:()=>void;onMorePicHelp?:()=>void;sourceReview?:FlightSourceReview|null;onAcknowledge?:()=>void;reviewBusy?:boolean;reviewError?:string|null;onReviewRetry?:()=>void}) {
   const classification=ownFlightClassification(detail), crew=ownFlightCrew(detail);
   const a=detail.facts.assessment, page=Math.max(0,Math.min(rawPage,Math.max(0,Math.ceil(a.observation.headers.length/8)-1)));
   const labels={picTime:'PIC-Zeit',dualTime:'Doppelsteuer-Zeit',instructorTime:'Lehrer-Zeit'};
   return <>
+    {sourceReview?.changed&&<SourceChanges key={`${detail.flightId}:${sourceReview.currentRevision}`} review={sourceReview} onAcknowledge={onAcknowledge} busy={reviewBusy} error={reviewError} onRetry={onReviewRetry}/>}
     <Card><Section title="Gespeicherter Flug"/>
       <View style={styles.fields}>
         <View style={styles.field}><Label muted>Kennzeichen</Label><Label selectable style={{fontSize:22,lineHeight:30,fontWeight:'700'}}>{reviewRawField(a.fields.registration)}</Label></View>
@@ -64,6 +66,27 @@ export function FlightDetails({detail,rawPage,onRawPage,rawExpanded=false,onTogg
       </>}
     </Card>
   </>;
+}
+function reviewValue(value: FlightReviewValue): string {
+  if(value.state==='missing')return 'Nicht mehr / noch nicht erfasst';
+  const text=value.values.map(raw=>raw===''?'Leer im Anbieterbeleg':raw.trim()===''?JSON.stringify(raw):raw).join(' · ');
+  return value.state==='ambiguous'?`Mehrfach benannte Spalte: ${text}`:text;
+}
+function SourceChanges({review,onAcknowledge,busy,error,onRetry}:{review:FlightSourceReview;onAcknowledge?:()=>void;busy:boolean;error?:string|null;onRetry?:()=>void}) {
+  const [expanded,setExpanded]=useState(false);
+  return <Card>
+    <Pressable accessibilityRole="button" accessibilityLabel="Quellenänderungen vergleichen" accessibilityState={{expanded}} onPress={()=>setExpanded(value=>!value)} style={styles.disclosure}>
+      <View style={{flex:1,gap:2}}><Label style={{color:colors.orange,fontWeight:'600'}}>Quellenangaben geändert</Label><Label muted>Fassung {review.baselineRevision} → {review.currentRevision}</Label></View><Label style={{color:colors.orange,fontSize:22}}>{expanded?'−':'+'}</Label>
+    </Pressable>
+    {expanded&&<>
+      {review.reverted?<Label>Zwischenzeitlich geändert. Die aktuellen Werte entsprechen wieder der zuletzt gesehenen Fassung.</Label>:review.fields.map(field=><View key={field.key} style={{gap:4}}>
+        <Label style={{fontWeight:'600'}}>{field.label}</Label><View style={styles.fields}><DetailField title="Vergleichsbasis" value={reviewValue(field.before)}/><DetailField title="Aktuell" value={reviewValue(field.current)}/></View>
+      </View>)}
+      <Label muted>Gesehen bestätigt nur die Prüfung. Dein Papierflugbuch wird nicht geändert. Fehler bitte im Verein / bei Vereinsflieger korrigieren lassen.</Label>
+      {error&&<View accessibilityRole="alert"><Label>{error}</Label>{onRetry&&<Action secondary disabled={busy} onPress={onRetry}>Lokal neu laden</Action>}</View>}
+      {onAcknowledge&&<Action secondary disabled={busy} label="Quellenänderungen als gesehen bestätigen" onPress={onAcknowledge}>{busy?'Speichern…':'Gesehen'}</Action>}
+    </>}
+  </Card>;
 }
 function DetailField({title,value}:{title:string;value:string}) {
   return <View style={styles.field}><Label muted>{title}:</Label><Label selectable>{value}</Label></View>;

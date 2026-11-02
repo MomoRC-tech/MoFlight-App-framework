@@ -121,6 +121,29 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
           await saveStartPreviewCache(lease.storeId,canonical(preview),gate);
         },
         clearStartPreview:()=>clearStartPreviewCache(lease.storeId),
+        readFlightAcknowledgments: async accountRef => {
+          const gate = async () => {
+            await assertNoPendingUserBackupRestore(); await registry.assertCurrent(lease);
+            if (closed) throw new Error('Flight review reader closed');
+          };
+          const { loadFlightAcknowledgments } = await import('../vereinsflieger/flight-review-native');
+          return loadFlightAcknowledgments({ ownerId: lease.ownerId, storeId: lease.storeId, accountRef }, gate);
+        },
+        saveFlightAcknowledgment: async (detail, input, context, current) => {
+          const acknowledgment = { ...input };
+          const gate = async () => {
+            if (!current() || closed) throw new Error('Flight review selection changed');
+            await previewGate(context);
+            if (!current() || closed) throw new Error('Flight review selection changed');
+          };
+          await gate();
+          const latest = detail.factHistory.at(-1);
+          if (!latest || latest.facts.scope.ownerId !== lease.ownerId || acknowledgment.flightId !== detail.flightId ||
+              acknowledgment.revision !== detail.factsRevision || latest.facts.evidenceKey !== detail.facts.evidenceKey ||
+              acknowledgment.payloadSha256 !== await hash(canonical(latest))) throw new Error('Flight review evidence changed');
+          const { saveFlightAcknowledgment } = await import('../vereinsflieger/flight-review-native');
+          await saveFlightAcknowledgment({ ownerId: lease.ownerId, storeId: lease.storeId, accountRef: detail.accountRef }, acknowledgment, gate);
+        },
         service: {
           readStored: (initial, span) => service.readStored(initial, span, true),
           detail: id => service.detail(id),

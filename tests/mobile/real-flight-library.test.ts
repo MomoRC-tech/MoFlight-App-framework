@@ -578,3 +578,27 @@ test('displayed evidence owns its graph and exact reuse includes history beyond 
   assert.deepEqual(same.detail(flight.flightId),expected,'caller mutation before the first detail cannot change retained evidence');
   assert.equal(retained.sameEvidence(same),true,'detail reads cannot alter exact evidence equality');
 });
+
+test('source review spans repeated changes, exact acknowledgment, reversal and identical retries without changing stored evidence',async t=>{
+  const f=await setup(t);await bind(f.library);
+  const first=source('review-first',[row('101')]);
+  await save(f.library,first,2);
+  const initial=await f.library.readStored(),id=initial.flights[0]!.flightId;
+  assert.equal(new RealFlightDetailSource(initial.graph).reviewSummaries([])[id]?.changed,false);
+  const second=structuredClone(first);second.capture.captureId='review-second';second.capture.rows[0]!.values[4]='42';
+  await save(f.library,second,3);
+  const third=structuredClone(second);third.capture.captureId='review-third';third.capture.rows[0]!.values[4]='45';
+  await save(f.library,third,4);
+  const changed=new RealFlightDetailSource((await f.library.readStored()).graph),review=changed.sourceReview(id)!;
+  assert.equal(review.baselineRevision,1);assert.equal(review.currentRevision,3);
+  assert.equal(review.fields.find(field=>field.label==='Flugzeit')?.current.values[0],'45');
+  assert.equal(changed.sourceReview(id,review.acknowledgment),null);
+  const retry=structuredClone(third);retry.capture.captureId='review-identical';await save(f.library,retry,5);
+  assert.equal(new RealFlightDetailSource((await f.library.readStored()).graph).sourceReview(id,review.acknowledgment),null);
+  const reversal=structuredClone(first);reversal.capture.captureId='review-reversal';await save(f.library,reversal,6);
+  const returned=new RealFlightDetailSource((await f.library.readStored()).graph);
+  assert.equal(returned.sourceReview(id)?.reverted,true,'returning to the original value does not acknowledge intermediate changes');
+  assert.equal(returned.sourceReview(id,review.acknowledgment)?.reverted,false,'an explicit prior acknowledgment changes the comparison baseline');
+  const snapshot=canonical(await f.library.snapshot());returned.reviewSummaries([review.acknowledgment]);returned.sourceReview(id);
+  assert.equal(canonical(await f.library.snapshot()),snapshot,'review never changes source history or receipts');
+});

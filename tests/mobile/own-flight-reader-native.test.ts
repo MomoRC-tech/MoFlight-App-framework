@@ -56,7 +56,7 @@ function detailGuardFixture(openRegistry?: () => Promise<RealOwnerRegistry>) {
   const lease={ownerId:'owner',storeId:'store',leaseId:'lease',selectionSeq:1};
   const flights=ownFlightFixture();
   const calls={restore:0,owner:0,selectionOpens:0,selects:0,identities:[] as string[],selectionCloses:0,registryCloses:0,candidateCloses:0,disposes:0};
-  const state={failRestoreAt:0,failOwnerAt:0,failSelection:false,missingSelection:false,failClose:false,pendingCommand:false,pendingRestore:false,previewText:null as string|null,providerScope:null as any,selectionIdentity:'verified-activation-chain',cacheSaves:0};
+  const state={failRestoreAt:0,failOwnerAt:0,failSelection:false,missingSelection:false,failClose:false,pendingCommand:false,pendingRestore:false,previewText:null as string|null,providerScope:null as any,selectionIdentity:'verified-activation-chain',cacheSaves:0,acknowledgments:[] as any[]};
   const evidenceFlags:boolean[]=[];
   class Service {
     constructor(private readonly owner:string,private readonly store:string,_lease:unknown,private readonly ports:any){}
@@ -69,6 +69,8 @@ function detailGuardFixture(openRegistry?: () => Promise<RealOwnerRegistry>) {
     dispose(){calls.disposes++;}
   }
   const modules:Record<string,unknown>={
+    '../vereinsflieger/flight-review-native':{loadFlightAcknowledgments:async()=>state.acknowledgments,
+      saveFlightAcknowledgment:async(target:any,value:any,gate:()=>Promise<void>)=>{await gate();state.acknowledgments.push({target,value});await gate();}},
     './start-preview':startPreview,'./start-preview-native':{loadStartPreviewCache:async()=>state.previewText,saveStartPreviewCache:async(_store:string,text:string,gate:()=>Promise<void>)=>{await gate();state.previewText=text;state.cacheSaves++;await gate();},clearStartPreviewCache:async()=>{state.previewText=null;}},'../local-read-diagnostics':trace,'@moflight/flight-logbook':{canonical:JSON.stringify},'expo-crypto':{randomUUID:()=> 'synthetic'},
     '../storage':{hash:async()=> 'a'.repeat(64)},'./own-flight-reader':reader,'./medical-source':medical,
     '../vereinsflieger/real-flight-service':{RealFlightService:Service},
@@ -101,6 +103,24 @@ function detailGuardFixture(openRegistry?: () => Promise<RealOwnerRegistry>) {
   const exports:any={};runInNewContext(source,{exports,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
   return {ports:exports.ownFlightReadPorts,calls,state,evidenceFlags};
 }
+
+test('native source acknowledgment pins the exact payload and rejects foreground, writer, restore and selection changes',async()=>{
+  for(const failure of ['none','digest','background','writer','restore','selection'] as const){
+    const f=detailGuardFixture(),session=await f.ports.open();
+    const detail=structuredClone(ownFlightFixture().detail);detail.flightId='c'.repeat(64);detail.facts.scope.ownerId='owner';
+    detail.factHistory=[{version:1,bindingId:detail.bindingId,flightId:detail.flightId,facts:detail.facts,
+      predecessor:null,reason:'source-change',captureId:'synthetic',rowIndex:0}];
+    const ack={flightId:detail.flightId,revision:detail.factsRevision,payloadSha256:(failure==='digest'?'b':'a').repeat(64)};
+    if(failure==='writer')f.state.pendingCommand=true;
+    if(failure==='restore')f.state.pendingRestore=true;
+    if(failure==='selection')f.state.failSelection=true;
+    const work=session.saveFlightAcknowledgment(detail,ack,{ownerSelectionSeq:1,selectionIdentity:f.state.selectionIdentity},()=>failure!=='background');
+    if(failure==='none')await work;else await assert.rejects(work);
+    assert.equal(f.state.acknowledgments.length,failure==='none'?1:0,failure);
+    if(failure==='none')assert.equal(f.state.acknowledgments[0].target.accountRef,detail.accountRef);
+    await session.close();
+  }
+});
 
 test('native displayed detail survives fresh owner leases and rejects owner switches including away and back',async()=>{
   const directory=await mkdtemp(join(tmpdir(),'moflight-detail-lifecycle-')),path=join(directory,'registry.sqlite');

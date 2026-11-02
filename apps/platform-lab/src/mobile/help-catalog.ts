@@ -52,7 +52,7 @@ export const HELP_ENTRIES: readonly HelpEntry[] = [
     keywords: ['backup', 'wiederherstellen', 'datei', 'anhang', 'foto', 'text'],
     short: 'Die manuelle Datei enthält unterstützte Textdaten, aber keine Foto- oder Anhangdateien.',
     answer: 'Die manuelle Sicherung umfasst unterstützte eigene Flüge und Belege, die lokale Flugbuchbibliothek sowie weitere ausdrücklich genannte lokale Textdaten. Ihr aktueller Umfang und die Ausschlüsse stehen vor dem Export in „Daten sichern & wiederherstellen“. Die Datei ist unverschlüsselt.',
-    boundary: 'Foto- und Anhangdateien werden nicht mitgesichert; Textverweise auf solche Dateien können enthalten sein. Lokale Hilfe- und Diagrammeinstellungen, Erinnerungspausen und Diagnoseberichte sind nicht enthalten. Bewahre die exportierte Datei geschützt auf und prüfe sie vor einer Wiederherstellung.',
+    boundary: 'Foto- und Anhangdateien werden nicht mitgesichert; Textverweise auf solche Dateien können enthalten sein. Lokale Hilfe- und Diagrammeinstellungen, Gesehen-Markierungen für Quellenänderungen, Erinnerungspausen und Diagnoseberichte sind nicht enthalten. Bewahre die exportierte Datei geschützt auf und prüfe sie vor einer Wiederherstellung.',
     source: 'MoFlight · Daten sichern & wiederherstellen', updatedAt: '2026-11-02',
   },
   {

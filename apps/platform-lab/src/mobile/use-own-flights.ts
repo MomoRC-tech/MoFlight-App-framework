@@ -1,12 +1,13 @@
 import { startTiming, bindStartRenderTiming } from '../start-timing';
 import { localReadFailureCode } from '../local-read-diagnostics';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import { diagnosticJournal } from '../diagnostics';
 import { reuseEqualData } from './processed-result';
 import type { RealFlightDetail, RealFlightListItem } from '../vereinsflieger/real-flight-library';
-import { readOwnFlightDetail, readOwnFlightView, OwnFlightChangedError, OwnFlightReadCancelled, type OwnFlightReadPorts, type OwnFlightView } from './own-flight-reader';
+import { acknowledgeOwnFlightReview, readOwnFlightDetail, readOwnFlightView, OwnFlightChangedError, OwnFlightReadCancelled, type OwnFlightReadPorts, type OwnFlightView } from './own-flight-reader';
 import type { StartPreview } from './start-preview';
+import type { FlightSourceReview } from '../vereinsflieger/flight-source-review';
 
 export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reloadKey: number, retainWhilePaused=false, startVisible=true) {
   const processedView = useRef<OwnFlightView | null>(null);
@@ -16,9 +17,11 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
   const [phase, setPhase] = useState<'loading' | 'ready' | 'missing' | 'failed'>('loading');
   const [detail, setDetail] = useState<RealFlightDetail | null>(null);
   const [detailBusy, setDetailBusy] = useState(false), [detailError, setDetailError] = useState<string | null>(null);
+  const [reviewBusy, setReviewBusy] = useState(false), [reviewError, setReviewError] = useState<string | null>(null);
   const alive = useRef(false), enabled = useRef(active), foreground = useRef(AppState.currentState === 'active');
   const sequence = useRef(0), locked = useRef(false), queued = useRef(false);
   const queuedQuiet = useRef(false), readingDetail = useRef(false);
+  const readingReview = useRef(false);
   const pendingDetail = useRef<RealFlightListItem | null>(null);
   const retainedPause=useRef(false);
   const presented = useRef(-1), beganRead = useRef(false), visible = useRef(startVisible);
@@ -34,8 +37,8 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
   const current = (id: number) => alive.current && enabled.current && foreground.current && sequence.current === id;
   const clearDetail = useCallback(() => {
     // Back cancels a detail request, not a concurrent quiet list refresh.
-    if (readingDetail.current) sequence.current++;
-    pendingDetail.current = null; setDetail(null); setDetailBusy(false); setDetailError(null);
+    if (readingDetail.current || readingReview.current) sequence.current++;
+    pendingDetail.current = null; setDetail(null); setDetailBusy(false); setDetailError(null); setReviewBusy(false); setReviewError(null);
   }, []);
   const reload: (quiet?: boolean) => Promise<void> = useCallback(async (quiet = false) => {
     if (!alive.current || !enabled.current || !foreground.current) return;
@@ -109,7 +112,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
       } });
       publish(next);
       if(current(id))setPreview(null);
-      const partial = !!(next?.medicalReadFailed || next?.dutiesReadFailed || next?.featureInformationReadFailed);
+      const partial = !!(next?.medicalReadFailed || next?.dutiesReadFailed || next?.featureInformationReadFailed || next?.reviewReadFailed);
       if (current(id)) { if (next) startTiming.settled(partial); else startTiming.noData(); }
       stage(true); diagnosis.finish(current(id) ? partial ? 'partial' : 'success' : 'cancelled',current(id)?'none':'stale-selection');
     } catch (error) {
@@ -149,7 +152,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     }
     locked.current = true; readingDetail.current = true; const id = ++sequence.current;
     const diagnosis = diagnosticJournal.begin('read-flight-detail'), stage = diagnosis.span('detail-read');
-    setDetail(null); setDetailBusy(true); setDetailError(null);
+    setDetail(null); setDetailBusy(true); setDetailError(null); setReviewError(null);
     try {
       const next = await readOwnFlightDetail(ports, latest.snapshot, selected, latest);
       stage(true); diagnosis.finish(current(id)?'success':'cancelled',current(id)?'none':'stale-selection');
@@ -170,6 +173,32 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     }
   };
   detailReader.current = openDetail;
+  const detailReview = useMemo(() => detail && view?.detailSource?.sourceReview?.(detail.flightId,
+    view.flightAcknowledgments?.find(item => item.flightId === detail.flightId)) || null,
+  [detail, view?.detailSource, view?.flightAcknowledgments]);
+  const acknowledgeDetail = async () => {
+    const latest = processedView.current;
+    if (!detail || !detailReview || !latest || locked.current || !alive.current || !enabled.current || !foreground.current) return;
+    locked.current = true; readingReview.current = true;
+    const id = ++sequence.current;
+    setReviewBusy(true); setReviewError(null);
+    try {
+      const acknowledgment = detailReview.acknowledgment;
+      await acknowledgeOwnFlightReview(ports, latest, detail, acknowledgment, () => current(id));
+      if (current(id) && processedView.current === latest) {
+        const acknowledgments = [...(latest.flightAcknowledgments ?? []).filter(item => item.flightId !== acknowledgment.flightId), acknowledgment];
+        const next = { ...latest, flightAcknowledgments: acknowledgments,
+          sourceReviews: latest.detailSource!.reviewSummaries(acknowledgments), reviewReadFailed: false };
+        processedView.current = next; setView(next);
+      }
+    } catch {
+      if (current(id)) setReviewError('Nicht gespeichert. Der Flug oder die Auswahl hat sich geändert. Lokal erneut prüfen.');
+    } finally {
+      locked.current = false; readingReview.current = false;
+      if (alive.current) setReviewBusy(false);
+      if (queued.current && alive.current && enabled.current && foreground.current) void reload(queuedQuiet.current);
+    }
+  };
   useEffect(() => {
     alive.current = true;
     const subscription = AppState.addEventListener('change', state => {
@@ -191,5 +220,8 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
     else if(retainWhilePaused){startTiming.cancel();cancelPresentation();setPreview(null);sequence.current++;setDetailBusy(false);}
     else { startTiming.cancel();cancelPresentation();setPreview(null);sequence.current++; processedView.current = null; pendingDetail.current = null; setView(null); setDetail(null); setDetailBusy(false); setPhase('loading'); }
   }, [active, reloadKey, reload,retainWhilePaused]);
-  return { view, preview, phase, detail, detailBusy, detailError, openDetail, clearDetail, reload };
+  const reviewActions: { detailReview?: FlightSourceReview | null; reviewBusy?: boolean; reviewError?: string | null; acknowledgeDetail?: () => Promise<void> } = {
+    detailReview, reviewBusy, reviewError: reviewError ?? (view?.reviewReadFailed ? 'Prüfstatus nicht lesbar. Vergleich ab erster Fassung.' : null), acknowledgeDetail,
+  };
+  return { view, preview, phase, detail, detailBusy, detailError, openDetail, clearDetail, reload, ...reviewActions };
 }

@@ -129,7 +129,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
       <View testID="flight-filter-bar" style={s.bar}>{header}</View>
       <FlatList ref={list} key={tablet ? 'wide' : 'phone'} numColumns={tablet ? 2 : 1} columnWrapperStyle={tablet ? { gap: 8 } : undefined}
         data={selected} keyExtractor={flight => flight.flightId}
-        renderItem={({item})=><FlightCard flight={item} onPress={()=>{Keyboard.dismiss();diagnosticJournal.record('action','flight-detail');setIntroHintOpen(false);setPicHelpOpen(false);setRawPage(0); setRawFlightId(null);void data.openDetail(item);}} style={tablet?{flex:1,maxWidth:'50%'}:undefined}/>}
+        renderItem={({item})=><FlightCard flight={item} changed={!!data.view?.sourceReviews?.[item.flightId]?.changed} onPress={()=>{Keyboard.dismiss();diagnosticJournal.record('action','flight-detail');setIntroHintOpen(false);setPicHelpOpen(false);setRawPage(0); setRawFlightId(null);void data.openDetail(item);}} style={tablet?{flex:1,maxWidth:'50%'}:undefined}/>}
         ListEmptyComponent={<Card><Empty title={flights.length ? 'Keine passenden Flüge' : startGuidance?.title ?? 'Noch keine gespeicherten Flüge'}>{flights.length ? 'Suchbegriff oder Filter ändern. Ein leeres Ergebnis ist keine Aussage über die gesamte Fluggeschichte.' : startGuidance?.message}</Empty>{hasFilters && <Action secondary onPress={()=>changeFilters(allOwnFlights)}>Alle Filter zurücksetzen</Action>}{helpEnabled && !flights.length && <Action secondary onPress={()=>onHelp?.('empty-flights')}>Warum sehe ich keine Flüge?</Action>}</Card>}
         onScroll={event => { if (active && data.phase === 'ready' && !detailOpen && !statusOpen) offset.current = event.nativeEvent.contentOffset.y; }} scrollEventThrottle={32}
         onContentSizeChange={() => { if (data.phase === 'ready') list.current?.scrollToOffset({ offset: offset.current, animated: false }); }}
@@ -169,7 +169,7 @@ export function OwnFlights({ active, data, filterRequest, onHeaderChange, onHelp
     {detailOpen && <ScrollView key={detail?.flightId ?? 'loading-detail'} contentContainerStyle={s.canvas}><View style={s.group}>
       {data.detailBusy && <ActivityIndicator color={colors.cyan} accessibilityLabel="Gespeicherte Flugdetails laden" />}
       {detail && assessment && <>
-        <FlightDetails key={detail.flightId} detail={detail} rawPage={rawPage} onRawPage={setRawPage} rawExpanded={rawFlightId===detail.flightId} onToggleRaw={()=>setRawFlightId(current=>current===detail.flightId?null:detail.flightId)} picHelpOpen={picHelpOpen} onTogglePicHelp={helpEnabled?()=>setPicHelpOpen(value=>!value):undefined} onMorePicHelp={helpEnabled?()=>{setPicHelpOpen(false);onHelp?.('pic');}:undefined}/><View style={s.controls}><Action secondary onPress={back}>Zur gefilterten Flugliste</Action></View>
+        <FlightDetails key={detail.flightId} detail={detail} sourceReview={data.detailReview} onAcknowledge={data.acknowledgeDetail} reviewBusy={data.reviewBusy} reviewError={data.reviewError} onReviewRetry={()=>void data.reload()} rawPage={rawPage} onRawPage={setRawPage} rawExpanded={rawFlightId===detail.flightId} onToggleRaw={()=>setRawFlightId(current=>current===detail.flightId?null:detail.flightId)} picHelpOpen={picHelpOpen} onTogglePicHelp={helpEnabled?()=>setPicHelpOpen(value=>!value):undefined} onMorePicHelp={helpEnabled?()=>{setPicHelpOpen(false);onHelp?.('pic');}:undefined}/><View style={s.controls}><Action secondary onPress={back}>Zur gefilterten Flugliste</Action></View>
       </>}
     </View></ScrollView>}
   </View>;

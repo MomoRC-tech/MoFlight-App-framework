@@ -77,6 +77,25 @@ function host(withPresentation = false, setup?:(f:ReturnType<typeof ownFlightFix
     pauseForSync:()=>{retainWhilePaused=true;active=false;render();},setActive:(value:boolean)=>{active=value;render();},reload:()=>{revision++;render();},unmount:()=>cleanups.forEach(fn=>fn())};
 }
 
+test('source-change attention survives detail opening and clears only after the explicit current acknowledgment completes',async()=>{
+  let saves=0,seen=false;
+  const h=host(false,f=>{
+    const review={changed:true,baselineRevision:1,currentRevision:2,changeCount:1,fields:[],reverted:true,
+      acknowledgment:{flightId:'a'.repeat(64),revision:2,payloadSha256:'b'.repeat(64)}};
+    f.detail.flightId=review.acknowledgment.flightId;f.detail.factsRevision=2;f.flights[0]={...f.detail};
+    const source={sameEvidence:()=>true,detail:()=>f.detail,reviewSummaries:()=>({[f.detail.flightId]:{...review,changed:!seen}}),sourceReview:()=>seen?null:review};
+    f.session.service.readStored=async()=>({snapshot:f.snapshot,flights:f.flights,detailSource:source as any});
+    f.session.detailContext=()=>({ownerSelectionSeq:1,selectionIdentity:'source'});f.session.assertDetailContext=async()=>{};
+    f.session.readFlightAcknowledgments=async()=>[];
+    f.session.saveFlightAcknowledgment=async()=>{saves++;seen=true;};
+  });
+  let state=await h.flush();await state.openDetail(h.flights[0]);state=await h.flush();
+  assert.ok(state.detailReview);assert.equal(saves,0,'opening a detail is not acknowledgment');
+  await state.acknowledgeDetail();state=await h.flush();
+  assert.equal(saves,1);assert.equal(state.detailReview,null);assert.ok(state.detail,'acknowledgment preserves the open detail');
+  assert.equal(state.view.sourceReviews[h.detail.flightId].changed,false);
+});
+
 test('cold hook publishes the historical Start preview while the authoritative history read remains blocked',async()=>{
   const f=startPreviewFixture(),pending=deferred<any>();let saves=0;
   const h=host(false,ports=>{
