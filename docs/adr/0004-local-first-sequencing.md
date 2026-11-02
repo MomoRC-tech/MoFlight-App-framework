@@ -7,6 +7,8 @@
 
 ## Context and authorization
 
+**2 November 2026 amendment:** the owner parked Supabase while reconsidering its need. The early-cloud scheduling below is suspended; local SQLite and independent local acceptance work continue. Prepared trials remain reference work. No alternative service or cloud implementation is selected by the deferral; ADR0003 records the parked provider decision.
+
 Scheduling update, authorized by Manuel on 2026-10-13: the [project plan](../project-plan.md) controls current milestone order. Local-first and later explicit account linking remain accepted; cloud integration is deferred while its early feasibility obligation and blocked prerequisites remain visible. This does not change the selected first cloud provider or approve sync details.
 
 Manuel asked whether initial phone-local user storage would be easier and instructed changing the implementation priority if so, while still checking Supabase very early. We judge it simpler for the initial logbook workflow because account/email, network persistence and synchronization are removed from that workflow's critical path. SQLite/local files were already planned, so this is a sequencing change, not a replacement cloud stack.

@@ -1,5 +1,7 @@
 # Local phone storage first, with early Supabase feasibility
 
+**Current owner direction — 2 November 2026:** Supabase is parked while its need is reconsidered. Earlier early-trial scheduling/provider statements below are historical within this scope. Preserve prepared code and continue local issues; no hosted trial, provisioning, Supabase-dependent integration or replacement backend is selected.
+
 **Sequencing superseded — 2026-10-13:** the [project plan](../project-plan.md) is authoritative for current priorities and next actions. M1 defines the basic UI/application contract before service expansion, then M2–M4 cover retrieval, live history and analytics; the original writing/chat/cloud/SPL sequence is historical. Local AI chat foundations are now implemented; remaining activation and later journeys follow the current roadmap. The older priority table and October 10/11 sequences below preserve rationale and outstanding feasibility obligations, not active scheduling. Accepted local-first, ownership, deterministic/AI and validation boundaries remain applicable; proposed ADRs remain proposed.
 
 Date: 2026-10-08. Owner: Manuel Singer. Status: selected sequencing under [ADR 0004](../adr/0004-local-first-sequencing.md); Expo/React Native/strict TypeScript/pnpm and expo-sqlite as the initial native-lab writer are now approved; detailed sync/protocol choices remain proposed. Supabase Cloud Free remains the first cloud candidate selected in ADR 0003; later self-hosting remains optional.

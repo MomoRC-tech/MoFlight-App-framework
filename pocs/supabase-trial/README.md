@@ -1,5 +1,7 @@
 # Independent early Supabase Cloud Free trial
 
+**Parked — owner direction, 2 November 2026:** Supabase's need is being reconsidered. Preserve this prepared work, but do not provision, execute the hosted probe or continue integration until explicitly resumed. The hosted proposal below is inactive; project/mailbox questions no longer block local issue work. No replacement provider is selected.
+
 **Scope clarification — owner confirmed 2 November 2026:** this trial targets the single MoFlight app. Cross-app identity/session sharing is excluded. Two synthetic users/sessions remain required for isolation testing. This clarification does not provision a project, authorize spending or establish deployed acceptance.
 
 Tracking #1/#5/#7. **Prepared; no project provisioned or SQL/live tests executed.**

@@ -1,13 +1,15 @@
 # ADR 0003: Low-usage backend trial and offline synchronization
 
 - Date: 2026-10-08
-- Status: Accepted for initial backend provider/hosting only; detailed sync implementation remains proposed
+- Status: Parked on 2026-11-02 — owner is reconsidering whether Supabase is needed; earlier trial/provider selection is preserved as history
 - Decision owner: Manuel Singer
 - Amendment: 2026-11-02 — owner confirmed a single MoFlight app; cross-app identity/session requirements are retired for the current trial
 - Tracking: [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5)
 - Evidence: [Complete backend comparison](../architecture/low-usage-backend-comparison.md), [logbook user stories](../product/flight-logbook-user-stories.md)
 
 ## Context and decision record
+
+**Current owner direction — 2 November 2026:** park Supabase for now and continue local issues. Do not provision, run hosted trials or continue Supabase-dependent integration. Preserve prepared source/evidence; necessity/provider choice will be revisited before resuming. This deferral selects no replacement backend, cancels no independent local requirement and does not declare any cloud acceptance passed.
 
 Few users and weeks without activity are expected. Avoid subscription costs; preserve local data and queued edits through outages. Automatic database wake-up is distinct from a provider pause requiring operator restoration.
 

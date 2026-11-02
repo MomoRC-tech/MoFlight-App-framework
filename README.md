@@ -195,7 +195,7 @@ Deferred ideas include [Activities live — #14](https://github.com/MomoRC-tech/
 
 ## Current architecture proposal
 
-The approved development baseline is **Expo + React Native + strict TypeScript**, in a pnpm workspace, with **expo-sqlite as the single native database writer**. Local storage comes first. Supabase Cloud Free is selected for a separate first cloud trial; cloud integration, detailed sync and production schemas remain gated.
+The approved development baseline is **Expo + React Native + strict TypeScript**, in a pnpm workspace, with **expo-sqlite as the single native database writer**. Local storage comes first. Supabase is parked at the owner's direction on 2 November while its need is reconsidered; prepared trials remain available. No replacement backend or production schema is selected.
 
 ```mermaid
 flowchart TB
@@ -340,7 +340,7 @@ For feature-level criteria, see [flight-logbook stories](docs/product/flight-log
 
 ## Cost and effort status
 
-Supabase Cloud Free is selected for the first cloud feasibility trial, not a prerequisite for local flight analytics. Free-tier quotas, idle behavior, email delivery and recovery need verification. No paid AI, hosted CI or subscription is authorized by the current roadmap.
+Supabase provisioning, trials and integration are parked at the owner's direction on 2 November while its need is reconsidered. Local flight analytics and issue work continue. Prepared schemas/probes are preserved as unexecuted reference work; no alternative service, paid AI, hosted CI or subscription is authorized by this deferral.
 
 Earlier person-day and tariff estimates are historical planning inputs, not a delivery promise or measured current cost. The initial aim is a small local-first footprint; no claim of unlimited free operation is made.
 
