@@ -14,6 +14,7 @@ test('every chart is selectable in the same viewport and has a meaningful symbol
   const f=fixture();
   for(const kind of chartOrder){f.press('Diagramm auswählen').props.onPress();f.nodes().find(n=>n.type==='Chip'&&n.props.title===chartNames[kind])!.props.onPress();assert.ok(f.nodes().some(n=>n.type==='SymbolIcon'));assert.ok(f.press(`Information zu ${chartNames[kind]}`));assert.doesNotMatch(JSON.stringify(f.render()),/NaN/);}
   assert.deepEqual(f.changed,chartOrder);
+  assert.equal(f.nodes().some(n=>n.props.accessibilityLabel==='Nächstes Diagramm'||n.props.accessibilityLabel==='Vorheriges Diagramm'),false);
 });
 test('monthly tap shows current and prior facts and opens only current contributors',()=>{
   const f=fixture();f.nodes().find(n=>n.props.accessibilityLabel?.startsWith('Mär:'))!.props.onPress();
@@ -54,5 +55,13 @@ test('summary and annual Info preserve current and same-date previous contributo
   const opened:any[]=[];
   const f=statisticsPresentation('StatisticsExplorer',{flights:rows,saved:[],today:'2026-10-29',period:{kind:'year',year:2026},initialChart:'monthly',onPeriod:()=>{},onFlights:(...args:any[])=>opened.push(args),onBackHandler:()=>{}});
   f.press('Alle gefilterten Flüge ansehen').props.onPress();assert.deepEqual([...opened[0][1]],['flight-0']);
+  const chart=f.nodes().find(n=>n.type==='StatisticsCharts')!;assert.equal(chart.props.dataset.summary.count,1);assert.deepEqual([...chart.props.dataset.summary.supportingIds],['flight-0']);
   f.press('Statistikdatenstand').props.onPress();f.action('Vorjahresflüge ansehen').props.onPress();assert.deepEqual([...opened[1][1]],['flight-1']);assert.equal(opened[1][2].to,'2025-10-29');
+});
+
+
+test('all-history defaults to a usable duration view instead of an unavailable monthly chart',()=>{
+  const f=statisticsPresentation('StatisticsCharts',{flights:ownFlightFixture().flights,saved:[],today:'2026-10-29',period:{kind:'all'},initialChart:'monthly',onFlights:()=>{},onBackHandler:()=>{}});
+  assert.ok(f.press('Information zu Flugdauer im Jahr'));
+  assert.doesNotMatch(JSON.stringify(f.render()),/Für den Monatsvergleich bitte ein Jahr/);
 });

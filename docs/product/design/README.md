@@ -1,5 +1,7 @@
 # MoFlight UI design handbook
 
+**2 November user-first review:** Manuel delegates needed visual choices under [#114](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/114). The [scoped amendment](compact-cockpit.md#user-first-review--delegated-2-november-2026) and [cross-app review/evidence](../../verification/2026-11-02-whole-app-refactor.md) record metric drilldowns, simpler Statistics controls and chronological exact-value costs. Original logo/dark default and source-data contracts remain; earlier appearance-selection/Start restrictions are superseded only for this authorized review.
+
 **29 October Start correction (#108):** [lighter tile fills, thin visible outlines and per-Medical expiry badges](compact-cockpit.md#start-tile-contrast-and-medical-badges--authorized-29-october-2026) supersede the retained Start tile colors only. Header/navigation and all source/date rules remain separately scoped.
 
 **29 October selected hybrid Statistics:** [compact last-flight line, shared chart viewer and compact Statistics filters](compact-cockpit.md#hybrid-season-and-statistics--authorized-29-october-2026), under #9, amend the season/chart area only. [Original handover](../design-sources/2026-10-29-statistics/README.md) remains reference material; cumulative progress and unsupported optional data views are deferred. [Verification](../../verification/2026-10-20-real-flight-statistics.md#hybrid-chart-package--29-october-2026) keeps source/platform acceptance explicit.

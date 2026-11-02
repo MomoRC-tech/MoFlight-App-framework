@@ -2,6 +2,7 @@
 
 | Question | Maintained source |
 | --- | --- |
+| What did the whole-app/refactoring and cross-app review find? | [2 November coordinated review, verification and remaining decisions](verification/2026-11-02-whole-app-refactor.md) — #114/#115 |
 | What is delivered, and where is the APK? | [Project README](../README.md#current-delivery) |
 | Which work closed on 29 October, and what remains? | [Current focused closeouts and residual ownership](verification/2026-10-17-current-status-and-open-issues.md#29-october-required-hours-research-closeout); dated bug/Statistics evidence remains below |
 | What should happen next? | [Current plan](project-plan.md#next-executable-packages) and [GitHub Issues](https://github.com/MomoRC-tech/MoFlight-App-framework/issues) |

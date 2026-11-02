@@ -1,5 +1,15 @@
 # Dark Compact Cockpit — approved 24 October 2026
 
+## User-first review — delegated 2 November 2026
+
+Under [#114](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/114), Manuel requested a whole-app review/refactor and explicitly delegated any needed visual changes. For this work, that delegation supersedes earlier requirements for a new appearance selection and Start preservation where a concrete improvement needs it. The original logo, dark default, source uncertainty, offline behavior and exact record boundaries remain. Major product/service/privacy choices remain separate.
+
+The first chosen refinement keeps Start's composition and makes the flight-time/count metrics open the selected year's combined monthly statistics. Statistics retains its aligned count/time comparison, named chart selector, Info and exact contributing flights; duplicate previous/next chart navigation is removed. Fixed controls and calendar cells use at least 48 dp targets; narrow plot segments retain full-size Values/Flights alternatives. All-history entry uses a duration timeline instead of an unavailable monthly view.
+
+Costs replaces wrapping mini-tiles and amount dots with one horizontally scrollable chronological month comparison, exact EUR values and selected-month state. Unknown, recorded zero and conflict remain distinct in text as well as color. Months open the existing local period/receipt journey. No source classifier, financial arithmetic, provider action or palette migration follows.
+
+Consulted current [Material cards](https://m3.material.io/components/cards/guidelines), [lists](https://m3.material.io/components/lists/guidelines) and [interaction](https://m3.material.io/foundations/interaction) on 2 November; text retrieval returns a JavaScript shell. Google's [accessible target guidance](https://developer.android.com/develop/ui/compose/accessibility/api-defaults) supplies directly readable size/overlap guidance. MoFlight adapts the hierarchy through existing native navy/cyan primitives, without a UI/chart dependency. Public flying/logbook/fitness examples and verification limits are in the [review report](../../verification/2026-11-02-whole-app-refactor.md).
+
 ## Calculated annual Pflicht target — selected 29 October 2026
 
 Under [#110](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/110), Manuel selected `rate = Geleistet EUR / Geleistet h`, then `Pflicht h = Pflicht EUR / rate`, only when the monetary totals differ and the earned money/hours are positive. Use one explicit selected-year row from the already scoped, ready saved summary; unknown/ambiguous/truncated/malformed input cannot update. Round only the final hours to two decimals, within the existing 0–999 range. This is an owner-selected calculated estimate, not an independently verified club quota; it supersedes the earlier no-conversion restriction only within this rule.

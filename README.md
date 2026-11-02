@@ -1,5 +1,7 @@
 # MoFlight
 
+**2 November review/refactor:** [coordinated logic, testing and user-journey review](docs/verification/2026-11-02-whole-app-refactor.md) under #114/#115. The [pre-review rollback release](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/rollback-2026-11-02-eeda7a0) pins actual source eeda7a0; subsequent work is tracked in small commits. Initial simplifications, metric drilldowns and clearer monthly costs are implemented in source; current native acceptance is recorded in the package report.
+
 **29 October Statistics refresh:** implemented compact Start information, shared offline charts and simplified Statistics filters. [Contract](docs/product/design/compact-cockpit.md#hybrid-season-and-statistics--authorized-29-october-2026) · [source-specific checks and limits](docs/verification/2026-10-20-real-flight-statistics.md#hybrid-chart-package--29-october-2026). Application source `58851de`; download below.
 
 <p align="center">

@@ -21,7 +21,7 @@ function fixture(){
  const leaves=(names:string[])=>Object.fromEntries(names.map(n=>[n,n]));
  const modules:Record<string,unknown>={react:{default:react,...react},'react-native':{...leaves(['ActivityIndicator','KeyboardAvoidingView','Modal','Pressable','ScrollView','TextInput','View']),Platform:{OS:'android'},StyleSheet:{create:(v:unknown)=>v},AppState:{get currentState(){return state;},addEventListener:(_event:string,fn:(v:string)=>void)=>{listeners.add(fn);return{remove:()=>listeners.delete(fn)};}}},
  '../vereinsflieger/expense-analysis-native':{readFinancialAnalysisNative:(e:unknown,current:()=>void)=>new Promise((resolve,reject)=>{pending.push({expected:e,current,resolve,reject});})},
- './financial-analysis-model':model,'./statistics-overlay-model':{validStatisticsRange},'./theme':{...leaves(['Action','Card','Chip','Empty','Label','Section']),colors:{}}};
+ './ExpenseMonthlyChart':{ExpenseMonthlyChart:'ExpenseMonthlyChart'},'./financial-analysis-model':model,'./statistics-overlay-model':{validStatisticsRange},'./theme':{...leaves(['Action','Card','Chip','Empty','Label','Section']),colors:{}}};
  const exports:any={};runInNewContext(source,{exports,JSON,Date,Math,Error,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
  const render=()=>{index=0;return exports.ExpensesView({expected,reloadKey:0,period,onPeriod:(v:unknown)=>{period=v;},onRefresh:()=>refresh++,onBackHandler:(v:()=>boolean)=>{back=v;}}) as Node;};
  const nodes=(tree=render()):Node[]=>{const all:Node[]=[];function walk(v:any){if(v&&typeof v==='object'&&'children'in v){all.push(v);v.children.forEach(walk);}}walk(tree);return all;};
@@ -31,6 +31,7 @@ async function data():Promise<FinancialAnalysisData>{const evidence=await eviden
 const settle=()=>new Promise(resolve=>{setImmediate(resolve);});
 test('Costs opens locally, refresh is explicit, and account changes hide previous private source values before effects',async()=>{
  const f=fixture();f.render();f.effect();assert.equal(f.pending.length,1);assert.equal(f.refresh(),0);f.pending[0]!.resolve(await data());await settle();let nodes=f.nodes();assert.ok(nodes.some(n=>n.type==='Section'&&n.props.title==='Verein & Konten'));assert.ok(nodes.some(n=>n.type==='Label'&&n.children.includes('Bekannter Teilbetrag'))===false);
+ const chart=nodes.find(n=>n.type==='ExpenseMonthlyChart')!;chart.props.onMonth(chart.props.months[5]);assert.equal(f.period().mode,'month');assert.equal(f.period().month,6);assert.equal(f.refresh(),0);
  nodes.find(n=>n.type==='Action'&&n.children.includes('Belege abrufen'))!.props.onPress();assert.equal(f.refresh(),1);
  f.setOwner({ownerId:'owner-b',storeId:'store-b',accountRef:'account-b'});nodes=f.nodes();assert.equal(nodes.some(n=>n.type==='Section'&&n.props.title==='Verein & Konten'),false);f.effect();assert.equal(f.pending.length,2);f.pending[1]!.reject(Error('foreign'));await settle();nodes=f.nodes();assert.ok(nodes.some(n=>n.type==='Empty'&&n.props.title==='Kosten nicht lesbar'));nodes.find(n=>n.type==='Action'&&n.children.includes('Lokal erneut prüfen'))!.props.onPress();f.render();f.effect();assert.equal(f.pending.length,3);assert.equal(f.refresh(),1);f.unmount();
 });

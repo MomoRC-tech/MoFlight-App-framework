@@ -30,7 +30,7 @@ const explanations: Record<ChartKind, string> = {
 interface Selection { title: string; lines: string[]; ids: string[]; scope?: StatisticsPeriod }
 export interface StatisticsChartsProps {
   flights: readonly RealFlightListItem[]; saved: readonly SavedFlightRetrieval[]; today: string; period: StatisticsPeriod;
-  filters?: ChartFilters; initialChart?: ChartKind; compact?: boolean; onChartChange?: (chart: ChartKind) => void;
+  dataset?: ReturnType<typeof chartDataset>; filters?: ChartFilters; initialChart?: ChartKind; compact?: boolean; onChartChange?: (chart: ChartKind) => void;
   onFlights: (title: string, ids: readonly string[], scope?: StatisticsPeriod) => void;
   onBackHandler?: (handler: () => boolean) => void;
 }
@@ -39,14 +39,14 @@ const durationText = (g: ChartGroup) => g.knownDurationCount ? time(g.knownMinut
 const percent = (v: number) => `${v.toLocaleString('de-DE', { maximumFractionDigits: 1 })} %`;
 
 /** Only the active chart is mounted. All values come from the saved, reconciled selection. */
-export function StatisticsCharts({ flights, saved, today, period, filters = emptyChartFilters, initialChart = 'monthly', compact = false, onChartChange, onFlights, onBackHandler }: StatisticsChartsProps) {
+export function StatisticsCharts({ flights, saved, today, period, dataset: providedDataset, filters = emptyChartFilters, initialChart = 'monthly', compact = false, onChartChange, onFlights, onBackHandler }: StatisticsChartsProps) {
   const {fontScale}=useWindowDimensions();
-  const [chart, setChart] = useState<ChartKind>(initialChart);
+  const [chart, setChart] = useState<ChartKind>(initialChart === 'monthly' && period.kind !== 'year' ? 'timeline' : initialChart);
   const [picker, setPicker] = useState(false), [info, setInfo] = useState(false), [values, setValues] = useState(false);
   const [grouping, setGrouping] = useState<AircraftGrouping>('category'), [calendar, setCalendar] = useState(false);
   const [selection, setSelection] = useState<Selection | null>(null), [width, setWidth] = useState(280);
   useEffect(()=>{setSelection(null);},[flights,period,filters]);
-  const dataset = useMemo(() => chartDataset(flights, period, today, filters), [flights, period, today, filters]);
+  const dataset = useMemo(() => providedDataset ?? chartDataset(flights, period, today, filters), [providedDataset, flights, period, today, filters]);
   const bounds = statisticsPeriodBounds(period, today);
   const monthly = useMemo(() => chart === 'monthly' && period.kind === 'year' ? monthlyChartGroups(flights, saved, period.year, today, filters) : [], [chart, flights, saved, period, today, filters]);
   const launchRows = useMemo(() => chart === 'launch' || chart === 'launchDuration' ? dataset.rows.filter(f => classifyAircraft(f.facts.assessment).key === 'glider') : [], [chart, dataset]);
@@ -162,7 +162,7 @@ export function StatisticsCharts({ flights, saved, today, period, filters = empt
     {picker&&<View style={s.wrap}>{chartOrder.map(kind=><Chip key={kind} title={chartNames[kind]} selected={chart===kind} onPress={()=>changeChart(kind)}/>)}</View>}
     {info&&<View accessibilityLiveRegion="polite" style={s.information}><Label>{explanations[chart]}</Label><Action secondary onPress={()=>setInfo(false)}>Information schließen</Action></View>}
     {content}
-    <View style={s.footer}><Pressable accessibilityRole="button" accessibilityLabel="Vorheriges Diagramm" onPress={()=>changeChart(chartOrder[(chartOrder.indexOf(chart)+chartOrder.length-1)%chartOrder.length]!)} style={s.control}><Label>‹</Label></Pressable><Label muted style={s.small}>{chartOrder.indexOf(chart)+1} / {chartOrder.length}</Label><Pressable accessibilityRole="button" accessibilityLabel="Nächstes Diagramm" onPress={()=>changeChart(chartOrder[(chartOrder.indexOf(chart)+1)%chartOrder.length]!)} style={s.control}><Label>›</Label></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Werte und Flüge anzeigen" accessibilityState={{expanded:values}} onPress={()=>setValues(!values)} style={{minHeight:48,justifyContent:'center',marginLeft:'auto'}}><Label style={{color:colors.cyan}}>Werte & Flüge</Label></Pressable></View>
+    <View style={s.footer}><Pressable accessibilityRole="button" accessibilityLabel="Werte und Flüge anzeigen" accessibilityState={{expanded:values}} onPress={()=>setValues(!values)} style={{minHeight:48,justifyContent:'center'}}><Label style={{color:colors.cyan}}>{values?'Werte einklappen ▴':'Werte & Flüge ▾'}</Label></Pressable></View>
     <Label muted style={s.small}>{bounds?`${bounds.from} – ${bounds.to}`:'Gesamter gespeicherter Bestand'}{summary.unknownDurationCount?` · ${summary.unknownDurationCount} Zeiten unbekannt`:''}{dataset.unknownDateCount?` · ${dataset.unknownDateCount} ohne Datum`:''}{dataset.conflictingIds.length?` · ${dataset.conflictingIds.length} Konflikte ausgeschlossen`:''}</Label>
     {selection&&<Card style={s.callout}><View style={ui.row}><Label style={{flex:1,fontWeight:'700'}}>{selection.title}</Label><Pressable accessibilityRole="button" accessibilityLabel="Auswahl schließen" onPress={()=>setSelection(null)} style={s.control}><SymbolIcon name="close" size={18}/></Pressable></View>{selection.lines.map((line,i)=><Label key={i}>{line}</Label>)}{selection.ids.length>0&&<Action secondary onPress={()=>onFlights(selection.title,selection.ids,selection.scope)}>Flüge ansehen · {selection.ids.length}</Action>}</Card>}
     {values&&<View style={{gap:4}}>
@@ -175,5 +175,5 @@ export function StatisticsCharts({ flights, saved, today, period, filters = empt
   </View>;
 }
 const s=StyleSheet.create({
-  viewer:{gap:8,minWidth:0,width:'100%'},heading:{flexDirection:'row',alignItems:'center',gap:8},title:{flex:1,minHeight:48,justifyContent:'center'},control:{minHeight:48,minWidth:44,alignItems:'center',justifyContent:'center'},wrap:{flexDirection:'row',flexWrap:'wrap',gap:6},small:{fontSize:12,lineHeight:18},tick:{fontSize:11,lineHeight:16},monthPanel:{gap:6},monthPlot:{flexDirection:'row',alignItems:'flex-end',borderBottomWidth:1,borderColor:colors.border},monthSlot:{flex:1,alignItems:'center',justifyContent:'flex-end',minWidth:0,minHeight:48},barRow:{minHeight:48,paddingVertical:4,gap:3},track:{height:8,backgroundColor:colors.raised,borderRadius:3},fill:{height:8,backgroundColor:colors.cyan,borderRadius:3},footer:{flexDirection:'row',alignItems:'center',gap:3},information:{backgroundColor:colors.raised,padding:12,borderRadius:12,gap:6},callout:{gap:6},day:{width:44,height:44,alignItems:'center',justifyContent:'center',borderRadius:3},
+  viewer:{gap:8,minWidth:0,width:'100%'},heading:{flexDirection:'row',alignItems:'center',gap:8},title:{flex:1,minHeight:48,justifyContent:'center'},control:{minHeight:48,minWidth:48,alignItems:'center',justifyContent:'center'},wrap:{flexDirection:'row',flexWrap:'wrap',gap:6},small:{fontSize:12,lineHeight:18},tick:{fontSize:11,lineHeight:16},monthPanel:{gap:6},monthPlot:{flexDirection:'row',alignItems:'flex-end',borderBottomWidth:1,borderColor:colors.border},monthSlot:{flex:1,alignItems:'center',justifyContent:'flex-end',minWidth:0,minHeight:48},barRow:{minHeight:48,paddingVertical:4,gap:3},track:{height:8,backgroundColor:colors.raised,borderRadius:3},fill:{height:8,backgroundColor:colors.cyan,borderRadius:3},footer:{flexDirection:'row',alignItems:'center',gap:3},information:{backgroundColor:colors.raised,padding:12,borderRadius:12,gap:6},callout:{gap:6},day:{width:48,height:48,alignItems:'center',justifyContent:'center',borderRadius:3},
 });

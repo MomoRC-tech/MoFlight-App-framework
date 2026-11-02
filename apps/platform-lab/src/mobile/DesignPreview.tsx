@@ -21,13 +21,15 @@ import { UpdateResult } from './UpdateResult';
 import {SyncProgress} from './SyncProgress';
 import {idleSyncProgress,idleSyncNotice,completedSyncProgress,type SyncProgress as Progress} from './sync-progress';
 import { CockpitPreview } from './CockpitPreview';
+import { ExpenseMonthlyChart } from './ExpenseMonthlyChart';
 
 /** Mount directly in the shell's flex content area; OwnFlights owns its list scrolling. */
 export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
   const [cockpit,setCockpit]=useState(false);
   const fixture = useMemo(createDesignPreviewData, []);
   const emptyView = useMemo(() => ({ ...fixture.view, flights: [] }), [fixture]);
-  const [page, setPage] = useState<'start' | 'flights' | 'club' | 'sync'>('start');
+  const [page, setPage] = useState<'start' | 'flights' | 'club' | 'sync' | 'costs'>('start');
+  const [costMonth, setCostMonth] = useState(6);
   const [progress,setProgress]=useState<Progress>({state:'active',last:'account',current:'flights'});
   const [mode, setMode] = useState<'populated' | 'empty' | 'error'>('populated');
   const [request, setRequest] = useState<OwnFlightRequest | null>(null);
@@ -107,6 +109,7 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Start" accessibilityState={{ selected: page === 'start' }} onPress={() => setPage('start')} style={[styles.tab, page === 'start' && styles.selected]}><Label>Vorschau Start</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Flüge" accessibilityState={{ selected: page === 'flights' }} onPress={() => showFlights()} style={[styles.tab, page === 'flights' && styles.selected]}><Label>Vorschau Flüge</Label></Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Verein" accessibilityState={{ selected: page === 'club' }} onPress={() => setPage('club')} style={[styles.tab, page === 'club' && styles.selected]}><Label>Vorschau Verein</Label></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Vorschau Kosten" accessibilityState={{selected:page==='costs'}} onPress={()=>setPage('costs')} style={[styles.tab,page==='costs'&&styles.selected]}><Label>Vorschau Kosten</Label></Pressable>
       </View>
     </View>
     {page === 'start' ? <ScrollView contentContainerStyle={styles.canvas}>
@@ -116,6 +119,11 @@ export function DesignPreview({onClose=()=>{}}:{onClose?:()=>void}={}) {
       {paper && <Card><Label>Papierflugbuch später einrichten</Label><Label muted>Diese Vorschau zeigt nur erfundene Flugdaten. Es wird kein Flugbuch angelegt.</Label></Card>}
       <Action secondary onPress={() => showState('empty')}>Leere Liste ansehen</Action>
       <Action secondary onPress={() => showState('error')}>Lesefehler ansehen</Action>
+    </ScrollView> : page === 'costs' ? <ScrollView contentContainerStyle={styles.canvas}>
+      <Card><Label style={{fontSize:20,fontWeight:'700'}}>Monatsvergleich 2026</Label><Label muted>Erfundene Beträge · keine Finanzdatei und kein Abruf</Label>
+        <ExpenseMonthlyChart selectedMonth={costMonth} months={['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'].map((label,i)=>({label,year:2026,month:i+1,knownMinor:[null,0,640,15300,9876,5400,12000,8300,4600,2350,null,null][i]??null,state:i===8?'conflict':'partial'}))} onMonth={month=>setCostMonth(month.month)}/>
+        <View accessibilityLiveRegion="polite"><Label>Ausgewählter Demo-Monat: {costMonth}</Label></View>
+      </Card>
     </ScrollView> : page === 'club' ? <ScrollView contentContainerStyle={styles.canvas}>
       <Label muted>Erfundene Dienste, Termine und Dokumentenhinweise. Fester Demo-Abruf: 22.10.2026.</Label>
       {syncPreview}

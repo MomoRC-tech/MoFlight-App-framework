@@ -36,13 +36,13 @@ function render(flights:any[], phase='ready', fontScale=1, preview: startPreview
     './processed-result':processedResults,'./flight-start-guidance':flightStartGuidance,'./data-freshness':{dataFreshness},'../vereinsflieger/retrieval-policy':{planFlightRetrieval}};
   const exports:any={};runInNewContext(source,{exports,Date:class extends Date {getFullYear(){return 2026;}},require:(name:string)=>{
     if(name.startsWith('../../assets/'))return name;assert.ok(name in modules,name);return modules[name];}});
-  const calls:(number|undefined)[]=[];const opened:string[]=[];const statisticsCalls:number[]=[];const roleCalls:string[]=[];
+  const calls:(number|undefined)[]=[];const opened:string[]=[];const statisticsCalls:number[]=[];const roleCalls:string[]=[];const chartCalls:(string|undefined)[]=[];
   const props:any={preview,ownFlights:{flights,snapshot:{account:{accountRef:'101'},savedRetrievals:[]}},ownFlightPhase:phase,pending:null,width:390,fontScale,now:Date.parse('2026-10-22T12:00:00Z'),
-    onBackHandler:(handler:()=>boolean)=>{inlineBack=handler;},onFlight:(id:string)=>opened.push(id),onFlights:(year?:number)=>calls.push(year),onStatistics:(year:number,section?:string)=>{statisticsCalls.push(year);if(section)roleCalls.push(section);}};
+    onBackHandler:(handler:()=>boolean)=>{inlineBack=handler;},onFlight:(id:string)=>opened.push(id),onFlights:(year?:number)=>calls.push(year),onStatistics:(year:number,section?:string,chart?:string)=>{statisticsCalls.push(year);chartCalls.push(chart);if(section)roleCalls.push(section);}};
   if(preview)props.ownFlights=null;
   const tree=exports.Dashboard(props);
   const nodes:Element[]=[];function visit(n:any){if(n?.type?.name==='StatisticsEntry'){visit(n.type(n.props));return;}if(n?.children){nodes.push(n);n.children.forEach(visit);}}visit(tree);
-  return {nodes,calls,opened,statisticsCalls,roleCalls,target,targetSource:()=>targetSource,inlineBack:()=>inlineBack(),text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
+  return {nodes,calls,opened,statisticsCalls,roleCalls,chartCalls,target,targetSource:()=>targetSource,inlineBack:()=>inlineBack(),text:JSON.stringify(tree), calculations:()=>calculations, monthlyCalculations:()=>monthlyCalculations, rerender(nextFlights=flights){hookIndex=0;stateIndex=0;if(nextFlights!==props.ownFlights.flights)props.ownFlights={...props.ownFlights,flights:nextFlights};return exports.Dashboard(props);}, changeView(next:any){hookIndex=0;stateIndex=0;props.ownFlights=next;return exports.Dashboard(props);}, view:()=>props.ownFlights};
 }
 
 test('automatic duty calculation receives only ready, unblocked selected-library information',()=>{
@@ -75,6 +75,9 @@ test('Start routes saved analytics to the overlay and keeps it available before 
  assert.equal(f.monthlyCalculations(),0,'Date-window calculations belong to the Statistics overlay');
  const entry=f.nodes.find(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Statistik')!;
  assert.ok(entry);entry.props.onPress();assert.deepEqual(f.statisticsCalls,[2026]);
+ const metrics=f.nodes.filter(n=>n.type==='Pressable'&&/^(Flugzeit|Flüge) 2026:/.test(n.props.accessibilityLabel??''));
+ assert.equal(metrics.length,2);metrics.forEach(metric=>metric.props.onPress());
+ assert.deepEqual(f.statisticsCalls,[2026,2026,2026]);assert.deepEqual(f.chartCalls,['monthly','monthly','monthly']);
  for(const phase of ['loading','missing','failed']) {
    const state=render([],phase);
    assert.ok(state.nodes.some(n=>n.type==='Pressable'&&n.props.accessibilityLabel==='Statistik'),`${phase} state keeps the statistics route available`);
