@@ -7,6 +7,7 @@ import re
 import subprocess
 import time
 import xml.etree.ElementTree as ET
+import zipfile
 
 PACKAGE = 'de.momorc.moflight.lab'
 
@@ -16,7 +17,7 @@ def main():
     parser.add_argument('--serial', required=True)
     parser.add_argument('--proof', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--mode', choices=['benchmark', 'progress', 'detail'], required=True)
+    parser.add_argument('--mode', choices=['benchmark', 'progress', 'detail', 'review'], required=True)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
 
@@ -27,10 +28,13 @@ def main():
 
     assert adb('emu', 'avd', 'name').splitlines()[0] == 'MoFlight_Synthetic_API37', 'Only designated synthetic AVD'
     provenance = json.loads((args.proof / 'provenance.json').read_text(encoding='utf-8-sig'))
-    apk = args.proof / {'benchmark': 'sync-benchmark-poc.apk', 'progress': 'sync-progress-poc.apk', 'detail': 'flight-responsiveness-poc.apk'}[args.mode]
+    apk = args.proof / {'benchmark': 'sync-benchmark-poc.apk', 'progress': 'sync-progress-poc.apk', 'detail': 'flight-responsiveness-poc.apk', 'review': 'flight-review-poc.apk'}[args.mode]
     assert hashlib.sha256(apk.read_bytes()).hexdigest() == provenance['proof_apk_sha256']
     normal = args.proof / 'normal-app.apk'
     assert hashlib.sha256(normal.read_bytes()).hexdigest() == provenance['normal_apk_sha256']
+    if args.mode == 'review':
+        with zipfile.ZipFile(apk) as archive:
+            assert provenance['source_commit'].encode() in archive.read('assets/index.android.bundle')
     original = {key: adb('shell', 'settings', 'get', 'global', key)
                 for key in ['airplane_mode_on', 'wifi_on', 'mobile_data']}
     original.update(size=adb('shell', 'wm', 'size'), density=adb('shell', 'wm', 'density'),
@@ -61,12 +65,46 @@ def main():
         adb('shell', 'am', 'force-stop', PACKAGE)
         adb('shell', 'am', 'start', '-W', '-n', PACKAGE + '/.MainActivity')
 
+    tooling_started = time.monotonic()
     try:
         adb('shell', 'cmd', 'connectivity', 'airplane-mode', 'enable')
         adb('shell', 'svc', 'wifi', 'disable')
         adb('shell', 'svc', 'data', 'disable')
         adb('install', '-r', str(apk))
-        if args.mode == 'detail':
+        if args.mode == 'review':
+            installed = args.output / 'installed-proof.apk'
+            installed_path = adb('shell', 'pm', 'path', PACKAGE).removeprefix('package:')
+            adb('pull', installed_path, str(installed))
+            assert hashlib.sha256(installed.read_bytes()).hexdigest() == provenance['proof_apk_sha256']
+            report['installedProofHashVerified'] = True
+            report['device'] = {'api': adb('shell', 'getprop', 'ro.build.version.sdk'), 'abi': adb('shell', 'getprop', 'ro.product.cpu.abi')}
+            log_file = (args.output / 'native.log').open('wb')
+            log = subprocess.Popen(['adb', '-s', args.serial, 'logcat', '-v', 'brief', '-T', '1', 'ReactNativeJS:I', '*:S'], stdout=log_file, stderr=subprocess.STDOUT)
+            report['reviewRuns'] = []
+            pids = []
+            for expected in ['seeded', 'passed']:
+                launch()
+                pid = adb('shell', 'pidof', PACKAGE)
+                assert pid and pid not in pids, 'Proof must restart in a distinct process'
+                pids.append(pid)
+                deadline = time.monotonic() + 60
+                while time.monotonic() < deadline:
+                    lines = [line for line in (args.output / 'native.log').read_text(encoding='utf-8', errors='replace').splitlines()
+                             if re.search(r'\(\s*' + re.escape(pid) + r'\)', line)]
+                    assert not any('MOFLIGHT_FLIGHT_REVIEW_FAILED' in line for line in lines), 'Native review proof failed'
+                    completed = [line for line in lines if 'MOFLIGHT_FLIGHT_REVIEW_RESULT ' in line]
+                    if completed:
+                        result = json.loads(completed[-1].split('MOFLIGHT_FLIGHT_REVIEW_RESULT ', 1)[1])
+                        assert result['phase'] == expected and result['sourceCommit'] == provenance['source_commit']
+                        assert len(result['checks']) == 2 and 0 <= result['milliseconds'] < 60_000
+                        report['reviewRuns'].append(result)
+                        break
+                    time.sleep(1)
+                else:
+                    raise AssertionError('Native review proof timeout: ' + expected)
+            report['distinctProcesses'] = len(pids)
+            report['scope'] = 'Production native review metadata helpers; two synthetic scoped targets and real process restart. No ordinary account/owner-registry UI, provider, paper or iOS acceptance.'
+        elif args.mode == 'detail':
             log_file = (args.output / 'native.log').open('wb')
             log = subprocess.Popen(['adb', '-s', args.serial, 'logcat', '-v', 'brief', '-T', '1',
                                     'ReactNativeJS:I', '*:S'], stdout=log_file, stderr=subprocess.STDOUT)
@@ -171,8 +209,21 @@ def main():
         report['restored'] = {key: adb('shell', 'settings', 'get', 'global', key)
                               for key in ['airplane_mode_on', 'wifi_on', 'mobile_data']}
         report['normalApkRestored'] = True
+        if args.mode == 'review':
+            report['restored'].update(size=adb('shell', 'wm', 'size'), density=adb('shell', 'wm', 'density'),
+                                      font=adb('shell', 'settings', 'get', 'system', 'font_scale'))
+            restored_path = adb('shell', 'pm', 'path', PACKAGE).removeprefix('package:')
+            restored_apk = args.output / 'restored-normal.apk'
+            adb('pull', restored_path, str(restored_apk))
+            report['normalApkHashVerified'] = hashlib.sha256(restored_apk.read_bytes()).hexdigest() == provenance['normal_apk_sha256']
+            report['cleanupMatchesOriginal'] = report['restored'] == original
+            report['toolingMilliseconds'] = round((time.monotonic() - tooling_started) * 1000, 3)
+            if not report['normalApkHashVerified'] or not report['cleanupMatchesOriginal']:
+                report.update(status='failed', cleanup_error='Proof cleanup verification failed')
         (args.output / 'report.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
         print(json.dumps({'status': report['status'], 'output': str(args.output)}))
+        if args.mode == 'review' and report.get('cleanup_error'):
+            raise AssertionError(report['cleanup_error'])
 
 
 if __name__ == '__main__':

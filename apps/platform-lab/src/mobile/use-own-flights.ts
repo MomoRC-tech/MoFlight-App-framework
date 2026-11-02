@@ -178,7 +178,8 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
   [detail, view?.detailSource, view?.flightAcknowledgments]);
   const acknowledgeDetail = async () => {
     const latest = processedView.current;
-    if (!detail || !detailReview || !latest || locked.current || !alive.current || !enabled.current || !foreground.current) return;
+    if (!detail || !detailReview || !latest || !alive.current || !enabled.current || !foreground.current) return;
+    if (locked.current) { setReviewError('Bitte nach der lokalen Prüfung erneut bestätigen.'); return; }
     locked.current = true; readingReview.current = true;
     const id = ++sequence.current;
     setReviewBusy(true); setReviewError(null);
@@ -192,7 +193,7 @@ export function useOwnFlights(ports: OwnFlightReadPorts, active: boolean, reload
         processedView.current = next; setView(next);
       }
     } catch {
-      if (current(id)) setReviewError('Nicht gespeichert. Der Flug oder die Auswahl hat sich geändert. Lokal erneut prüfen.');
+      if (current(id)) setReviewError('Prüfstatus nicht bestätigt. Bitte lokal neu laden und erneut prüfen.');
     } finally {
       locked.current = false; readingReview.current = false;
       if (alive.current) setReviewBusy(false);

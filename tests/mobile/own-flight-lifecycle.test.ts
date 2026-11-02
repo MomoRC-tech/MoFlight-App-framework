@@ -79,18 +79,33 @@ function host(withPresentation = false, setup?:(f:ReturnType<typeof ownFlightFix
 
 test('source-change attention survives detail opening and clears only after the explicit current acknowledgment completes',async()=>{
   let saves=0,seen=false;
+  let readPause:{entered:ReturnType<typeof deferred<void>>;resume:ReturnType<typeof deferred<void>>}|null=null;
   const h=host(false,f=>{
     const review={changed:true,baselineRevision:1,currentRevision:2,changeCount:1,fields:[],reverted:true,
       acknowledgment:{flightId:'a'.repeat(64),revision:2,payloadSha256:'b'.repeat(64)}};
     f.detail.flightId=review.acknowledgment.flightId;f.detail.factsRevision=2;f.flights[0]={...f.detail};
-    const source={sameEvidence:()=>true,detail:()=>f.detail,reviewSummaries:()=>({[f.detail.flightId]:{...review,changed:!seen}}),sourceReview:()=>seen?null:review};
-    f.session.service.readStored=async()=>({snapshot:f.snapshot,flights:f.flights,detailSource:source as any});
+    const isSeen=(ack:any)=>ack?.revision===review.acknowledgment.revision&&ack?.payloadSha256===review.acknowledgment.payloadSha256;
+    const source={sameEvidence:()=>true,detail:()=>f.detail,
+      reviewSummaries:(acknowledgments:any[]=[])=>({[f.detail.flightId]:{...review,changed:!acknowledgments.some(isSeen)}}),
+      sourceReview:(_id:string,ack:any)=>isSeen(ack)?null:review};
+    f.session.service.readStored=async()=>{
+      if(readPause){readPause.entered.resolve();await readPause.resume.promise;}
+      return {snapshot:f.snapshot,flights:f.flights,detailSource:source as any};
+    };
     f.session.detailContext=()=>({ownerSelectionSeq:1,selectionIdentity:'source'});f.session.assertDetailContext=async()=>{};
-    f.session.readFlightAcknowledgments=async()=>[];
+    f.session.readFlightAcknowledgments=async()=>seen?[review.acknowledgment]:[];
     f.session.saveFlightAcknowledgment=async()=>{saves++;seen=true;};
   });
   let state=await h.flush();await state.openDetail(h.flights[0]);state=await h.flush();
   assert.ok(state.detailReview);assert.equal(saves,0,'opening a detail is not acknowledgment');
+  readPause={entered:deferred<void>(),resume:deferred<void>()};
+  const refresh=state.reload(true);await readPause.entered.promise;
+  try{
+    await h.render().acknowledgeDetail();
+    assert.equal(saves,0,'a held ordinary read must not start a competing acknowledgment');
+    assert.match(h.render().reviewError??'',/Prüfung.*erneut/,'a busy explicit action must explain what to do');
+  }finally{readPause.resume.resolve();await refresh;readPause=null;}
+  state=await h.flush();
   await state.acknowledgeDetail();state=await h.flush();
   assert.equal(saves,1);assert.equal(state.detailReview,null);assert.ok(state.detail,'acknowledgment preserves the open detail');
   assert.equal(state.view.sourceReviews[h.detail.flightId].changed,false);
