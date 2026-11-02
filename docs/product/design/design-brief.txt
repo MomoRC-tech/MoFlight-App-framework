@@ -1987,114 +1987,114 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MedicalStatus.tsx
 
 ## MobileApp.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `4ff941ca6b9119430e23f1c8be5e0a6cb58340a27807151d98b51ddaa314119e`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/MobileApp.tsx](../../../apps/platform-lab/src/mobile/MobileApp.tsx); normalized SHA-256 `b85049d3a727961465e0d6e219f55e96abe480c7e332462588e56ecbe1fd5a64`.
 
 ### Literal colors
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `#064240` | 420 |
-| `#10282d` | 420 |
-| `#11263a` | 419 |
-| `#152d42` | 421 |
-| `#1b344a` | 424 |
-| `#227f87` | 420 |
-| `#78efdc` | 422 |
-| `#8ba4bc` | 363, 417 |
+| `#064240` | 421 |
+| `#10282d` | 421 |
+| `#11263a` | 420 |
+| `#152d42` | 422 |
+| `#1b344a` | 425 |
+| `#227f87` | 421 |
+| `#78efdc` | 423 |
+| `#8ba4bc` | 364, 418 |
 
 ### Typography declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `fontSize: 10` | 363, 417 |
-| `fontSize: 11` | 418 |
-| `fontSize: 12` | 420, 425 |
-| `fontSize: 13` | 419 |
-| `fontSize: 16` | 424 |
-| `fontSize: 20` | 418 |
-| `fontSize: 23` | 423 |
-| `fontSize: 25` | 425 |
-| `fontWeight: '600'` | 418, 420 |
-| `fontWeight: '700'` | 425 |
-| `letterSpacing: .6` | 417 |
-| `lineHeight: 16` | 363, 417, 418 |
-| `lineHeight: 17` | 420 |
-| `lineHeight: 18` | 425 |
-| `lineHeight: 25` | 418 |
-| `lineHeight: 29` | 425 |
+| `fontSize: 10` | 364, 418 |
+| `fontSize: 11` | 419 |
+| `fontSize: 12` | 421, 426 |
+| `fontSize: 13` | 420 |
+| `fontSize: 16` | 425 |
+| `fontSize: 20` | 419 |
+| `fontSize: 23` | 424 |
+| `fontSize: 25` | 426 |
+| `fontWeight: '600'` | 419, 421 |
+| `fontWeight: '700'` | 426 |
+| `letterSpacing: .6` | 418 |
+| `lineHeight: 16` | 364, 418, 419 |
+| `lineHeight: 17` | 421 |
+| `lineHeight: 18` | 426 |
+| `lineHeight: 25` | 419 |
+| `lineHeight: 29` | 426 |
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `borderRadius: 12` | 420 |
-| `borderRadius: 13` | 420 |
-| `borderRadius: 15` | 422 |
-| `borderRadius: 16` | 424, 425 |
-| `borderRadius: 17` | 421 |
-| `borderRadius: 18` | 423 |
-| `borderRadius: 2` | 425 |
-| `borderRadius: 20` | 424 |
-| `borderRadius: 22` | 419 |
-| `borderRadius: 24` | 419 |
-| `borderRadius: 9` | 420 |
-| `borderWidth: 1` | 419, 420, 423, 424, 425 |
-| `gap: 1` | 418 |
-| `gap: 10` | 322, 333 |
-| `gap: 12` | 321, 415, 421 |
-| `gap: 16` | 390 |
-| `gap: 18` | 422 |
-| `gap: 2` | 425 |
-| `gap: 3` | 417, 420 |
-| `gap: 4` | 425 |
-| `gap: 5` | 419 |
-| `gap: 6` | 423, 424 |
-| `gap: 7` | 419, 422 |
-| `gap: 8` | 388, 396, 397, 421, 424 |
-| `height: 2` | 425 |
-| `height: 30` | 422 |
-| `height: 48` | 424 |
-| `maxHeight: 150` | 424 |
-| `maxWidth: 480` | 333 |
-| `maxWidth: 520` | 233, 388, 390, 419, 421, 422 |
-| `maxWidth: 599` | 414, 425 |
-| `maxWidth: 600` | 318, 364, 374, 380 |
-| `maxWidth: 960` | 318, 364 |
-| `minHeight: 0` | 352, 367 |
-| `minHeight: 126` | 422 |
-| `minHeight: 34` | 421 |
-| `minHeight: 36` | 416 |
-| `minHeight: 40` | 419 |
-| `minHeight: 48` | 419, 421 |
-| `minHeight: 52` | 424 |
-| `minHeight: 60` | 425 |
-| `minHeight: 64` | 420 |
-| `minHeight: 66` | 420 |
-| `minHeight: 86` | 423 |
-| `minWidth: 0` | 418, 419 |
-| `padding: 0` | 421 |
-| `padding: 10` | 415 |
-| `padding: 12` | 415 |
-| `padding: 16` | 423 |
-| `padding: 4` | 417, 424 |
-| `padding: 6` | 425 |
-| `padding: 7` | 420 |
-| `paddingHorizontal: 12` | 419 |
-| `paddingHorizontal: 16` | 421 |
-| `paddingHorizontal: 6` | 420 |
-| `paddingHorizontal: 7` | 420 |
-| `paddingHorizontal: 8` | 424 |
-| `paddingVertical: 10` | 420 |
-| `paddingVertical: 4` | 419 |
-| `paddingVertical: 8` | 425 |
-| `width: '100%'` | 233, 321, 322, 323, 333, 363, 374, 380, 388, 390, 414, 419, 421, 422, 425 |
-| `width: '32%'` | 425 |
-| `width: '49.2%'` | 421 |
-| `width: 24` | 425 |
-| `width: 30` | 422 |
-| `width: 42` | 419 |
-| `width: 48` | 424 |
-| `width: 64` | 420 |
+| `borderRadius: 12` | 421 |
+| `borderRadius: 13` | 421 |
+| `borderRadius: 15` | 423 |
+| `borderRadius: 16` | 425, 426 |
+| `borderRadius: 17` | 422 |
+| `borderRadius: 18` | 424 |
+| `borderRadius: 2` | 426 |
+| `borderRadius: 20` | 425 |
+| `borderRadius: 22` | 420 |
+| `borderRadius: 24` | 420 |
+| `borderRadius: 9` | 421 |
+| `borderWidth: 1` | 420, 421, 424, 425, 426 |
+| `gap: 1` | 419 |
+| `gap: 10` | 323, 334 |
+| `gap: 12` | 322, 416, 422 |
+| `gap: 16` | 391 |
+| `gap: 18` | 423 |
+| `gap: 2` | 426 |
+| `gap: 3` | 418, 421 |
+| `gap: 4` | 426 |
+| `gap: 5` | 420 |
+| `gap: 6` | 424, 425 |
+| `gap: 7` | 420, 423 |
+| `gap: 8` | 389, 397, 398, 422, 425 |
+| `height: 2` | 426 |
+| `height: 30` | 423 |
+| `height: 48` | 425 |
+| `maxHeight: 150` | 425 |
+| `maxWidth: 480` | 334 |
+| `maxWidth: 520` | 234, 389, 391, 420, 422, 423 |
+| `maxWidth: 599` | 415, 426 |
+| `maxWidth: 600` | 319, 365, 375, 381 |
+| `maxWidth: 960` | 319, 365 |
+| `minHeight: 0` | 353, 368 |
+| `minHeight: 126` | 423 |
+| `minHeight: 34` | 422 |
+| `minHeight: 36` | 417 |
+| `minHeight: 40` | 420 |
+| `minHeight: 48` | 420, 422 |
+| `minHeight: 52` | 425 |
+| `minHeight: 60` | 426 |
+| `minHeight: 64` | 421 |
+| `minHeight: 66` | 421 |
+| `minHeight: 86` | 424 |
+| `minWidth: 0` | 419, 420 |
+| `padding: 0` | 422 |
+| `padding: 10` | 416 |
+| `padding: 12` | 416 |
+| `padding: 16` | 424 |
+| `padding: 4` | 418, 425 |
+| `padding: 6` | 426 |
+| `padding: 7` | 421 |
+| `paddingHorizontal: 12` | 420 |
+| `paddingHorizontal: 16` | 422 |
+| `paddingHorizontal: 6` | 421 |
+| `paddingHorizontal: 7` | 421 |
+| `paddingHorizontal: 8` | 425 |
+| `paddingVertical: 10` | 421 |
+| `paddingVertical: 4` | 420 |
+| `paddingVertical: 8` | 426 |
+| `width: '100%'` | 234, 322, 323, 324, 334, 364, 375, 381, 389, 391, 415, 420, 422, 423, 426 |
+| `width: '32%'` | 426 |
+| `width: '49.2%'` | 422 |
+| `width: 24` | 426 |
+| `width: 30` | 423 |
+| `width: 42` | 420 |
+| `width: 48` | 425 |
+| `width: 64` | 421 |
 
 ## OverviewTiles.tsx
 
@@ -2620,21 +2620,21 @@ Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsExplore
 
 ## StatisticsOverlay.tsx
 
-Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `050915d155e510bb9e407711237724f7318eeeac2fe19a83eff06dc033ce6e46`.
+Product mobile UI/model. Source: [apps/platform-lab/src/mobile/StatisticsOverlay.tsx](../../../apps/platform-lab/src/mobile/StatisticsOverlay.tsx); normalized SHA-256 `22ffa5c0761a992d4614c472651018788f6b5f559ee24161e0c98a3fb73481c4`.
 
 ### Geometry / opacity declarations
 
 | Value / declaration | Source line(s) |
 | --- | --- |
-| `gap: 12` | 89 |
-| `gap: 5` | 76 |
-| `gap: 8` | 63 |
-| `maxWidth: 600` | 63, 89 |
-| `minHeight: 0` | 89 |
-| `padding: 12` | 89 |
-| `paddingHorizontal: 10` | 67 |
-| `paddingHorizontal: 12` | 63 |
-| `width: '100%'` | 63, 89 |
+| `gap: 12` | 92 |
+| `gap: 5` | 79 |
+| `gap: 8` | 66 |
+| `maxWidth: 600` | 66, 92 |
+| `minHeight: 0` | 92 |
+| `padding: 12` | 92 |
+| `paddingHorizontal: 10` | 70 |
+| `paddingHorizontal: 12` | 66 |
+| `width: '100%'` | 66, 92 |
 
 ## StatusBadge.tsx
 

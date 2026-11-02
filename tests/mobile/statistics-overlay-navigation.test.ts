@@ -70,13 +70,14 @@ function fixture(initialSection: statisticsModel.StatisticsSection = 'overview')
     clearDetail() { events.push('clear-detail'); }, reload: async () => {events.push('reload');},
   };
   let back = () => false;
-  const render = () => { index = 0; const tree = exports.StatisticsOverlay({ data, onRefreshFinancial:()=>events.push('financial-refresh'), reloadKey:7, helpEnabled, onHelp:(id:string)=>events.push('help:'+id), today: '2026-10-22', fontScale, initialSection, onClose: () => events.push('close'), headerActions, feedback, onBackHandler: (handler: () => boolean) => { back = handler; } }); return tree as Element; };
+  let viewMode:'flights'|'costs'|undefined;
+  const render = () => { index = 0; const tree = exports.StatisticsOverlay({ data, viewMode, onViewModeChange:viewMode===undefined?undefined:(next:'flights'|'costs')=>{viewMode=next;}, onRefreshFinancial:()=>events.push('financial-refresh'), reloadKey:7, helpEnabled, onHelp:(id:string)=>events.push('help:'+id), today: '2026-10-22', fontScale, initialSection, onClose: () => events.push('close'), headerActions, feedback, onBackHandler: (handler: () => boolean) => { back = handler; } }); return tree as Element; };
   const nodes = (tree: Element) => {
     const found: Element[] = [];
     const visit = (value: any) => { if (!value || typeof value !== 'object' || !('children' in value)) return; found.push(value); value.children.forEach(visit); };
     visit(tree); return found;
   };
-  return { setFontScale:(value:number)=>{fontScale=value;}, keyboardEvents, setHelpEnabled:(enabled:boolean)=>{helpEnabled=enabled;}, data, flights, opened, events, headerActions, feedback, render, nodes: () => nodes(render()), back: () => back() };
+  return { controlMode:(next:'flights'|'costs')=>{viewMode=next;},setFontScale:(value:number)=>{fontScale=value;}, keyboardEvents, setHelpEnabled:(enabled:boolean)=>{helpEnabled=enabled;}, data, flights, opened, events, headerActions, feedback, render, nodes: () => nodes(render()), back: () => back() };
 }
 
 const explorer=(f:ReturnType<typeof fixture>)=>f.nodes().find(n=>n.type==='StatisticsExplorer')!;
@@ -133,4 +134,11 @@ test('a local read failure revokes hidden chart Back handlers',()=>{
 test('Costs keeps the verified owner, period and local Back separate from flight contributor navigation',()=>{
  const f=fixture();f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Kosten')!.props.onPress();let costs=f.nodes().find(n=>n.type==='ExpensesView')!;assert.equal(costs.props.expected.ownerId,'owner');assert.equal(costs.props.reloadKey,7);costs.props.onPeriod({mode:'month',year:2026,month:6});costs.props.onRefresh();assert.deepEqual(f.events,['financial-refresh']);costs.props.onBackHandler(()=>true);assert.equal(f.back(),true);
  f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Flüge')!.props.onPress();assert.ok(explorer(f));f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Kosten')!.props.onPress();costs=f.nodes().find(n=>n.type==='ExpensesView')!;assert.equal(costs.props.period.month,6);assert.equal(f.nodes().find(n=>n.type==='AppHeader')!.props.title,'Kosten');
+});
+
+test('a parent-held view intent selects Costs and both chips report subsequent user choices',()=>{
+ const f=fixture();f.controlMode('costs');
+ assert.equal(f.nodes().find(n=>n.type==='AppHeader')!.props.title,'Kosten');
+ f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Flüge')!.props.onPress();assert.ok(explorer(f));
+ f.nodes().find(n=>n.type==='Chip'&&n.props.title==='Kosten')!.props.onPress();assert.ok(f.nodes().some(n=>n.type==='ExpensesView'));
 });

@@ -690,6 +690,17 @@ test('Verein uses selected account sources in overview and detail routes',()=>{
  assert.equal(f.nodes().some(n=>n.type==='ClubDocumentNotices'),false);
 });
 
+test('Costs intent survives authoritative account resolution while the data subtree still resets',()=>{
+ const f=fixture();f.find('Dashboard').props.onStatistics(2026);f.render();
+ const first=f.find('StatisticsOverlay');const unknownKey=first.props.key;
+ assert.equal(typeof first.props.onViewModeChange,'function');first.props.onViewModeChange('costs');f.render();
+ f.showLoad(null,{snapshot:{ownerId:'owner-a',storeId:'store-a',account:{accountRef:'101'}}});
+ const loaded=f.find('StatisticsOverlay');assert.notEqual(loaded.props.key,unknownKey);assert.equal(loaded.props.viewMode,'costs');
+ f.showLoad(null,{snapshot:{ownerId:'owner-b',storeId:'store-b',account:{accountRef:'202'}}});
+ const switched=f.find('StatisticsOverlay');assert.notEqual(switched.props.key,loaded.props.key);assert.equal(switched.props.data.view.snapshot.ownerId,'owner-b');
+ switched.props.onClose();f.render();f.find('Dashboard').props.onStatistics(2026);f.render();assert.equal(f.find('StatisticsOverlay').props.viewMode,'flights');
+});
+
 test('compact toolbar preserves brand, sync/profile order, growing destination text and contextual Back',()=>{
  const headerSource=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/AppHeader.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,esModuleInterop:false}}).outputText;
  const react={createElement:(type:unknown,props:any,...children:any[])=>({type,props:props??{},children:children.flat(Infinity)})};
