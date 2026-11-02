@@ -50980,6 +50980,64 @@
           }
         }
       ]
+    },
+    {
+      "id": "compact-monthly-20261102-initial",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "d601021707c53fc93cc78cc58c8756812385d6c0",
+      "apk_sha256": "c68a769bfab63ce8543b76090d3ad75443546c96297627bf7489b2d61b246e91",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; MAIN390x900/font1, MIN360x900/font1.6, WIDE800x600/font1, density160; actual profile in evidence",
+      "input": "Fictional nonpersisting Cockpit/Statistics preview only.",
+      "conditions": "Installed committed-source Release, offline. Original display/network/install identity restored.",
+      "method": "Controller active elapsed including model deliberation, ADB, waiting and observer overhead.",
+      "limits": "Tooling wall-clock only, not app latency or controlled speed comparison. Source-specific reached states and remaining gates in evidence.",
+      "evidence": [
+        "docs/verification/2026-11-02-compact-monthly-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 174906.00000019185,
+          "outcome": "partial",
+          "details": {
+            "actions": 28,
+            "captures": 3,
+            "action_errors": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "compact-monthly-20261102-final",
+      "recorded_date": "2026-11-02",
+      "kind": "emulator-synthetic",
+      "source_commit": "0a510da5f51779941d5e7f4b763c03b771fd4280",
+      "apk_sha256": "3d0ddf3f516a71071df1ae66e87f18be13a2260653debb49080859e65e1a4a02",
+      "device": "MoFlight_Synthetic_API37, API37 x86_64, dark; MAIN390x900/font1, MIN360x900/font1.6, WIDE800x600/font1, density160; actual profile in evidence",
+      "input": "Fictional nonpersisting Cockpit/Statistics preview only.",
+      "conditions": "Installed committed-source Release, offline. Original display/network/install identity restored.",
+      "method": "Controller active elapsed including model deliberation, ADB, waiting and observer overhead.",
+      "limits": "Tooling wall-clock only, not app latency or controlled speed comparison. Source-specific reached states and remaining gates in evidence.",
+      "evidence": [
+        "docs/verification/2026-11-02-compact-monthly-native.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "controller",
+          "metric": "ui-controller-active-elapsed",
+          "milliseconds": 176233.99999993853,
+          "outcome": "success",
+          "details": {
+            "actions": 29,
+            "captures": 3,
+            "action_errors": 0
+          }
+        }
+      ]
     }
   ]
 }

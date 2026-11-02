@@ -1,5 +1,7 @@
 # MoFlight documentation
 
+Current UI increment: [compact monthly Start and cool controls](verification/2026-11-02-compact-monthly-start.md), retaining the upper season composition and lean tiles.
+
 Current Start: [restored season layout with lean tiles](verification/2026-11-02-start-restoration.md). [Experiment adoption review](product/design/pilot-experiment-adoption-review.md) is recommendations only; #116 awaits selection.
 
 Current charts: [modern vector implementation](verification/2026-11-02-modern-charts.md), with source-specific native selection/Back evidence.

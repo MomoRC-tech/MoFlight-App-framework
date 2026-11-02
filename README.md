@@ -1,5 +1,7 @@
 # MoFlight
 
+**2 November compact monthly Start (#122):** cool cyan/blue accents, short paired monthly time/count bars, smaller shared controls and corrected preview caller return. Upper season layout and lean tiles retained. [Source-specific evidence/limits](docs/verification/2026-11-02-compact-monthly-start.md); [current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-compact-monthly-2026-11-02-0a510da/MoFlight-Compact-Monthly-0a510da.zip), actual application source `0a510da5f51779941d5e7f4b763c03b771fd4280`.
+
 **2 November Start restoration (#121):** restores the rollback season-card layout and metric strip while retaining lean tiles, current colors and modern charts. [Source-specific checks and limits](docs/verification/2026-11-02-start-restoration.md); [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-start-restored-2026-11-02-6c898a3/MoFlight-Start-Restored-6c898a3.zip), actual application source `6c898a3b124c59d3d72d16065dffbd4bd9c17673`. The [21-item experiment review](docs/product/design/pilot-experiment-adoption-review.md) is recommendations only under #116; no experimental code is adopted.
 
 **2 November modern charts (Issue120):** true vector area trends, crisp role donuts, time/count switch and tap-to-inspect guides replace the rectangle plots. Costs shares the full-year trend. Native-found legend/role/preview Back issues corrected; affected host and dark MAIN/MIN/WIDE checks pass within [source-specific evidence](docs/verification/2026-11-02-modern-charts.md). [Download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-modern-charts-2026-11-02-8ca43fc/MoFlight-Modern-Charts-8ca43fc.zip), actual source `8ca43fcf8b435d43683bc7d210380e2595e6a82f`. Existing phone/iOS/light/service gates remain separate.
@@ -31,7 +33,9 @@ MoFlight is a mobile app in development for glider pilots, students and instruct
 
 ## Current delivery
 
-**Restored Start, lean tiles: [download current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-start-restored-2026-11-02-6c898a3/MoFlight-Start-Restored-6c898a3.zip)**, actual source `6c898a3b124c59d3d72d16065dffbd4bd9c17673`. [Checks and remaining gates](docs/verification/2026-11-02-start-restoration.md).
+**Compact monthly Start: [download current APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-compact-monthly-2026-11-02-0a510da/MoFlight-Compact-Monthly-0a510da.zip)**, actual source `0a510da5f51779941d5e7f4b763c03b771fd4280`. [Verification](docs/verification/2026-11-02-compact-monthly-start.md).
+
+**Earlier restored Start, lean tiles: [download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-start-restored-2026-11-02-6c898a3/MoFlight-Start-Restored-6c898a3.zip)**, actual source `6c898a3b124c59d3d72d16065dffbd4bd9c17673`. [Checks and remaining gates](docs/verification/2026-11-02-start-restoration.md).
 
 **Earlier modern-charts package: [download APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-modern-charts-2026-11-02-8ca43fc/MoFlight-Modern-Charts-8ca43fc.zip)**, actual source `8ca43fcf8b435d43683bc7d210380e2595e6a82f`. [Screenshots/checks](docs/verification/2026-11-02-modern-charts.md). Download, embedded source, APK/ZIP hashes and exact two-file inventory verified.
 

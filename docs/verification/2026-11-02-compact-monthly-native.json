@@ -1,0 +1,204 @@
+{
+  "sessions": [
+    {
+      "profile": "initial",
+      "application_commit": "d601021707c53fc93cc78cc58c8756812385d6c0",
+      "apk_sha256": "c68a769bfab63ce8543b76090d3ad75443546c96297627bf7489b2d61b246e91",
+      "actions_used": 28,
+      "captures_used": 3,
+      "active_elapsed_seconds": 174.90600000019185,
+      "android_api": "37",
+      "restoration": {
+        "display": true,
+        "network": true,
+        "installation": true,
+        "cleanup": true
+      },
+      "action_errors": [],
+      "worker_checks": {
+        "U01": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by Issue 122 affected-Start-only scope.",
+          "evidence": []
+        },
+        "U02": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by Issue 122 affected-Start-only scope.",
+          "evidence": []
+        },
+        "U03": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by Issue 122 affected-Start-only scope.",
+          "evidence": []
+        },
+        "U04": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by Issue 122 affected-Start-only scope.",
+          "evidence": []
+        },
+        "U05": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by Issue 122 affected-Start-only scope.",
+          "evidence": []
+        },
+        "U06": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by Issue 122 affected-Start-only scope.",
+          "evidence": []
+        },
+        "U07": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by Issue 122 affected-Start-only scope.",
+          "evidence": []
+        },
+        "U08": {
+          "status": "not_tested",
+          "observation": "Deliberately excluded by Issue 122 affected-Start-only scope.",
+          "evidence": []
+        },
+        "MAIN_MONTHLY": {
+          "status": "passed",
+          "observation": "MAIN 390x900 dp/font1.0/density160. Flight-time and count captures show compact cyan/current 2026 and blue-gray/prior 2025 paired bars, complete Jan–Dec axis, cool palette, small control faces and legible legend. Count switch changes scale to 0–2 Flüge and bar heights. Intentional upper metric overflow excluded.",
+          "evidence": [
+            "main-time.png",
+            "main-time.xml",
+            "main-count.png",
+            "main-count.xml"
+          ]
+        },
+        "MONTHLY_ROUTE": {
+          "status": "passed",
+          "observation": "start-monthly-bars opens Flugstatistik with Monatsaktivität and synthetic preview marker. Detailed chart defaults to flight time after opening from count view; metric preservation was not required.",
+          "evidence": [
+            "monthly-statistics.xml"
+          ]
+        },
+        "CONTEXT_BACK": {
+          "status": "failed",
+          "observation": "Contextual Zur vorherigen App-Ansicht from monthly Statistics returns to Designvorschau with Cockpit button, rather than preserving full Cockpit.",
+          "evidence": [
+            "context-return.xml"
+          ]
+        },
+        "MIN_MONTHLY": {
+          "status": "passed",
+          "observation": "MIN 360x900 dp/font1.6/density160 set before fresh Profile > Development > Designvorschau > Cockpit entry. Chart/control/legend contents do not overlap. Dash wraps into a separate row; 12 single-letter month labels fit. Unknown-time notes wrap cleanly. Upper metric overflow is intentional and excluded.",
+          "evidence": [
+            "min-time.png",
+            "min-time.xml"
+          ]
+        },
+        "WIDE": {
+          "status": "not_tested",
+          "observation": "Explicitly reserved for separate follow-up.",
+          "evidence": []
+        }
+      },
+      "parent_reviewed_images": [
+        "main-time.png",
+        "main-count.png",
+        "min-time.png"
+      ]
+    },
+    {
+      "profile": "final",
+      "application_commit": "0a510da5f51779941d5e7f4b763c03b771fd4280",
+      "apk_sha256": "3d0ddf3f516a71071df1ae66e87f18be13a2260653debb49080859e65e1a4a02",
+      "actions_used": 29,
+      "captures_used": 3,
+      "active_elapsed_seconds": 176.23399999993853,
+      "android_api": "37",
+      "restoration": {
+        "display": true,
+        "network": true,
+        "installation": true,
+        "cleanup": true
+      },
+      "action_errors": [],
+      "worker_checks": {
+        "U01": {
+          "status": "not_tested",
+          "observation": "Deliberately outside the narrow Issue122 MIN/WIDE scope; MAIN evidence reused by parent.",
+          "evidence": []
+        },
+        "U02": {
+          "status": "not_tested",
+          "observation": "Deliberately outside the narrow Issue122 MIN/WIDE scope; MAIN evidence reused by parent.",
+          "evidence": []
+        },
+        "U03": {
+          "status": "not_tested",
+          "observation": "Deliberately outside the narrow Issue122 MIN/WIDE scope; MAIN evidence reused by parent.",
+          "evidence": []
+        },
+        "U04": {
+          "status": "not_tested",
+          "observation": "Deliberately outside the narrow Issue122 MIN/WIDE scope; MAIN evidence reused by parent.",
+          "evidence": []
+        },
+        "U05": {
+          "status": "not_tested",
+          "observation": "Deliberately outside the narrow Issue122 MIN/WIDE scope; MAIN evidence reused by parent.",
+          "evidence": []
+        },
+        "U06": {
+          "status": "not_tested",
+          "observation": "Deliberately outside the narrow Issue122 MIN/WIDE scope; MAIN evidence reused by parent.",
+          "evidence": []
+        },
+        "U07": {
+          "status": "not_tested",
+          "observation": "Deliberately outside the narrow Issue122 MIN/WIDE scope; MAIN evidence reused by parent.",
+          "evidence": []
+        },
+        "U08": {
+          "status": "not_tested",
+          "observation": "Deliberately outside the narrow Issue122 MIN/WIDE scope; MAIN evidence reused by parent.",
+          "evidence": []
+        },
+        "MIN_LAYOUT": {
+          "status": "passed",
+          "observation": "360x900 dp, density 160, font 1.6: condensed Flugzeit/FlÃ¼ge toolbar, 2026/2025 legend and minus disclosure share one row. Twelve month positions visible. Short unknown-time line is single-line. No overlap in scoped toolbar/chart/unknown-time area; upper metric overflow is intentional and excluded.",
+          "evidence": [
+            "min-cockpit.xml",
+            "min-cockpit.png",
+            "min-profile-bottom.xml"
+          ]
+        },
+        "MONTHLY_ROUTE": {
+          "status": "passed",
+          "observation": "Tapping start-monthly-bars opens Flugstatistik with MonatsaktivitÃ¤t, selected Flugzeit, 2026 and 2025, 5 FlÃ¼ge and 5:20 h. Contextual Zur vorherigen App-Ansicht returns directly to Ãœbersicht Â· Demo Cockpit, with close-preview control, rather than general Designvorschau.",
+          "evidence": [
+            "min-monthly-statistics.xml",
+            "min-returned-cockpit.xml",
+            "min-returned-cockpit.png"
+          ]
+        },
+        "WIDE_LAYOUT": {
+          "status": "passed",
+          "observation": "800x600 dp, density 160, font 1.0: reentered route after activity recreation. Actual PNG shows centered capped cockpit card (approximately x152â€“648), compact chart controls, separate twelve month labels, no stretched controls. Lower card continues beneath fixed navigation and is scrollable; no broad layout acceptance claimed.",
+          "evidence": [
+            "wide-settled.xml",
+            "wide-cockpit.xml",
+            "wide-cockpit.png"
+          ]
+        }
+      },
+      "parent_reviewed_images": [
+        "min-cockpit.png",
+        "min-returned-cockpit.png",
+        "wide-cockpit.png"
+      ]
+    }
+  ],
+  "limits": [
+    "Synthetic dark Android only, not physical phone, iOS runtime, light theme, live provider or model acceptance.",
+    "Aesthetic acceptance belongs to the owner; controller completion is not an automatic UI pass."
+  ],
+  "parent_assessment": {
+    "initial_d601021": "MAIN time/count bars, legend, Jan–Dec and compact cool controls verified. Initial MIN has an unnecessary separate collapse row. The contextual-Back failure is confirmed and retained, not treated as a pass.",
+    "final_0a510da": "MIN360x900/font1.6/density160 shows one-row measure/legend/disclosure toolbar, twelve month initials, preserved year/count unknown-time notice and no scoped overlap. After opening monthly Statistics, the return capture is the actual Cockpit header/body. WIDE800x600/font1/density160 shows centered/capped card and bars, all twelve abbreviated months, compact controls and no plot overflow.",
+    "reuse": "Initial MAIN geometry/color/time-count behavior reused: final changes only combine the disclosure hit area, shorten status prose and correct Development preview caller return. No final MAIN screenshot or complete app visual acceptance is claimed.",
+    "limits": "Upper horizontal metric strip overflow remains intentional. All data fictional. No editing, provider/model, physical phone, iOS runtime, light, keyboard or extended spoken acceptance. Wide lower tiles not rechecked; their implementation is unchanged."
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "source_commit": "0a510da5f51779941d5e7f4b763c03b771fd4280",
+  "apk_sha256": "3d0ddf3f516a71071df1ae66e87f18be13a2260653debb49080859e65e1a4a02",
+  "zip_sha256": "54e9a6c87ae5202a61d58e111f0074a4792fb3fef9ad575a6dea98c77f2fd898",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "release_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/tag/lab-compact-monthly-2026-11-02-0a510da"
+}
