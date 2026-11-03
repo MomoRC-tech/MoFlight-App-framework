@@ -3,8 +3,9 @@ import {account,integer,object,text} from '../../../packages/ai-contracts/src/sh
 import type {createRelayService} from './relay-service.ts';
 export interface RelayHttpControls {
   operationalReady():boolean;
-  /** Must enforce reviewed durable per-origin/account quotas. No permissive default.
-   * Do not trust a caller-supplied forwarded IP without deployment proxy validation. */
+  /** Enforce approved durable quotas; no permissive default. The invited pilot uses
+   * account/global quotas (owner accepted per-IP deferral on3 November2026).
+   * Do not trust caller-supplied forwarded IPs; revisit before broader enrollment. */
   admit(request:Request,accountRef:string):Promise<boolean>;
 }
 /** Native JSON transport boundary; no CORS wildcard, operator route, logs or env/key loading. */

@@ -169,7 +169,7 @@
     "bundle_command": "deno bundle --config supabase/functions/ai-relay/deno.json --frozen-lockfile --no-remote --platform deno --packages external --minify --output build/ai-relay-edge.min.js supabase/functions/ai-relay/index.ts",
     "status": "deployed; observed function ai-relay Settings and Test surfaces",
     "gateway_verify_jwt": true,
-    "gateway_limit": "Dashboard retained legacy JWT verification ON; committed future historical-ID target verify_jwt=false is not yet applied. Activation requires reviewed gateway/origin controls.",
+    "gateway_limit": "Legacy JWT verification remains ON. Owner accepted per-IP deferral/account-global quotas for invited pilot; no gateway setting change or live activation follows.",
     "http_ready": "not configured; default closed",
     "provider_key_configured": false,
     "continuity_key_configured": false,
@@ -186,8 +186,25 @@
     "no_private_flight_input": true,
     "limits": [
       "No full enabled-handler DB RPC/provider/receipt path on hosted Edge proved.",
-      "No trusted proxy/origin quota acceptance.",
+      "Per-IP limiter not implemented; owner accepted account/global-only quotas for invited pilot, with stated revisit triggers.",
       "No observed Edge Deno version; local2.9.6 does not establish hosted API compatibility."
     ]
+  },
+  "owner_decisions": {
+    "date": "2026-11-03",
+    "paid_calls": "not authorized; prepare only, including no synthetic paid trial",
+    "quota_scope": "initial invited testers; account/global request quotas; per-IP limiting deferred",
+    "personal_monthly_micro_eur": 1000000,
+    "global_monthly_micro_eur": 1000000,
+    "question_review_ceiling_micro_eur": 500000,
+    "risk": "Known enabled account ID can be spoofed to consume its/shared allowance; inbound resource abuse is not fully prevented.",
+    "revisit": [
+      "observed abuse",
+      "broader enrollment",
+      "funding or allowance expansion",
+      "changed data access"
+    ],
+    "gateway_change_authorized": false,
+    "live_activation_authorized": false
   }
 }
