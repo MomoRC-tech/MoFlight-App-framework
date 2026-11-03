@@ -1,0 +1,435 @@
+{
+  "date": "2026-11-03",
+  "issue": 101,
+  "status": "open: current all-reference retrieval still times out; source-policy/resumable-batch decision pending",
+  "sources": [
+    {
+      "commit": "8a1e022cdc882e01894b63e6fd0b55b2e02949ac",
+      "apk_sha256": "318e671af2a8aa6a426b1a1b849ce0ac2b00b2dac34a7c8c9b3e65cd19b12d52",
+      "installed_apk_independently_pulled_and_hashed": true
+    },
+    {
+      "commit": "b330b4e86fd35a0d3d495238eeeafbd591ab12e6",
+      "apk_sha256": "b11ca1171322f364a89d2b18f38cdaad19a30fab17401d437d3e665fd99ebd28",
+      "installed_apk_independently_pulled_and_hashed": true,
+      "installation_uid_preserved": true
+    }
+  ],
+  "host": {
+    "source_commit": "b330b4e86fd35a0d3d495238eeeafbd591ab12e6",
+    "groups_passed": 5,
+    "mobile_passed": 2214,
+    "mobile_skipped": 2,
+    "python_run": 170,
+    "python_skipped": 19,
+    "report": "build/host-checks/20261103T152132Z-818b1f89/report.json",
+    "exports": [
+      "Android Hermes",
+      "iOS Hermes"
+    ],
+    "release": "Committed-source Android Release; no fixture entry override. Build-only host durations are not application latency."
+  },
+  "environment": {
+    "avd": "MoFlight_API37",
+    "read_only": true,
+    "no_snapshot": true,
+    "api": 37,
+    "abi": "x86_64",
+    "logical_dp": [
+      480,
+      800
+    ],
+    "density_dpi": 160,
+    "font_scale": 1,
+    "theme": "dark",
+    "data": "Existing selected own local account and101 observed references; identities/content omitted. Initial Costs showed absent financial view, later unknown values after journal/store preparation.",
+    "network": "Offline local baseline and AI draft checks; network enabled only for explicit authorized own-source financial reads/login; restored before shutdown."
+  },
+  "observations": [
+    {
+      "recorded_at_utc": "2026-11-03T14:55:11.999860+00:00",
+      "source_commit": "8a1e022cdc882e01894b63e6fd0b55b2e02949ac",
+      "operation": "initial-financial-panel-observer",
+      "outcome": "cancel-control-unavailable-before-readiness",
+      "samples": [
+        {
+          "id": "cancel-not-admitted",
+          "milliseconds": 5126.000500051305,
+          "outcome": "not-run",
+          "endpoint": "inclusive initial panel opening and one native hierarchy read; observer did not wait for local readiness"
+        }
+      ]
+    },
+    {
+      "recorded_at_utc": "2026-11-03T14:55:41.753546+00:00",
+      "source_commit": "8a1e022cdc882e01894b63e6fd0b55b2e02949ac",
+      "operation": "wait-for-local-readiness-then-cancel-explicit-retry",
+      "outcome": "retry-refused",
+      "samples": [
+        {
+          "id": "panel-readiness-observer",
+          "milliseconds": 2098.554600030184,
+          "outcome": "success",
+          "endpoint": "inclusive native UI observer; hierarchy polling and input overhead included"
+        },
+        {
+          "id": "cancel-before-save",
+          "milliseconds": 8989.773300010711,
+          "outcome": "success",
+          "endpoint": "inclusive native UI observer; hierarchy polling and input overhead included"
+        },
+        {
+          "id": "explicit-retry",
+          "milliseconds": 13155.884300125763,
+          "outcome": "refused",
+          "endpoint": "inclusive native UI observer; hierarchy polling and input overhead included"
+        }
+      ],
+      "cancel_confirmed": true
+    },
+    {
+      "recorded_at_utc": "2026-11-03T14:59:56.850255+00:00",
+      "source_commit": "8a1e022cdc882e01894b63e6fd0b55b2e02949ac",
+      "operation": "authenticated-panel-cancel-explicit-retry",
+      "outcome": "retry-refused",
+      "samples": [
+        {
+          "id": "authenticated-cancel",
+          "milliseconds": 12986.604099860415,
+          "outcome": "success",
+          "endpoint": "inclusive native UI observer; hierarchy polling and input overhead included"
+        },
+        {
+          "id": "authenticated-explicit-retry",
+          "milliseconds": 11663.214199943468,
+          "outcome": "refused",
+          "endpoint": "inclusive native UI observer; hierarchy polling and input overhead included"
+        }
+      ],
+      "cancel_confirmed": true
+    },
+    {
+      "recorded_at_utc": "2026-11-03T15:01:53.551480+00:00",
+      "source_commit": "8a1e022cdc882e01894b63e6fd0b55b2e02949ac",
+      "operation": "authenticated-uncancelled-retry",
+      "outcome": "observer-timeout",
+      "samples": [
+        {
+          "id": "uncancelled-retry",
+          "milliseconds": 290026.1963000521,
+          "outcome": "timeout",
+          "endpoint": "inclusive native UI observer; hierarchy polling and input overhead included"
+        }
+      ]
+    },
+    {
+      "recorded_at_utc": "2026-11-03T15:25:14.321411+00:00",
+      "source_commit": "b330b4e86fd35a0d3d495238eeeafbd591ab12e6",
+      "operation": "bounded-financial-cancel-explicit-retry",
+      "outcome": "retry-refused",
+      "samples": [
+        {
+          "id": "costs-ready-local-period",
+          "milliseconds": 31889.38910001889,
+          "outcome": "success",
+          "endpoint": "inclusive native UI observer; polling, input and local preparation overhead included"
+        },
+        {
+          "id": "bounded-cancel",
+          "milliseconds": 25538.505899952725,
+          "outcome": "success",
+          "endpoint": "inclusive native UI observer; polling, input and local preparation overhead included"
+        },
+        {
+          "id": "bounded-explicit-retry",
+          "milliseconds": 13004.660400096327,
+          "outcome": "refused",
+          "endpoint": "inclusive native UI observer; polling, input and local preparation overhead included"
+        }
+      ],
+      "observed_progress": [],
+      "failure": "sign-in-required",
+      "cancel_confirmed": true,
+      "baseline_period": "Jun 2026",
+      "baseline_known_subtotal": false
+    },
+    {
+      "recorded_at_utc": "2026-11-03T15:27:57.115980+00:00",
+      "source_commit": "b330b4e86fd35a0d3d495238eeeafbd591ab12e6",
+      "operation": "authenticated-in-progress-cancel-explicit-retry",
+      "outcome": "retry-refused",
+      "samples": [
+        {
+          "id": "bounded-authenticated-active-cancel",
+          "milliseconds": 25311.556400032714,
+          "outcome": "success",
+          "endpoint": "inclusive native UI observer; polling, input and local preparation overhead included"
+        },
+        {
+          "id": "bounded-authenticated-explicit-retry",
+          "milliseconds": 309166.53209994547,
+          "outcome": "refused",
+          "endpoint": "inclusive native UI observer; polling, input and local preparation overhead included"
+        }
+      ],
+      "observed_progress": [
+        {
+          "processed": 0,
+          "total": 101,
+          "billed": 0
+        },
+        {
+          "processed": 5,
+          "total": 101,
+          "billed": 0
+        }
+      ],
+      "retry_progress": [
+        {
+          "processed": 0,
+          "total": 101,
+          "billed": 0
+        },
+        {
+          "processed": 5,
+          "total": 101,
+          "billed": 0
+        },
+        {
+          "processed": 10,
+          "total": 101,
+          "billed": 0
+        },
+        {
+          "processed": 15,
+          "total": 101,
+          "billed": 0
+        },
+        {
+          "processed": 20,
+          "total": 101,
+          "billed": 0
+        },
+        {
+          "processed": 25,
+          "total": 101,
+          "billed": 4
+        },
+        {
+          "processed": 30,
+          "total": 101,
+          "billed": 9
+        },
+        {
+          "processed": 35,
+          "total": 101,
+          "billed": 14
+        },
+        {
+          "processed": 40,
+          "total": 101,
+          "billed": 17
+        },
+        {
+          "processed": 45,
+          "total": 101,
+          "billed": 22
+        },
+        {
+          "processed": 50,
+          "total": 101,
+          "billed": 27
+        },
+        {
+          "processed": 55,
+          "total": 101,
+          "billed": 28
+        },
+        {
+          "processed": 60,
+          "total": 101,
+          "billed": 28
+        },
+        {
+          "processed": 65,
+          "total": 101,
+          "billed": 28
+        },
+        {
+          "processed": 70,
+          "total": 101,
+          "billed": 28
+        },
+        {
+          "processed": 75,
+          "total": 101,
+          "billed": 28
+        }
+      ],
+      "failure": "timeout",
+      "cancel_progress": {
+        "processed": 5,
+        "total": 101,
+        "billed": 0
+      },
+      "cancel_confirmed": true
+    }
+  ],
+  "login_observers": [
+    {
+      "source_commit": "8a1e022",
+      "result": {
+        "ok": true,
+        "stage": "submitted-response",
+        "submitted": true
+      },
+      "milliseconds": 22265.2372,
+      "endpoint": "inclusive desktop DPAPI pipe plus native original-form key entry and response observer"
+    },
+    {
+      "source_commit": "b330b4e",
+      "result": {
+        "ok": true,
+        "stage": "submitted-response",
+        "submitted": true
+      },
+      "milliseconds": 20990.9638,
+      "endpoint": "inclusive desktop DPAPI pipe plus native original-form key entry and response observer"
+    }
+  ],
+  "earlier_retained_progress": [
+    {
+      "processed": 20,
+      "total": 101,
+      "billed": 0
+    },
+    {
+      "processed": 25,
+      "total": 101,
+      "billed": 4
+    },
+    {
+      "processed": 30,
+      "total": 101,
+      "billed": 9
+    },
+    {
+      "processed": 35,
+      "total": 101,
+      "billed": 14
+    },
+    {
+      "processed": 40,
+      "total": 101,
+      "billed": 17
+    },
+    {
+      "processed": 45,
+      "total": 101,
+      "billed": 22
+    },
+    {
+      "processed": 50,
+      "total": 101,
+      "billed": 27
+    },
+    {
+      "processed": 55,
+      "total": 101,
+      "billed": 28
+    },
+    {
+      "processed": 60,
+      "total": 101,
+      "billed": 28
+    },
+    {
+      "processed": 65,
+      "total": 101,
+      "billed": 28
+    },
+    {
+      "processed": 85,
+      "total": 101,
+      "billed": 28
+    }
+  ],
+  "additional_retained_progress": {
+    "processed": 80,
+    "total": 101,
+    "billed": 28
+  },
+  "current_outcome": {
+    "cancel_after_five_of_101_confirmed": true,
+    "explicit_retry_last_observed": {
+      "processed": 75,
+      "total": 101,
+      "billed": 28
+    },
+    "application_timeout_observed": true,
+    "inclusive_retry_observer_ms": 309166.53209994547,
+    "successful_capture_or_readback": false,
+    "speedup_established": false,
+    "reason": "Full result did not complete before current limits. Network/provider/session/timing endpoints are uncontrolled; no provider bottleneck cause or optimization effect inferred."
+  },
+  "diagnostics": {
+    "fixed_code_tests": "33 focused passes plus eight overlapping collection passes; final host checkpoint passes.",
+    "native_fixed_failure_code_observation": "Not independently confirmed: bounded ordinary journey-page observers did not locate financial event codes. No export or successful code readback is claimed.",
+    "user_visible_reasons": "Sign-in required and timeout independently observed; earlier generic source refusal not reclassified retrospectively."
+  },
+  "cleanup": {
+    "original_guest_settings_restored_before_shutdown": true,
+    "display_unchanged": true,
+    "owned_emulator_stopped_again": true,
+    "other_project_5554_untouched_and_running": true,
+    "images": [
+      {
+        "name": "cache.img",
+        "size_unchanged": true,
+        "mtime_unchanged": true,
+        "expected_mtime_utc": "2026-10-10T09:28:23.7520236Z",
+        "actual_mtime_utc": "2026-10-10T09:28:23.7520236Z"
+      },
+      {
+        "name": "cache.img.qcow2",
+        "size_unchanged": true,
+        "mtime_unchanged": true,
+        "expected_mtime_utc": "2026-11-02T19:26:06.1094781Z",
+        "actual_mtime_utc": "2026-11-02T19:26:06.1094781Z"
+      },
+      {
+        "name": "userdata-qemu.img",
+        "size_unchanged": true,
+        "mtime_unchanged": true,
+        "expected_mtime_utc": "2026-10-10T09:28:22.7120912Z",
+        "actual_mtime_utc": "2026-10-10T09:28:22.7120912Z"
+      },
+      {
+        "name": "userdata-qemu.img.qcow2",
+        "size_unchanged": true,
+        "mtime_unchanged": false,
+        "expected_mtime_utc": "2026-11-02T19:26:06.0581447Z",
+        "actual_mtime_utc": "2026-11-03T14:48:14.8415973Z"
+      }
+    ],
+    "all_image_sizes_unchanged": true,
+    "all_image_mtimes_unchanged": false,
+    "original_apk_reappeared_sha256": "7af2b6a345df1c0c5d14dee1a6626af0c39433ed62c2bfa8b8418902ac3dc0a8",
+    "original_radios_font_display_reappeared": true,
+    "verification_boot_no_install_or_explicit_app_launch": true,
+    "full_private_data_byte_hash_comparison": false
+  },
+  "limits": [
+    "No successful current financial saved-result/readback or receipt-inventory/byte invariance claim. Opening a request may prepare empty stores/journal.",
+    "Last-observed progress is not a complete request trace. Old observer limit290026.1963ms and subsequently observed app timeout are different endpoints; exact old app-timeout duration unmeasured.",
+    "One original userdata QCOW modification time advanced at first read-only startup; three other image mtimes and all sizes match. Independently reappearing original APK/settings prove discarded guest changes, not complete private-data byte preservation.",
+    "Observer errors in populated-baseline/login-return/covered-navigation/menu/diagnostic-page selection remain recorded; no app failure or elapsed sample invented for unmeasured attempts.",
+    "All actual timing/counter observations and environment boots belong to #90. Nested read stages are inclusive/interleaved, not assigned to outer financial/AI operations by proximity.",
+    "No model/provider-AI call, payment/provider write, PDF, new service, spending, second live account, phone, iOS or full beta acceptance."
+  ],
+  "next_decision": {
+    "recommended": "Preserve every selected reference with resumable batches and validated all-reference promotion.",
+    "alternative": "Sync-first saved billed-status candidates plus unknown fallback, accepting last-observed freshness/coverage limits.",
+    "implementation_selected": false
+  }
+}

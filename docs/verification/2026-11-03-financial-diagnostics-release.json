@@ -1,0 +1,13 @@
+{
+  "source_commit": "b330b4e86fd35a0d3d495238eeeafbd591ab12e6",
+  "apk_sha256": "b11ca1171322f364a89d2b18f38cdaad19a30fab17401d437d3e665fd99ebd28",
+  "zip_sha256": "5b9a0c0f164969ccbbaba249c7501c8393e1876ebc02ebb765bfe9f305f81a25",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "download_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-financial-diagnostics-2026-11-03-b330b4e/MoFlight-Financial-Diagnostics-b330b4e.zip",
+  "known_limit": "Financial101-reference retry still times out; no successful current readback, speedup or beta acceptance; AI remains disabled."
+}

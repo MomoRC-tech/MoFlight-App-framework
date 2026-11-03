@@ -58,7 +58,7 @@
   "draft_sha256": "e39a84028a9ce4b0e03ce2eb601d64e9bb3c2fb41356557eda9b05fac083323a",
   "outcome": "eight scoped local checks pass across initial trial and continuation",
   "observer_limit": "Initial trial passed edit/restart checks, then stopped during unavailable-service menu observation. Individual original result remains failed; a separate ordinary-menu continuation verifies unavailable enablement, reconnect state and delete cancel/confirm. No app fix/rebuild or successful single uninterrupted run is implied.",
-  "cleanup": "Only uniquely named synthetic trial conversation deleted and absent from observed history; source emulator images remain protected by -read-only, final shutdown/metadata confirmation belongs to financial continuation.",
+  "cleanup": "Trial conversation removed. Both owned read-only instances stopped; original APK/radios/font/display independently reappeared. All image sizes and three mtimes match; original userdata QCOW mtime advanced at initial read-only startup. No full private-data byte comparison. See 2026-11-03-financial-retry.json.",
   "limits": [
     "No model/provider request, spending, relay client, fake/seeded model answer or ordinary live answer.",
     "Unavailable enablement leaves Send disabled; reconnect preserves the exact draft. This is source/UI-state evidence, not a packet trace.",
