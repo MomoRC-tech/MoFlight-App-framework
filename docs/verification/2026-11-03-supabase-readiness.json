@@ -98,7 +98,7 @@
     "Conservative full-context bound implemented/hosted validators verified; actual route/receipt/pricing/fees/input/funding and native beta acceptance remain open."
   ],
   "context_reservation_rollout": {
-    "source_commit": "ed52071",
+    "source_commit": "ed5207161a2e96be7a29a9d70b9a2b2a1bdfd545",
     "verification": {
       "ok": true,
       "action": "context",
@@ -162,7 +162,7 @@
     }
   },
   "edge_deployment": {
-    "source_commit": "ed52071",
+    "source_commit": "ed5207161a2e96be7a29a9d70b9a2b2a1bdfd545",
     "method": "Dashboard editor; Deno2.9.6 minified single-file bundle; editor copy/readback normalized LF exactly matched before deployment",
     "bundle_sha256": "5aab02cdd729bb945ed0e46a7bc31deefbff768576ed54f38354cef010feeb82",
     "bundle_bytes": 419913,
