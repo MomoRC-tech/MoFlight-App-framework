@@ -41,6 +41,10 @@
     {
       "name": "202611030001_ai_context_reservation.sql",
       "sha256": "eca77a6087ffa2c85f5888a93d26d37ecd9e168deea90223bfc4408fd3909f7e"
+    },
+    {
+      "name": "20261103133301_ai_bootstrap_helper_privileges.sql",
+      "sha256": "4a7f6c8b122960e0db8c0deb13819e078d1865050da70d0ebbb16d73b6b4a756"
     }
   ],
   "verification": {
@@ -92,7 +96,7 @@
   },
   "limits": [
     "AI disabled: kill=true, operational_ready=false, funding_approved=false, no policy/price/accounts persisted.",
-    "SQL source applied directly; Supabase CLI migration history was not registered. Reconcile before a future db push; never blindly reapply.",
+    "First three migrations were applied directly, then registered with CLI3.0.0 repair without replay. The fourth privilege migration was pushed normally; connector history matches all four files and final dry run is empty.",
     "Real Edge bootstrap deployed and closed503 smoke passes; no model request, private flight upload, product Auth or cloud sync.",
     "Auth registration/confirmation/recovery, two-user REST/Storage/RLS and enabled PostgREST/provider transport remain untested.",
     "Conservative full-context bound implemented/hosted validators verified; actual route/receipt/pricing/fees/input/funding and native beta acceptance remain open."
@@ -206,5 +210,85 @@
     ],
     "gateway_change_authorized": false,
     "live_activation_authorized": false
+  },
+  "connected_plugin_followup": {
+    "date": "2026-11-03",
+    "project": "moflight-ai",
+    "source_commit": "6a54bdc21fb063eb0777c04bd73a0d70dc9f7305",
+    "cli_version": "3.0.0",
+    "history_repaired_without_replay": [
+      "202610240001",
+      "202610240002",
+      "202611030001"
+    ],
+    "new_migration": "20261103133301_ai_bootstrap_helper_privileges.sql",
+    "migrations": [
+      {
+        "version": "202610240001",
+        "name": "ai_policy_ledger"
+      },
+      {
+        "version": "202610240002",
+        "name": "ai_receipts_and_request_limits"
+      },
+      {
+        "version": "202611030001",
+        "name": "ai_context_reservation"
+      },
+      {
+        "version": "20261103133301",
+        "name": "ai_bootstrap_helper_privileges"
+      }
+    ],
+    "verification": {
+      "controls": {
+        "kill": true,
+        "epoch": 0,
+        "no_price": true,
+        "no_policy": true,
+        "funding_approved": false,
+        "operational_ready": false
+      },
+      "ai_function_count": 14,
+      "private_ai_tables": 10,
+      "probe_rolled_back": true,
+      "private_ai_protected": true,
+      "event_trigger_enabled": true,
+      "automatic_rls_probe_passed": true,
+      "runtime_helper_execute_denied": true,
+      "ai_function_client_execution_denied": true
+    },
+    "security_advisors_after": [
+      {
+        "name": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 10
+      }
+    ],
+    "edge": {
+      "version": 1,
+      "verify_jwt": true,
+      "source_bytes": 419913,
+      "normalized_source_matches": true
+    },
+    "model_calls": 0,
+    "private_input": false,
+    "limits": [
+      "No enabled provider/receipt/native acceptance; model execution remains unapproved.",
+      "Private-table RLS-without-policy INFO notices are intentional deny-by-default configuration."
+    ],
+    "history_final_dry_run": {
+      "up_to_date": true,
+      "pending_migrations": [],
+      "seeds": [],
+      "roles": [],
+      "vault_updates_skipped": true
+    },
+    "local_regression": {
+      "postgres_version": "18.4",
+      "cases_passed": 1,
+      "log": "build/ai-bootstrap-helper-postgres.log",
+      "owned_cluster_stopped": true
+    }
   }
 }
