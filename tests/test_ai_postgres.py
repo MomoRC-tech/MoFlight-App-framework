@@ -124,6 +124,14 @@ class AiPostgres(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0, 'Unexpectedly permitted: ' + text)
         return result.stderr
 
+    def policy_state(self):
+        return self.ok("""select concat_ws('|',epoch::text,coalesce(policy_id,'<null>'),kill::text,
+          operational_ready::text,funding_approved::text,halted::text,coalesce(price_id,'<null>'),
+          (select md5(coalesce(string_agg(id||':'||md5(body::text),'#' order by id),'')) from moflight_ai.policies),
+          (select md5(coalesce(string_agg(account_ref||':'||enabled::text||':'||funded::text,'#' order by account_ref),'')) from moflight_ai.accounts),
+          (select md5(coalesce(string_agg(concat_ws(':',seq::text,action,epoch::text,coalesce(object_id,''),reason),'#' order by seq),'')) from moflight_ai.audit))
+          from moflight_ai.control where singleton""")
+
     def setUp(self):
         type(self).database = 'ai_' + uuid.uuid4().hex
         result = self.sql('create database ' + self.database, database='postgres')
@@ -174,13 +182,42 @@ class AiPostgres(unittest.TestCase):
         self.assertEqual(self.ok('select kill and not operational_ready and not funding_approved from moflight_ai.control'), 't')
         for role in ('anon', 'authenticated', 'service_role'):
             self.denied(f'set role {role}; select * from moflight_ai.control')
+            self.denied(f'set role {role}; select * from moflight_ai.policies')
+            self.denied(f'set role {role}; select * from moflight_ai.audit')
             self.denied(f"set role {role}; select public.moflight_ai_publish_policy('{{}}',0,'forged-owner')")
         for role in ('anon', 'authenticated'):
             self.denied(f"set role {role}; select public.moflight_ai_snapshot('101')")
+            self.denied(f"set role {role}; select public.moflight_ai_usage('101')")
             self.denied(f'set role {role}; ' + self.reserve())
         self.setup_policy()
         self.assertEqual(json.loads(self.ok("set role service_role; create temp table accounts(account_ref text); create temp table control(singleton boolean); create temp table policies(id text); select public.moflight_ai_snapshot('101')"))['policy']['id'],'p1')
         self.assertEqual(json.loads(self.ok('set role service_role; '+self.reserve()))['disposition'],'new')
+
+    def test_runtime_roles_cannot_publish_or_override_operator_state(self):
+        self.setup_policy()
+        before = self.policy_state()
+        audit_count = int(self.ok('select count(*) from moflight_ai.audit'))
+        epoch = int(before.split('|', 1)[0])
+        attempts = [
+            f"select public.moflight_ai_publish_policy({quote(json.dumps(base_policy(id='p2',systemPrompt='Modified client prompt')))}::jsonb,{epoch},'modified-client')",
+            f"select public.moflight_ai_activate_policy('p1',{epoch},'forged-rollback')",
+            f"select public.moflight_ai_controls({epoch},false,true,true,'synthetic','forged-controls')",
+            "select public.moflight_ai_account('101',false,false,'forged-account-override')",
+            "select public.moflight_ai_account('102',true,true,'forged-account')",
+            "update moflight_ai.control set kill=false,operational_ready=true,funding_approved=true,epoch=epoch+1",
+            "update moflight_ai.policies set body=body || '{\"systemPrompt\":\"client override\"}' where id='p1'",
+            "insert into moflight_ai.audit(action,epoch,object_id,reason) values('publish',99,'p2','forged-audit')",
+            "update moflight_ai.audit set reason='forged-audit'",
+        ]
+        for role in ('anon', 'authenticated', 'service_role'):
+            for attempt in attempts:
+                self.denied(f'set role {role}; {attempt}')
+                self.assertEqual(self.policy_state(), before, f'{role} changed policy/account/audit state via {attempt}')
+
+        # The protected operator path remains usable after all rejected client attempts.
+        self.publish(base_policy(id='p2'), epoch)
+        self.assertEqual(self.ok('select policy_id from moflight_ai.control'), 'p2')
+        self.assertEqual(self.ok('select count(*) from moflight_ai.audit'), str(audit_count + 1))
 
     def test_full_context_reservations_keep_personal_and_global_monthly_ceilings(self):
         self.setup_policy(inputTokens=1050000, questionCapMicroEur=500000, reviewCapMicroEur=500000)
@@ -204,19 +241,28 @@ class AiPostgres(unittest.TestCase):
 
     def test_policy_validation_cas_rollback_and_immutability(self):
         self.publish(base_policy(), 0)
+        rejected_state = self.policy_state()
         self.denied(f"select public.moflight_ai_publish_policy({quote(json.dumps(base_policy(id='bad')))}::jsonb,null,'missing-cas')")
+        self.assertEqual(self.policy_state(), rejected_state)
         self.denied("select public.moflight_ai_controls(null,false,true,true,null,'missing-cas')")
+        self.assertEqual(self.policy_state(), rejected_state)
         self.denied("select public.moflight_ai_activate_policy('p1',null,'missing-cas')")
+        self.assertEqual(self.policy_state(), rejected_state)
         for change in [dict(model=None), dict(reasoning='low'), dict(routes=['other']), dict(systemPrompt='\n\t'),
-                       dict(tools=['describeDataset', 'describeDataset']), dict(globalCapMicroEur=1000001), dict(extra='override'), dict(inputTokens=0)]:
+                       dict(tools=['describeDataset', 'describeDataset']), dict(features=['question', 'system']),
+                       dict(globalCapMicroEur=1000001), dict(extra='override'), dict(inputTokens=0)]:
             self.denied(f"select public.moflight_ai_publish_policy({quote(json.dumps(base_policy(id='bad',**change)))}::jsonb,1,'invalid')")
-            self.assertEqual(self.ok('select policy_id from moflight_ai.control'), 'p1')
+            self.assertEqual(self.policy_state(), rejected_state)
         self.denied(f"select public.moflight_ai_publish_policy({quote(json.dumps(base_policy(id='p2')))}::jsonb,0,'stale')")
+        self.assertEqual(self.policy_state(), rejected_state)
         self.publish(base_policy(id='p2', systemPrompt='New version'), 1)
         self.ok("select public.moflight_ai_activate_policy('p1',2,'rollback')")
         self.assertEqual(self.ok('select policy_id from moflight_ai.control'), 'p1')
         self.assertEqual(self.ok('select count(*) from moflight_ai.audit'), '3')
         self.denied("update moflight_ai.policies set body=body || '{\"reasoning\":\"low\"}'")
+        self.denied("update moflight_ai.audit set reason='rewritten'")
+        self.denied('delete from moflight_ai.audit')
+        self.assertEqual(self.ok('select count(*) from moflight_ai.audit'), '3')
 
     def test_concurrent_global_and_account_caps(self):
         self.setup_policy(globalCapMicroEur=100000)
