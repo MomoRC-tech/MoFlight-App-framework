@@ -28,7 +28,7 @@ export interface DiagnosticEntry {
   activeStages: DiagnosticStage[]; checkpoints: Checkpoint[];
   observedState: ObservedState;
 }
-export interface JourneyEvent { sequence: number; session: number; offset: number; kind: typeof journeyKinds[number]; target: typeof journeyTargets[number] }
+export interface JourneyEvent { sequence: number; session: number; offset: number; kind: typeof journeyKinds[number]; target: typeof journeyTargets[number]; operation?: DiagnosticReference }
 type Dated<T> = T & { retainedAt: number };
 interface Failure { operation: DiagnosticEntry; preceding: JourneyEvent[] }
 export interface DiagnosticOperation {
@@ -50,6 +50,11 @@ const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 const failures: DiagnosticOutcome[] = ['failed', 'blocked', 'partial', 'interrupted'];
 const validProcessExitToken = (value: unknown): value is string => typeof value === 'string' && /^[a-f0-9]{32}$/.test(value);
 const validSession = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value > 0 && value <= 1e12;
+const validSequence = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value > 0 && value <= 1e12;
+const cleanReference = (value: unknown): DiagnosticReference | undefined => {
+  const raw=object(value);
+  return validSession(raw.session)&&validSequence(raw.sequence)?{session:raw.session,sequence:raw.sequence}:undefined;
+};
 const cleanCounters = (value: unknown) => {
   const result: Partial<Record<typeof counterNames[number], Counter>> = {}, source = object(value);
   for (const key of counterNames) if (source[key]) { const c = object(source[key]); result[key] = { calls: number(c.calls), failures: number(c.failures), milliseconds: number(c.milliseconds) }; }
@@ -158,13 +163,15 @@ export class DiagnosticJournal {
     return { sequence: number(raw.sequence, 1e12), session: validSession(raw.session) ? raw.session : 0, action: raw.action, outcome: raw.outcome === 'running' ? 'interrupted' : raw.outcome,
       code: raw.outcome === 'running' ? 'interrupted' : member(diagnosticCodes, raw.code) ? raw.code : 'none', milliseconds: number(raw.milliseconds), trigger: raw.trigger === 'user' ? 'user' : 'automatic', offset: number(raw.offset),
       ...(typeof raw.droppedCheckpoints === 'number' && raw.droppedCheckpoints > 0 ? {droppedCheckpoints:number(raw.droppedCheckpoints)} : {}),
-      ...(typeof object(raw.relatedOperation).session === 'number' && typeof object(raw.relatedOperation).sequence === 'number' ?
-        {relatedOperation:{session:number(object(raw.relatedOperation).session,1e12),sequence:number(object(raw.relatedOperation).sequence,1e12)}} : {}),
+      ...(cleanReference(raw.relatedOperation) ? {relatedOperation:cleanReference(raw.relatedOperation)!} : {}),
       stages, activeStages: array(raw.activeStages).filter((v): v is DiagnosticStage => member(diagnosticStages, v)).slice(-8), checkpoints, observedState, retainedAt };
   }
   private cleanEvent(value: unknown): Dated<JourneyEvent> | null {
     const raw = object(value), retainedAt = this.date(raw.retainedAt);
-    return retainedAt !== null && member(journeyKinds, raw.kind) && member(journeyTargets, raw.target) ? { sequence: number(raw.sequence, 1e12), session: validSession(raw.session) ? raw.session : 0, offset: number(raw.offset), kind: raw.kind, target: raw.target, retainedAt } : null;
+    if(retainedAt===null||!member(journeyKinds,raw.kind)||!member(journeyTargets,raw.target))return null;
+    const operation=cleanReference(raw.operation);
+    return {sequence:number(raw.sequence,1e12),session:validSession(raw.session)?raw.session:0,offset:number(raw.offset),kind:raw.kind,target:raw.target,
+      ...(operation?{operation}:{}),retainedAt};
   }
   connect(storage: Storage) {
     if (this.storage) return; this.storage = storage;
@@ -190,8 +197,8 @@ export class DiagnosticJournal {
         const retainedMarker = loadedMarker?.session === session ? loadedMarker : null;
         for (const entry of loaded) if (entry.sequence === 0) entry.sequence = ++seq;
         for (const entry of this.entries) { entry.sequence += seq; entry.session += session; if(entry.relatedOperation){entry.relatedOperation.session+=session;entry.relatedOperation.sequence+=seq;} this.sizes.delete(entry); }
-        for (const event of this.events) { event.sequence += seq; event.session += session; this.sizes.delete(event); }
-        for(const failure of this.protectedFailures){failure.operation.sequence+=seq;failure.operation.session+=session;for(const event of failure.preceding){event.sequence+=seq;event.session+=session;}this.sizes.delete(failure);}
+        for (const event of this.events) { event.sequence += seq; event.session += session; if(event.operation){event.operation.sequence+=seq;event.operation.session+=session;} this.sizes.delete(event); }
+        for(const failure of this.protectedFailures){failure.operation.sequence+=seq;failure.operation.session+=session;for(const event of failure.preceding){event.sequence+=seq;event.session+=session;if(event.operation){event.operation.sequence+=seq;event.operation.session+=session;}}this.sizes.delete(failure);}
         for(const context of this.contexts){context.session+=session;this.sizes.delete(context);}
         const localMarker = this.processExitMarker;
         if (localMarker) localMarker.session += session;
@@ -223,8 +230,8 @@ export class DiagnosticJournal {
     return clone({ sequence, session, action, outcome, code, trigger, offset, milliseconds: this.starts.has(entry) ? number(this.now() - this.starts.get(entry)!) : entry.milliseconds, stages, activeStages, checkpoints, observedState, ...(droppedCheckpoints ? {droppedCheckpoints} : {}), ...(relatedOperation ? {relatedOperation} : {}) });
   }
   snapshot(): DiagnosticEntry[] { this.prune(); return this.entries.map(entry => this.view(entry)); }
-  journey(): JourneyEvent[] { this.prune(); return this.events.map(({ sequence, session, offset, kind, target }) => ({ sequence, session, offset, kind, target })); }
-  failureSnapshot(): Failure[] { this.prune(); return this.protectedFailures.map(f => ({ operation: this.view(f.operation), preceding: f.preceding.map(({ sequence, session, offset, kind, target }) => ({ sequence, session, offset, kind, target })) })); }
+  journey(): JourneyEvent[] { this.prune(); return this.events.map(({ sequence, session, offset, kind, target, operation }) => ({ sequence, session, offset, kind, target, ...(operation?{operation:{...operation}}:{}) })); }
+  failureSnapshot(): Failure[] { this.prune(); return this.protectedFailures.map(f => ({ operation: this.view(f.operation), preceding: f.preceding.map(({ sequence, session, offset, kind, target, operation }) => ({ sequence, session, offset, kind, target, ...(operation?{operation:{...operation}}:{}) })) })); }
   journeySummary() {
     const paths = new Map<string, { path: string; occurrences: number }>(); let previous: JourneyEvent | null = null;
     for (const event of this.journey()) { if(event.kind==='lifecycle'){previous=null;continue;} if (event.kind === 'screen') { if (previous && previous.session === event.session && previous.target !== event.target) { const path = `${previous.target} → ${event.target}`, known = paths.get(path); if (known) known.occurrences++; else paths.set(path, { path, occurrences: 1 }); } previous = event; } }
@@ -239,14 +246,15 @@ export class DiagnosticJournal {
     return JSON.stringify(short);
   }
   stats() { const text = this.export(); return { bytes: utf8Bytes(text), maxStorageBytes: DIAGNOSTIC_STORAGE_BYTES, operations: this.entries.length, actions: this.events.length, failures: this.protectedFailures.length }; }
-  record(kind: typeof journeyKinds[number], target: typeof journeyTargets[number]) {
+  record(kind: typeof journeyKinds[number], target: typeof journeyTargets[number], operationReference?: DiagnosticReference) {
     if (!member(journeyKinds, kind) || !member(journeyTargets, target)) return;
     if(kind==='screen'){this.currentScreen=target;if(!this.foreground)return;}
     if(kind==='lifecycle'&&(target==='background'||target==='inactive'))this.foreground=false;
     if(kind==='lifecycle'&&target==='active')this.foreground=true;
     const previous = this.events.at(-1);
-    if (previous?.session === this.session && previous.kind === kind && previous.target === target && (kind === 'screen' || kind === 'filter') && this.now() - this.origin - previous.offset < 1000) return;
-    this.events.push({ sequence: ++this.sequence, session: this.session, offset: number(this.now() - this.origin), kind, target, retainedAt: this.wall() }); this.changed(kind==='lifecycle');
+    const operation=cleanReference(operationReference);
+    if (!operation&&previous?.session === this.session && previous.kind === kind && previous.target === target && (kind === 'screen' || kind === 'filter') && this.now() - this.origin - previous.offset < 1000) return;
+    this.events.push({ sequence: ++this.sequence, session: this.session, offset: number(this.now() - this.origin), kind, target, ...(operation?{operation}:{}), retainedAt: this.wall() }); this.changed(kind==='lifecycle');
     if(kind==='lifecycle'&&(target==='active'||target==='start')&&this.currentScreen)this.record('screen',this.currentScreen);
   }
   private protect(entry: Dated<DiagnosticEntry>) {
@@ -260,7 +268,8 @@ export class DiagnosticJournal {
   }
   begin(action: DiagnosticAction, relatedOperation?: DiagnosticReference) {
     if (!member(diagnosticActions, action)) throw new Error('Unsupported diagnostic action');
-    const entry: Dated<DiagnosticEntry> = { sequence: ++this.sequence, session: this.session, action, ...(relatedOperation ? {relatedOperation:{...relatedOperation}} : {}), outcome: 'running', code: 'none', milliseconds: 0, stages: [], activeStages: [], checkpoints: [], observedState:{}, offset: number(this.now() - this.origin), trigger: action.startsWith('read-') || action.startsWith('start-') ? 'automatic' : 'user', retainedAt: this.wall() };
+    const relation=cleanReference(relatedOperation);
+    const entry: Dated<DiagnosticEntry> = { sequence: ++this.sequence, session: this.session, action, ...(relation ? {relatedOperation:relation} : {}), outcome: 'running', code: 'none', milliseconds: 0, stages: [], activeStages: [], checkpoints: [], observedState:{}, offset: number(this.now() - this.origin), trigger: action.startsWith('read-') || action.startsWith('start-') ? 'automatic' : 'user', retainedAt: this.wall() };
     this.entries.push(entry); this.starts.set(entry, this.now()); this.changed(true);
     return { reference: () => ({session:entry.session,sequence:entry.sequence}), running: () => this.entries.includes(entry) && entry.outcome === 'running', span: (name: string) => this.openSpan(name, entry), note:(key: typeof stateNames[number],state: typeof stateValues[number])=>{if(!this.entries.includes(entry)||entry.outcome!=='running'||!member(stateNames,key)||!member(stateValues,state))return;entry.observedState[key]=state;this.sizes.delete(entry);this.changed(false);}, finish: (outcome: Exclude<DiagnosticOutcome, 'running'>, code: DiagnosticCode = 'none') => {
       if (!this.entries.includes(entry) || entry.outcome !== 'running' || !member(['success','partial','failed','blocked','cancelled','interrupted'], outcome)) return;

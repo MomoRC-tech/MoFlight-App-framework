@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FlightDiagnostics, timeFlightStage } from '../../apps/platform-lab/src/vereinsflieger/flight-diagnostics';
+import { FlightDiagnostics, startFlightSpan, timeFlightStage } from '../../apps/platform-lab/src/vereinsflieger/flight-diagnostics';
 import { DiagnosticJournal, diagnosticJournal } from '../../apps/platform-lab/src/diagnostics';
 import { nodeDriver } from './sqlite-driver';
 
@@ -50,4 +50,13 @@ test('explicit flight stage starter stays with captured operation across awaits 
  const second=journal.begin('update-flights'),before=journal.snapshot();release();await stage;
  await timeFlightStage('graph-read',async()=>42,bound);
  assert.deepEqual(journal.snapshot(),before);second.finish('success');
+});
+
+test('provider timing starter remains with its flight operation while a concurrent local read becomes current',()=>{
+ const journal=new DiagnosticJournal(()=>0),provider=journal.begin('update-flights'),localRead=journal.begin('read-flights');
+ const end=startFlightSpan('session-verification',provider.span);end(true);
+ provider.finish('success');localRead.finish('success');
+ assert.deepEqual(journal.snapshot().map(operation=>[operation.action,operation.stages.map(stage=>stage.name)]),[
+  ['update-flights',['session-verification']],['read-flights',[]],
+ ]);
 });

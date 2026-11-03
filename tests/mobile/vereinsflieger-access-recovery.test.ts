@@ -31,6 +31,7 @@ import type { FinancialCaptureOptions } from '../../apps/platform-lab/src/verein
 import { FinancialObservationStore } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
 import type { FinancialObservationTarget } from '../../apps/platform-lab/src/vereinsflieger/expense-ledger-observation.ts';
 import type { RealFlightNativeScope } from '../../apps/platform-lab/src/vereinsflieger/real-flight-native.ts';
+import { DiagnosticJournal, type DiagnosticSpanStarter } from '../../apps/platform-lab/src/diagnostics.ts';
 import { nodeDriver } from './sqlite-driver.ts';
 import { financialTarget, financialHash, financialListUrl, financialDetailUrl, financialProfile, financialRead } from './fixtures/expense-capture.ts';
 const { FLIGHT_URL } = probe;
@@ -59,7 +60,7 @@ const savedLoginSource = ts.transpileModule(readFileSync(new URL('../../apps/pla
 const informationControllerSource = ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/use-information-controller.ts', import.meta.url), 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: false },
 }).outputText;
-function fixture(options: { localOwner?: string; deferFinancialAck?: boolean; http?:boolean; deferIdentity?: boolean; failIdentity?: boolean; panel?:boolean; deferViewSupersession?:boolean; failViewSupersession?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
+function fixture(options: { localOwner?: string; deferFinancialAck?: boolean; http?:boolean; deferIdentity?: boolean; failIdentity?: boolean; panel?:boolean; deferViewSupersession?:boolean; failViewSupersession?:boolean; developmentRecoveryCheckpoints?: boolean; noNativeRecovery?: boolean; failLegacyRead?: boolean; failSafety?: boolean; deferSafety?: boolean; failReceipt?: boolean; deferClear?: boolean; failClear?: boolean; persistedScope?: ProviderScope; scopedView?: ViewPreferences; deferBinding?: boolean; failBinding?: boolean; priorCapture?: probe.ProbeSnapshot; deferJournalSave?: boolean; deferCaptureSave?: boolean; product?: boolean; diagnosticSpan?:DiagnosticSpanStarter; deferLoginRead?: boolean; failLoginRead?: boolean; savedLogin?: { username: string; password: string } | null; failLoginForget?: boolean; deferLoginForget?: boolean } = {}) {
   let financialStore: FinancialObservationStore | null = null, finishFinancialAck!: () => void;
   const financialAck = new Promise<void>(resolve => { finishFinancialAck = resolve; });
   let resolveJournal!: (view: ViewPreferences | null) => void, rejectJournal!: (error: Error) => void;
@@ -150,7 +151,7 @@ function fixture(options: { localOwner?: string; deferFinancialAck?: boolean; ht
   const modules: Record<string, unknown> = {
     '../ai/historical-provider-identity-native': { rememberAuthenticatedProfileNative: async (ownerId:string,context:unknown,at:string,gate:()=>Promise<void>) => { await gate(); if(options.deferIdentity)await identityWrite; await gate(); if(options.failIdentity)throw new Error('Synthetic identity failure'); identities.push({ownerId,context,at}); } },
     './provider-diagnostics': { ...providerDiagnostics, recordProviderEvent(event:string) {providerEvents.push(event);}, recordProviderDocument() {} },
-    './flight-diagnostics': { startFlightSpan:(name:string)=>{const phase={name,result:null as boolean|null};diagnosticPhases.push(phase);return(result:boolean)=>{if(phase.result===null)phase.result=result;};} },
+    './flight-diagnostics': { startFlightSpan:(name:string,span?:DiagnosticSpanStarter)=>{const phase={name,result:null as boolean|null},finish=span?.(name);diagnosticPhases.push(phase);return(result:boolean)=>{if(phase.result===null)phase.result=result;finish?.(result);};} },
     '@moflight/flight-logbook': { canonical }, './legacy-recovery-store': legacyStore,
     react: { default: react, ...react },
     'react-native': { Platform:{OS:options.http?'android':'test'}, AppState: { currentState: 'active', addEventListener: (_: string, listener: (state: string) => void) => { appStateListener = listener; return { remove() { appStateListener = undefined; } }; } }, StyleSheet: { create: (value: unknown) => value }, View: 'View', Text: 'Text', FlatList: 'FlatList' },
@@ -261,7 +262,7 @@ function fixture(options: { localOwner?: string; deferFinancialAck?: boolean; ht
   let controller: ReturnType<typeof useAccessController>;
   function render() {
     index = 0;
-    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true, localOwner, !!options.developmentRecoveryCheckpoints); return options.panel?panelExports.ProviderConnection({controller,open:panelOpen,close:()=>{panelOpen=false;controller.dismissLogin();},guided:true,progress:{type:'Progress',props:{},children:[]}}):{ type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
+    const tree = options.product ? (() => { controller = controllerExports.useAccessController(true, localOwner, !!options.developmentRecoveryCheckpoints,options.diagnosticSpan?()=>options.diagnosticSpan:undefined); return options.panel?panelExports.ProviderConnection({controller,open:panelOpen,close:()=>{panelOpen=false;controller.dismissLogin();},guided:true,progress:{type:'Progress',props:{},children:[]}}):{ type: 'Host', props: {}, children: [controller.browser] }; })() : exported.AccessProbe({ close() {} });
     effects.splice(0).forEach(effect => effect()); return tree;
   }
   function find(tree: Element, predicate: (element: Element) => boolean): Element | undefined {
@@ -706,6 +707,20 @@ test('owned fresh retrieval waits for local preparation then starts with one pro
     assert.ok(f.diagnosticPhases.some(p=>p.name==='provider-local-preparation'&&p.result===true));
     await f.contextMessage(observedContext,context.PROFILE_URL,f.lastIssuedNonce());assert.deepEqual(stages,['prepare','retrieve'],'Duplicate reply cannot start another export');
   }finally{f.finishViewSupersession();f.unmount();}
+});
+
+test('provider hook spans remain on their captured operation after a newer local read starts',async()=>{
+ const journal=new DiagnosticJournal(()=>0),update=journal.begin('update-flights'),localRead=journal.begin('read-flights');
+ const f=fixture({product:true,persistedScope:{version:1,owner:'synthetic-pilot',connectionId:'prior',context:observedContext},diagnosticSpan:update.span});
+ f.render();await f.settle(null);await f.flush();
+ try{
+  assert.equal(f.controller().beginFreshFlightConnection(),true);
+  await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);await f.flush();
+  update.finish('success');localRead.finish('success');
+  assert.ok(journal.snapshot()[0]!.stages.some(stage=>stage.name==='session-verification'));
+  assert.ok(journal.snapshot()[0]!.stages.some(stage=>stage.name==='provider-local-preparation'));
+  assert.deepEqual(journal.snapshot()[1]!.stages,[]);
+ }finally{f.unmount();}
 });
 
 test('first-use owned retrieval confirms the binding once and advisory identity failure does not reject valid retrieval',async()=>{

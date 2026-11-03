@@ -4,6 +4,7 @@ import { AppState, Platform } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import * as Crypto from 'expo-crypto';
 import { startFlightSpan } from './flight-diagnostics';
+import type { DiagnosticSpanStarter } from '../diagnostics';
 import { recordProviderDocument, recordProviderEvent, loginDiagnosticScript, readLoginDiagnostic } from './provider-diagnostics';
 import { bridgeSource, flightUrl, FLIGHT_URL, LOGIN_URL, providerUrl, type ProbeSnapshot } from './probe';
 import { clearOriginalView, latestCapture, readOriginalView, saveCapture, saveOriginalView } from './storage';
@@ -37,8 +38,14 @@ type PendingFlightSource = { owner: string; input: RealFlightSourceInput };
 export type FreshFlightProgress = 'prepare' | 'retrieve';
 
 type DevelopmentCheckpoint = 'journal-armed' | 'journal-paused' | 'recovery-armed' | 'recovery-paused' | null;
+const noDiagnosticSpan: DiagnosticSpanStarter = () => Object.assign((_succeeded:boolean) => {}, {span:noDiagnosticSpan});
 
-export function useAccessController(product = false, localOwner?: string, developmentRecoveryCheckpoints = false) {
+export function useAccessController(product = false, localOwner?: string, developmentRecoveryCheckpoints = false,
+  getDiagnosticSpan?: () => DiagnosticSpanStarter | undefined) {
+  const diagnosticSpanContext=useRef<DiagnosticSpanStarter|undefined>(undefined);
+  const captureDiagnosticSpan=()=>{if(getDiagnosticSpan)diagnosticSpanContext.current=getDiagnosticSpan()??noDiagnosticSpan;};
+  const startDiagnosticFlightSpan=(name:string)=>startFlightSpan(name,getDiagnosticSpan
+    ? diagnosticSpanContext.current??getDiagnosticSpan()??noDiagnosticSpan : undefined);
   const activeOwner = useRef(localOwner); activeOwner.current = localOwner;
   const owner = useRef(localOwner), scope = useRef<ProviderScope | null>(null);
   const [activityChecking, setActivityChecking] = useState(false);
@@ -417,8 +424,9 @@ export function useAccessController(product = false, localOwner?: string, develo
     const reloadObservedProfile=product&&browserActive&&loaded&&currentUrl.current===PROFILE_URL&&session.current.state.phase==='observed';
     const nonce = Crypto.randomUUID();
     if (!session.current.start(nonce)) return false;
+    if(!guidedFlightLogin.current&&!freshFlightAttempt.current)captureDiagnosticSpan();
     recordProviderEvent('provider-check');
-    contextTiming.current?.(false);contextTiming.current=startFlightSpan('session-verification');
+    contextTiming.current?.(false);contextTiming.current=startDiagnosticFlightSpan('session-verification');
     setLoginNotice('none');
     contextRequest.current = { nonce, action, navigationObserved: false }; syncConnection();
     if (timeout.current) clearTimeout(timeout.current); timeout.current = null;
@@ -454,10 +462,11 @@ export function useAccessController(product = false, localOwner?: string, develo
   function connect() {
     if (financial.current?.active() || contextPreparation.current) return false;
     if (owner.current !== activeOwner.current || clearingStore.current || bindingBusy.current || !foreground.current || disconnectMode.current || retrieval.current.state.phase !== 'idle' || loginBusy || loginStorageBusy.current || loginAttempt.current || busy || contextRequest.current || saving) return false;
+    if(!guidedFlightLogin.current&&!freshFlightAttempt.current)captureDiagnosticSpan();
     recordProviderEvent('provider-connect');
     afterConfirmation.current = null; flightSourceAttempt.current = null; pendingFlightSource.current = null; setLoginNotice('none');
     session.current.invalidate(); syncConnection(); setVisible(true); setResult('none');
-    stopDiagnosticLogin(false);loginPageTiming.current=startFlightSpan('login-page');
+    stopDiagnosticLogin(false);loginPageTiming.current=startDiagnosticFlightSpan('login-page');
     navigate(LOGIN_URL);
     return true;
   }
@@ -471,7 +480,7 @@ export function useAccessController(product = false, localOwner?: string, develo
       session.current.invalidate();syncConnection();
     }
     if (!product || owner.current !== activeOwner.current || !viewReady || !foreground.current || contextRequest.current || contextPreparation.current || busy || saving || loginBusy || loginStorageBusy.current || loginAttempt.current || activityRequest.current?.active() || recovery&&!freshFlightAttempt.current || bindingBusy.current || clearingStore.current || disconnectMode.current) return false;
-    guidedLoginResume.current = null; guidedFlightLogin.current = true;
+    captureDiagnosticSpan();guidedLoginResume.current = null; guidedFlightLogin.current = true;
     clearCompletedFlightSource(); setResult('none');
     const admitted = scope.current&&session.current.state.phase!=='login-required' ? checkConnection() : connect();
     if (!admitted) endGuidedFlightConnection();
@@ -481,6 +490,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (financial.current?.active()) return false;
     if (contextPreparation.current) { setResult('failed'); setStatus('Previous local preparation is still closing. Retry after it finishes.'); return false; }
     if(!product||!recoveryKnown.current||!viewReady||!foreground.current||busy||saving||bindingBusy.current||clearingStore.current||disconnectMode.current)return false;
+    captureDiagnosticSpan();
     freshFlightAttempt.current=true;
     freshFlightProgress.current=progress??null;
     const admitted=beginGuidedFlightConnection();
@@ -700,7 +710,7 @@ export function useAccessController(product = false, localOwner?: string, develo
       }
       // The provider round trip has completed. Local writes have their own
       // deadline and retain admission until their native close actually settles.
-      const finishLocal = startFlightSpan('provider-local-preparation');
+      const finishLocal = startDiagnosticFlightSpan('provider-local-preparation');
       preparationTiming.current=finishLocal;
       contextTimer.current=setTimeout(()=>{
         if(contextRequest.current===request){finishLocal(false);contextFailed(false,'timeout');}
@@ -729,7 +739,7 @@ export function useAccessController(product = false, localOwner?: string, develo
               setStatus('Original provider page size needs restoration. Use Restore original view, then retry retrieval.');return;
             }
             // Archive old scoped evidence locally; do not replay preferences into the provider.
-            const finishPreparation=startFlightSpan('provider-view-supersede');
+            const finishPreparation=startDiagnosticFlightSpan('provider-view-supersede');
             try{await supersedeScopedView(bound,original.current,()=>{if(!current())throw new Error('Fresh attempt superseded.');});finishPreparation(true);}
             catch(error){finishPreparation(false);throw error;}
             if(!current()||epoch.current!==started||scope.current!==bound||!session.current.state.confirmed)throw new Error('Fresh attempt superseded.');
@@ -804,7 +814,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     if (product && page !== currentUrl.current) return;
     if(failedDocument.current===page){if(information.running())information.pageLoaded(page);return;}
     recordProviderDocument('end', page);
-    if(loginPage(page)){loginPageTiming.current?.(true);loginPageTiming.current=null;if(!userWaitTiming.current)userWaitTiming.current=startFlightSpan('user-sign-in-wait');}else{userWaitTiming.current?.(true);userWaitTiming.current=null;}
+    if(loginPage(page)){loginPageTiming.current?.(true);loginPageTiming.current=null;if(!userWaitTiming.current)userWaitTiming.current=startDiagnosticFlightSpan('user-sign-in-wait');}else{userWaitTiming.current?.(true);userWaitTiming.current=null;}
     const pageEpoch = epoch.current;
     phase.current.loaded = true; currentUrl.current = page; setUrl(page); setLoaded(true);
     if (financial.current?.pageLoaded(page, epoch.current)) return;
@@ -945,7 +955,7 @@ export function useAccessController(product = false, localOwner?: string, develo
       if (++restoreSteps.current > 30) { finish('View verification navigation limit reached.', state.nonce); return; }
       reading.current = true; command.current = Crypto.randomUUID(); armTimeout(state.nonce);
       setStatus(viewPhase.current === 'snapshot' ? 'Saving your original provider view before any export changes…' : `Restoring original provider view: ${viewPhase.current}…`);
-      bridgeTiming.current?.(false);bridgeTiming.current=startFlightSpan(`provider-view-${viewPhase.current}`);
+      bridgeTiming.current?.(false);bridgeTiming.current=startDiagnosticFlightSpan(`provider-view-${viewPhase.current}`);
       web.current?.injectJavaScript(viewScript(command.current, viewPhase.current, original.current)); return;
     }
     if (!active) return;
@@ -953,7 +963,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     reading.current = true; command.current = Crypto.randomUUID(); phase.current.injections++;
     armTimeout(state.nonce);
     setStatus(`Verifying export: ${active.phase}; ${active.pages.length} pages read.`);
-    bridgeTiming.current?.(false);bridgeTiming.current=startFlightSpan(`provider-export-${active.phase}`);
+    bridgeTiming.current?.(false);bridgeTiming.current=startDiagnosticFlightSpan(`provider-export-${active.phase}`);
     const attempt = flightSourceAttempt.current;
     if (product && Platform?.OS === 'android' && (HTTP_FLIGHT_READ_ENABLED || developmentAllowed.current) && !httpFallback.current && active.phase === 'read' && attempt) {
       const target = httpNext.current ?? new URL(FLIGHT_URL).pathname;

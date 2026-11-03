@@ -6,7 +6,7 @@ import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
 import { timeFlightStage } from '../vereinsflieger/flight-diagnostics';
 import { SyncVerificationScope } from '../vereinsflieger/sync-verification-scope';
-import { diagnosticJournal, type DiagnosticOperation, type DiagnosticAction } from '../diagnostics';
+import { diagnosticJournal, type DiagnosticOperation, type DiagnosticAction, type DiagnosticReference, type DiagnosticSpanStarter } from '../diagnostics';
 import { useAccessController } from '../vereinsflieger/use-access-controller';
 import { FinancialRetrievalPanel } from './FinancialRetrievalPanel';
 import { FinancialSourceProof } from './FinancialSourceProof';
@@ -141,10 +141,10 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
     const startup = (async()=>{
       if(!localPageOnly)release=await ownFlightReadPorts.suspend();
       if(!current){release?.();release=null;return;}
-      const opened=registry.current??await timeFlightStage('owner-registry-open',()=>openOwnerRegistry(false));
+      const opened=registry.current??await timeFlightStage('owner-registry-open',()=>openOwnerRegistry(false),diagnosis.current?.span);
       if(!current){if(opened!==registry.current)await opened?.close();return;}
       registry.current=opened;
-      const selected=await timeFlightStage('owner-selection',async()=>opened?.currentOwner());
+      const selected=await timeFlightStage('owner-selection',async()=>opened?.currentOwner(),diagnosis.current?.span);
       if(!current)return;
       if(!selected||!opened){setLease(null);return;}
       if((intent==='update'||intent==='connect')&&AppState.currentState==='active')verification=new SyncVerificationScope(selected);
@@ -158,7 +158,7 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
       // validate the flight graph under a reader reservation when requested.
       if(localPageOnly){await opened.assertCurrent(selected);if(current)setLease(selected);return;}
       let ready=false;
-      try{ready=await timeFlightStage('owner-setup',()=>finishOwnerSetup(selected,opened,false,true,verification));}catch{/* Preserve existing files and offer recovery. */}
+      try{ready=await timeFlightStage('owner-setup',()=>finishOwnerSetup(selected,opened,false,true,verification),diagnosis.current?.span);}catch{/* Preserve existing files and offer recovery. */}
       if(!current)return;
       if(ready)setLease(selected);
       else{diagnosis.current?.finish('blocked','owner-setup');setSetupLease(selected);setLease(null);setError(true);}
@@ -255,7 +255,8 @@ export function CoreFlightFoundation({ close, startUpdate = false, intent = star
 type WaitingSource = {request:{from:string;to:string};resolve:(source:RealFlightSourceInput)=>void;reject:(error:Error)=>void;started:boolean;checking:boolean;admissionAttempted:boolean;seenBusy:boolean;paused:boolean;resumeRequired:boolean;suppressReview:boolean;generation:number;timer:ReturnType<typeof setTimeout>|null;signal:AbortSignal;abort:()=>void};
 type LoadStage = 'sign-in'|'verify'|'flights'|'save'|'medical'|'done';
 function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,close,startUpdate,open=true,preparing=false,requestId=0,intent=startUpdate?'update':'options',onStatus,prepareSelectedLibrary,takeInitialRepository,diagnosis,developmentRecoveryCheckpoints,providerEntryAllowed=false,dialogTop,onProgress,onControls,onRequestSync,destination='sources'}:{verificationScope?:SyncVerificationScope;syncStartedAt?:number;destination?:OptionsDestination;developmentRecoveryCheckpoints:boolean;lease:RealOwnerLease;registry:RealOwnerRegistry;close:(result?:FlightLoadResult)=>void;startUpdate:boolean;open?:boolean;preparing?:boolean;requestId?:number;intent?:ConnectionIntent;onStatus?:(status:ProviderStatus)=>void;onProgress?:(progress:SyncProgress)=>void;onControls?:(controls:SyncControls|null)=>void;prepareSelectedLibrary:()=>Promise<boolean>;takeInitialRepository:()=>RealFlightRepositorySession|null;diagnosis:React.MutableRefObject<DiagnosticOperation|null>;providerEntryAllowed?:boolean;dialogTop?:number;onRequestSync?:()=>void}) {
-  const c=useAccessController(true,lease.ownerId,developmentRecoveryCheckpoints), controller=useRef(c);controller.current=c;
+  const diagnosticSpan = (): DiagnosticSpanStarter | undefined => diagnosis.current?.span;
+  const c=useAccessController(true,lease.ownerId,developmentRecoveryCheckpoints,diagnosticSpan), controller=useRef(c);controller.current=c;
   useEffect(()=>{
     if(open||!c.viewReady)return;
     return startSessionMonitor({active:AppState.currentState==='active',
@@ -394,14 +395,14 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     if(stage==='sign-in')estimateEvent({type:'pause',reason:'sign-in'});
     else{if(estimate.current?.status==='paused')estimateEvent({type:'resume'});estimateEvent({type:'start',stage});}
     if(stageTiming.current?.stage!==stage){stageTiming.current?.end(false);stageTiming.current={stage,end:diagnosis.current?.span(`sync-${stage}`)??(()=>{})};}
-    if(reportedStage.current!==stage){reportedStage.current=stage;diagnosticJournal.record('sync',`sync-${stage}`);}
+    if(reportedStage.current!==stage){reportedStage.current=stage;diagnosticJournal.record('sync',`sync-${stage}`,diagnosis.current?.reference());}
     setSyncProgress(previous=>startSyncStage(previous,stage));
   }
   function finishStage(stage:SyncStage){
     if(stage==='sign-in'&&estimate.current?.status==='paused')estimateEvent({type:'resume'});
     estimateEvent({type:'finish',stage:stage==='sign-in'?'account':stage});
     if(stageTiming.current?.stage===stage){stageTiming.current.end(true);stageTiming.current=null;}
-    diagnosticJournal.record('sync','sync-stage-finished');setSyncProgress(previous=>finishSyncStage(previous,stage));
+    diagnosticJournal.record('sync','sync-stage-finished',diagnosis.current?.reference());setSyncProgress(previous=>finishSyncStage(previous,stage));
   }
   async function syncStage<T>(stage:SyncStage,work:()=>Promise<T>):Promise<T>{startStage(stage);const runId=estimate.current?.runId;const end=diagnosis.current?.span(stage==='documents'?'document-notices':stage);try{const result=await work();end?.(true);if(estimate.current?.runId===runId)finishStage(stage);return result;}catch(error){
     end?.(false);if(estimate.current?.runId!==runId)throw error;estimateTainted.current=true;
@@ -421,7 +422,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
   const [loadStage,setLoadStage]=useState<LoadStage>('verify'),[loginPaused,setLoginPaused]=useState(false);
   const [,wakeSource]=useState(0);
   const [flightSaved,setFlightSaved]=useState<number|null>(null),[completed,setCompleted]=useState<FlightLoadResult|null>(null);
-  const interruption=useRef<'background'|'cancelled'|'timeout'|null>(null);
+  const interruption=useRef<'background'|'cancelled'|'timeout'|null>(null),resumableOperation=useRef<DiagnosticReference|null>(null);
   const jobVerification=useRef<{previous:typeof c.connection;resolve:()=>void;reject:(error:Error)=>void}|null>(null);
   const initialUpdate = useRef(false), automatic = useRef(false), returnedResult=useRef(false), stopRemainingJobs=useRef(false);
   const panelActive=useRef(open);panelActive.current=open;
@@ -491,10 +492,10 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     service.cancelReview();
     if(pending&&waiting.current===pending&&!defer){if(state.phase==='loading')current.cancelRetrieval();finishSource(new Error(reason));}
   }
-  async function refreshRestorePreparations() {
+  async function refreshRestorePreparations(span:DiagnosticSpanStarter=diagnosticSpan()??diagnosticJournal.captureSpan()) {
     let selection: Awaited<ReturnType<typeof openRealFlightSelection>> = null, blocked=true;
     try {
-      selection=await openRealFlightSelection(scope,false);
+      selection=await openRealFlightSelection(scope,false,undefined,span);
       if(!selection)throw new Error('Restore journal unavailable.');
       const preparations=await selection.listRestorePreparations();
       blocked=preparations.some(preparation=>preparation.status!=='activated');
@@ -521,9 +522,9 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     const initial=takeInitialRepository();
     try {
     // Keep restore recovery discoverable even when opening the selected graph fails.
-    await timeFlightStage('restore-inspection',refreshRestorePreparations);
-    const pending=await timeFlightStage('receipt-recovery',()=>syncEntry?service.prepareFreshFetch():service.recoverPending());
-    const view=await timeFlightStage('stored-view',()=>service.readStored(initial??undefined));
+    await timeFlightStage('restore-inspection',span=>refreshRestorePreparations(span),diagnosticSpan());
+    const pending=await timeFlightStage('receipt-recovery',span=>syncEntry?service.prepareFreshFetch(span):service.recoverPending(span),diagnosticSpan());
+    const view=await timeFlightStage('stored-view',span=>service.readStored(initial??undefined,span),diagnosticSpan());
     const interrupted=await readSyncRecovery(scope);
     return applyStoredView(view,pending,interrupted);
     } finally { await initial?.close(); }
@@ -533,7 +534,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     if(next.state==='confirm-account'&&selected.confirmed&&selected.observed?.accountNumber===next.accountRef){
       // The provider panel's explicit account confirmation applies to this
       // fresh owner. Persist that binding; flights still require reviewed save.
-      next=await service.confirmAccount(next);await refresh();
+      next=await service.confirmAccount(next,diagnosticSpan());await refresh();
     }
     return next;
   }
@@ -561,20 +562,22 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     return verified;
   }
   async function saveFlightReview(next:RealFlightReview) {
+    const span=diagnosticSpan();
     const verified=await prepareFlightSave(next);
     let interrupted:SyncRecoveryRecord|null=null;
     const {result,stored}=await service.saveVerifiedReviewWithStoredReadback(next,verified,async()=>{
-      await timeFlightStage('restore-inspection',refreshRestorePreparations);
+      await timeFlightStage('restore-inspection',nested=>refreshRestorePreparations(nested),span);
       interrupted=await readSyncRecovery(scope);
-    });
+    },span);
     return publishSavedFlight(next,{result,stored},interrupted);
   }
   async function loadAutomaticFlights() {
+    const span=diagnosticSpan();
     let interrupted:SyncRecoveryRecord|null=null;
     const saved=await service.retrieveUpdateWithStoredReadback({beforeSave:prepareFlightSave,beforeReadback:async()=>{
-      await timeFlightStage('restore-inspection',refreshRestorePreparations);
+      await timeFlightStage('restore-inspection',nested=>refreshRestorePreparations(nested),span);
       interrupted=await readSyncRecovery(scope);
-    }});
+    }},undefined,span);
     assertSyncActive();
     return publishSavedFlight(saved.review,saved,interrupted);
   }
@@ -588,17 +591,18 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     return {result,accountRef:next.accountRef,from:next.source.requestedWindow.from,to:next.source.requestedWindow.to};
   }
   async function finishAutomaticLoad(flights:()=>ReturnType<typeof saveFlightReview>,previous:Partial<OtherAccountDataResult>={}) {
+    const span=diagnosticSpan();
     const active=()=>alive.current&&foreground.current&&panelActive.current&&!stopRemainingJobs.current;
     const completed=await runAccountRetrievalJobs({flights,active,
       otherData:()=>retrieveOtherAccountData({active,previous,onResult:async(key,status)=>{
         if(!active()||!['updated','empty','partial'].includes(status)||!syncRecord.current)return;
         const updated={...syncRecord.current,sources:{...syncRecord.current.sources,[key]:status}} as SyncRecoveryRecord;
         await saveSyncRecovery(scope,updated);syncRecord.current=updated;setSavedSync(updated);
-      },medical:()=>syncStage('medical',()=>timeFlightStage('medical',()=>controller.current.retrieveMedical())),
+      },medical:()=>syncStage('medical',()=>timeFlightStage('medical',()=>controller.current.retrieveMedical(),span)),
         duties:()=>{setStep('Flüge gespeichert. Dienste werden geladen …');
           const account=controller.current.connection.observed?.accountNumber;
           if(!account)return Promise.reject(new Error('Verified duty account unavailable'));
-          return syncStage('duties',()=>timeFlightStage('duties',()=>refreshDuties(account,active)));},
+          return syncStage('duties',()=>timeFlightStage('duties',()=>refreshDuties(account,active),span));},
         events:()=>{setStep('Termine werden geladen …');return syncStage('events',()=>controller.current.retrieveFeatureInformation('events'));},
         documentNotices:()=>{setStep('Dokumenthinweise werden geladen …');return syncStage('documents',()=>controller.current.retrieveFeatureInformation('document-notices'));},
         workSummary:()=>{setStep('Arbeitsstunden · Jahresübersicht wird geladen …');return syncStage('work-summary',()=>controller.current.retrieveFeatureInformation('work-summary'));},
@@ -645,6 +649,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     if(lock.current||!foreground.current||!panelActive.current||!c.viewReady||c.recovery)return;
     setStep('Anmeldung wird vor dem erneuten Abruf geprüft …');
     void run(async()=>{
+      const span=diagnosticSpan();
       try {
         await new Promise<void>((resolve,reject)=>{
           jobVerification.current={previous:controller.current.connection,resolve,reject};
@@ -654,12 +659,12 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
         if(!foreground.current||!current.connection.confirmed)throw new Error('Fresh account proof required.');
         setLoadStage('medical');setStep(job==='medical'?'Medical wird erneut geladen …':'Dienste werden erneut geladen …');
         if(job==='medical'){
-          const capture=await timeFlightStage('medical',()=>current.retrieveMedical());
+          const capture=await timeFlightStage('medical',()=>current.retrieveMedical(),span);
           setCompleted(previous=>previous?{...previous,medicalStatus:capture.rows.length?'updated':'empty'}:previous);
         }else{
           const account=current.connection.observed?.accountNumber;
           if(!account)throw new Error('Verified duty account unavailable.');
-          await timeFlightStage('duties',()=>refreshDuties(account,()=>alive.current&&foreground.current&&panelActive.current));
+          await timeFlightStage('duties',()=>refreshDuties(account,()=>alive.current&&foreground.current&&panelActive.current),span);
           setCompleted(previous=>previous?{...previous,dutyStatus:'partial'}:previous);
         }
         setMessage('');
@@ -681,7 +686,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     if(!providerEntryAllowed)return;
     if(lock.current)return;
     if(!foreground.current)return;
-    setSyncProgress(previous=>({state:'active',last:previous.last,current:'prepare'}));automatic.current=true;returnedResult.current=false;stopRemainingJobs.current=false;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);setLoadStage('verify');setProviderOpen(true);setStep('Gespeicherte Daten und Abrufzeitraum werden geprüft …');
+    resumableOperation.current=null;setSyncProgress(previous=>({state:'active',last:previous.last,current:'prepare'}));automatic.current=true;returnedResult.current=false;stopRemainingJobs.current=false;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);setLoadStage('verify');setProviderOpen(true);setStep('Gespeicherte Daten und Abrufzeitraum werden geprüft …');
     void run(async()=>{
       beginEstimate(snapshot?.account?'repeat':'first',undefined,true);
       const record:SyncRecoveryRecord={version:1,ownerId:lease.ownerId,storeId:lease.storeId,accountRef:snapshot?.account?.accountRef??null,
@@ -696,10 +701,12 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
   }
   function continueSync() {
     if(lock.current||!foreground.current||!savedSync||!providerEntryAllowed)return;
+    const relatedOperation=resumableOperation.current;resumableOperation.current=null;
     setSyncProgress(previous=>({state:'active',last:previous.last,current:'prepare'}));automatic.current=true;returnedResult.current=false;
     stopRemainingJobs.current=false;interruption.current=null;setCompleted(null);setFlightSaved(null);setLoginPaused(false);
     setLoadStage('verify');setStep('Gespeicherten Fortschritt und Anmeldung prüfen …');setProviderOpen(true);
     void run(async()=>{
+      const span=diagnosticSpan();
       preparationInterrupted.current=false;
       prepareEstimate('resume',storedEstimateContext.current?.volume??syncEstimateVolume(null,flights.length),syncEstimateNow(),true,
         savedSync.flightCaptureId?remainingEstimateStages(savedSync.sources):undefined);
@@ -727,12 +734,13 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
           controller.current.connection.observed?.clubLabel!==record.clubLabel||!controller.current.connection.confirmed)
         throw new Error('Saved Sync account could not be verified.');
       finishStage('account');
-      setFlightSaved((await service.list()).length);
+      setFlightSaved((await service.list(span)).length);
       assertSyncActive();
       await finishAutomaticLoad(async()=>flight,record.sources);
-    },'update-flights');
+    },'update-flights',false,()=>true,'inspect',relatedOperation??undefined);
   }
   async function executeBackupWork(work:()=>Promise<unknown>, current:()=>boolean, mode:'inspect'|'export'|'restore') {
+    const span=diagnosticSpan()??diagnosticJournal.captureSpan();
     let release:(()=>void)|null=null;
     const assertCurrent=async()=>{
       if(!current()||!foreground.current)throw new Error('Backup page is inactive.');
@@ -748,29 +756,29 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
       }else{
         if(!await prepareSelectedLibrary())throw new Error('Selected owner setup remains incomplete.');
         await assertCurrent();
-        const blocked=await refreshRestorePreparations();await assertCurrent();
-        const pending=await service.recoverPending();setRecovery(pending);await assertCurrent();
+        const blocked=await refreshRestorePreparations(span);await assertCurrent();
+        const pending=await service.recoverPending(span);setRecovery(pending);await assertCurrent();
         if(mode==='export'){
-          const next=await service.snapshot();await assertCurrent();setSnapshot(next);
+          const next=await service.snapshot(span);await assertCurrent();setSnapshot(next);
           if(blocked||next.recovery.readOnly||pending.status==='not-committed'||pending.status==='recovery-required')throw new Error('Stored backup recovery requires attention.');
         }
       }
       await assertCurrent();return await work();
     } finally {release?.();}
   }
-  async function run(work:()=>Promise<unknown>, action:DiagnosticAction='library-operation', initial=false,isCurrent:()=>boolean=()=>true,backupMode:'inspect'|'export'|'restore'='inspect') {
+  async function run(work:()=>Promise<unknown>, action:DiagnosticAction='library-operation', initial=false,isCurrent:()=>boolean=()=>true,backupMode:'inspect'|'export'|'restore'='inspect',relatedOperation?:DiagnosticReference) {
     if(lock.current||!alive.current)return;lock.current=true;setBusy(true);setFailed(false);setMessage('');
     if(!initial)interruption.current=null;
-    if(!initial&&!diagnosis.current?.running())diagnosis.current=diagnosticJournal.begin(action);
+    if(!initial&&!diagnosis.current?.running())diagnosis.current=diagnosticJournal.begin(action,relatedOperation);
     const operation=diagnosis.current, preparation=backupPage&&!initial?entryPreparation.current:null;
     const current=()=>isCurrent()&&(!preparation||preparation.current&&preparation.ready&&entryPreparation.current===preparation&&panelActive.current&&alive.current);
-    try{await (backupPage&&!initial?executeBackupWork(work,current,backupMode):work());if(current()&&(!initial||!startUpdate))operation?.finish('success');}catch(error){if(!current()){diagnosticJournal.record('sync','sync-preparation-superseded');return;}
+    try{await (backupPage&&!initial?executeBackupWork(work,current,backupMode):work());if(current()&&(!initial||!startUpdate))operation?.finish('success');}catch(error){if(!current()){diagnosticJournal.record('sync','sync-preparation-superseded',operation?.reference());return;}
       const accountBlocked=controller.current.connection.phase==='mismatch'||error instanceof Error&&error.message==='Saved Sync account could not be verified.';
       operation?.finish(interruption.current==='cancelled'?'cancelled':error instanceof PendingRealFlightOperation?'blocked':'failed',interruption.current==='cancelled'?'cancelled':error instanceof PendingRealFlightOperation?'recovery-required':accountBlocked?'account-mismatch':'operation-failed');if(alive.current){
       if(syncEntry){
         estimateEvent({type:'terminal',outcome:interruption.current==='cancelled'?'cancelled':'failed'});
         stageTiming.current?.end(false);stageTiming.current=null;
-        setSyncProgress(previous=>({...previous,state:'failed',message:interruption.current==='cancelled'?'Synchronisierung abgebrochen. Gespeicherte Daten bleiben verfügbar.':accountBlocked?'Bitte mit dem bisherigen Vereinsflieger-Konto anmelden.':'Synchronisierung nicht abgeschlossen. Gespeicherte Daten bleiben verfügbar.'}));diagnosticJournal.record('sync','sync-failed');
+        setSyncProgress(previous=>({...previous,state:'failed',message:interruption.current==='cancelled'?'Synchronisierung abgebrochen. Gespeicherte Daten bleiben verfügbar.':accountBlocked?'Bitte mit dem bisherigen Vereinsflieger-Konto anmelden.':'Synchronisierung nicht abgeschlossen. Gespeicherte Daten bleiben verfügbar.'}));diagnosticJournal.record('sync','sync-failed',operation?.reference());
       }
       setFailed(true);setLoginPaused(false);
       setMessage(error instanceof PendingRealFlightOperation?'Der gespeicherte Auftrag muss zuerst über seinen Beleg geprüft werden. Kein neuer Auftrag wurde gestartet.':backupPage?'Dieser Schritt wurde nicht bestätigt. Bitte erneut versuchen. Gespeicherte Daten und Belege bleiben erhalten.':accountBlocked?'Das bisherige Vereinsflieger-Konto konnte nicht bestätigt werden. Bitte mit dem bisherigen Konto anmelden. Gespeicherte Daten bleiben erhalten.':interruption.current==='background'?'Abruf unterbrochen, weil die App verlassen wurde. Nach der Rückkehr kannst du gespeicherten Fortschritt fortsetzen.':interruption.current==='cancelled'?'Vorgang abgebrochen. Gespeicherte Daten bleiben erhalten. Über Sync kannst du später erneut beginnen.':interruption.current==='timeout'?'Der Datenabruf hat zu lange gedauert. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':controller.current.connection.phase==='error'?'Die Anmeldung konnte nicht bestätigt werden. Bitte erneut versuchen. Gespeicherte Daten bleiben erhalten.':controller.current.result==='failed'?retrievalFailureHint(controller.current.status):'Dieser Schritt wurde nicht bestätigt. Bitte erneut versuchen. Gespeicherte Daten und Belege bleiben erhalten.');
@@ -797,7 +805,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
           interruption.current='background';
           // Foreground return must not reactivate this explicit attempt while
           // its local reads, provider work or durable-save cleanup settle.
-          if(automatic.current)stopRemainingJobs.current=true;
+          if(automatic.current){stopRemainingJobs.current=true;resumableOperation.current=diagnosis.current?.reference()??null;}
         }
         estimateEvent({type:'terminal',outcome:'cancelled'});stageTiming.current?.end(false);stageTiming.current=null;
         diagnosis.current?.finish('cancelled','background');
@@ -820,7 +828,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     estimate.current=null;estimateSaved.current=false;preparationStarted.current=syncStartedAt??syncEstimateNow();preparationInterrupted.current=false;
     stageTiming.current?.end(false);stageTiming.current=null;
     if(open&&syncEntry)stageTiming.current={stage:'prepare',end:diagnosis.current?.span('sync-prepare')??(()=>{})};
-    initialUpdate.current=false;if(open&&syncEntry){reportedStage.current='prepare';diagnosticJournal.record('sync','sync-prepare');setSyncProgress({state:'active',last:null,current:'prepare'});controller.current.setEditingLogin?.(false);}setEntryReady(false);automatic.current=false;setCompleted(null);setFlightSaved(null);setFailed(false);setMessage('');
+    initialUpdate.current=false;if(open&&syncEntry){reportedStage.current='prepare';diagnosticJournal.record('sync','sync-prepare',diagnosis.current?.reference());setSyncProgress({state:'active',last:null,current:'prepare'});controller.current.setEditingLogin?.(false);}setEntryReady(false);automatic.current=false;setCompleted(null);setFlightSaved(null);setFailed(false);setMessage('');
     setProviderOpen(providerEntryAllowed&&open&&intent!=='options');
     if(!open){if(waiting.current)abandonSource('Sync surface closed.');return;}
     return()=>{preparation.current=false;};
@@ -852,7 +860,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
   useEffect(()=>{
     const preparation=entryPreparation.current;
     if(!open||!preparation?.current||preparation.started)return;
-    if(busy||lock.current){if(!preparation.deferred){preparation.deferred=true;diagnosticJournal.record('sync','sync-preparation-deferred');}return;}
+    if(busy||lock.current){if(!preparation.deferred){preparation.deferred=true;diagnosticJournal.record('sync','sync-preparation-deferred',diagnosis.current?.reference());}return;}
     preparation.started=true;
     const current=()=>preparation.current&&entryPreparation.current===preparation;
     void run(async()=>{
@@ -861,7 +869,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
   },[open,requestId,service,busy]);
   useEffect(()=>{
     if(!open||!syncEntry||!c.viewReadFailed)return;
-    diagnosticJournal.record('sync','sync-block-view');diagnosis.current?.note('view','failed');diagnosis.current?.finish('blocked','recovery-required');
+    diagnosticJournal.record('sync','sync-block-view',diagnosis.current?.reference());diagnosis.current?.note('view','failed');diagnosis.current?.finish('blocked','recovery-required');
     setSyncProgress(previous=>({...previous,state:'failed',message:'Anbieterstatus konnte nicht sicher gelesen werden. Gespeicherte Daten bleiben erhalten.'}));
   },[open,syncEntry,c.viewReadFailed]);
   useEffect(()=>{
@@ -876,7 +884,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     if(!syncEntry)return;
     if(snapshot.recovery.readOnly||recovery.status==='recovery-required'){
       const reason=snapshot.recovery.readOnly?'sync-block-library':'sync-block-save';
-      diagnosticJournal.record('sync',reason);diagnosis.current?.finish('blocked','recovery-required');
+      diagnosticJournal.record('sync',reason,diagnosis.current?.reference());diagnosis.current?.finish('blocked','recovery-required');
       setSyncProgress(previous=>({...previous,state:'failed',message:snapshot.recovery.readOnly?'Lokale Daten benötigen eine Prüfung in den Einstellungen. Vorhandene Daten bleiben erhalten.':'Eine begonnene Sicherung oder Speicherung muss in den Einstellungen geprüft werden.'}));return;
     }
     if(savedSync){estimateEvent({type:'terminal',outcome:'cancelled'});estimate.current=null;finishStage('prepare');setSyncProgress(previous=>({...previous,state:'waiting',current:null,message:'Synchronisierung unterbrochen. Fortsetzen oder alle Daten erneut abrufen.'}));return;}
@@ -920,7 +928,7 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
         retrievalPhase:retrieval.phase,saving:c.saving,restoring:c.restoring.current,busy:c.busy,recovery:c.recovery,
         captureId:input.capture.captureId,handledCaptureId:handledCapture.current})){
         handledCapture.current=input.capture.captureId;directAdmission.current=null;
-        void run(async()=>{await finishReview(await service.reviewSource(input));setReviewRow(null);setProviderOpen(false);});
+        void run(async()=>{await finishReview(await service.reviewSource(input,diagnosticSpan()));setReviewRow(null);setProviderOpen(false);});
       }
       return;
     }
@@ -976,12 +984,12 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
     returnedResult.current=true;
     const progress=completedSyncProgress({...completed,cleanupPending:!!c.recovery});
     setSyncProgress(progress);
-    diagnosticJournal.record('sync',progress.state==='partial'?'sync-partial':'sync-success');close(completed);
+    diagnosticJournal.record('sync',progress.state==='partial'?'sync-partial':'sync-success',diagnosis.current?.reference());close(completed);
   },[completed,open,busy,c.busy,c.saving,c.restoring.current,c.informationSaving,c.recovery,close]);
   function cancelSync(){
     estimateEvent({type:'terminal',outcome:'cancelled'});stageTiming.current?.end(false);stageTiming.current=null;
-    interruption.current='cancelled';stopRemainingJobs.current=true;diagnosticJournal.record('sync','sync-cancelled');
-    syncRecord.current=null;setSavedSync(null);void clearSyncRecovery(scope).catch(()=>{diagnosticJournal.record('sync','sync-failed');});
+    interruption.current='cancelled';stopRemainingJobs.current=true;const operationReference=diagnosis.current?.reference();diagnosticJournal.record('sync','sync-cancelled',operationReference);
+    syncRecord.current=null;setSavedSync(null);void clearSyncRecovery(scope).catch(()=>{diagnosticJournal.record('sync','sync-failed',operationReference);});
     if(waiting.current){abandonSource('Cancelled.');controller.current.dismissLogin();}
     else if(controller.current.informationBusy&&!controller.current.informationSaving)controller.current.stopInformation();
     else if(!busy)close(completed??undefined);
@@ -1133,12 +1141,12 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
       {failed&&<Action secondary disabled={busy} onPress={()=>void run(refresh)}>Gespeicherte Bibliothek erneut prüfen</Action>}
       {backupPage&&restoreReadWarning&&!failed&&<Action secondary disabled={busy} onPress={()=>void retryLocalEntry()}>Sicherungsstatus erneut prüfen</Action>}
       {recovery.status!=='none'&&<Card><Section title="Gespeicherten Auftrag prüfen"/><Label>{recovery.status==='committed'?'Der frühere Auftrag wurde gespeichert.':recovery.status==='not-committed'?'Für den ursprünglichen Auftrag ist noch kein gespeicherter Beleg vorhanden.':'Die Bibliothek benötigt eine Wiederherstellung. Spätere Dateien bleiben erhalten.'}</Label>
-        <Action disabled={busy} onPress={()=>void run(async()=>{setRecovery(await service.recoverPending());await refresh();})}>Auftragsbeleg erneut prüfen</Action>
-        {recovery.status==='not-committed'&&<Action disabled={busy} onPress={()=>void run(async()=>{await service.retryPending();await refresh();setMessage('Ursprünglicher Auftrag gespeichert.');})}>Ursprünglichen Auftrag erneut versuchen</Action>}
+        <Action disabled={busy} onPress={()=>void run(async()=>{setRecovery(await service.recoverPending(diagnosticSpan()));await refresh();})}>Auftragsbeleg erneut prüfen</Action>
+        {recovery.status==='not-committed'&&<Action disabled={busy} onPress={()=>void run(async()=>{await service.retryPending(diagnosticSpan());await refresh();setMessage('Ursprünglicher Auftrag gespeichert.');})}>Ursprünglichen Auftrag erneut versuchen</Action>}
       </Card>}
       {providerEntryAllowed&&advanced&&<><Card><Section title="Eigene Flüge abrufen" icon="refresh"/><Label muted>Aktualisierung: {retrievalPlan.request.from} bis {retrievalPlan.request.to} einschließlich. Anmeldung und Quellenprüfung erfolgen auf der Originalseite.</Label>
         <Label muted>{retrievalPlan.firstRetrieval?'Beim ersten Abruf werden das Vorjahr und das laufende Jahr bis heute geladen.':'Die letzten sechs Monate werden erneut geprüft. Nach längerer Pause und bei bekannten Lücken wird der Zeitraum erweitert.'} Ältere Korrekturen können unentdeckt bleiben. Dafür einen eigenen Zeitraum wählen; gespeicherte ältere Flüge bleiben erhalten.</Label>
-        <Action disabled={busy||restoreReadOnly||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={()=>void run(async()=>{setReview(await prepareSourceReview(await service.retrieveUpdate()));})}>Daten aktualisieren</Action>
+        <Action disabled={busy||restoreReadOnly||recovery.status==='not-committed'||recovery.status==='recovery-required'} onPress={()=>void run(async()=>{setReview(await prepareSourceReview(await service.retrieveUpdate(undefined,diagnosticSpan())));})}>Daten aktualisieren</Action>
         <Action secondary disabled={busy||restoreReadOnly} onPress={()=>{automatic.current=false;c.setFrom(retrievalPlan.request.from);c.setTo(retrievalPlan.request.to);setProviderOpen(true);if(!c.browserActive)c.connect();}}>Anbieter und eigenen Zeitraum öffnen</Action>
         {waiting.current&&<Action secondary disabled={!canCancelCoreFlightSource(c.retrieval.current.state.phase,c.saving,c.restoring.current)}
           onPress={()=>{diagnosticJournal.record('action','cancel');abandonSource('Cancelled.');}}>Abruf abbrechen</Action>}
@@ -1151,13 +1159,13 @@ function OwnerFlightLibrary({verificationScope,syncStartedAt,lease,registry,clos
             <View style={{flexDirection:'row',gap:8}}><Action secondary disabled={busy||reviewRow===0} onPress={()=>setReviewRow(reviewRow-1)}>Vorige Zeile</Action><Action secondary disabled={busy||reviewRow+1>=review.source.capture.rows.length} onPress={()=>setReviewRow(reviewRow+1)}>Nächste Zeile</Action></View>
           </>}
         </>}
-        {review.state==='confirm-account'?<><Label>Ist dies dein Anbieter-Konto? Benutzernummer: {review.accountRef}</Label><Label>Vereinskontext: {review.source.contextAfter.clubLabel}</Label><Label muted>Verknüpft nur diese neue lokale Bibliothek. Alte Belege werden nicht übernommen; Flüge werden erst mit dem nächsten Speichern aufgenommen.</Label><Action disabled={busy} onPress={()=>void run(async()=>{setReview(await service.confirmAccount(review));await refresh();})}>Eigenes Konto für diese Bibliothek bestätigen</Action></>:
-          <><Label>{review.plan.counts.added} neu · {review.plan.counts.changed} geändert · {review.plan.counts.unchanged} unverändert · {review.plan.counts.pending} ungeklärt</Label><Label muted>Die Aufnahme behält Quellbelege und frühere Fassungen. Ausgelassene oder leere Zeiträume löschen keine Flüge.</Label><Action disabled={busy} onPress={()=>void run(async()=>{const result=await service.saveUnassigned(review);setReview(null);await refresh();setMessage(`Gespeichert: ${result.counts.added} neu, ${result.counts.changed} geändert, ${result.counts.unchanged} unverändert.`);})}>Geprüfte Flüge ohne Buchzuordnung speichern</Action></>}
+        {review.state==='confirm-account'?<><Label>Ist dies dein Anbieter-Konto? Benutzernummer: {review.accountRef}</Label><Label>Vereinskontext: {review.source.contextAfter.clubLabel}</Label><Label muted>Verknüpft nur diese neue lokale Bibliothek. Alte Belege werden nicht übernommen; Flüge werden erst mit dem nächsten Speichern aufgenommen.</Label><Action disabled={busy} onPress={()=>void run(async()=>{setReview(await service.confirmAccount(review,diagnosticSpan()));await refresh();})}>Eigenes Konto für diese Bibliothek bestätigen</Action></>:
+          <><Label>{review.plan.counts.added} neu · {review.plan.counts.changed} geändert · {review.plan.counts.unchanged} unverändert · {review.plan.counts.pending} ungeklärt</Label><Label muted>Die Aufnahme behält Quellbelege und frühere Fassungen. Ausgelassene oder leere Zeiträume löschen keine Flüge.</Label><Action disabled={busy} onPress={()=>void run(async()=>{const result=await service.saveUnassigned(review,diagnosticSpan());setReview(null);await refresh();setMessage(`Gespeichert: ${result.counts.added} neu, ${result.counts.changed} geändert, ${result.counts.unchanged} unverändert.`);})}>Geprüfte Flüge ohne Buchzuordnung speichern</Action></>}
         <Action secondary disabled={busy} onPress={()=>{service.cancelReview();setReview(null);}}>Prüfung schließen</Action>
       </Card>}
       {destination==='sources'&&advanced&&<><Card><Section title="Offline gespeicherte Flüge" icon="flight-paper-plane"/>
         {flights.length===0&&<Label>Noch keine eigenen Flüge gespeichert.</Label>}
-        {flights.slice(page*5,page*5+5).map(flight=><Action key={flight.flightId} secondary disabled={busy} onPress={()=>void run(async()=>{setDetail(await service.detail(flight.flightId));})}>{flight.facts.assessment.date.value??'Datum unbekannt'} · Quellflug {flight.sourceFlightRef} · Fassung {flight.factsRevision}</Action>)}
+        {flights.slice(page*5,page*5+5).map(flight=><Action key={flight.flightId} secondary disabled={busy} onPress={()=>void run(async()=>{setDetail(await service.detail(flight.flightId,diagnosticSpan()));})}>{flight.facts.assessment.date.value??'Datum unbekannt'} · Quellflug {flight.sourceFlightRef} · Fassung {flight.factsRevision}</Action>)}
         {flights.length>5&&<View style={{flexDirection:'row',gap:8}}><Action secondary disabled={busy||page===0} onPress={()=>setPage(page-1)}>Zurück</Action><Action secondary disabled={busy||(page+1)*5>=flights.length} onPress={()=>setPage(page+1)}>Weitere Flüge</Action></View>}
       </Card>
       {detail&&<Card><Section title={`Quellflug ${detail.sourceFlightRef}`}/><Label>{detail.factHistory.length} gespeicherte Fassung(en) · {detail.pending.length} ungeklärte Beobachtung(en)</Label>

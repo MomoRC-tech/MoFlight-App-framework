@@ -55,6 +55,7 @@ def main():
             report['originalApkSha256'] = restore_hash
     log = None
     log_file = None
+    proof_installed = False
 
     def hierarchy(name):
         adb('shell', 'uiautomator', 'dump', '/sdcard/moflight-sync-proof.xml')
@@ -83,6 +84,7 @@ def main():
         adb('shell', 'svc', 'wifi', 'disable')
         adb('shell', 'svc', 'data', 'disable')
         adb('install', '-r', str(apk))
+        proof_installed = True
         if args.mode == 'review':
             installed = args.output / 'installed-proof.apk'
             installed_path = adb('shell', 'pm', 'path', PACKAGE).removeprefix('package:')
@@ -167,6 +169,7 @@ def main():
             while time.monotonic() < deadline:
                 lines = [line for line in (args.output / 'native.log').read_text(encoding='utf-8', errors='replace').splitlines()
                          if re.search(r'\(\s*' + re.escape(pid) + r'\)', line)]
+                report['cacheSamples'] = [json.loads(line.split('MOFLIGHT_START_CACHE_SAMPLE ', 1)[1]) for line in lines if 'MOFLIGHT_START_CACHE_SAMPLE ' in line]
                 assert not any('MOFLIGHT_START_CACHE_FAILED' in line for line in lines), 'Native cache proof failed'
                 completed = [line for line in lines if 'MOFLIGHT_START_CACHE_RESULT ' in line]
                 if completed:
@@ -174,7 +177,7 @@ def main():
                     report['cacheProof'] = result
                     assert result['status'] == 'passed', 'Native cache scenario failed'
                     assert result['sourceCommit'] == provenance['source_commit']
-                    assert result['cleaned'] and len(result['checks']) == 10 and len(result['samples']) == 5
+                    assert result['cleaned'] and len(result['checks']) == 10 and len(result['samples']) == 16
                     assert all(sample['milliseconds'] >= 0 for sample in result['samples'])
                     break
                 time.sleep(0.5)
@@ -234,7 +237,9 @@ def main():
             log_file.close()
         adb('shell', 'am', 'force-stop', PACKAGE)
         if args.mode == 'start-cache' and not report['originalAppInstalled']:
-            if report['originalRetainedData']:
+            if not proof_installed:
+                pass  # A refused install must not remove retained original data.
+            elif report['originalRetainedData']:
                 adb('shell', 'pm', 'uninstall', '-k', PACKAGE)  # Preserve pre-existing uninstalled data/cache.
             else:
                 adb('uninstall', PACKAGE)  # Only this task's fresh synthetic installation.

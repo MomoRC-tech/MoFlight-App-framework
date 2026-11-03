@@ -87,6 +87,18 @@ test('automatic review/save uses one local session after provider waits and pres
   }finally{service.dispose();old.dispose();await f.cleanup();await reference.cleanup();}
 });
 
+test('explicit service timing starter stays on its initiating operation during a newer local read',async()=>{
+ const f=await fixture(),service=f.make(),journal=new DiagnosticJournal(()=>0);
+ const update=journal.begin('update-flights'),concurrentRead=journal.begin('read-flights');
+ try{
+  await service.list(update.span);
+  update.finish('success');concurrentRead.finish('success');
+  assert.deepEqual(journal.snapshot().map(operation=>[operation.action,operation.stages.map(stage=>stage.name)]),[
+   ['update-flights',['repository-open','repository-close']],['read-flights',[]],
+  ]);
+ }finally{service.dispose();await f.cleanup();}
+});
+
 test('automatic review/save cancellation during deferred provider retrieval opens no local review session',async()=>{
   const f=await fixture(),service=f.make(),repository=f.ports.repository;
   let active=0,opens=0,admitted!:()=>void,release!:(input:RealFlightSourceInput)=>void;

@@ -1,5 +1,7 @@
 import { diagnosticActions, diagnosticStages, outcomes, member, object, DIAGNOSTIC_CHECKPOINT_LIMIT, type DiagnosticStage } from './diagnostic-vocabulary';
 
+const terminalSyncEvents = ['sync-cancelled','sync-success','sync-partial','sync-failed'] as const;
+
 type TimingPoint={name:DiagnosticStage;state:string;offset:number;spanId?:number;parentSpanId?:number};
 type Interval={start:number;end:number};
 type TimingTimeline = {
@@ -143,6 +145,15 @@ export function summarizeDiagnosticTiming(input: unknown) {
     const ownReference=reference(entry),related=reference(entry.relatedOperation);
     return { ...(ownReference?{operation:ownReference}:{}),...(related?{relatedOperation:related}:{}), action: entry.action, outcome: entry.outcome, milliseconds, stages, ...(checkpoints === undefined ? {} : { checkpoints }),...(observedTimeline===undefined?{}:{timeline:observedTimeline}) };
   });
+  const events = report.events === undefined ? [] : (() => {
+    if (!Array.isArray(report.events) || report.events.length > 2000) throw new Error('Invalid diagnostic events');
+    const reference = (value: unknown) => { const raw=object(value); return Number.isSafeInteger(raw.session)&&Number.isSafeInteger(raw.sequence)&&(raw.session as number)>0&&(raw.sequence as number)>0&&(raw.session as number)<=1e12&&(raw.sequence as number)<=1e12 ? {session:raw.session as number,sequence:raw.sequence as number} : undefined; };
+    return report.events.flatMap(value => {
+      const event=object(value),identity=reference(event),operation=reference(event.operation);
+      if(!identity||!operation||event.kind!=='sync'||!member(terminalSyncEvents,event.target)||typeof event.offset!=='number'||!Number.isSafeInteger(event.offset)||event.offset<0||event.offset>1e12)return [];
+      return [{...identity,offset:event.offset,kind:'sync' as const,target:event.target,operation}];
+    });
+  })();
   return { version: 1, units: 'milliseconds', scope: 'observed operations only; missing phases remain unmeasured',
-    timing: 'operation elapsed and inclusive stages; overlapping stages must not be added or subtracted', operations };
+    timing: 'operation elapsed and inclusive stages; overlapping stages must not be added or subtracted', operations,...(events.length?{events}:{}) };
 }

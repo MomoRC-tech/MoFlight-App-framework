@@ -117,8 +117,7 @@ export class RealFlightService {
       return await consume(source,sequence);
     } finally { if (this.controller === controller) this.controller = null; }
   }
-  async retrieveUpdate(now = new Date()): Promise<RealFlightReview> {
-    const span=diagnosticJournal.captureSpan();
+  async retrieveUpdate(now = new Date(), span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightReview> {
     return this.retrieve(await this.plannedUpdateRequest(now,span),span);
   }
   private async plannedUpdateRequest(now: Date, span: DiagnosticSpanStarter): Promise<{from: string; to: string}> {
@@ -127,9 +126,9 @@ export class RealFlightService {
     return planFlightRetrieval(snapshot.savedRetrievals, now).request;
   }
   /** Provider/sign-in settles first; review, optional first binding and save share one local session. */
-  async retrieveUpdateWithStoredReadback(hooks: AutomaticFlightSaveHooks, now = new Date()):
+  async retrieveUpdateWithStoredReadback(hooks: AutomaticFlightSaveHooks, now = new Date(), span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()):
     Promise<{review: RealFlightReview; result: RealFlightResult; stored: OwnFlightStoredReadback}> {
-    const span=diagnosticJournal.captureSpan(),request=await this.plannedUpdateRequest(now,span);
+    const request=await this.plannedUpdateRequest(now,span);
     return this.retrieveSource(request,span,async(source,sequence)=>{
       this.live(sequence);this.allowed(true);this.dispatching=true;
       try {
@@ -153,9 +152,8 @@ export class RealFlightService {
       } finally {this.currentReview=null;this.dispatching=false;}
     });
   }
-  async reviewSource(source: RealFlightSourceInput): Promise<RealFlightReview> {
+  async reviewSource(source: RealFlightSourceInput, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightReview> {
     this.allowed(); if (this.writing || this.dispatching) throw new Error('Save is in progress.');
-    const span=diagnosticJournal.captureSpan();
     this.ports.onReviewStart?.();
     this.controller?.abort(); this.controller = null; return timeFlightStage('source-review',nested=>this.buildReview(source,++this.operation,nested),span);
   }
@@ -217,14 +215,13 @@ export class RealFlightService {
       planToken:review.plan.planToken,source:review.source},session,sequence,span);
   }
   /** Save within an explicitly requested foreground load, using a fresh context. */
-  async saveVerifiedReview(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}): Promise<RealFlightResult> {
-    const span=diagnosticJournal.captureSpan();
+  async saveVerifiedReview(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightResult> {
     return this.saveUnassigned(await this.verifiedReview(review,verified,span),span);
   }
   /** Local metadata checks and final fresh projection share the selected save session. No provider/user waits belong in beforeReadback. */
-  async saveVerifiedReviewWithStoredReadback(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}, beforeReadback?: () => Promise<void>):
+  async saveVerifiedReviewWithStoredReadback(review: RealFlightReview, verified: {accountNumber: string; clubLabel: string}, beforeReadback?: () => Promise<void>, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()):
     Promise<{result: RealFlightResult; stored: OwnFlightStoredReadback}> {
-    const span=diagnosticJournal.captureSpan(),ready=await this.verifiedReview(review,verified,span);
+    const ready=await this.verifiedReview(review,verified,span);
     return this.saveReviewed(ready,span,(result,session,sequence)=>this.readSaved(result,session,sequence,span,beforeReadback));
   }
   private async readSaved(result: RealFlightResult, {library,writable,warning}: RealFlightRepositorySession, sequence: number,
@@ -300,19 +297,19 @@ export class RealFlightService {
     if(result.status==='committed')diagnosticJournal.record('sync','sync-previous-save-resolved');
     return result;
   }
-  async retryPending(): Promise<RealFlightResult> {
+  async retryPending(span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightResult> {
     this.allowed(true); if (this.dispatching || this.writing) throw new Error('A save command is already in progress.');
-    const sequence = ++this.operation, span=diagnosticJournal.captureSpan(); this.dispatching = true;
+    const sequence = ++this.operation; this.dispatching = true;
     try {
       const command = await this.withJournal(journal=>journal.pending(),span); this.live(sequence);
       if (!command) throw new Error('No prepared save command to retry.');
       const result = await this.withRepository(session=>this.execute(command,session,sequence,span),undefined,span); this.live(sequence); this.currentReview = null; return result;
     } finally { this.dispatching = false; }
   }
-  async snapshot(): Promise<OwnFlightStoredSnapshot> {
+  async snapshot(span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<OwnFlightStoredSnapshot> {
     return this.withRepository(async ({library,writable,warning},timing)=>{
       return this.storedSnapshot(await library.snapshot(timing),writable,warning);
-    });
+    },undefined,span);
   }
   async readStored(initialSession?: RealFlightRepositorySession, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan(), includeDetails = false): Promise<OwnFlightStoredReadback> {
     return this.withRepository(async ({library,writable,warning},timing)=>{
@@ -321,15 +318,15 @@ export class RealFlightService {
       try { const result={snapshot:this.storedSnapshot(graph,writable,warning),flights,...(includeDetails ? {detailSource:new RealFlightDetailSource(graph)} : {})}; finish(true); return result; } catch (error) { finish(false); throw error; }
     }, initialSession, span);
   }
-  async readReviewEvidence(): Promise<SavedSourceReview> {
-    return this.withRepository(async ({library}) => {
-      const graph = await library.snapshot();
+  async readReviewEvidence(span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<SavedSourceReview> {
+    return this.withRepository(async ({library},timing) => {
+      const graph = await library.snapshot(timing);
       return collectSavedSourceReview(graph);
-    });
+    },undefined,span);
   }
   /** Local-only verified binding provenance for historical identity migration. */
-  async readBindingEvidence(): Promise<RealFlightGraph> {
-    return this.withRepository(({ library }) => library.snapshot());
+  async readBindingEvidence(span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightGraph> {
+    return this.withRepository(({ library },timing) => library.snapshot(timing),undefined,span);
   }
   private storedSnapshot(graph:RealFlightGraph,writable:boolean,warning:string|null):OwnFlightStoredSnapshot {
       if (graph.manifest.owner_id !== this.ownerId || graph.manifest.store_id !== this.storeId) throw new Error('Foreign own-flight repository graph.');
@@ -351,14 +348,14 @@ export class RealFlightService {
         latestSavedResult:graph.receipts.length ? JSON.parse(graph.receipts.at(-1)!.result_json) as RealFlightResult : null,
         recovery:{readOnly:!writable,warning}};
   }
-  async list(): Promise<RealFlightListItem[]> { return this.withRepository(({library})=>library.list()); }
-  async detail(flightId: string): Promise<RealFlightDetail | null> { return this.withRepository(({library})=>library.detail(flightId)); }
-  async exportBackup(): Promise<string> {
-    this.allowed(); const pending = await this.withJournal(journal=>journal.pending());
+  async list(span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightListItem[]> { return this.withRepository(({library})=>library.list(),undefined,span); }
+  async detail(flightId: string, span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<RealFlightDetail | null> { return this.withRepository(({library})=>library.detail(flightId),undefined,span); }
+  async exportBackup(span: DiagnosticSpanStarter = diagnosticJournal.captureSpan()): Promise<string> {
+    this.allowed(); const pending = await this.withJournal(journal=>journal.pending(),span);
     if (pending) throw new PendingRealFlightOperation(pending.commandId);
     return this.withRepository(({library,writable})=>{
       if (!writable) throw new Error('Resolve retained-candidate recovery before exporting a current backup.');
       return library.exportBackup();
-    });
+    },undefined,span);
   }
 }

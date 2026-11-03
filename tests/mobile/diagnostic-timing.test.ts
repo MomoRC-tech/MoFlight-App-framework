@@ -41,6 +41,26 @@ test('bounded span correlation survives timing projection without arbitrary chec
  assert.equal(summarizeDiagnosticTiming(legacy).operations[0]!.checkpoints,undefined);
 });
 
+test('timing projection carries only operation-linked terminal Sync events and preserves v2 without links',()=>{
+ const journal=new DiagnosticJournal(()=>0),interrupted=journal.begin('update-flights');
+ journal.record('sync','sync-cancelled',interrupted.reference());interrupted.finish('cancelled','cancelled');
+ const resumed=journal.begin('update-flights',interrupted.reference());journal.record('sync','sync-success',resumed.reference());resumed.finish('success');
+ const report=summarizeDiagnosticTiming(JSON.parse(journal.export()));
+ assert.deepEqual(report.operations.map(operation=>[operation.operation,operation.relatedOperation]),[
+  [interrupted.reference(),undefined],[resumed.reference(),interrupted.reference()],
+ ]);
+ assert.deepEqual(report.events?.map(event=>[event.target,event.operation]),[
+  ['sync-cancelled',interrupted.reference()],['sync-success',resumed.reference()],
+ ]);
+ const legacy=summarizeDiagnosticTiming({format:'MoFlight support diagnostics',version:2,entries:[{action:'read-flights',outcome:'success',milliseconds:1,stages:[]}]});
+ assert.equal('events'in legacy,false);
+ const untrusted=JSON.parse(journal.export());untrusted.events[0].private='PRIVATE';untrusted.events.push({sequence:99,session:1,offset:0,kind:'sync',target:'sync-success',operation:{session:'secret',sequence:1}});
+ untrusted.events.push({sequence:100,session:1,offset:0,kind:'sync',target:'sync-success',operation:{session:'secret',sequence:1}});
+ const sanitized=summarizeDiagnosticTiming(untrusted);
+ assert.equal(sanitized.events?.length,2);assert.ok(!JSON.stringify(sanitized).includes('PRIVATE'));assert.ok(!JSON.stringify(sanitized).includes('secret'));
+ assert.throws(()=>summarizeDiagnosticTiming({...untrusted,events:Array(2001).fill(untrusted.events[0])}));
+});
+
 test('real journal top stages reconcile active time, sign-in waiting and explicit gaps',()=>{
  let now=0;const journal=new DiagnosticJournal(()=>now),op=journal.begin('update-flights');
  now=10;const prep=op.span('sync-prepare');now=30;prep(true);

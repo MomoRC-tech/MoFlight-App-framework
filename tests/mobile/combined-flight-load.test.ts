@@ -66,7 +66,7 @@ const fixtureActivityLedger={
 
 // Real screen effects and handlers; SQLite and provider behavior have their own
 // integration tests. These ports control timing to exercise the screen coordinator.
-function fixture({verificationScope=undefined as syncVerification.SyncVerificationScope|undefined,failRestoreMetadata=false,deferGraph=false,graphReady=true,admissionPending=false,entryProofFails=false,backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,deferFlightPreparation=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
+function fixture({verificationScope=undefined as syncVerification.SyncVerificationScope|undefined,failRestoreMetadata=false,deferGraph=false,graphReady=true,admissionPending=false,entryProofFails=false,backupFails=false,destination='sources',providerAllowed=true,deferRead=false,deferRecoveryClear=false,startUpdate=false,root=false,readOnly=false,deferReservation=false,deferActivityCancel=false,deferActivityWrite=false,failStartup=false,medicalFailure=false,pendingFlightCount=0,cleanupAfterTasks=false,loginPending=false,deferProvider=false,quietResume=false,deferSource=false,sameWindow=false,deferVerification=false,deferFlightPreparation=false,priorConnection='unknown',existingOwner=false,pendingRestore=false,cancelRestore=false,initialOpen=true,initialFlightsSaved=false,initialSavedSync=null as syncRecovery.SyncRecoveryRecord|null,initialEstimateHistory=null as unknown,unactivatedPreparation=false,activityEnabled=false,activityBaselineCount=1,activityResultCount=2,switchDiagnosticBeforeReadback=false,onStatus:statusCallback=undefined as ((status:any)=>void)|undefined,intent:requestedIntent=undefined as string|undefined}={}) {
   let panelOpen=initialOpen,requestId=0;
   let backupAttempt: (() => Promise<{state:'saved'|'cancelled'}>) | null = null;
   let finishGraph!:()=>void;const graphPreparation=new Promise<void>(resolve=>{finishGraph=resolve;});
@@ -132,7 +132,7 @@ function fixture({verificationScope=undefined as syncVerification.SyncVerificati
     async prepareFreshFetch(){return {status:'none'};}
     async retrieveUpdate(){if(deferSource)await new Promise<void>(resolve=>{admitSource=resolve;});abort=new AbortController();if(deferProvider)c.viewReady=false;const value=await this.ports.retrieve({from:'2025-01-01',to:'2026-10-21'},abort.signal);if(!abort.signal.aborted)this.ports.onReviewStart?.();await new Promise<void>(resolve=>{setImmediate(resolve);});return {state:'confirm-account',accountRef:'101',source:value};}
     async retrieveUpdateWithStoredReadback(hooks:any){const review=await this.retrieveUpdate();const verified=await hooks.beforeSave(review);return {...await this.saveVerifiedReviewWithStoredReadback(review,verified,hooks.beforeReadback),review};}
-    async saveVerifiedReviewWithStoredReadback(_review:any,context:any,beforeReadback?:()=>Promise<void>){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;await beforeReadback?.();return {result:{counts:{added:2,changed:1,pending:pendingFlightCount}},stored:{snapshot:await this.storedSnapshot(),flights:[{},{},{}]}};}
+    async saveVerifiedReviewWithStoredReadback(_review:any,context:any,beforeReadback?:()=>Promise<void>){assert.equal(context.accountNumber,'101');calls.push('save');saved=true;if(beforeReadback&&switchDiagnosticBeforeReadback){const original=diagnosis.current,interloper=journal.begin('read-flights');diagnosis.current=interloper;try{await beforeReadback();}finally{diagnosis.current=original;interloper.finish('success');}}else await beforeReadback?.();return {result:{counts:{added:2,changed:1,pending:pendingFlightCount}},stored:{snapshot:await this.storedSnapshot(),flights:[{},{},{}]}};}
     cancelReview(){abort?.abort();}
     dispose(){this.disposed=true;this.cancelReview();}
   }
@@ -182,7 +182,7 @@ function fixture({verificationScope=undefined as syncVerification.SyncVerificati
     '../vereinsflieger/connection-state':{retrievalFailureHint},
     'react-native':{...leaves(['ActivityIndicator','KeyboardAvoidingView','Pressable','ScrollView','Text','View']),Platform:{OS:'android'},AppState:{currentState:'active',addEventListener:(_:string,f:(state:string)=>void)=>{listeners.add(f);return {remove:()=>listeners.delete(f)};}},BackHandler:{addEventListener:(_:string,f:()=>boolean)=>{backListeners.add(f);return {remove:()=>backListeners.delete(f)};}}},
     'react-native-safe-area-context':leaves(['SafeAreaView']), 'expo-crypto':{randomUUID:()=> 'uuid'},'../storage':{hash:async()=>''},
-    '../vereinsflieger/flight-diagnostics':{timeFlightStage:(_:string,work:()=>unknown)=>work()},
+    '../vereinsflieger/flight-diagnostics':{timeFlightStage:async(name:string,work:(span?:any)=>unknown,span?:any)=>{if(!switchDiagnosticBeforeReadback)return work();const finish=span?.(name);try{const value=await work(finish?.span??span);finish?.(true);return value;}catch(error){finish?.(false);throw error;}}},
     '../vereinsflieger/sync-verification-scope':syncVerification,
     '../vereinsflieger/use-access-controller':{useAccessController:()=>({...c})},
     '../vereinsflieger/real-flight-native':{openOwnerRegistry:async()=>{calls.push('registry');if(failStartup)throw new Error('Startup interrupted');return registry;},openRealFlightSelection:async()=>({listRestorePreparations:async()=>{if(failRestoreMetadata)throw new Error('Unreadable restore metadata');return unactivatedPreparation?[{operationId:"prepared",status:"pending"}]:[];},close:async()=>{}})},
@@ -214,7 +214,7 @@ function fixture({verificationScope=undefined as syncVerification.SyncVerificati
   function nodes(){const result:Element[]=[];function visit(value:any){if(value&&typeof value==='object'&&'children'in value){result.push(value);value.children.forEach(visit);if(value.props.progress)visit(value.props.progress);}}visit(tree);return result;}
   const text=(node:any):string=>node&&typeof node==='object'&&'children'in node?node.children.map(text).join(''):typeof node==='string'?node:'';
   function press(label:string){const node=nodes().find(n=>n.type==='Action'&&text(n)===label);assert.ok(node,label);assert.ok(!node.props.disabled,label);node.props.onPress();}
-  return {beginPendingRestore:()=>{pendingRestore=true;},recoverRestoreMetadata:()=>{failRestoreMetadata=false;},finishGraph,denyEntryProof:()=>{entryProofFails=true;},recoverStartup:()=>{failStartup=false;},allowEntryProof:()=>{entryProofFails=false;},finishRecoveryClear,deferNextStoredRead:()=>{holdNextRead=true;},advanceEstimateTime:(milliseconds:number)=>{estimateClock+=milliseconds;},estimateSaves:()=>estimateSaves.map(cloneJson),estimateHistory:()=>cloneJson(persistedEstimates),renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
+  return {beginPendingRestore:()=>{pendingRestore=true;},recoverRestoreMetadata:()=>{failRestoreMetadata=false;},finishGraph,denyEntryProof:()=>{entryProofFails=true;},recoverStartup:()=>{failStartup=false;},allowEntryProof:()=>{entryProofFails=false;},finishRecoveryClear,deferNextStoredRead:()=>{holdNextRead=true;},advanceEstimateTime:(milliseconds:number)=>{estimateClock+=milliseconds;},estimateSaves:()=>estimateSaves.map(cloneJson),estimateHistory:()=>cloneJson(persistedEstimates),renewLease:()=>{lease={...lease,leaseId:'renewed'};dirty=true;},progressUpdates,journal,diagnosis,render,flush,c,calls,closed,nodes,activityChecks:()=>activityChecks,activityWriteCalls:()=>activityWriteCalls,pendingRestoreChecks:()=>pendingRestoreChecks,activityLedgerSaves:()=>activityLedgerSaves.map(cloneJson),savedActivityLedger:()=>savedActivityLedger===null?null:cloneJson(savedActivityLedger),statusUpdates,changeSelection:()=>{selectedHead++;},setOpen:(value:boolean)=>{panelOpen=value;if(value)requestId++;dirty=true;},text:()=>text(tree),progressText:()=>text(nodes().find(n=>n.type==='ProviderConnection')?.props.progress),press,finishReservation,background:()=>listeners.forEach(f=>f('background')),resume:()=>listeners.forEach(f=>f('active')),
     onBackup:(work:()=>Promise<{state:'saved'|'cancelled'}>)=>{backupAttempt=work;},
     verify:()=>{c.visible=false;c.connection={phase:'observed',confirmed:true,observed:{accountNumber:'101',clubLabel:'Example'}};dirty=true;},
     pendingTimers:()=>timers.size,expire:()=>{for(const [id,fn] of timers){timers.delete(id);fn();}},
@@ -1155,6 +1155,11 @@ test('background during Continue recovery reads cannot admit provider work after
    f.press('Gespeicherten Fortschritt fortsetzen');await f.flush();
    if(recovered){f.verify();await f.flush();}else{f.complete();await f.flush();}
    assert.equal(f.closed.length,1,'An explicit new attempt can finish preserved recovery');
+   const attempts=f.journal.snapshot().filter(entry=>entry.action==='update-flights');
+   assert.ok(attempts.length>=2);const prior=attempts.at(-2)!,resumed=attempts.at(-1)!;
+   assert.equal(prior.outcome,'cancelled');
+   assert.deepEqual(resumed.relatedOperation,{session:prior.session,sequence:prior.sequence});
+   assert.ok(f.journal.journey().some(event=>event.target==='sync-success'&&event.operation?.session===resumed.session&&event.operation.sequence===resumed.sequence));
   }finally{f.dispose();}
  }
 });
@@ -1226,13 +1231,16 @@ test('explicit cancel while an optional source settles cannot start later jobs o
 
 
 test('saved readback updates the coordinator without a second stored read',async()=>{
- const f=fixture({intent:'update'});
+ const f=fixture({intent:'update',switchDiagnosticBeforeReadback:true});
  try{
-  f.render();await f.flush();
+  f.render();await f.flush();const initiated=f.diagnosis.current!;
   const reads=f.activityOrder.filter(v=>v==='refresh-read').length;
   f.complete();await f.flush();
   assert.equal(f.closed.length,1);assert.equal(f.calls.filter(v=>v==='save').length,1);
   assert.equal(f.activityOrder.filter(v=>v==='refresh-read').length,reads);
+  const operations=f.journal.snapshot();
+  assert.ok(operations.find(entry=>entry.sequence===initiated.reference().sequence&&entry.session===initiated.reference().session)!.stages.some(stage=>stage.name==='restore-inspection'));
+  assert.deepEqual(operations.find(entry=>entry.action==='read-flights')!.stages,[]);
  }finally{f.dispose();}
 });
 

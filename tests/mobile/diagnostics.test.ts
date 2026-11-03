@@ -81,6 +81,22 @@ test('span ownership is captured before concurrent actions; clear/eviction preve
  const late=first.span('explicit-save');f.journal.clear();late(true);first.finish('success');second.finish('success');assert.deepEqual(f.journal.snapshot(),[]);assert.deepEqual(f.journal.journey(),[]);assert.deepEqual(f.journal.failureSnapshot(),[]);
 });
 
+test('optional operation references survive v2 persistence, sanitize malformed IDs, and shift with local records',()=>{
+ const f=fixture(),operation=f.journal.begin('update-flights'),reference=operation.reference();
+ f.journal.record('sync','sync-cancelled',reference);operation.finish('cancelled','cancelled');
+ const legacyEvent={sequence:6,session:3,offset:20,kind:'sync',target:'sync-failed',retainedAt:wall};
+ const priorEntry={sequence:7,session:3,action:'read-flights',outcome:'success',code:'none',milliseconds:1,trigger:'automatic',offset:0,
+  stages:[],activeStages:[],checkpoints:[],observedState:{},retainedAt:wall};
+ f.journal.connect({read:()=>JSON.stringify({version:2,entries:[priorEntry],events:[legacyEvent,
+  {...legacyEvent,sequence:8,target:'sync-partial',operation:{session:'PRIVATE',sequence:1}}],failures:[],sessions:[]}),write:()=>{}});
+ const events=f.journal.journey(),local=f.journal.snapshot().find(entry=>entry.action==='update-flights')!;
+ assert.equal(events.find(event=>event.target==='sync-failed')?.operation,undefined);
+ assert.deepEqual(events.find(event=>event.target==='sync-cancelled')?.operation,{session:4,sequence:9});
+ assert.deepEqual({session:local.session,sequence:local.sequence},{session:4,sequence:9});
+ assert.equal(events.find(event=>event.target==='sync-partial')?.operation,undefined);
+ assert.ok(!f.journal.export().includes('PRIVATE'));
+});
+
 test('async writes are serialized/coalesced and a clear wins over an outstanding old write',async()=>{
  const f=fixture();let saved='',active=0,maxActive=0;const finish:(()=>void)[]=[];
  f.journal.connect({read:()=>null,write:text=>new Promise<void>(resolve=>{active++;maxActive=Math.max(active,maxActive);finish.push(()=>{saved=text;active--;resolve();});})});
