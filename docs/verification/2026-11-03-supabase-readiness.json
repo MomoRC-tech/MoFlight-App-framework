@@ -37,6 +37,10 @@
     {
       "name": "202610240002_ai_receipts_and_request_limits.sql",
       "sha256": "20163a348c93cb4822973d50605abe09faaf70fa44d37379faa2348d166e2013"
+    },
+    {
+      "name": "202611030001_ai_context_reservation.sql",
+      "sha256": "eca77a6087ffa2c85f5888a93d26d37ecd9e168deea90223bfc4408fd3909f7e"
     }
   ],
   "verification": {
@@ -89,8 +93,101 @@
   "limits": [
     "AI disabled: kill=true, operational_ready=false, funding_approved=false, no policy/price/accounts persisted.",
     "SQL source applied directly; Supabase CLI migration history was not registered. Reconcile before a future db push; never blindly reapply.",
-    "No public Edge HTTP entrypoint/deployment, model request, private flight upload, product Auth or cloud sync.",
-    "Actual Auth registration/confirmation/recovery, two-user REST/Storage/RLS, PostgREST key transport and hosted Edge Runtime remain untested.",
-    "Verified complete-body token bound, actual model/route/receipt/pricing/fees/input/funding and native beta acceptance remain open."
-  ]
+    "Real Edge bootstrap deployed and closed503 smoke passes; no model request, private flight upload, product Auth or cloud sync.",
+    "Auth registration/confirmation/recovery, two-user REST/Storage/RLS and enabled PostgREST/provider transport remain untested.",
+    "Conservative full-context bound implemented/hosted validators verified; actual route/receipt/pricing/fees/input/funding and native beta acceptance remain open."
+  ],
+  "context_reservation_rollout": {
+    "source_commit": "ed52071",
+    "verification": {
+      "ok": true,
+      "action": "context",
+      "stage": "complete",
+      "model_calls": 0,
+      "private_flight_upload": false,
+      "libpq_version": 180004,
+      "tls_mode": "verify-full",
+      "client_tls_active": true,
+      "preflight": {
+        "server_version_num": 170011,
+        "database_expected": true,
+        "operator_expected": true,
+        "pooler_backend_tls_observed": true,
+        "ai_schema_exists": true,
+        "public_table_count": 0
+      },
+      "applied_migrations": [
+        {
+          "name": "202611030001_ai_context_reservation.sql",
+          "sha256": "eca77a6087ffa2c85f5888a93d26d37ecd9e168deea90223bfc4408fd3909f7e"
+        }
+      ],
+      "context_checks": {
+        "full_policy_valid": true,
+        "older_lower_policy_valid": true,
+        "input_and_round_ceiling_plus_one_rejected": true,
+        "personal_and_global_monthly_plus_one_rejected": true,
+        "round_table_ceiling": 500000,
+        "no_policy_price_account_created": true
+      },
+      "controls": {
+        "epoch": 0,
+        "kill": true,
+        "operational_ready": false,
+        "funding_approved": false,
+        "halted": false,
+        "policy_unconfigured": true,
+        "price_unconfigured": true
+      },
+      "tables": {
+        "count": 10,
+        "all_rls": true,
+        "no_anon_or_authenticated_or_service_role_table_access": true
+      },
+      "function_privileges": {
+        "functions": 14,
+        "no_anon_or_authenticated_execution": true,
+        "service_role_runtime_only": true,
+        "runtime_functions": 9
+      },
+      "operator_checks": {
+        "synthetic_policy_publication": true,
+        "compare_and_swap_stale_rejected": true,
+        "runtime_cannot_change_controls": true,
+        "dispatch_remained_disabled": true,
+        "policy_version_activation_and_rollback": true,
+        "invalid_policy_preserves_previous": true
+      },
+      "synthetic_transaction_rolled_back": true
+    }
+  },
+  "edge_deployment": {
+    "source_commit": "ed52071",
+    "method": "Dashboard editor; Deno2.9.6 minified single-file bundle; editor copy/readback normalized LF exactly matched before deployment",
+    "bundle_sha256": "5aab02cdd729bb945ed0e46a7bc31deefbff768576ed54f38354cef010feeb82",
+    "bundle_bytes": 419913,
+    "bundle_command": "deno bundle --config supabase/functions/ai-relay/deno.json --frozen-lockfile --no-remote --platform deno --packages external --minify --output build/ai-relay-edge.min.js supabase/functions/ai-relay/index.ts",
+    "status": "deployed; observed function ai-relay Settings and Test surfaces",
+    "gateway_verify_jwt": true,
+    "gateway_limit": "Dashboard retained legacy JWT verification ON; committed future historical-ID target verify_jwt=false is not yet applied. Activation requires reviewed gateway/origin controls.",
+    "http_ready": "not configured; default closed",
+    "provider_key_configured": false,
+    "continuity_key_configured": false,
+    "smoke": {
+      "method": "Dashboard Test POST; synthetic usage/account101 payload; no copied credentials",
+      "http_status": 503,
+      "response": {
+        "error": "unavailable"
+      },
+      "meaning": "bundle imports/bootstrap run on hosted runtime and return its fixed closed response; no enabled-path or actual-model acceptance",
+      "calls": 1
+    },
+    "no_model_calls": true,
+    "no_private_flight_input": true,
+    "limits": [
+      "No full enabled-handler DB RPC/provider/receipt path on hosted Edge proved.",
+      "No trusted proxy/origin quota acceptance.",
+      "No observed Edge Deno version; local2.9.6 does not establish hosted API compatibility."
+    ]
+  }
 }
