@@ -13,6 +13,7 @@ import type { RealFlightNativeScope } from '../../apps/platform-lab/src/vereinsf
 import type { UserFinancialBackup } from '../../apps/platform-lab/src/user-backup.ts';
 import { createFinancialNativeAdapter } from '../../apps/platform-lab/src/vereinsflieger/expense-native-adapter.ts';
 import { FinancialObservationStore, validateFinancialObservationTarget } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
+import { FinancialCollectionRun } from '../../apps/platform-lab/src/vereinsflieger/expense-collection-run.ts';
 import { FinancialCaptureRun } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-run.ts';
 import { nodeDriver } from './sqlite-driver.ts';
 import { evidenceSnapshot,evidenceBilled } from './fixtures/expense-evidence.ts';
@@ -312,4 +313,27 @@ test('native capture options bind the original lease and save the guarded run th
     f.current.writable = true; f.current.leaseId = operationId; f.scope.lease = { ...f.scope.lease, leaseId: operationId };
     await assert.rejects(options.authorize(noop), /lease/);
   } finally { await f.cleanup(); }
+});
+
+test('native collection resolves the exact own selection and reopens its durable checkpoint under the original lease',async()=>{
+ const f=await fixture();try{
+  const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/vereinsflieger/expense-native.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
+  let account=target.scope.context.accountNumber,closed=0;
+  const modules:Record<string,unknown>={
+   'expo-file-system':{},'expo-sqlite':{},'../storage':{hash},'./scoped-storage':{},'../user-backup-restore-journal-native':{},
+   '@moflight/flight-logbook':{canonical},'./expense-observation-store':{validateFinancialObservationTarget},
+   './expense-collection-run':{FinancialCollectionRun},'./expense-native-adapter':{createFinancialNativeAdapter(){return f.adapter;}},
+   './real-flight-native':{async openRealFlightSelection(){return {async select(){return {recoveryRequired:false,candidate:{async list(){return [{accountRef:account,sourceFlightRef:'54321'}];},async close(){closed++;}}};},async close(){closed++;}};}},
+  };
+  const exports={} as typeof import('../../apps/platform-lab/src/vereinsflieger/expense-native.ts');
+  runInNewContext(source,{exports,Object,JSON,Date,require:(name:string)=>{assert.ok(name in modules,name);return modules[name];}});
+  const options=await exports.nativeFinancialCollectionOptions(f.scope,target),first=options.createRun!('native-collection-a') as FinancialCollectionRun;
+  await first.prepare(noop);first.cancel();
+  const next=await exports.nativeFinancialCollectionOptions(f.scope,target),resumed=next.createRun!('native-collection-b') as FinancialCollectionRun;
+  assert.equal(resumed.id,'native-collection-a');await resumed.prepare(noop);assert.equal(resumed.progress.total,1);
+  assert.ok(resumed.script.includes('native-collection-b-before-0'));
+  const section=await f.adapter.exportSection(f.scope,noop);assert.equal(section.state,'empty');assert.equal(section.evidence?.state,'empty');
+  account='999990099';await assert.rejects(exports.nativeFinancialCollectionOptions(f.scope,target),/Foreign financial source flight/);assert.equal(closed,6);
+  f.current.writable=false;await assert.rejects(next.authorize(noop),/unavailable/);
+ }finally{await f.cleanup();}
 });

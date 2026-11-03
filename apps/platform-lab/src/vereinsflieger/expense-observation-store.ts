@@ -29,6 +29,7 @@ const MAX_BYTES = 256_000;
 export const FINANCIAL_BACKUP_FORMAT = 'moflight-financial-observations-backup';
 export const FINANCIAL_BACKUP_LIMIT = 64 * 1024 * 1024;
 const MAX_RECEIPTS = 10_000;
+const MAX_RECEIPT_BATCH = 510;
 const bytes = (text: string) => new TextEncoder().encode(text).length;
 const flightKey = (id: string) => canonical({ sourceFlightId: id });
 function receiptId(id: unknown): asserts id is string {
@@ -154,23 +155,65 @@ export class FinancialObservationStore {
     return { id: row.id, sequence: row.seq, kind: p.kind, sourceKey: p.sourceKey, retrievedAt: p.retrievedAt, checksum: row.checksum, value: p.value };
   }
   async save(id: string, kind: FinancialObservationKind, input: unknown): Promise<FinancialObservationReceipt> {
-    receiptId(id);
-    // Detach before any queue/hash await; later caller mutation cannot alter the write.
-    const p = prepare(kind, input, this.target);
+    const [receipt] = await this.saveMany([{ id, kind, value: input }]);
+    if (!receipt) throw new Error('Financial receipt unavailable.');
+    return receipt;
+  }
+  /** Atomically append one bounded group after validating and hashing every
+   * detached receipt. Exact retries after a lost acknowledgement reuse the
+   * original immutable rows; any conflict or revoked gate rolls back the group.
+   */
+  async saveMany(inputs: readonly { id: string; kind: FinancialObservationKind; value: unknown }[]): Promise<FinancialObservationReceipt[]> {
+    if (!Array.isArray(inputs) || inputs.length < 1 || inputs.length > MAX_RECEIPT_BATCH) throw new Error('Invalid financial receipt batch.');
+    for (let index = 0; index < inputs.length; index++) {
+      if (!Object.prototype.hasOwnProperty.call(inputs, index)) throw new Error('Invalid financial receipt batch.');
+    }
+    const ids = new Set<string>();
+    // This synchronous pass detaches and validates the whole request before
+    // the first queue/hash await, so no caller mutation can change later items.
+    const prepared = inputs.map(input => {
+      if (!input || typeof input !== 'object' || Array.isArray(input) || Object.getPrototypeOf(input) !== Object.prototype ||
+          canonical(Object.keys(input).sort()) !== canonical(['id', 'kind', 'value'])) throw new Error('Invalid financial receipt input.');
+      for (const key of ['id', 'kind', 'value'] as const) {
+        const descriptor = Object.getOwnPropertyDescriptor(input, key);
+        if (!descriptor?.enumerable || !('value' in descriptor)) throw new Error('Invalid financial receipt input.');
+      }
+      receiptId(input.id);
+      if (ids.has(input.id)) throw new Error('Repeated financial receipt identity.');
+      ids.add(input.id);
+      return { id: input.id, value: prepare(input.kind, input.value, this.target) };
+    });
     return this.serial(async () => {
-      await this.allowed('write'); const checksum = await this.digest(id, p); await this.allowed('write');
-      let receipt: FinancialObservationReceipt | undefined;
+      const checksums: string[] = [];
+      await this.allowed('write');
+      for (const item of prepared) {
+        await this.allowed('write');
+        checksums.push(await this.digest(item.id, item.value));
+        await this.allowed('write');
+      }
+      const receipts: FinancialObservationReceipt[] = [];
       await this.db.transaction(async tx => {
         await this.allowed('write'); await this.manifest(tx);
-        await tx.run('INSERT INTO financial_observations(id,kind,source_key,retrieved_at,payload,checksum) VALUES (?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING',
-          id, p.kind, p.sourceKey, p.retrievedAt, p.payload, checksum);
-        const row = await tx.first<SavedRow>('SELECT * FROM financial_observations WHERE id=?', id);
-        if (!row || row.payload !== p.payload || row.kind !== p.kind || row.checksum !== checksum) throw new Error('Financial receipt identity conflict.');
-        receipt = await this.decode(row); await this.allowed('write');
+        for (let index = 0; index < prepared.length; index++) {
+          await this.allowed('write');
+          const { id, value: p } = prepared[index]!;
+          const checksum = checksums[index]!;
+          await tx.run('INSERT INTO financial_observations(id,kind,source_key,retrieved_at,payload,checksum) VALUES (?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING',
+            id, p.kind, p.sourceKey, p.retrievedAt, p.payload, checksum);
+          await this.allowed('write');
+          const row = await tx.first<SavedRow>('SELECT * FROM financial_observations WHERE id=?', id);
+          if (!row || !Number.isSafeInteger(row.seq) || row.seq < 1 || row.payload !== p.payload || row.kind !== p.kind ||
+              row.source_key !== p.sourceKey || row.retrieved_at !== p.retrievedAt || row.checksum !== checksum) {
+            throw new Error('Financial receipt identity conflict.');
+          }
+          receipts.push({ id, sequence: row.seq, kind: p.kind, sourceKey: p.sourceKey,
+            retrievedAt: p.retrievedAt, checksum, value: p.value });
+          await this.allowed('write');
+        }
+        await this.allowed('write');
       });
       await this.allowed('write');
-      if (!receipt) throw new Error('Financial receipt unavailable.');
-      return receipt;
+      return receipts;
     });
   }
   async find(id: string): Promise<FinancialObservationReceipt | null> {

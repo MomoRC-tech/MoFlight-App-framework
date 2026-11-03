@@ -57,11 +57,14 @@ export async function nativeFinancialCollectionOptions(scope:RealFlightNativeSco
   await check(async()=>{});const selection=await openRealFlightSelection(held,false);if(!selection)throw Error('Own flight selection unavailable.');
   let refs:string[];
   try{const selectedLibrary=await selection.select();try{if(selectedLibrary.recoveryRequired)throw Error('Own flight recovery pending.');const flights=await selectedLibrary.candidate.list();if(flights.some(row=>row.accountRef!==target.scope.context.accountNumber))throw Error('Foreign financial source flight.');refs=[...new Set(flights.map(row=>row.sourceFlightRef))].sort();if(refs.length>500)throw Error('Financial source selection exceeds 500 observed flights.');}finally{await selectedLibrary.candidate.close();}}finally{await selection.close();}
+  const resume=await financialNative.withEvidence(held,target,async()=>check(async()=>{}),false,async store=>store?store.pendingCollection(refs):null);
+  await check(async()=>{});
   return {target,observedListUrl:'https://vereinsflieger.de/member/profile/flightlog.php',observedDetailUrl:'',timeoutMs:300000,messageLimit:5000000,
     authorize:check,
-    createRun:id=>new FinancialCollectionRun(target,id,refs,{hash,prepare:async gate=>{
+    createRun:attempt=>new FinancialCollectionRun(target,resume?.id??attempt,refs,{hash,resume,attempt,prepare:async gate=>{
       await check(gate);await financialNative.withCurrentStore(held,target,gate,async()=>{});
-      await financialNative.withEvidence(held,target,gate,true,async store=>{if(!store)throw Error('Financial evidence journal unavailable.');await store.prepare(id,{source:'verified-own-flight-library',sourceFlightRefs:refs},new Date().toISOString());});
+    },checkpoint:async(value,gate)=>{
+      await financialNative.withEvidence(held,target,gate,true,async store=>{if(!store)throw Error('Financial evidence journal unavailable.');await store.checkpointCollection(value);});
     }}),
     save:async(run,gate)=>{const receipt=await financialNative.withCurrentStore(held,target,gate,store=>run.save(store,()=>JSON.parse(identity) as FinancialObservationTarget,gate));
       if(!(run instanceof FinancialCollectionRun))throw Error('Unexpected financial workflow.');

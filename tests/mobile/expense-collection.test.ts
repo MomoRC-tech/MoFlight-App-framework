@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { runInNewContext } from 'node:vm';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import type { FinancialCollectionCheckpoint } from '../../apps/platform-lab/src/vereinsflieger/expense-collection-checkpoint.ts';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
 import { FINANCIAL_COLLECTION_SOURCE, FinancialCollectionRun } from '../../apps/platform-lab/src/vereinsflieger/expense-collection-run.ts';
 import { FinancialObservationStore } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
@@ -139,3 +143,55 @@ test('ordinary collection keeps unavailable and unbilled references explicit, an
 });
 
 test('money formatting preserves exact supported integer cents and unknown values',()=>{assert.equal(expenseMoney(null),'—');assert.equal(expenseMoney(0),'0,00 €');assert.equal(expenseMoney(-123456),'−1.234,56 €');assert.equal(expenseMoney(Number.MAX_SAFE_INTEGER),'90.071.992.547.409,91 €');assert.equal(expenseMoney(1.5),'—');});
+
+function batchPacket(attempt:string,stage:string,index:number,value:object){return {kind:'vf-financial-collection-v1',nonce:`${attempt}-${stage}-${index}`,url:PROFILE_URL,...value};}
+function batchBefore(job:FinancialCollectionRun,attempt:string,index:number){
+ job.observeNavigation(PROFILE_URL);assert.equal(job.accept(PROFILE_URL,PROFILE_URL,batchPacket(attempt,'before',index,{profile:profile()}),target,at),'navigate');job.observeNavigation(PROFILE_URL);
+}
+async function batchResult(selected:string[]){const value=await result();const billed=value.billed[0]!;billed.sourceFlightId=selected[0]!;billed.url=billed.url.replace(/flid=\d+/,`flid=${selected[0]}`);value.unknown=selected.slice(1).map(sourceFlightRef=>({sourceFlightRef,reason:'unbilled'}));return value;}
+test('durable full-reference batches reopen, skip completed details and reconcile the exact final payload without provider replay',async()=>{
+ const directory=await mkdtemp(join(tmpdir(),'moflight-financial-batches-')),path=join(directory,'evidence.sqlite');
+ const raw=nodeDriver(':memory:');let side=nodeDriver(path);
+ try{
+  const store=new FinancialObservationStore(raw,target,hash,gate);await store.initialize(true);
+  let evidence=new FinancialEvidenceStore(side,target,hash,gate);await evidence.initialize(true);
+  const all=Array.from({length:11},(_,i)=>String(54321+i));
+  const make=(attempt:string,resume:FinancialCollectionCheckpoint|null)=>new FinancialCollectionRun(target,resume?.id??'durable-job',all,{hash,attempt,resume,now:()=>at,prepare:gate,checkpoint:async value=>{await evidence.checkpointCollection(value);}});
+  const first=make('attempt-a',null);await first.prepare(gate);batchBefore(first,'attempt-a',0);
+  const firstResult=await batchResult(all.slice(0,10));assert.equal(first.accept(PROFILE_URL,PROFILE_URL,batchPacket('attempt-a','collect',0,{result:firstResult}),target,at),'checkpoint');
+  await first.checkpoint(gate);assert.equal(first.progress.processed,10);assert.equal(first.readyToSave,false);
+  assert.equal((await store.history()).total,0);assert.deepEqual(await evidence.snapshots(),[]);
+  const emptyArchive=await evidence.exportBackup();assert.equal(emptyArchive.includes('durable-job'),false);
+  first.cancel();await side.close();side=nodeDriver(path);evidence=new FinancialEvidenceStore(side,target,hash,gate);await evidence.initialize();
+  assert.equal(await evidence.pendingCollection(all.slice(1)),null);
+  const checkpoint=await evidence.pendingCollection(all);assert.equal(checkpoint?.batches.length,1);
+  const second=make('attempt-b',checkpoint);await second.prepare(gate);batchBefore(second,'attempt-b',1);
+  assert.ok(second.script.includes('["54331"]'));assert.ok(!second.script.includes('["54321","54322"'));
+  assert.equal(second.accept(PROFILE_URL,PROFILE_URL,batchPacket('attempt-a','collect',0,{result:firstResult}),target,at),'ignored');
+  const later='2026-11-03T12:00:00.000Z';
+  assert.equal(second.accept(PROFILE_URL,PROFILE_URL,batchPacket('attempt-b','collect',1,{result:await batchResult(all.slice(10))}),target,later),'checkpoint');await second.checkpoint(gate);
+  assert.equal(second.readyToSave,true);assert.deepEqual(second.progress,{processed:11,total:11,billed:2});
+  await side.close();side=nodeDriver(path);evidence=new FinancialEvidenceStore(side,target,hash,gate);await evidence.initialize();
+  const third=make('attempt-c',await evidence.pendingCollection(all));await third.prepare(gate);
+  assert.equal(third.readyToSave,true);assert.throws(()=>third.script,/not reading/);
+  const receipt=await third.save(store,()=>target,gate);assert.equal(receipt.id,'durable-job');
+  // Simulate death after the atomic raw commit, before the evidence commit.
+  const fourth=make('attempt-d',await evidence.pendingCollection(all));await fourth.prepare(gate);assert.equal(fourth.readyToSave,true);
+  assert.deepEqual(await fourth.save(store,()=>target,gate),receipt);await fourth.saveEvidence(evidence,gate);
+  const snapshots=await evidence.snapshots();assert.equal(snapshots.length,1);assert.deepEqual(snapshots[0]!.selection.sourceFlightRefs,all);assert.equal(snapshots[0]!.retrievedAt,later);
+  assert.equal(snapshots[0]!.unknown.length,9);assert.equal((await store.history()).total,3);assert.equal(await evidence.pendingCollection(all),null);
+  const captured=(await store.history()).receipts.filter(r=>r.kind==='billed-flight');assert.deepEqual(captured.map(r=>r.retrievedAt).sort(),[at,later].sort());
+ }finally{await side.close();await raw.close();await rm(directory,{recursive:true,force:true});}
+});
+test('unfinished batch cancellation and changed profile never publish or overwrite an accepted checkpoint',async()=>{
+ let held:FinancialCollectionCheckpoint|null=null;
+ const refs=Array.from({length:11},(_,i)=>String(54321+i));
+ const ports={hash,attempt:'boundary-a',now:()=>at,prepare:gate,checkpoint:async(value:FinancialCollectionCheckpoint)=>{held=structuredClone(value);}};
+ const job=new FinancialCollectionRun(target,'boundary-job',refs,ports);await job.prepare(gate);batchBefore(job,'boundary-a',0);
+ assert.equal(job.accept(PROFILE_URL,PROFILE_URL,batchPacket('boundary-a','collect',0,{result:await batchResult(refs.slice(0,10))}),target,at),'checkpoint');await job.checkpoint(gate);
+ const original=canonical(held);job.cancel();assert.equal(canonical(held),original);
+ const resumed=new FinancialCollectionRun(target,'boundary-job',refs,{...ports,attempt:'boundary-b',resume:held});await resumed.prepare(gate);resumed.observeNavigation(PROFILE_URL);
+ const changed=profile();changed.ownRecipientLabel='Other synthetic recipient';
+ assert.throws(()=>resumed.accept(PROFILE_URL,PROFILE_URL,batchPacket('boundary-b','before',1,{profile:changed}),target,at));assert.equal(canonical(held),original);
+ const different=new FinancialCollectionRun(target,'boundary-job',refs.slice(1),{...ports,resume:held});await assert.rejects(different.prepare(gate),/selection changed/);assert.equal(canonical(held),original);
+});

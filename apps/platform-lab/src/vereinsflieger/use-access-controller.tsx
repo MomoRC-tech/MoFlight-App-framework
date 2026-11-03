@@ -71,7 +71,7 @@ export function useAccessController(product = false, localOwner?: string, develo
     },
     changed: state => {
       if (mounted.current && owner.current === activeOwner.current) {
-        setFinancialState(state); setBusy(state.phase === 'reading' || state.phase === 'saving');
+        setFinancialState(state); setBusy(state.phase === 'reading' || state.phase === 'checkpointing' || state.phase === 'saving');
       }
     },
     diagnostic: recordFinancialCaptureDiagnostic,

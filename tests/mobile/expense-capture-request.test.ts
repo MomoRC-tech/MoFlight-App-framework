@@ -248,3 +248,32 @@ test('collection final packet survives a progress guard await without provider r
   await f.ready();await f.loaded();hold=true;const first=f.request.receive(PROFILE_URL,PROFILE_URL,JSON.stringify({progress:true}),f.state.generation);await until(()=>paused);await f.request.receive(PROFILE_URL,PROFILE_URL,JSON.stringify({result:true}),f.state.generation);hold=false;barrier.resolve();await first;await until(()=>f.state.saveCalls===1);assert.equal((await pending).id,'capture-1');assert.equal(f.state.saveCalls,1);assert.equal(f.navigations.length,1);
  }finally{barrier.resolve();await f.close();}
 });
+
+test('checkpoint writes retain renderer ownership, reset only a completed batch timer and resume final saves without navigation',async()=>{
+ const f=await fixture();try{
+  const hold=deferred();let ready=false,checkpoints=0;
+  const workflow=(id:string)=>({id,target,url:PROFILE_URL,script:'batch reader',observeNavigation(){},cancel(){return true;},markSaveAcknowledgementUncertain(){},
+   get readyToSave(){return ready;},progress:{processed:0,total:10,billed:0},
+   accept(){return 'checkpoint' as const;},async checkpoint(gate:()=>Promise<void>){checkpoints++;await hold.promise;await gate();ready=true;},
+   save:()=>f.store.save(id,'billed-flight',observation()),
+  });
+  const pending=f.start({createRun:workflow});await f.ready();await f.loaded();
+  const received=f.request.receive(PROFILE_URL,PROFILE_URL,'{}',f.state.generation);await until(()=>checkpoints===1);
+  assert.equal(f.changes.at(-1)?.phase,'checkpointing');assert.equal(f.request.cancel(),false);await assert.rejects(f.start(),/unavailable/);
+  assert.equal(f.timers.length,1);hold.resolve();await received;await pending;
+  assert.equal(f.navigations.length,1);assert.equal(f.timers.length,2);assert.ok(f.timers.every(timer=>timer.cleared));assert.equal(f.state.saveCalls,1);
+  // A durable fully captured workflow starts directly with its original save.
+  const next=f.start({createRun:workflow});await next;assert.equal(f.navigations.length,1);assert.equal(f.state.saveCalls,2);
+ }finally{await f.close();}
+});
+test('lifecycle revocation during a checkpoint waits for acknowledgement and cannot start another request',async()=>{
+ const f=await fixture();try{
+  const hold=deferred();let writing=false;
+  const pending=f.start({createRun:id=>({id,target,url:PROFILE_URL,script:'batch reader',observeNavigation(){},cancel(){return true;},markSaveAcknowledgementUncertain(){},
+   accept(){return 'checkpoint';},async checkpoint(gate){writing=true;await hold.promise;await gate();},save:()=>f.store.save(id,'billed-flight',observation()),
+  })});await f.ready();await f.loaded();
+  const received=f.request.receive(PROFILE_URL,PROFILE_URL,'{}',f.state.generation);await until(()=>writing);
+  f.request.interrupt('access');assert.equal(f.request.active(),true);await assert.rejects(f.start(),/unavailable/);hold.resolve();await received;await assert.rejects(pending);
+  assert.equal(f.request.active(),false);assert.equal(f.state.saveCalls,0);assert.equal((await f.store.history()).total,0);assert.equal(f.request.hasUncertainSave(),false);
+ }finally{await f.close();}
+});

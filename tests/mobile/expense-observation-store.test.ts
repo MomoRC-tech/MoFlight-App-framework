@@ -92,6 +92,87 @@ test('serialized concurrent identical retries share one receipt; changed reuse p
   } finally { await f.db.close(); }
 });
 
+test('batch receipt identity conflict rolls back earlier inserts and preserves the exported archive', async () => {
+  const f = await memory();
+  try {
+    const original = await f.store.save('existing', 'billed-flight', flight('12345'));
+    const before = await f.store.exportBackup();
+    await assert.rejects(f.store.saveMany([
+      { id: 'new-first', kind: 'billed-flight', value: flight('67890') },
+      { id: 'existing', kind: 'billed-flight', value: flight('12345', '2026-11-01T12:00:00.000Z') },
+    ]), /identity conflict/);
+    assert.equal(await f.store.find('new-first'), null);
+    assert.deepEqual(await f.store.find('existing'), original);
+    assert.equal(await f.store.exportBackup(), before);
+  } finally { await f.db.close(); }
+});
+
+test('write revocation during a batch rolls back every receipt', async () => {
+  const db = nodeDriver(':memory:'), g = guardState(); let revokeAfterInsert = false;
+  const wrapped: Driver = { ...db, transaction: work => db.transaction(tx => work({ ...tx, run: async (sql, ...params) => {
+    await tx.run(sql, ...params);
+    if (revokeAfterInsert && sql.startsWith('INSERT INTO financial_observations')) {
+      revokeAfterInsert = false; g.state.selected.scope.owner = 'owner-b';
+    }
+  } })) };
+  const store = new FinancialObservationStore(wrapped, target, hash, g.authorize);
+  try {
+    await store.initialize(true);
+    const original = await store.save('original', 'billed-flight', flight());
+    const before = await store.exportBackup();
+    revokeAfterInsert = true;
+    await assert.rejects(store.saveMany([
+      { id: 'batch-first', kind: 'billed-flight', value: flight('67890') },
+      { id: 'batch-second', kind: 'ledger', value: ledger() },
+    ]), /selection revoked/);
+    g.state.selected = structuredClone(target);
+    assert.equal(await store.find('batch-first'), null);
+    assert.equal(await store.find('batch-second'), null);
+    assert.deepEqual(await store.find('original'), original);
+    assert.equal(await store.exportBackup(), before);
+  } finally { await db.close(); }
+});
+
+test('batch exact retry after a lost acknowledgement preserves all receipts and export bytes', async () => {
+  const db = nodeDriver(':memory:'); let loseAcknowledgement = false;
+  const wrapped: Driver = { ...db, transaction: async work => {
+    await db.transaction(work);
+    if (loseAcknowledgement) { loseAcknowledgement = false; throw new Error('synthetic acknowledgement lost'); }
+  } };
+  const store = new FinancialObservationStore(wrapped, target, hash, async () => {});
+  const batch = [
+    { id: 'batch-flight-a', kind: 'billed-flight', value: flight('12345') },
+    { id: 'batch-ledger', kind: 'ledger', value: ledger() },
+    { id: 'batch-flight-b', kind: 'billed-flight', value: flight('67890') },
+  ] as const;
+  try {
+    await store.initialize(true);
+    loseAcknowledgement = true;
+    await assert.rejects(store.saveMany(batch), /acknowledgement lost/);
+    const committed = await store.exportBackup();
+    const retry = await store.saveMany(batch);
+    assert.deepEqual(retry.map(({ id, sequence }) => ({ id, sequence })), [
+      { id: 'batch-flight-a', sequence: 1 }, { id: 'batch-ledger', sequence: 2 }, { id: 'batch-flight-b', sequence: 3 },
+    ]);
+    assert.equal((await store.history()).total, 3);
+    assert.equal(await store.exportBackup(), committed);
+  } finally { await db.close(); }
+});
+
+test('batch rejects repeated identities and input above the bounded maximum before writing', async () => {
+  const f = await memory();
+  try {
+    const before = await f.store.exportBackup();
+    await assert.rejects(f.store.saveMany([
+      { id: 'same', kind: 'billed-flight', value: flight('12345') },
+      { id: 'same', kind: 'ledger', value: ledger() },
+    ]), /Repeated financial receipt identity/);
+    const oversized = Array.from({ length: 511 }, (_, index) => ({ id: `batch-${index}`, kind: 'billed-flight' as const, value: flight('12345') }));
+    await assert.rejects(f.store.saveMany(oversized), /Invalid financial receipt batch/);
+    assert.equal(await f.store.exportBackup(), before);
+  } finally { await f.db.close(); }
+});
+
 test('same-source time/repeat never selects a winner; changed evidence stays an explicit conflict', async () => {
   const f = await memory();
   try {

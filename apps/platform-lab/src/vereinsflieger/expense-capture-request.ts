@@ -6,8 +6,11 @@ import type { FinancialObservationTarget } from './expense-ledger-observation';
 import type { FinancialObservationReceipt } from './expense-observation-store';
 
 type Gate = () => Promise<void>;
-export type FinancialCaptureWorkflow = Pick<FinancialCaptureRun,'id'|'target'|'url'|'script'|'accept'|'observeNavigation'|'cancel'|'save'|'markSaveAcknowledgementUncertain'> & {
+export type FinancialCaptureWorkflow = Pick<FinancialCaptureRun,'id'|'target'|'url'|'script'|'observeNavigation'|'cancel'|'save'|'markSaveAcknowledgementUncertain'> & {
+  accept(sender:string,documentUrl:string,input:unknown,selected:FinancialObservationTarget,at:string):'ignored'|'navigate'|'save'|'checkpoint';
   prepare?(gate:Gate):Promise<void>;
+  checkpoint?(gate:Gate):Promise<void>;
+  readonly readyToSave?:boolean;
   progress?:{processed:number;total:number;billed:number};
   takeSourceDiagnostic?():FinancialSourceDiagnostic|null;
 };
@@ -25,7 +28,7 @@ export interface FinancialCaptureOptions {
   messageLimit?:number;
 }
 export interface FinancialCaptureState {
-  phase: 'idle' | 'reading' | 'saving' | 'save-uncertain';
+  phase: 'idle' | 'reading' | 'checkpointing' | 'saving' | 'save-uncertain';
   failure: 'source' | 'access' | 'cancelled' | 'timeout' | 'save-uncertain' | 'sign-in-required' | 'account-changed' | null;
   progress?:{processed:number;total:number;billed:number};
 }
@@ -81,7 +84,7 @@ export class FinancialCaptureRequest {
         processing: false, revoked: false, saving, timer: null, resolve, reject };
       this.pending = p;
       this.ports.changed({ phase: saving ? 'saving' : 'reading', failure: null });
-      p.timer = (this.ports.schedule ?? setTimeout)(() => { if (this.pending === p) this.interrupt('timeout','request-timeout'); }, Math.max(90_000,Math.min(300_000,options.timeoutMs??90_000)));
+      this.resetTimer(p);
       void (async () => {
         try { if (saving) await this.save(p); else await this.advance(p); }
         catch { this.fail(p, 'access'); }
@@ -99,6 +102,9 @@ export class FinancialCaptureRequest {
   private async advance(p: Pending) {
     await this.gate(p);
     await p.run.prepare?.(()=>this.gate(p)); await this.gate(p);
+    // A fully captured journal reconciles the original save after restart;
+    // it never fetches a replacement payload from the provider.
+    if(p.run.readyToSave){await this.save(p);return;}
     p.navigation = false; p.injected = false; p.injecting = false;
     this.ports.navigate(p.run.url); p.epoch = this.ports.epoch();
     if (!this.current(p)) throw Error('Expired financial navigation.');
@@ -150,6 +156,7 @@ export class FinancialCaptureRequest {
       const action = p.run.accept(sender, document, packet, p.run.target, this.ports.now());
       if(p.run.progress)this.ports.changed({phase:'reading',failure:null,progress:{...p.run.progress}});
       if (action === 'navigate') await this.advance(p);
+      else if(action==='checkpoint') await this.checkpoint(p);
       else if (action === 'save') await this.save(p);
     } catch (error) {
       if (this.pending === p) {
@@ -160,6 +167,22 @@ export class FinancialCaptureRequest {
     }
     finally { p.processing = false; const queued=p.queued;p.queued=undefined;if(queued&&this.pending===p)void this.receive(queued.sender,queued.document,queued.raw,queued.epoch); }
     return true;
+  }
+  private resetTimer(p:Pending){
+    if(p.timer!==null)(this.ports.clear??clearTimeout)(p.timer);
+    p.timer=(this.ports.schedule??setTimeout)(()=>{if(this.pending===p)this.interrupt('timeout','request-timeout');},Math.max(90_000,Math.min(300_000,p.options.timeoutMs??90_000)));
+  }
+  private async checkpoint(p:Pending){
+    if(!p.run.checkpoint)throw Error('Financial checkpoint unavailable.');
+    // Hold renderer ownership until the durable write settles. Cancellation
+    // or lifecycle revocation cannot release a write to a subsequent owner.
+    p.saving=true;this.ports.changed({phase:'checkpointing',failure:null,progress:p.run.progress?{...p.run.progress}:undefined});
+    try{
+      await this.gate(p);await p.run.checkpoint(()=>this.gate(p));await this.gate(p);
+      p.saving=false;this.resetTimer(p);
+      this.ports.changed({phase:'reading',failure:null,progress:p.run.progress?{...p.run.progress}:undefined});
+      await this.advance(p);
+    }catch(error){p.saving=false;this.fail(p,'access');throw error;}
   }
   private async save(p: Pending) {
     // From here a failed guard/acknowledgement may hide a committed receipt.

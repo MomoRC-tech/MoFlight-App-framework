@@ -1,4 +1,5 @@
 import { canonical } from '@moflight/flight-logbook';
+import { FINANCIAL_COLLECTION_BATCH_SIZE, validateFinancialCollectionCheckpoint, type FinancialCollectionCheckpoint } from './expense-collection-checkpoint';
 import { financialSourceFailureReasons, financialSourceFailureStages, type FinancialSourceFailureReason, type FinancialSourceFailureStage } from '../diagnostic-vocabulary';
 import { PROFILE_URL, scopedBridge } from './context';
 import { FINANCIAL_PROFILE_READER_SOURCE, FinancialReadError, readFinancialProfile } from './expense-capture-run';
@@ -67,57 +68,106 @@ export interface FinancialCollectionPages {
   summary:DurableInvoiceBookingEvidence['summary'];ledgers:DurableInvoiceBookingEvidence['ledgers'];
   billed:FlightBillingObservation[];unknown:FinancialEvidenceSnapshot['unknown'];retrievedAt:string;
 }
+interface CollectionPorts {
+  prepare(gate:()=>Promise<void>):Promise<void>;
+  hash(text:string):Promise<string>;
+  checkpoint?(value:FinancialCollectionCheckpoint,gate:()=>Promise<void>):Promise<void>;
+  resume?:FinancialCollectionCheckpoint|null;
+  attempt?:string;
+  now?():string;
+}
 export class FinancialCollectionRun {
-  private stage:'before'|'collect'|'ready'|'saving'|'done'|'uncertain'|'failed'='before';
+  private stage:'before'|'collect'|'checkpoint'|'ready'|'saving'|'done'|'uncertain'|'failed'='before';
   private seen=false;private prepared=false;private before:Profile|null=null;private pages:FinancialCollectionPages|null=null;
   private sourceDiagnostic:FinancialSourceDiagnostic|null=null;
   private saved:FinancialEvidenceSnapshot|null=null;
+  private journal:FinancialCollectionCheckpoint|null=null;
   readonly progress={processed:0,total:0,billed:0};
   private readonly identity:string;private readonly refs:string[];
-  constructor(target:FinancialObservationTarget,readonly id:string,refs:readonly string[],private readonly ports:{prepare(gate:()=>Promise<void>):Promise<void>;hash(text:string):Promise<string>}){
+  constructor(target:FinancialObservationTarget,readonly id:string,refs:readonly string[],private readonly ports:CollectionPorts){
     this.identity=canonical(validateFinancialObservationTarget(target));if(!/^[a-zA-Z0-9_-]{1,80}$/.test(id)||refs.length>500||new Set(refs).size!==refs.length||refs.some(ref=>!/^\d{1,20}$/.test(ref)))throw Error('Invalid financial source selection.');this.refs=[...refs];this.progress.total=refs.length;
+    if(ports.attempt&&!/^[a-zA-Z0-9_-]{1,80}$/.test(ports.attempt))throw Error('Invalid financial attempt.');
   }
   get target(){return JSON.parse(this.identity) as FinancialObservationTarget;}get url(){return PROFILE_URL;}
+  get readyToSave(){return this.stage==='ready'||this.stage==='uncertain';}
+  private get completed(){return this.journal?.batches.reduce((n,b)=>n+b.snapshot.selection.sourceFlightRefs.length,0)??0;}
+  private get batchRefs(){return this.ports.checkpoint?this.refs.slice(this.completed,this.completed+FINANCIAL_COLLECTION_BATCH_SIZE):this.refs;}
+  private get nonce(){return (this.ports.attempt??this.id)+'-'+this.stage+(this.ports.checkpoint?'-'+(this.journal?.batches.length??0):'');}
   takeSourceDiagnostic(){const value=this.sourceDiagnostic;this.sourceDiagnostic=null;return value;}
-  async prepare(gate:()=>Promise<void>){if(!this.prepared){await gate();await this.ports.prepare(gate);await gate();this.prepared=true;}}
-  get script(){const nonce=this.id+'-'+this.stage;if(this.stage==='before')return `(()=>{let sent=false;const send=()=>{if(sent||document.readyState!=='complete')return;sent=true;window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-financial-collection-v1',nonce:${JSON.stringify(nonce)},url:location.href,profile:(${FINANCIAL_PROFILE_READER_SOURCE})()}));};if(document.readyState==='complete')send();else window.addEventListener('load',send,{once:true});})();true;`;
+  async prepare(gate:()=>Promise<void>){
+    if(this.prepared)return;
+    await gate();await this.ports.prepare(gate);await gate();
+    if(this.ports.checkpoint){
+      this.journal=this.ports.resume?await validateFinancialCollectionCheckpoint(this.ports.resume,this.target,this.ports.hash):{
+        version:1,id:this.id,target:this.target,selection:{source:'verified-own-flight-library',sourceFlightRefs:[...this.refs]},startedAt:this.ports.now?.()??new Date().toISOString(),batches:[],
+      };
+      if(this.journal.id!==this.id||canonical(this.journal.selection.sourceFlightRefs)!==canonical(this.refs))throw Error('Financial checkpoint selection changed.');
+      await this.ports.checkpoint(this.journal,gate);await gate();
+      this.updateProgress();
+      if(this.journal.batches.length&&this.completed===this.refs.length)this.assemble();
+    }
+    this.prepared=true;
+  }
+  get script(){const nonce=this.nonce;if(this.stage==='before')return `(()=>{let sent=false;const send=()=>{if(sent||document.readyState!=='complete')return;sent=true;window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-financial-collection-v1',nonce:${JSON.stringify(nonce)},url:location.href,profile:(${FINANCIAL_PROFILE_READER_SOURCE})()}));};if(document.readyState==='complete')send();else window.addEventListener('load',send,{once:true});})();true;`;
     if(this.stage!=='collect'||!this.before)throw Error('Financial collection is not reading.');
-    return `(${FINANCIAL_COLLECTION_SOURCE})(${JSON.stringify({profileUrl:PROFILE_URL,context:this.target.scope.context,ownRecipientLabel:this.before.ownRecipientLabel})},${JSON.stringify(this.refs)},${JSON.stringify(nonce)},${profileReader},${billingReader},${INERT_EXPORT_TEXT_SOURCE});true;`;
+    return `(${FINANCIAL_COLLECTION_SOURCE})(${JSON.stringify({profileUrl:PROFILE_URL,context:this.target.scope.context,ownRecipientLabel:this.before.ownRecipientLabel})},${JSON.stringify(this.batchRefs)},${JSON.stringify(nonce)},${profileReader},${billingReader},${INERT_EXPORT_TEXT_SOURCE});true;`;
   }
   observeNavigation(url:string){if(url===PROFILE_URL)this.seen=true;}
-  accept(sender:string,documentUrl:string,input:unknown,selected:FinancialObservationTarget,at:string):'ignored'|'navigate'|'save'{
+  accept(sender:string,documentUrl:string,input:unknown,selected:FinancialObservationTarget,at:string):'ignored'|'navigate'|'save'|'checkpoint'{
     if(canonical(validateFinancialObservationTarget(selected))!==this.identity)throw Error('Financial collection owner changed.');
-    const p=input as Record<string,unknown>;if(!this.seen||!scopedBridge(sender,documentUrl,PROFILE_URL)||!p||p.kind!=='vf-financial-collection-v1'||p.nonce!==this.id+'-'+this.stage||p.url!==PROFILE_URL)return 'ignored';
+    const p=input as Record<string,unknown>;if(!this.seen||!scopedBridge(sender,documentUrl,PROFILE_URL)||!p||p.kind!=='vf-financial-collection-v1'||p.nonce!==this.nonce||p.url!==PROFILE_URL)return 'ignored';
     if(p.error){this.sourceDiagnostic=financialSourceDiagnostic(p.diagnostic);this.stage='failed';if(p.error==='sign-in-required'||p.error==='account-changed')throw new FinancialReadError(p.error);throw Error('Financial source unavailable.');}
     if(this.stage==='before'){
-      try{this.before=profile(p.profile,this.target);}
-      catch(error){this.sourceDiagnostic={stage:'profile-before',reason:error instanceof FinancialReadError?error.reason==='sign-in-required'?'authentication':'account-context':'source-shape'};throw error;}
+      try{this.before=profile(p.profile,this.target);
+        const prior=this.journal?.batches[0]?.snapshot;if(prior&&prior.ownRecipientLabel!==this.before.ownRecipientLabel)throw new FinancialReadError('account-changed');
+      }catch(error){this.sourceDiagnostic={stage:'profile-before',reason:error instanceof FinancialReadError?error.reason==='sign-in-required'?'authentication':'account-context':'source-shape'};throw error;}
       this.stage='collect';this.seen=false;return 'navigate';
     }
     if(this.stage!=='collect'||!this.before)return 'ignored';
-    if(p.progress){const v=p.progress as typeof this.progress;if(!Number.isSafeInteger(v.processed)||v.processed<0||v.processed>this.refs.length||v.total!==this.refs.length||!Number.isSafeInteger(v.billed)||v.billed<0||v.billed>v.processed)throw Error('Invalid financial progress.');Object.assign(this.progress,v);return 'ignored';}
+    const refs=this.batchRefs;
+    if(p.progress){const v=p.progress as typeof this.progress;if(!Number.isSafeInteger(v.processed)||v.processed<0||v.processed>refs.length||v.total!==refs.length||!Number.isSafeInteger(v.billed)||v.billed<0||v.billed>v.processed)throw Error('Invalid financial progress.');this.updateProgress();this.progress.processed+=v.processed;this.progress.billed+=v.billed;return 'ignored';}
     const r=p.result as {before:Profile;after:Profile;summary:DurableInvoiceBookingEvidence['summary'];ledgers:Record<string,unknown>[];billed:FlightBillingRead[];unknown:FinancialEvidenceSnapshot['unknown']};
-    if(!r||canonical(profile(r.before,this.target))!==canonical(this.before)||canonical(profile(r.after,this.target))!==canonical(this.before)||!Array.isArray(r.billed)||!Array.isArray(r.unknown)||!Array.isArray(r.ledgers)||!r.ledgers.length||r.ledgers.length>10||r.billed.length+r.unknown.length!==this.refs.length)throw Error('Invalid financial source inventory.');
-    const seen=new Set<string>();const billed=r.billed.map(read=>{if(!this.refs.includes(read.sourceFlightId)||seen.has(read.sourceFlightId))throw Error('Foreign or repeated financial source.');seen.add(read.sourceFlightId);return decodeFlightBillingObservation(read,{...this.target,ownRecipientLabel:this.before!.ownRecipientLabel,observedDetailUrl:PROFILE_URL.replace('viewprofile','viewflight.php?flid='+read.sourceFlightId)},this.target,r.before.context,r.after.context,at);});
-    for(const v of r.unknown){if(!this.refs.includes(v.sourceFlightRef)||seen.has(v.sourceFlightRef)||!['unavailable','unbilled'].includes(v.reason))throw Error('Unknown financial source differs.');seen.add(v.sourceFlightRef);}
-    const ledgers:FinancialEvidenceSnapshot['ledgers']=r.ledgers.map((item,index)=>({evidenceRef:`${this.id}-ledger-${index}`,invoiceLinks:item.invoiceLinks as {rowPosition:number;url:string}[],observation:{version:1,...this.target,contextBefore:r.before.context,contextAfter:r.after.context,sourceAccount:{label:item.label as string,selector:item.selector as string},ownNavigation:{label:item.label as string,url:item.url as string},pageAccountLabel:item.label as string,sourceUrl:item.url as string,reportedRowCount:item.reportedRowCount as number|null,capture:{version:1,id:`${this.id}-ledger-${index}`,retrievedAt:at,owner:this.target.scope.owner,connectionId:this.target.scope.connectionId,sourceIdentity:'provisional-observed-profile',category:'ledger',path:'/member/profile/account.php',columns:item.columns as {key:string;label:string;index:number}[],rows:item.rows as {position:number;values:string[]}[],filters:item.filters as string[],empty:!(item.rows as unknown[]).length,coverage:{kind:'visible-page',truncated:item.truncated as boolean,pagination:'unverified'}}}}));
+    if(!r||canonical(profile(r.before,this.target))!==canonical(this.before)||canonical(profile(r.after,this.target))!==canonical(this.before)||!Array.isArray(r.billed)||!Array.isArray(r.unknown)||!Array.isArray(r.ledgers)||!r.ledgers.length||r.ledgers.length>10||r.billed.length+r.unknown.length!==refs.length)throw Error('Invalid financial source inventory.');
+    const seen=new Set<string>();const billed=r.billed.map(read=>{if(!refs.includes(read.sourceFlightId)||seen.has(read.sourceFlightId))throw Error('Foreign or repeated financial source.');seen.add(read.sourceFlightId);return decodeFlightBillingObservation(read,{...this.target,ownRecipientLabel:this.before!.ownRecipientLabel,observedDetailUrl:PROFILE_URL.replace('viewprofile','viewflight.php?flid='+read.sourceFlightId)},this.target,r.before.context,r.after.context,at);});
+    for(const v of r.unknown){if(!refs.includes(v.sourceFlightRef)||seen.has(v.sourceFlightRef)||!['unavailable','unbilled'].includes(v.reason))throw Error('Unknown financial source differs.');seen.add(v.sourceFlightRef);}
+    const batchId=this.ports.checkpoint?`${this.id}-part-${this.journal?.batches.length??0}`:this.id;
+    const ledgers:FinancialEvidenceSnapshot['ledgers']=r.ledgers.map((item,index)=>({evidenceRef:`${batchId}-ledger-${index}`,invoiceLinks:item.invoiceLinks as {rowPosition:number;url:string}[],observation:{version:1,...this.target,contextBefore:r.before.context,contextAfter:r.after.context,sourceAccount:{label:item.label as string,selector:item.selector as string},ownNavigation:{label:item.label as string,url:item.url as string},pageAccountLabel:item.label as string,sourceUrl:item.url as string,reportedRowCount:item.reportedRowCount as number|null,capture:{version:1,id:`${batchId}-ledger-${index}`,retrievedAt:at,owner:this.target.scope.owner,connectionId:this.target.scope.connectionId,sourceIdentity:'provisional-observed-profile',category:'ledger',path:'/member/profile/account.php',columns:item.columns as {key:string;label:string;index:number}[],rows:item.rows as {position:number;values:string[]}[],filters:item.filters as string[],empty:!(item.rows as unknown[]).length,coverage:{kind:'visible-page',truncated:item.truncated as boolean,pagination:'unverified'}}}}));
     validateFinancialSourcePages({summary:r.summary,ledgers},this.before.ownRecipientLabel,this.target);
-    this.pages={summary:{...r.summary,evidenceRef:this.id+'-summary'},ledgers,billed,unknown:JSON.parse(canonical(r.unknown)),retrievedAt:at};this.stage='ready';return 'save';
+    this.pages={summary:{...r.summary,evidenceRef:batchId+'-summary'},ledgers,billed,unknown:JSON.parse(canonical(r.unknown)),retrievedAt:at};
+    this.stage=this.ports.checkpoint?'checkpoint':'ready';return this.ports.checkpoint?'checkpoint':'save';
+  }
+  private updateProgress(){this.progress.processed=this.completed;this.progress.billed=this.journal?.batches.reduce((n,b)=>n+b.billed.length,0)??0;}
+  private async snapshot(id:string,refs:string[],pages:FinancialCollectionPages):Promise<FinancialEvidenceSnapshot>{
+    if(!this.before)throw Error('Financial account source missing.');
+    const sources=await Promise.all(pages.billed.map(async value=>({sourceFlightRef:value.source.sourceFlightId,sourceHash:await this.ports.hash(canonical(value.source))})));
+    return validateFinancialEvidenceSnapshot({version:1,id,target:this.target,retrievedAt:pages.retrievedAt,ownRecipientLabel:this.before.ownRecipientLabel,contextBefore:this.before.context,contextAfter:this.before.context,selection:{source:'verified-own-flight-library',sourceFlightRefs:refs},sources,unknown:pages.unknown,summary:pages.summary,ledgers:pages.ledgers},this.target);
+  }
+  async checkpoint(gate:()=>Promise<void>){
+    if(this.stage!=='checkpoint'||!this.pages||!this.journal||!this.ports.checkpoint)throw Error('Financial checkpoint unavailable.');
+    const snapshot=await this.snapshot(`${this.id}-part-${this.journal.batches.length}`,this.batchRefs,this.pages);
+    const next=await validateFinancialCollectionCheckpoint({...this.journal,batches:[...this.journal.batches,{snapshot,billed:this.pages.billed}]},this.target,this.ports.hash);
+    await gate();await this.ports.checkpoint(next,gate);await gate();this.journal=next;this.updateProgress();
+    if(this.completed===this.refs.length)this.assemble();else{this.pages=null;this.before=null;this.seen=false;this.stage='before';}
+  }
+  private assemble(){
+    const batches=this.journal!.batches,last=batches.at(-1)!;
+    this.before={context:last.snapshot.contextAfter,ownRecipientLabel:last.snapshot.ownRecipientLabel};
+    this.pages={summary:last.snapshot.summary,ledgers:last.snapshot.ledgers,retrievedAt:last.snapshot.retrievedAt,billed:batches.flatMap(b=>b.billed),unknown:batches.flatMap(b=>b.snapshot.unknown)};
+    this.stage='ready';
   }
   cancel(){if(this.stage==='saving'||this.stage==='done')return false;this.stage='failed';return true;}
   markSaveAcknowledgementUncertain(){this.stage='uncertain';}
   async save(store:FinancialObservationStore,current:()=>FinancialObservationTarget,gate:()=>Promise<void>):Promise<FinancialObservationReceipt>{
     if(!['ready','uncertain'].includes(this.stage)||!this.pages||!this.before||canonical(store.target)!==this.identity||canonical(current())!==this.identity)throw Error('Financial collection is not ready.');this.stage='saving';
-    try{await gate();const sources:FinancialEvidenceSnapshot['sources']=[];
+    try{await gate();const snapshot=await this.snapshot(this.id,[...this.refs],this.pages);
+      const pending:{id:string;kind:'billed-flight'|'ledger';value:FlightBillingObservation|FinancialEvidenceSnapshot['ledgers'][number]['observation']}[]=[];
       for(const [index,value] of this.pages.billed.entries()){
         const prior=await store.assessFlight(value.source.sourceFlightId);if(prior.state==='history-limit')throw Error('Financial history needs explicit review.');let reuse:FinancialObservationReceipt|null=null;
         for(const id of prior.variants.flat()){const receipt=await store.find(id);if(receipt?.kind==='billed-flight'&&canonical((receipt.value as FlightBillingObservation).source)===canonical(value.source)){reuse=receipt;break;}}
-        if(!reuse)await store.save(`${this.id}-bill-${index}`,'billed-flight',value);
-        sources.push({sourceFlightRef:value.source.sourceFlightId,sourceHash:await this.ports.hash(canonical(value.source))});await gate();
+        if(!reuse)pending.push({id:`${this.id}-bill-${this.refs.indexOf(value.source.sourceFlightId)}`,kind:'billed-flight',value});await gate();
       }
-      let first:FinancialObservationReceipt|null=null;
-      for(const [index,item] of this.pages.ledgers.entries()){const receipt=await store.save(index===0?this.id:`${this.id}-ledger-${index}`,'ledger',item.observation);first??=receipt;await gate();}
-      this.saved=validateFinancialEvidenceSnapshot({version:1,id:this.id,target:this.target,retrievedAt:this.pages.retrievedAt,ownRecipientLabel:this.before.ownRecipientLabel,contextBefore:this.before.context,contextAfter:this.before.context,selection:{source:'verified-own-flight-library',sourceFlightRefs:[...this.refs]},sources,unknown:this.pages.unknown,summary:this.pages.summary,ledgers:this.pages.ledgers},this.target);
+      for(const [index,item] of this.pages.ledgers.entries())pending.push({id:index===0?this.id:`${this.id}-ledger-${index}`,kind:'ledger',value:item.observation});
+      const receipts=await store.saveMany(pending),first=receipts.find(receipt=>receipt.id===this.id);this.saved=snapshot;
       if(!first)throw Error('Financial account source missing.');await gate();this.stage='done';return first;
     }catch(error){this.stage='uncertain';throw error;}
   }
