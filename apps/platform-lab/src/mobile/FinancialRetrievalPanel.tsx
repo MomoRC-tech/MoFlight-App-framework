@@ -10,7 +10,7 @@ export function FinancialRetrievalPanel({capture,retrySave,cancel,openProvider,s
   useEffect(()=>{alive.current=true;return()=>{alive.current=false;latest.current.cancel();latest.current.onBusyChange(false);};},[]);
   const run=async(reconcile=false)=>{if(locked.current||blocked||!ready||AppState.currentState!=='active')return;locked.current=true;setRunning(true);setMessage('');onBusyChange(true);
     try{await(reconcile?retrySave():capture());if(alive.current){setFinished(true);setMessage('Finanzbelege gespeichert. Deine Kosten werden beim Zurückkehren lokal geprüft.');}}
-    catch{if(alive.current)setMessage('Abruf nicht abgeschlossen. Gespeicherte Belege bleiben erhalten. Bei abgelaufener Sitzung zuerst beim Anbieter anmelden.');}
+    catch{if(alive.current)setMessage('Abruf nicht abgeschlossen. Gespeicherte Belege bleiben erhalten.');}
     finally{locked.current=false;if(alive.current){setRunning(false);latest.current.onBusyChange(false);}}
   };
   useEffect(()=>{if(ready&&!blocked&&!started.current&&!saveUncertain){started.current=true;void run();}},[ready,blocked,saveUncertain]);
@@ -18,7 +18,7 @@ export function FinancialRetrievalPanel({capture,retrySave,cancel,openProvider,s
     {state.phase==='reading'&&<><Label>{state.progress?`${state.progress.processed} von ${state.progress.total} Quellflügen geprüft · ${state.progress.billed} abgerechnet`:'Eigenes Konto und Quellen werden geprüft …'}</Label><Action secondary onPress={cancel}>Abruf abbrechen</Action></>}
     {state.phase==='saving'&&<Label>Belege werden auf diesem Gerät gespeichert und zurückgelesen …</Label>}
     {saveUncertain&&<><Label>Die Speicherbestätigung fehlt. Derselbe Auftrag muss lokal abgeglichen werden; der Anbieter wird dafür nicht erneut abgerufen.</Label><Action disabled={running||blocked||!ready} onPress={()=>void run(true)}>Speicherung abgleichen</Action></>}
-    {state.phase==='idle'&&state.failure&&<Label>{state.failure==='cancelled'?'Abruf abgebrochen.':state.failure==='timeout'?'Zeitlimit erreicht. Erneut versuchen.':'Quelle oder Zugriff konnte nicht bestätigt werden.'}</Label>}
+    {state.phase==='idle'&&state.failure&&<Label>{state.failure==='cancelled'?'Abruf abgebrochen.':state.failure==='timeout'?'Zeitlimit erreicht. Erneut versuchen.':state.failure==='sign-in-required'?'Anmeldung erforderlich. Beim Anbieter anmelden und erneut abrufen.':state.failure==='account-changed'?'Kontokontext geändert. Die gespeicherte Kontoverbindung prüfen; neue Belege wurden nicht übernommen.':'Quelle oder Zugriff konnte nicht bestätigt werden.'}</Label>}
     {message&&<Label>{message}</Label>}
     {!running&&!finished&&!saveUncertain&&<><Action disabled={blocked||!ready} onPress={()=>void run()}>Erneut abrufen</Action><Action secondary disabled={blocked||!ready} onPress={openProvider}>Beim Anbieter anmelden</Action></>}
     {finished&&<Action onPress={onDone}>Kosten ansehen</Action>}

@@ -1,6 +1,6 @@
 import { canonical } from '@moflight/flight-logbook';
-import { PROFILE_URL, scopedBridge, validateContext } from './context';
-import { FINANCIAL_PROFILE_READER_SOURCE } from './expense-capture-run';
+import { PROFILE_URL, scopedBridge } from './context';
+import { FINANCIAL_PROFILE_READER_SOURCE, FinancialReadError, readFinancialProfile } from './expense-capture-run';
 import { decodeFlightBillingObservation, FLIGHT_BILLING_READER_SOURCE, type FlightBillingObservation, type FlightBillingRead } from './expense-flight-billing';
 import { validateFinancialObservationTarget, type FinancialObservationReceipt, type FinancialObservationStore } from './expense-observation-store';
 import { validateFinancialEvidenceSnapshot, type FinancialEvidenceSnapshot, type FinancialEvidenceStore } from './expense-evidence-store';
@@ -23,7 +23,7 @@ export const FINANCIAL_COLLECTION_SOURCE = String.raw`async function(expected,re
  const clean=e=>text(e).replace(/\s+/g,' ').trim();
  const route=(href,path,key)=>{const u=new URL(href,origin+path);if(u.origin!==origin||u.protocol!=='https:'||u.username||u.password||u.hash||u.port||u.pathname!==path|| (key?[...u.searchParams.keys()].join(',')!==key||!/^\d{1,20}$/.test(u.searchParams.get(key)||''):u.search))throw Error('route');return u.href;};
  const get=async url=>{guard();const r=await fetch(url,{method:'GET',credentials:'same-origin',redirect:'error',cache:'no-store',signal:controller.signal});guard();const type=r.headers.get('content-type')||'';if(!r.ok||r.redirected||r.url!==url||!/^text\/html(?:;|$)/i.test(type)||!r.body)throw Error('source');const reader=r.body.getReader(),chunks=[];let n=0;try{while(true){const v=await reader.read();guard();if(v.done)break;n+=v.value.byteLength;if(n>1500000)throw Error('source');chunks.push(v.value);}}finally{reader.releaseLock();}const bytes=new Uint8Array(n);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.byteLength;}const charset=type.match(/charset\s*=\s*["']?([^\s;"']+)/i)?.[1]||'utf-8';if(!['utf-8','utf8','iso-8859-1','windows-1252'].includes(charset.toLowerCase()))throw Error('source');const d=new DOMParser().parseFromString(new TextDecoder(charset,{fatal:true}).decode(bytes),'text/html');if(d.querySelector('input#pwinput[name="pwinput"]'))throw Error('login');for(const e of d.querySelectorAll('*')){Object.defineProperty(e,'innerText',{get:()=>text(e).replace(/\s+/g,' ').trim()});e.getClientRects=()=>e.closest('[hidden]')||e.style.display==='none'?[]:[{}];}return d;};
- const profile=d=>{const p=readProfile(d,expected.profileUrl);if(!p||p.error||!p.context||!Object.keys(expected.context).every(key=>p.context[key]===expected.context[key])||p.ownRecipientLabel!==expected.ownRecipientLabel)throw Error('context');return p;};
+ const profile=d=>{const p=readProfile(d,expected.profileUrl);if(p?.error==='sign-in-required')throw Error('login');if(!p||p.error||!p.context)throw Error('source');if(!Object.keys(expected.context).every(key=>p.context[key]===expected.context[key])||p.ownRecipientLabel!==expected.ownRecipientLabel)throw Error('context');return p;};
  const tableRows=(d,id,labels)=>{const t=d.querySelector('table#'+id);if(!t||t.rows.length>10002)throw Error('table');const heads=[...t.rows].filter(r=>labels.every(label=>[...r.cells].some(c=>clean(c)===label)));if(heads.length!==1)throw Error('headers');const head=heads[0],keys=Object.fromEntries(labels.map(label=>[label,[...head.cells].findIndex(c=>clean(c)===label)]));const width=head.cells.length;const all=[...t.rows].filter(r=>r!==head&&!r.closest('thead')&&!r.closest('tfoot')&&r.querySelector('td')&&r.cells.length===width&&[...r.cells].every(c=>c.colSpan===1&&c.rowSpan===1));const footer=[...d.querySelectorAll('table')].map(t=>clean(t)).find(s=>/^\d+ Datensätze$/.test(s));return {rows:all.slice(0,20),keys,truncated:all.length>20,reported:footer?Number(footer.split(' ')[0]):null};};
  try{
   if(document.readyState!=='complete')await new Promise(resolve=>window.addEventListener('load',resolve,{once:true}));guard();
@@ -42,13 +42,13 @@ export const FINANCIAL_COLLECTION_SOURCE = String.raw`async function(expected,re
    if((i+1)%5===0||i===refs.length-1)send({progress:{processed:i+1,total:refs.length,billed:billed.length}});
   }
   const after=profile(await get(expected.profileUrl));guard();const result={before,after,summary,ledgers,billed,unknown};if(JSON.stringify(result).length>4500000)throw Error('limit');send({result});
- }catch{try{send({error:'source-unavailable'});}catch{}}finally{clearTimeout(timer);abort();if(window.__moflightFinancialAbort===abort)delete window.__moflightFinancialAbort;}
+ }catch(error){try{send({error:error?.message==='login'?'sign-in-required':error?.message==='context'?'account-changed':'source-unavailable'});}catch{}}finally{clearTimeout(timer);abort();if(window.__moflightFinancialAbort===abort)delete window.__moflightFinancialAbort;}
 }`;
 
 const profileReader=`function(document,url){const location=new URL(url),window={};window.top=window;return (${FINANCIAL_PROFILE_READER_SOURCE})();}`;
 const billingReader=`function(document,url,expected){const location=new URL(url),window={};window.top=window;return (${FLIGHT_BILLING_READER_SOURCE})(expected);}`;
 type Profile={context:FinancialObservationTarget['scope']['context'];ownRecipientLabel:string};
-function profile(value:unknown,target:FinancialObservationTarget):Profile{const v=value as Profile;if(!v||canonical(validateContext(v.context))!==canonical(target.scope.context)||typeof v.ownRecipientLabel!=='string'||!v.ownRecipientLabel.trim()||v.ownRecipientLabel.length>200)throw Error('Financial profile differs.');return JSON.parse(canonical(v)) as Profile;}
+function profile(value:unknown,target:FinancialObservationTarget):Profile{return readFinancialProfile(value,target.scope.context);}
 export interface FinancialCollectionPages {
   summary:DurableInvoiceBookingEvidence['summary'];ledgers:DurableInvoiceBookingEvidence['ledgers'];
   billed:FlightBillingObservation[];unknown:FinancialEvidenceSnapshot['unknown'];retrievedAt:string;
@@ -72,7 +72,7 @@ export class FinancialCollectionRun {
   accept(sender:string,documentUrl:string,input:unknown,selected:FinancialObservationTarget,at:string):'ignored'|'navigate'|'save'{
     if(canonical(validateFinancialObservationTarget(selected))!==this.identity)throw Error('Financial collection owner changed.');
     const p=input as Record<string,unknown>;if(!this.seen||!scopedBridge(sender,documentUrl,PROFILE_URL)||!p||p.kind!=='vf-financial-collection-v1'||p.nonce!==this.id+'-'+this.stage||p.url!==PROFILE_URL)return 'ignored';
-    if(p.error){this.stage='failed';throw Error('Financial source unavailable.');}
+    if(p.error){this.stage='failed';if(p.error==='sign-in-required'||p.error==='account-changed')throw new FinancialReadError(p.error);throw Error('Financial source unavailable.');}
     if(this.stage==='before'){this.before=profile(p.profile,this.target);this.stage='collect';this.seen=false;return 'navigate';}
     if(this.stage!=='collect'||!this.before)return 'ignored';
     if(p.progress){const v=p.progress as typeof this.progress;if(!Number.isSafeInteger(v.processed)||v.processed<0||v.processed>this.refs.length||v.total!==this.refs.length||!Number.isSafeInteger(v.billed)||v.billed<0||v.billed>v.processed)throw Error('Invalid financial progress.');Object.assign(this.progress,v);return 'ignored';}

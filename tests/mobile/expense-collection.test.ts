@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
-import { FinancialCollectionRun } from '../../apps/platform-lab/src/vereinsflieger/expense-collection-run.ts';
+import { FINANCIAL_COLLECTION_SOURCE, FinancialCollectionRun } from '../../apps/platform-lab/src/vereinsflieger/expense-collection-run.ts';
 import { FinancialObservationStore } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
 import { FinancialEvidenceStore, financialProofsFor, type FinancialEvidenceSnapshot } from '../../apps/platform-lab/src/vereinsflieger/expense-evidence-store.ts';
 import { projectCapturedFinancialArchive } from '../../apps/platform-lab/src/vereinsflieger/expense-projection-adapter.ts';
@@ -12,6 +13,17 @@ import { nodeDriver } from './sqlite-driver.ts';
 import { evidenceBilled,evidenceSnapshot } from './fixtures/expense-evidence.ts';
 import { financialTarget as target,financialProfile as profile,financialHash as hash,financialAt as at } from './fixtures/expense-capture.ts';
 const gate=async()=>{};
+test('collection script forwards only allowlisted recovery reasons and clears its abort ownership', async () => {
+ for(const reason of ['sign-in-required','account-changed','unknown']) {
+  const packets:string[]=[],window={top:null as unknown,ReactNativeWebView:{postMessage:(text:string)=>packets.push(text)}};window.top=window;
+  const input=profile();if(reason==='account-changed')input.context.accountNumber='999990099';
+  const readProfile=()=>reason==='account-changed'?input:{error:reason==='unknown'?'private provider details':reason};
+  const collect=runInNewContext(`(${FINANCIAL_COLLECTION_SOURCE})`,{window,document:{readyState:'complete'},location:new URL(PROFILE_URL),URL,AbortController,setTimeout,clearTimeout});
+  await collect({profileUrl:PROFILE_URL,context:target.scope.context,ownRecipientLabel:profile().ownRecipientLabel},[],'synthetic-collect',readProfile,()=>{},()=>{});
+  assert.equal(packets.length,1);assert.equal(JSON.parse(packets[0]!).error,reason==='unknown'?'source-unavailable':reason);
+  assert.equal(packets[0]!.includes('private provider details'),false);assert.equal('__moflightFinancialAbort' in window,false);
+ }
+});
 async function result(){const evidence=await evidenceSnapshot();return {before:profile(),after:profile(),summary:evidence.summary,ledgers:evidence.ledgers.map(({observation:o,invoiceLinks})=>({label:o.sourceAccount.label,url:o.sourceUrl,selector:o.sourceAccount.selector,columns:o.capture.columns,rows:o.capture.rows,filters:o.capture.filters,reportedRowCount:o.reportedRowCount,truncated:o.capture.coverage.truncated,invoiceLinks})),billed:[evidenceBilled().source],unknown:[] as FinancialEvidenceSnapshot['unknown']};}
 const refs=['54321'];
 function packet(id:string,stage:string,value:object){return {kind:'vf-financial-collection-v1',nonce:id+'-'+stage,url:PROFILE_URL,...value};}

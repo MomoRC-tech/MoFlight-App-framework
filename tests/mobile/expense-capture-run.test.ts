@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { runInNewContext } from 'node:vm';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
-import { FinancialCaptureRun } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-run.ts';
+import { FinancialCaptureRun, FINANCIAL_PROFILE_READER_SOURCE } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-run.ts';
 import { FinancialObservationStore } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
 import { PROFILE_URL } from '../../apps/platform-lab/src/vereinsflieger/context.ts';
 import { nodeDriver } from './sqlite-driver.ts';
@@ -10,6 +10,12 @@ import { financialAt as at, financialHash as hash, financialTarget as target, fi
   financialProfile as profile, financialRead as read, financialObservation as observation } from './fixtures/expense-capture.ts';
 
 const run = () => new FinancialCaptureRun(target, 'capture-one', listUrl, detailUrl);
+test('financial profile reader identifies a real sign-in form without returning credentials or provider text', () => {
+  const window = { top: null as unknown }; window.top = window;
+  const document = { querySelectorAll: (selector: string) => selector.startsWith('input') ? [{}] : [] };
+  const value = runInNewContext(`(${FINANCIAL_PROFILE_READER_SOURCE})()`, { window, document, location: new URL(PROFILE_URL), URL });
+  assert.deepEqual(JSON.parse(JSON.stringify(value)), { error: 'sign-in-required' });
+});
 function message(job: FinancialCaptureRun) {
   return { kind: job.stage === 'list' ? 'vf-financial-link-v1' : job.stage === 'detail' ? 'vf-financial-billing-v1' : 'vf-financial-profile-v1',
     nonce: job.messageNonce, url: job.url, ...(job.stage === 'before' || job.stage === 'after' ? { profile: profile() }

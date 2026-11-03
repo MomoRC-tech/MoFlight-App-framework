@@ -7,7 +7,7 @@ import type { FinancialObservationTarget } from './expense-ledger-observation';
 
 export const FINANCIAL_PROFILE_READER_SOURCE = String.raw`() => {
   const context = (${CONTEXT_READER_SOURCE})();
-  if (context.error) return { error: 'profile-unavailable' };
+  if (context.error) return { error: context.error === 'session-required' ? 'sign-in-required' : 'profile-unavailable' };
   const rows = [...document.querySelectorAll('table.tablelist.alternative tr')];
   const field = label => {
     const found = rows.filter(r => r.cells[0]?.textContent.trim() === label);
@@ -36,10 +36,15 @@ function exact(input: unknown, keys: string[]): Record<string, unknown> {
   if (!input || typeof input !== 'object' || Array.isArray(input) || canonical(Object.keys(input).sort()) !== canonical(keys.sort())) throw Error('Unsupported financial capture response.');
   return input as Record<string, unknown>;
 }
-function profile(input: unknown): Profile {
+export class FinancialReadError extends Error {
+  constructor(readonly reason: 'sign-in-required' | 'account-changed') { super('Financial source context could not be verified.'); }
+}
+export function readFinancialProfile(input: unknown, expected: ObservedContext): Profile {
+  if (input && typeof input === 'object' && (input as { error?: unknown }).error === 'sign-in-required') throw new FinancialReadError('sign-in-required');
   const p = exact(input, ['context', 'ownRecipientLabel']), context = validateContext(p.context);
   if (canonical(context) !== canonical(p.context) || typeof p.ownRecipientLabel !== 'string' || !p.ownRecipientLabel.trim() ||
       p.ownRecipientLabel !== p.ownRecipientLabel.trim() || p.ownRecipientLabel.length > 200 || /[\r\n\u0000-\u001f]/.test(p.ownRecipientLabel)) throw Error('Unverified financial profile.');
+  if (canonical(context) !== canonical(expected)) throw new FinancialReadError('account-changed');
   return { context, ownRecipientLabel: p.ownRecipientLabel };
 }
 
@@ -91,11 +96,11 @@ export class FinancialCaptureRun {
     if (p.nonce !== this.messageNonce || p.url !== this.url || p.kind !== this.kind) return 'ignored';
     try {
       if (this.stage === 'before' || this.stage === 'after') {
-        const observed = profile(p.profile);
-        if (canonical(observed.context) !== canonical(this.target.scope.context)) throw Error('profile');
+        const observed = readFinancialProfile(p.profile, this.target.scope.context);
         if (this.stage === 'before') { this.before = observed; this.stage = 'list'; }
         else {
-          if (!this.before || !this.read || !this.readAt || canonical(observed) !== canonical(this.before)) throw Error('profile');
+          if (!this.before || !this.read || !this.readAt) throw Error('profile');
+          if (canonical(observed) !== canonical(this.before)) throw new FinancialReadError('account-changed');
           this.value = decodeFlightBillingObservation(this.read, { ...this.target, ownRecipientLabel: this.before.ownRecipientLabel,
             observedDetailUrl: this.detailUrl }, selected, this.before.context, observed.context, this.readAt);
           this.stage = 'ready';
@@ -111,8 +116,9 @@ export class FinancialCaptureRun {
         this.read = checked.source; this.readAt = checked.retrievedAt; this.stage = 'after';
       }
       this.seenNavigation = false; return this.stage === 'ready' ? 'save' : 'navigate';
-    } catch {
+    } catch (error) {
       this.stage = 'failed'; this.failure = 'source-unavailable'; this.before = null; this.read = null; this.value = null;
+      if (error instanceof FinancialReadError) throw error;
       throw Error('Financial source could not be verified; saved observations are preserved.');
     }
   }

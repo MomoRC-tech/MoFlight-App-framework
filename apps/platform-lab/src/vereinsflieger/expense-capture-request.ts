@@ -1,5 +1,5 @@
 import { canonical } from '@moflight/flight-logbook';
-import { FinancialCaptureRun } from './expense-capture-run';
+import { FinancialCaptureRun, FinancialReadError } from './expense-capture-run';
 import type { FinancialObservationTarget } from './expense-ledger-observation';
 import type { FinancialObservationReceipt } from './expense-observation-store';
 
@@ -20,7 +20,7 @@ export interface FinancialCaptureOptions {
 }
 export interface FinancialCaptureState {
   phase: 'idle' | 'reading' | 'saving' | 'save-uncertain';
-  failure: 'source' | 'access' | 'cancelled' | 'timeout' | 'save-uncertain' | null;
+  failure: 'source' | 'access' | 'cancelled' | 'timeout' | 'save-uncertain' | 'sign-in-required' | 'account-changed' | null;
   progress?:{processed:number;total:number;billed:number};
 }
 interface Pending {
@@ -144,7 +144,7 @@ export class FinancialCaptureRequest {
       if(p.run.progress)this.ports.changed({phase:'reading',failure:null,progress:{...p.run.progress}});
       if (action === 'navigate') await this.advance(p);
       else if (action === 'save') await this.save(p);
-    } catch { this.fail(p, 'source'); }
+    } catch (error) { if (this.pending === p) this.interrupt(error instanceof FinancialReadError ? error.reason : 'source'); }
     finally { p.processing = false; const queued=p.queued;p.queued=undefined;if(queued&&this.pending===p)void this.receive(queued.sender,queued.document,queued.raw,queued.epoch); }
     return true;
   }

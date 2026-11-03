@@ -3,6 +3,7 @@ import test from 'node:test';
 import { canonical } from '../../packages/flight-logbook/src/index.ts';
 import { FinancialCaptureRequest, type FinancialCaptureOptions, type FinancialCaptureState } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-request.ts';
 import { FinancialObservationStore } from '../../apps/platform-lab/src/vereinsflieger/expense-observation-store.ts';
+import { FinancialCollectionRun } from '../../apps/platform-lab/src/vereinsflieger/expense-collection-run.ts';
 import { PROFILE_URL } from '../../apps/platform-lab/src/vereinsflieger/context.ts';
 import { nodeDriver } from './sqlite-driver.ts';
 import { financialTarget as target, financialHash as hash, financialAt as at, financialListUrl as listUrl,
@@ -53,6 +54,33 @@ test('financial request owns before/list/detail/after native loads and saves one
     assert.deepEqual(f.changes.at(-1), { phase: 'idle', failure: null }); assert.ok(f.timers[0]!.cleared);
   } finally { await f.close(); }
 });
+
+for (const workflow of ['detail', 'collection'] as const) {
+  test(`${workflow} recovery distinguishes verified sign-in expiry and account changes without writing receipts`, async () => {
+    for (const reason of ['sign-in-required', 'account-changed', 'unknown'] as const) {
+      const f = await fixture();
+      try {
+        const pending = f.start(workflow === 'collection' ? {
+          createRun: id => new FinancialCollectionRun(target, id, ['54321'], { hash, prepare: async () => {} }),
+        } : {});
+        await f.ready(); await f.loaded();
+        const changed = profile(); changed.context.accountNumber = '999990099';
+        const value = reason === 'account-changed' ? changed : { error: reason === 'unknown' ? 'private unexpected provider error' : reason };
+        const packet = workflow === 'collection'
+          ? { kind: 'vf-financial-collection-v1', nonce: 'capture-1-before', url: PROFILE_URL, profile: value }
+          : { kind: 'vf-financial-profile-v1', nonce: 'capture-1-before', url: PROFILE_URL, profile: value };
+        await f.request.receive(PROFILE_URL, PROFILE_URL, JSON.stringify({ ...packet, nonce: 'stale' }), f.state.generation);
+        assert.equal(f.request.active(), true, 'stale failure cannot revoke the current request');
+        await f.request.receive(PROFILE_URL, PROFILE_URL, JSON.stringify(packet), f.state.generation);
+        await assert.rejects(pending);
+        assert.equal(f.changes.at(-1)?.failure, reason === 'unknown' ? 'source' : reason);
+        assert.equal(f.state.saveCalls, 0);
+        assert.equal((await f.store.history()).total, 0);
+        assert.equal(JSON.stringify(f.changes).includes('private unexpected'), false);
+      } finally { await f.close(); }
+    }
+  });
+}
 
 test('financial request rejects invalid routes and unavailable admission without reserving or navigating', async () => {
   const f = await fixture(); try {
