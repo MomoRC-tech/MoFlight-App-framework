@@ -17,7 +17,7 @@ def main():
     parser.add_argument('--serial', required=True)
     parser.add_argument('--proof', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--mode', choices=['benchmark', 'progress', 'detail', 'review'], required=True)
+    parser.add_argument('--mode', choices=['benchmark', 'progress', 'detail', 'review', 'start-cache'], required=True)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
 
@@ -28,11 +28,11 @@ def main():
 
     assert adb('emu', 'avd', 'name').splitlines()[0] == 'MoFlight_Synthetic_API37', 'Only designated synthetic AVD'
     provenance = json.loads((args.proof / 'provenance.json').read_text(encoding='utf-8-sig'))
-    apk = args.proof / {'benchmark': 'sync-benchmark-poc.apk', 'progress': 'sync-progress-poc.apk', 'detail': 'flight-responsiveness-poc.apk', 'review': 'flight-review-poc.apk'}[args.mode]
+    apk = args.proof / {'benchmark': 'sync-benchmark-poc.apk', 'progress': 'sync-progress-poc.apk', 'detail': 'flight-responsiveness-poc.apk', 'review': 'flight-review-poc.apk', 'start-cache': 'start-cache-poc.apk'}[args.mode]
     assert hashlib.sha256(apk.read_bytes()).hexdigest() == provenance['proof_apk_sha256']
     normal = args.proof / 'normal-app.apk'
     assert hashlib.sha256(normal.read_bytes()).hexdigest() == provenance['normal_apk_sha256']
-    if args.mode == 'review':
+    if args.mode in ('review', 'start-cache'):
         with zipfile.ZipFile(apk) as archive:
             assert provenance['source_commit'].encode() in archive.read('assets/index.android.bundle')
     original = {key: adb('shell', 'settings', 'get', 'global', key)
@@ -41,6 +41,19 @@ def main():
                     font=adb('shell', 'settings', 'get', 'system', 'font_scale'))
     report = {'status': 'running', 'provenance': provenance, 'mode': args.mode,
               'scope': 'Synthetic Android native runtime only; no live provider or physical phone', 'original': original}
+    restore_hash = provenance['normal_apk_sha256']
+    if args.mode == 'start-cache':
+        # Preserve the APK already installed, even when it predates this proof.
+        installed = 'package:' + PACKAGE in adb('shell', 'pm', 'list', 'packages', PACKAGE).splitlines()
+        report['originalAppInstalled'] = installed
+        if installed:
+            installed_path = adb('shell', 'pm', 'path', PACKAGE).removeprefix('package:')
+            normal = args.output / 'original-app.apk'
+            adb('pull', installed_path, str(normal))
+            restore_hash = hashlib.sha256(normal.read_bytes()).hexdigest()
+            report['originalApkSha256'] = restore_hash
+        else:
+            assert 'package:' + PACKAGE not in adb('shell', 'pm', 'list', 'packages', '-u', PACKAGE).splitlines(), 'Preserve retained uninstalled application data'
     log = None
     log_file = None
 
@@ -142,6 +155,32 @@ def main():
                                        for line in (args.output / 'native.log').read_text(encoding='utf-8', errors='replace').splitlines()
                                        if 'MOFLIGHT_PROBE_RENDER ' in line]
             report['memoryBoundary'] = 'Single process snapshots after proof completion, not isolated detail heap cost or leak evidence'
+        elif args.mode == 'start-cache':
+            report['device'] = {'api': adb('shell', 'getprop', 'ro.build.version.sdk'),
+                                'abi': adb('shell', 'getprop', 'ro.product.cpu.abi'),
+                                'model': adb('shell', 'getprop', 'ro.product.model')}
+            log_file = (args.output / 'native.log').open('wb')
+            log = subprocess.Popen(['adb', '-s', args.serial, 'logcat', '-v', 'brief', '-T', '1', 'ReactNativeJS:I', '*:S'], stdout=log_file, stderr=subprocess.STDOUT)
+            launch()
+            pid = adb('shell', 'pidof', PACKAGE)
+            assert pid, 'Native cache proof process missing'
+            deadline = time.monotonic() + 60
+            while time.monotonic() < deadline:
+                lines = [line for line in (args.output / 'native.log').read_text(encoding='utf-8', errors='replace').splitlines()
+                         if re.search(r'\(\s*' + re.escape(pid) + r'\)', line)]
+                assert not any('MOFLIGHT_START_CACHE_FAILED' in line for line in lines), 'Native cache proof failed'
+                completed = [line for line in lines if 'MOFLIGHT_START_CACHE_RESULT ' in line]
+                if completed:
+                    result = json.loads(completed[-1].split('MOFLIGHT_START_CACHE_RESULT ', 1)[1])
+                    report['cacheProof'] = result
+                    assert result['status'] == 'passed', 'Native cache scenario failed'
+                    assert result['sourceCommit'] == provenance['source_commit']
+                    assert result['cleaned'] and len(result['checks']) == 10 and len(result['samples']) == 5
+                    assert all(sample['milliseconds'] >= 0 for sample in result['samples'])
+                    break
+                time.sleep(0.5)
+            else:
+                raise AssertionError('Native cache proof timeout')
         elif args.mode == 'benchmark':
             log_file = (args.output / 'native.log').open('wb')
             log = subprocess.Popen(['adb', '-s', args.serial, 'logcat', '-v', 'brief', '-T', '1',
@@ -195,7 +234,10 @@ def main():
         if log_file:
             log_file.close()
         adb('shell', 'am', 'force-stop', PACKAGE)
-        adb('install', '-r', str(normal))
+        if args.mode == 'start-cache' and not report['originalAppInstalled']:
+            adb('uninstall', PACKAGE)  # Only this task's fresh synthetic installation.
+        else:
+            adb('install', '-r', str(normal))
         for key in ['size', 'density']:
             match = re.search(r'Override \w+:\s*(\S+)', original[key])
             adb('shell', 'wm', key, match.group(1) if match else 'reset')
@@ -208,21 +250,26 @@ def main():
         adb('shell', 'svc', 'data', 'enable' if original['mobile_data'] == '1' else 'disable')
         report['restored'] = {key: adb('shell', 'settings', 'get', 'global', key)
                               for key in ['airplane_mode_on', 'wifi_on', 'mobile_data']}
-        report['normalApkRestored'] = True
-        if args.mode == 'review':
+        report['normalApkRestored'] = not (args.mode == 'start-cache' and not report['originalAppInstalled'])
+        if args.mode in ('review', 'start-cache'):
             report['restored'].update(size=adb('shell', 'wm', 'size'), density=adb('shell', 'wm', 'density'),
                                       font=adb('shell', 'settings', 'get', 'system', 'font_scale'))
-            restored_path = adb('shell', 'pm', 'path', PACKAGE).removeprefix('package:')
-            restored_apk = args.output / 'restored-normal.apk'
-            adb('pull', restored_path, str(restored_apk))
-            report['normalApkHashVerified'] = hashlib.sha256(restored_apk.read_bytes()).hexdigest() == provenance['normal_apk_sha256']
+            if args.mode == 'start-cache' and not report['originalAppInstalled']:
+                report['normalApkHashVerified'] = None
+                report['originalAppStateRestored'] = 'package:' + PACKAGE not in adb('shell', 'pm', 'list', 'packages', '-u', PACKAGE).splitlines()
+            else:
+                restored_path = adb('shell', 'pm', 'path', PACKAGE).removeprefix('package:')
+                restored_apk = args.output / 'restored-normal.apk'
+                adb('pull', restored_path, str(restored_apk))
+                report['normalApkHashVerified'] = hashlib.sha256(restored_apk.read_bytes()).hexdigest() == restore_hash
+                report['originalAppStateRestored'] = report['normalApkHashVerified']
             report['cleanupMatchesOriginal'] = report['restored'] == original
             report['toolingMilliseconds'] = round((time.monotonic() - tooling_started) * 1000, 3)
-            if not report['normalApkHashVerified'] or not report['cleanupMatchesOriginal']:
+            if not report['originalAppStateRestored'] or not report['cleanupMatchesOriginal']:
                 report.update(status='failed', cleanup_error='Proof cleanup verification failed')
         (args.output / 'report.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
         print(json.dumps({'status': report['status'], 'output': str(args.output)}))
-        if args.mode == 'review' and report.get('cleanup_error'):
+        if args.mode in ('review', 'start-cache') and report.get('cleanup_error'):
             raise AssertionError(report['cleanup_error'])
 
 

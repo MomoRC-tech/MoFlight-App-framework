@@ -125,7 +125,9 @@ test('cold hook publishes the historical Start preview while the authoritative h
     await state.openDetail(f.flights[0]);assert.equal(h.render().detail,null,'preview is never a flight detail source');
     const cached=diagnostics.diagnosticJournal.snapshot().filter(entry=>entry.action==='start-presentation').at(-1)!;
     assert.equal(cached.outcome,'success');assert.equal(cached.stages[0]?.name,'start-cached-data');
-    pending.resolve({snapshot:f.snapshot,flights:f.flights});state=await h.flush();
+    pending.resolve({snapshot:f.snapshot,flights:f.flights});
+    await new Promise<void>(done=>{setTimeout(done,0);}); // Complete the real cached-preview task boundary.
+    state=await h.flush();
     assert.equal(state.phase,'ready');assert.equal(state.preview,null);assert.equal(saves,1);
   }finally{pending.resolve({snapshot:f.snapshot,flights:f.flights});h.unmount();}
 });
@@ -139,6 +141,7 @@ test('failed validation hides the preview, invalidates its persistent cache and 
   });
   await h.flush();assert.ok(h.render().preview);
   pending.resolve({snapshot:{...f.snapshot,ownerId:'foreign'},flights:f.flights});
+  await new Promise<void>(done=>{setTimeout(done,0);}); // The reader intentionally yields after its preview.
   let state=await h.flush();assert.equal(state.phase,'failed');assert.equal(state.preview,null);assert.equal(state.view,null);assert.equal(clears,1);
   h.session.readStartPreview=async()=>null;
   h.session.service.readStored=async()=>({snapshot:f.snapshot,flights:f.flights});

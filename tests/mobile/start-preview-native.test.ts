@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -22,7 +22,7 @@ test('disposable native cache persists atomically across reopen, isolates stores
   const source=ts.transpileModule(readFileSync(new URL('../../apps/platform-lab/src/mobile/start-preview-native.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
   const load=()=>{
     const modules:Record<string,unknown>={
-      'expo-file-system':{Paths:{cache:root},Directory,File:class{constructor(private directory:Directory,private name:string){}get exists(){return existsSync(join(this.directory.uri,this.name));}}},
+      'expo-file-system':{Paths:{cache:root},Directory,File:class{constructor(private directory:Directory,private name:string){}get exists(){return existsSync(join(this.directory.uri,this.name));}delete(){unlinkSync(join(this.directory.uri,this.name));}}},
       '../storage':{openDriver:async(name:string,directory:string)=>{opened.push(name);return nodeDriver(join(directory,name));}},
       '../vereinsflieger/real-history-contract':contract,'./start-preview':preview,
     };
@@ -42,5 +42,21 @@ test('disposable native cache persists atomically across reopen, isolates stores
     assert.equal(await cache.loadStartPreviewCache(store),'{"saved":"first"}');
     await assert.rejects(cache.loadStartPreviewCache('../foreign'));
     await cache.clearStartPreviewCache(store);assert.equal(await cache.loadStartPreviewCache(store),null);
+    await cache.saveStartPreviewCache(other,'{"saved":"other-store"}',gate);
+    const damaged=join(root,'moflight-start-preview-v1',`start-${store}.sqlite`);
+    await cache.saveStartPreviewCache(store,'{"saved":"before-lock"}',gate);
+    const lock=nodeDriver(damaged);
+    try {
+      await lock.exec('BEGIN EXCLUSIVE');
+      await assert.rejects(cache.loadStartPreviewCache(store),/locked/);
+      assert.equal(existsSync(damaged),true,'a temporarily locked cache must be preserved');
+    } finally { await lock.exec('ROLLBACK');await lock.close(); }
+    assert.equal(await cache.loadStartPreviewCache(store),'{"saved":"before-lock"}');
+    writeFileSync(damaged,'Synthetic damaged SQLite cache');
+    assert.equal(await cache.loadStartPreviewCache(store),null,'physical cache corruption must be a disposable miss');
+    assert.equal(existsSync(damaged),false,'discard only the damaged cache so the next verified read can warm it');
+    await cache.saveStartPreviewCache(store,'{"saved":"recovered"}',gate);
+    assert.equal(await cache.loadStartPreviewCache(store),'{"saved":"recovered"}');
+    assert.equal(await cache.loadStartPreviewCache(other),'{"saved":"other-store"}');
   }finally{await rm(root,{recursive:true,force:true});}
 });

@@ -17,10 +17,20 @@ async function withCache<T>(storeId: string, create: boolean, work: (db: Awaited
   } finally { await db.close(); }
 }
 export async function loadStartPreviewCache(storeId:string):Promise<string|null> {
-  return await withCache(storeId,false,async db=>{
-    const row=await db.first<{payload:string}>('SELECT payload FROM start_preview WHERE id=1 AND length(CAST(payload AS BLOB))<=?',START_PREVIEW_LIMIT);
-    return row?.payload??null;
-  });
+  try {
+    return await withCache(storeId,false,async db=>{
+      const row=await db.first<{payload:string}>('SELECT payload FROM start_preview WHERE id=1 AND length(CAST(payload AS BLOB))<=?',START_PREVIEW_LIMIT);
+      return row?.payload??null;
+    });
+  } catch(error) {
+    // Only a damaged/missing cache schema is disposable. Locks, permissions and
+    // other I/O failures must not cause deletion; the reader handles those misses.
+    if(!/\bSQLITE_(?:CORRUPT|NOTADB)\b|file is not a database|database disk image is malformed|no such table: start_preview/i.test(String(error)))throw error;
+    // withCache has closed its handle. Its UUID check confines this to one cache.
+    try { new File(new Directory(Paths.cache,'moflight-start-preview-v1'),`start-${storeId}.sqlite`).delete(); }
+    catch { /* A disposable-cache cleanup failure cannot block the saved library. */ }
+    return null;
+  }
 }
 export async function saveStartPreviewCache(storeId:string,payload:string,gate:()=>Promise<void>):Promise<void> {
   if(encodeURIComponent(payload).replace(/%[A-F\d]{2}|./g,'x').length>START_PREVIEW_LIMIT)return;
