@@ -1,6 +1,6 @@
 # MoFlight documentation
 
-Current delivery/status: [2 November backlog fixes and verification](verification/2026-11-02-backlog-execution.md), [latest APK/source](../README.md#current-delivery) and [current plan](project-plan.md#current-baseline--2-november-2026). Owner confirmed retirement of the obsolete two-app/collapse criteria; #1/#9 are resumed with their remaining gates open.
+Current delivery/status: [latest APK/source](../README.md#current-delivery) and [current plan](project-plan.md#current-baseline--2-november-2026). Supabase work is parked; local issues continue. The obsolete two-app/collapse criteria remain retired. [Financial recovery follow-up](verification/2026-10-30-financials-completion.md#recovery-reasons--3-november-2026) and [bounded multi-club review](architecture/vereinsflieger-multiple-memberships-review.md) distinguish implemented behavior from remaining acceptance.
 
 Selected UI features: [owner-selected Club/Assistant adoption and bare Start follow-up](verification/2026-11-02-selected-experiment-adoption.md). Current five destinations remain; other experiment proposals are unselected.
 
@@ -27,6 +27,7 @@ Earlier graphite implementation: [expressive compact graphite](verification/2026
 | What remains for AI chat? | [AI execution plan and Luna delegation](development/ai-chat-implementation-plan.md), [requirements](architecture/logbook-chat-discovery.md) and [#13](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/13) |
 | How do we build and check it? | [Lab runbook](../apps/platform-lab/README.md), [verification workflow](development/verification-workflow.md) |
 | How do we investigate provider requests with API Anything? | [Project-local tooling, high-level learning and guarded request discovery](../pocs/vereinsflieger-api-anything/README.md) — #10; remaining date/paging/account/platform gates explicit |
+| What happens with multiple club memberships? | [Current single-context fence, public evidence and remaining two-membership proof](architecture/vereinsflieger-multiple-memberships-review.md) — #35/#2/#16/#10; no selector or cross-club merge is selected |
 | How has phone/emulator performance changed? | [Maintained performance charts, complete samples and append protocol](verification/performance/README.md) — #90 |
 | Which Sync runtime checks are required, reusable or candidates for removal? | [36-family runtime verification review and native comparison](verification/2026-10-30-sync-verification-review.md) — #113; owner-phone acceptance remains open |
 | What was actually verified? | [Acceptance map](project-plan.md#21-acceptance-traceability), [modern main delivery](verification/2026-10-22-alternative-ui.md#main-adoption-and-documentation-reconciliation) |
