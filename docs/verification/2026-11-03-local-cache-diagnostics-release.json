@@ -1,0 +1,12 @@
+{
+  "source_commit": "8a1e022cdc882e01894b63e6fd0b55b2e02949ac",
+  "apk_sha256": "318e671af2a8aa6a426b1a1b849ce0ac2b00b2dac34a7c8c9b3e65cd19b12d52",
+  "zip_sha256": "0a6085e43cc89c244b1cb9a9fff6dcefdb5dffda1db183a483e27d5055ce09ee",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "download_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-local-cache-diagnostics-2026-11-03-8a1e022/MoFlight-Local-Cache-Diagnostics-8a1e022.zip"
+}
