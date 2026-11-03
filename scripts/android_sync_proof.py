@@ -46,14 +46,13 @@ def main():
         # Preserve the APK already installed, even when it predates this proof.
         installed = 'package:' + PACKAGE in adb('shell', 'pm', 'list', 'packages', PACKAGE).splitlines()
         report['originalAppInstalled'] = installed
+        report['originalRetainedData'] = 'package:' + PACKAGE in adb('shell', 'pm', 'list', 'packages', '-u', PACKAGE).splitlines()
         if installed:
             installed_path = adb('shell', 'pm', 'path', PACKAGE).removeprefix('package:')
             normal = args.output / 'original-app.apk'
             adb('pull', installed_path, str(normal))
             restore_hash = hashlib.sha256(normal.read_bytes()).hexdigest()
             report['originalApkSha256'] = restore_hash
-        else:
-            assert 'package:' + PACKAGE not in adb('shell', 'pm', 'list', 'packages', '-u', PACKAGE).splitlines(), 'Preserve retained uninstalled application data'
     log = None
     log_file = None
 
@@ -235,7 +234,10 @@ def main():
             log_file.close()
         adb('shell', 'am', 'force-stop', PACKAGE)
         if args.mode == 'start-cache' and not report['originalAppInstalled']:
-            adb('uninstall', PACKAGE)  # Only this task's fresh synthetic installation.
+            if report['originalRetainedData']:
+                adb('shell', 'pm', 'uninstall', '-k', PACKAGE)  # Preserve pre-existing uninstalled data/cache.
+            else:
+                adb('uninstall', PACKAGE)  # Only this task's fresh synthetic installation.
         else:
             adb('install', '-r', str(normal))
         for key in ['size', 'density']:
@@ -256,7 +258,9 @@ def main():
                                       font=adb('shell', 'settings', 'get', 'system', 'font_scale'))
             if args.mode == 'start-cache' and not report['originalAppInstalled']:
                 report['normalApkHashVerified'] = None
-                report['originalAppStateRestored'] = 'package:' + PACKAGE not in adb('shell', 'pm', 'list', 'packages', '-u', PACKAGE).splitlines()
+                installed_now = 'package:' + PACKAGE in adb('shell', 'pm', 'list', 'packages', PACKAGE).splitlines()
+                retained_now = 'package:' + PACKAGE in adb('shell', 'pm', 'list', 'packages', '-u', PACKAGE).splitlines()
+                report['originalAppStateRestored'] = not installed_now and retained_now == report['originalRetainedData']
             else:
                 restored_path = adb('shell', 'pm', 'path', PACKAGE).removeprefix('package:')
                 restored_apk = args.output / 'restored-normal.apk'
