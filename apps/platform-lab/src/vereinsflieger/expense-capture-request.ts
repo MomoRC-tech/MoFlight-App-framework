@@ -1,5 +1,7 @@
 import { canonical } from '@moflight/flight-logbook';
 import { FinancialCaptureRun, FinancialReadError } from './expense-capture-run';
+import type { FinancialNativeFailureOrigin } from '../diagnostic-vocabulary';
+import type { FinancialSourceDiagnostic } from './expense-collection-run';
 import type { FinancialObservationTarget } from './expense-ledger-observation';
 import type { FinancialObservationReceipt } from './expense-observation-store';
 
@@ -7,7 +9,11 @@ type Gate = () => Promise<void>;
 export type FinancialCaptureWorkflow = Pick<FinancialCaptureRun,'id'|'target'|'url'|'script'|'accept'|'observeNavigation'|'cancel'|'save'|'markSaveAcknowledgementUncertain'> & {
   prepare?(gate:Gate):Promise<void>;
   progress?:{processed:number;total:number;billed:number};
+  takeSourceDiagnostic?():FinancialSourceDiagnostic|null;
 };
+export type FinancialCaptureDiagnostic =
+  | ({kind:'source'} & FinancialSourceDiagnostic)
+  | {kind:'native';origin:FinancialNativeFailureOrigin};
 export interface FinancialCaptureOptions {
   target: FinancialObservationTarget;
   observedListUrl: string;
@@ -41,6 +47,7 @@ export interface FinancialCaptureRequestPorts {
   uuid(): string;
   now(): string;
   changed(state: FinancialCaptureState): void;
+  diagnostic?(value:FinancialCaptureDiagnostic):void;
   schedule?(run: () => void, ms: number): ReturnType<typeof setTimeout>;
   clear?(timer: ReturnType<typeof setTimeout>): void;
 }
@@ -74,7 +81,7 @@ export class FinancialCaptureRequest {
         processing: false, revoked: false, saving, timer: null, resolve, reject };
       this.pending = p;
       this.ports.changed({ phase: saving ? 'saving' : 'reading', failure: null });
-      p.timer = (this.ports.schedule ?? setTimeout)(() => { if (this.pending === p) this.interrupt('timeout'); }, Math.max(90_000,Math.min(300_000,options.timeoutMs??90_000)));
+      p.timer = (this.ports.schedule ?? setTimeout)(() => { if (this.pending === p) this.interrupt('timeout','request-timeout'); }, Math.max(90_000,Math.min(300_000,options.timeoutMs??90_000)));
       void (async () => {
         try { if (saving) await this.save(p); else await this.advance(p); }
         catch { this.fail(p, 'access'); }
@@ -101,7 +108,7 @@ export class FinancialCaptureRequest {
     const p = this.pending;
     if (!p) return true;
     if (epoch !== p.epoch || epoch !== this.ports.epoch()) return false;
-    if (!this.current(p) || p.saving || url !== p.run.url) { this.interrupt('source'); return false; }
+    if (!this.current(p) || p.saving || url !== p.run.url) { this.interrupt('source','navigation-rejected'); return false; }
     return true;
   }
   navigationStarted(url: string, epoch: number): void {
@@ -115,7 +122,7 @@ export class FinancialCaptureRequest {
     const p = this.pending;
     if (!p) return false;
     if (epoch !== p.epoch || epoch !== this.ports.epoch()) return true;
-    if (!this.current(p) || !p.navigation || url !== p.run.url) { this.interrupt('source'); return true; }
+    if (!this.current(p) || !p.navigation || url !== p.run.url) { this.interrupt('source','load-state-invalid'); return true; }
     if (p.saving) return true;
     if (!p.injected && !p.injecting) {
       p.injecting = true;
@@ -144,7 +151,13 @@ export class FinancialCaptureRequest {
       if(p.run.progress)this.ports.changed({phase:'reading',failure:null,progress:{...p.run.progress}});
       if (action === 'navigate') await this.advance(p);
       else if (action === 'save') await this.save(p);
-    } catch (error) { if (this.pending === p) this.interrupt(error instanceof FinancialReadError ? error.reason : 'source'); }
+    } catch (error) {
+      if (this.pending === p) {
+        const diagnostic=p.run.takeSourceDiagnostic?.();
+        if(diagnostic)this.reportDiagnostic({kind:'source',...diagnostic});
+        this.interrupt(error instanceof FinancialReadError ? error.reason : 'source');
+      }
+    }
     finally { p.processing = false; const queued=p.queued;p.queued=undefined;if(queued&&this.pending===p)void this.receive(queued.sender,queued.document,queued.raw,queued.epoch); }
     return true;
   }
@@ -173,9 +186,10 @@ export class FinancialCaptureRequest {
     return true;
   }
   /** Lifecycle/owner/renderer revocation; in-flight writes settle under revoked guards. */
-  interrupt(reason: Exclude<FinancialCaptureState['failure'], 'save-uncertain' | null> = 'access') {
+  interrupt(reason: Exclude<FinancialCaptureState['failure'], 'save-uncertain' | null> = 'access', origin?:FinancialNativeFailureOrigin) {
     const p = this.pending;
     if (!p) return;
+    if(origin)this.reportDiagnostic({kind:'native',origin});
     this.revoke(p);
     if (!p.saving) {
       p.run.cancel(); this.finish(p); this.ports.changed({ phase: 'idle', failure: reason });
@@ -196,4 +210,5 @@ export class FinancialCaptureRequest {
     this.pending = null;
     if (p.timer !== null) (this.ports.clear ?? clearTimeout)(p.timer);
   }
+  private reportDiagnostic(value:FinancialCaptureDiagnostic){try{this.ports.diagnostic?.(value);}catch{/* Diagnostics never change the capture outcome. */}}
 }

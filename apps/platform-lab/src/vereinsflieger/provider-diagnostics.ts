@@ -1,10 +1,21 @@
 import { diagnosticJournal } from '../diagnostics';
-import { providerDiagnosticEvents } from '../diagnostic-vocabulary';
+import { financialNativeFailureOrigins, financialSourceFailureReasons, financialSourceFailureStages, providerDiagnosticEvents } from '../diagnostic-vocabulary';
 import { providerUrl } from './probe';
 import { PROFILE_URL, scopedBridge } from './context';
+import type { FinancialCaptureDiagnostic } from './expense-capture-request';
 
 export type ProviderDiagnosticEvent = typeof providerDiagnosticEvents[number];
 export function recordProviderEvent(event: ProviderDiagnosticEvent) { diagnosticJournal.record('provider', event); }
+
+/** Store only the fixed reader stage/reason or native failure origin. */
+export function recordFinancialCaptureDiagnostic(value: FinancialCaptureDiagnostic) {
+  if (value.kind === 'source' && (financialSourceFailureStages as readonly string[]).includes(value.stage) &&
+      (financialSourceFailureReasons as readonly string[]).includes(value.reason)) {
+    recordProviderEvent(`provider-financial-source-${value.stage}-${value.reason}` as ProviderDiagnosticEvent);
+  } else if (value.kind === 'native' && (financialNativeFailureOrigins as readonly string[]).includes(value.origin)) {
+    recordProviderEvent(`provider-financial-native-${value.origin}` as ProviderDiagnosticEvent);
+  }
+}
 
 /** Only fixed categories enter the report, never the URL, query, IDs or title. */
 export function recordProviderDocument(stage: 'command' | 'start' | 'end', url: string) {

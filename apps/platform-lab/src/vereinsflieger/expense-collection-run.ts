@@ -1,4 +1,5 @@
 import { canonical } from '@moflight/flight-logbook';
+import { financialSourceFailureReasons, financialSourceFailureStages, type FinancialSourceFailureReason, type FinancialSourceFailureStage } from '../diagnostic-vocabulary';
 import { PROFILE_URL, scopedBridge } from './context';
 import { FINANCIAL_PROFILE_READER_SOURCE, FinancialReadError, readFinancialProfile } from './expense-capture-run';
 import { decodeFlightBillingObservation, FLIGHT_BILLING_READER_SOURCE, type FlightBillingObservation, type FlightBillingRead } from './expense-flight-billing';
@@ -13,10 +14,18 @@ import { validateFinancialSourcePages } from './expense-projection-adapter';
  * verified native own-library list; no source IDs are guessed or scraped from
  * another member. No provider filter/preset/record is modified, and invoice
  * print URLs are retained as identities without fetching documents. */
+export interface FinancialSourceDiagnostic { stage: FinancialSourceFailureStage; reason: FinancialSourceFailureReason }
+function financialSourceDiagnostic(value: unknown): FinancialSourceDiagnostic | null {
+  const raw = value as Record<string, unknown> | null;
+  return raw && typeof raw.stage === 'string' && (financialSourceFailureStages as readonly string[]).includes(raw.stage) &&
+    typeof raw.reason === 'string' && (financialSourceFailureReasons as readonly string[]).includes(raw.reason)
+    ? { stage: raw.stage as FinancialSourceFailureStage, reason: raw.reason as FinancialSourceFailureReason } : null;
+}
+
 export const FINANCIAL_COLLECTION_SOURCE = String.raw`async function(expected,refs,nonce,readProfile,readBilling,text){
  const anchor=location.href,origin=location.origin;
  if(window.top!==window||anchor!==expected.profileUrl)return;
- const controller=new AbortController(),started=Date.now();let cancelled=false;
+ const controller=new AbortController();let cancelled=false,stage='profile-before';
  const abort=()=>{cancelled=true;controller.abort();};window.__moflightFinancialAbort=abort;const timer=setTimeout(abort,240000);
  const guard=()=>{if(cancelled||location.href!==anchor||window.__moflightFinancialAbort!==abort)throw Error('cancelled');};
  const send=p=>{guard();window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-financial-collection-v1',nonce,url:anchor,...p}));};
@@ -30,19 +39,24 @@ export const FINANCIAL_COLLECTION_SOURCE = String.raw`async function(expected,re
   const before=profile(document);const ownLinks=[...document.querySelectorAll('a[href]')].map(a=>({label:clean(a),href:new URL(a.getAttribute('href'),anchor).href}));
   const summaryLink=ownLinks.find(a=>new URL(a.href).pathname==='/member/profile/userinvoice.php');if(!summaryLink)throw Error('invoices');const summaryUrl=route(summaryLink.href,'/member/profile/userinvoice.php');
   const accountLinks=[...new Map(ownLinks.filter(a=>new URL(a.href).pathname==='/member/profile/account.php').map(a=>[a.href,a])).values()];if(!accountLinks.length||accountLinks.length>10)throw Error('accounts');
-  const invoiceDoc=await get(summaryUrl),invoiceTable=tableRows(invoiceDoc,'tablelist_38',['Nr.','Rechnungsdatum','Rechnungsempfänger','Titel','Betrag (EUR)']);
+  stage='invoice-summary';const invoiceDoc=await get(summaryUrl),invoiceTable=tableRows(invoiceDoc,'tablelist_38',['Nr.','Rechnungsdatum','Rechnungsempfänger','Titel','Betrag (EUR)']);
   const summary={evidenceRef:'summary',sourceUrl:summaryUrl,rows:invoiceTable.rows.map((r,position)=>{const k=invoiceTable.keys,c=r.cells,links=[...r.querySelectorAll('a[href]')].map(a=>new URL(a.getAttribute('href'),summaryUrl).href).filter(u=>new URL(u).pathname==='/member/profile/printuserinvoice.php');if(links.length!==1)throw Error('invoice-link');return {position,numberRaw:clean(c[k['Nr.']]),recipientRaw:clean(c[k['Rechnungsempfänger']]),url:route(links[0],'/member/profile/printuserinvoice.php','uiid'),dateRaw:clean(c[k['Rechnungsdatum']]),amountRaw:clean(c[k['Betrag (EUR)']]),titleRaw:clean(c[k['Titel']])};}),coverage:{kind:'visible-page',truncated:invoiceTable.truncated,pagination:'unverified'}};
-  const ledgers=[];
+  const ledgers=[];stage='account-ledger';
   for(const link of accountLinks){const url=route(link.href,'/member/profile/account.php','caid'),d=await get(url);const heading=clean(d.querySelector('#globalfiltertime')?.parentElement);if(!heading.includes(expected.ownRecipientLabel)||!heading.includes(link.label))throw Error('account-heading');const t=tableRows(d,'tablelist_90',['Datum','BuchungsNr.','Abrechnung','Informationen','Wert (EUR)','Saldo (EUR)']);const labels=['Datum','BuchungsNr.','Abrechnung','Informationen','Wert (EUR)','Saldo (EUR)'];const keys=['date','booking','invoice','information','value','balance'];const columns=labels.map((label,index)=>({key:keys[index],label,index:t.keys[label]})).sort((a,b)=>a.index-b.index);const rows=t.rows.map((r,position)=>({position,values:columns.map(c=>clean(r.cells[c.index]))}));const invoiceLinks=t.rows.flatMap((r,rowPosition)=>[...r.cells[t.keys['Abrechnung']].querySelectorAll('a[href]')].map(a=>({rowPosition,url:route(new URL(a.getAttribute('href'),url).href,'/member/profile/printuserinvoice.php','uiid')})));
    ledgers.push({label:link.label,url,selector:new URL(url).searchParams.get('caid'),columns,rows,filters:[clean(d.querySelector('#globalfiltertime'))],reportedRowCount:t.reported,truncated:t.truncated||t.reported!==null&&t.reported>rows.length,invoiceLinks});}
-  const billed=[],unknown=[];
-  for(let i=0;i<refs.length;i++){guard();const sourceFlightRef=refs[i],url=origin+'/member/profile/viewflight.php?flid='+sourceFlightRef;
-   try{const d=await get(url);const status=[...d.querySelectorAll('table.view tr')].filter(r=>clean(r.cells[0])==='Abgerechnet');if(status.length===1&&clean(status[0].cells[1])==='Nein')unknown.push({sourceFlightRef,reason:'unbilled'});else{const page=readBilling(d,url,{observedDetailUrl:url,clubLabel:expected.context.clubLabel,ownRecipientLabel:expected.ownRecipientLabel});if(page?.error)unknown.push({sourceFlightRef,reason:'unavailable'});else billed.push(page);}}
-   catch(error){if(['login','context','cancelled'].includes(error.message))throw error;unknown.push({sourceFlightRef,reason:'unavailable'});}
-   if((i+1)%5===0||i===refs.length-1)send({progress:{processed:i+1,total:refs.length,billed:billed.length}});
-  }
-  const after=profile(await get(expected.profileUrl));guard();const result={before,after,summary,ledgers,billed,unknown};if(JSON.stringify(result).length>4500000)throw Error('limit');send({result});
- }catch(error){try{send({error:error?.message==='login'?'sign-in-required':error?.message==='context'?'account-changed':'source-unavailable'});}catch{}}finally{clearTimeout(timer);abort();if(window.__moflightFinancialAbort===abort)delete window.__moflightFinancialAbort;}
+  // Two workers bound provider load; a contiguous-prefix cursor keeps progress ordered.
+  stage='flight-detail';const collected=Array(refs.length);let next=0,prefix=0,prefixBilled=0,halted=false,fatal=null;
+  const worker=async()=>{try{while(!halted){const i=next++;if(i>=refs.length)return;guard();const sourceFlightRef=refs[i],url=origin+'/member/profile/viewflight.php?flid='+sourceFlightRef;let row;
+    try{const d=await get(url);const status=[...d.querySelectorAll('table.view tr')].filter(r=>clean(r.cells[0])==='Abgerechnet');if(status.length===1&&clean(status[0].cells[1])==='Nein')row={kind:'unknown',value:{sourceFlightRef,reason:'unbilled'}};else{const page=readBilling(d,url,{observedDetailUrl:url,clubLabel:expected.context.clubLabel,ownRecipientLabel:expected.ownRecipientLabel});row=page?.error?{kind:'unknown',value:{sourceFlightRef,reason:'unavailable'}}:{kind:'billed',value:page};}}
+    catch(error){if(halted)return;if(['login','context','cancelled'].includes(error?.message)){halted=true;fatal=error;controller.abort();return;}row={kind:'unknown',value:{sourceFlightRef,reason:'unavailable'}};}
+    if(halted)return;guard();collected[i]=row;
+    while(prefix<refs.length&&collected[prefix]!==undefined){if(collected[prefix].kind==='billed')prefixBilled++;prefix++;if(prefix%5===0||prefix===refs.length)send({progress:{processed:prefix,total:refs.length,billed:prefixBilled}});}
+   }}catch(error){if(!halted){halted=true;fatal=error;controller.abort();}}};
+  await Promise.all([worker(),worker()]);if(fatal)throw fatal;
+  const billed=[],unknown=[];for(const value of collected){if(value.kind==='billed')billed.push(value.value);else unknown.push(value.value);}
+  stage='profile-after';const after=profile(await get(expected.profileUrl));guard();
+  stage='publish';const result={before,after,summary,ledgers,billed,unknown};if(JSON.stringify(result).length>4500000)throw Error('limit');send({result});
+ }catch(error){try{const message=error?.message;const reason=message==='login'?'authentication':message==='context'?'account-context':message==='route'?'route':message==='limit'?'limit':message==='cancelled'?'cancelled':['table','headers','invoices','accounts','invoice-link','account-heading'].includes(message)?'source-shape':message==='source'?'response':'other';send({error:message==='login'?'sign-in-required':message==='context'?'account-changed':'source-unavailable',diagnostic:{stage,reason}});}catch{}}finally{clearTimeout(timer);abort();if(window.__moflightFinancialAbort===abort)delete window.__moflightFinancialAbort;}
 }`;
 
 const profileReader=`function(document,url){const location=new URL(url),window={};window.top=window;return (${FINANCIAL_PROFILE_READER_SOURCE})();}`;
@@ -56,6 +70,7 @@ export interface FinancialCollectionPages {
 export class FinancialCollectionRun {
   private stage:'before'|'collect'|'ready'|'saving'|'done'|'uncertain'|'failed'='before';
   private seen=false;private prepared=false;private before:Profile|null=null;private pages:FinancialCollectionPages|null=null;
+  private sourceDiagnostic:FinancialSourceDiagnostic|null=null;
   private saved:FinancialEvidenceSnapshot|null=null;
   readonly progress={processed:0,total:0,billed:0};
   private readonly identity:string;private readonly refs:string[];
@@ -63,6 +78,7 @@ export class FinancialCollectionRun {
     this.identity=canonical(validateFinancialObservationTarget(target));if(!/^[a-zA-Z0-9_-]{1,80}$/.test(id)||refs.length>500||new Set(refs).size!==refs.length||refs.some(ref=>!/^\d{1,20}$/.test(ref)))throw Error('Invalid financial source selection.');this.refs=[...refs];this.progress.total=refs.length;
   }
   get target(){return JSON.parse(this.identity) as FinancialObservationTarget;}get url(){return PROFILE_URL;}
+  takeSourceDiagnostic(){const value=this.sourceDiagnostic;this.sourceDiagnostic=null;return value;}
   async prepare(gate:()=>Promise<void>){if(!this.prepared){await gate();await this.ports.prepare(gate);await gate();this.prepared=true;}}
   get script(){const nonce=this.id+'-'+this.stage;if(this.stage==='before')return `(()=>{let sent=false;const send=()=>{if(sent||document.readyState!=='complete')return;sent=true;window.ReactNativeWebView?.postMessage(JSON.stringify({kind:'vf-financial-collection-v1',nonce:${JSON.stringify(nonce)},url:location.href,profile:(${FINANCIAL_PROFILE_READER_SOURCE})()}));};if(document.readyState==='complete')send();else window.addEventListener('load',send,{once:true});})();true;`;
     if(this.stage!=='collect'||!this.before)throw Error('Financial collection is not reading.');
@@ -72,8 +88,12 @@ export class FinancialCollectionRun {
   accept(sender:string,documentUrl:string,input:unknown,selected:FinancialObservationTarget,at:string):'ignored'|'navigate'|'save'{
     if(canonical(validateFinancialObservationTarget(selected))!==this.identity)throw Error('Financial collection owner changed.');
     const p=input as Record<string,unknown>;if(!this.seen||!scopedBridge(sender,documentUrl,PROFILE_URL)||!p||p.kind!=='vf-financial-collection-v1'||p.nonce!==this.id+'-'+this.stage||p.url!==PROFILE_URL)return 'ignored';
-    if(p.error){this.stage='failed';if(p.error==='sign-in-required'||p.error==='account-changed')throw new FinancialReadError(p.error);throw Error('Financial source unavailable.');}
-    if(this.stage==='before'){this.before=profile(p.profile,this.target);this.stage='collect';this.seen=false;return 'navigate';}
+    if(p.error){this.sourceDiagnostic=financialSourceDiagnostic(p.diagnostic);this.stage='failed';if(p.error==='sign-in-required'||p.error==='account-changed')throw new FinancialReadError(p.error);throw Error('Financial source unavailable.');}
+    if(this.stage==='before'){
+      try{this.before=profile(p.profile,this.target);}
+      catch(error){this.sourceDiagnostic={stage:'profile-before',reason:error instanceof FinancialReadError?error.reason==='sign-in-required'?'authentication':'account-context':'source-shape'};throw error;}
+      this.stage='collect';this.seen=false;return 'navigate';
+    }
     if(this.stage!=='collect'||!this.before)return 'ignored';
     if(p.progress){const v=p.progress as typeof this.progress;if(!Number.isSafeInteger(v.processed)||v.processed<0||v.processed>this.refs.length||v.total!==this.refs.length||!Number.isSafeInteger(v.billed)||v.billed<0||v.billed>v.processed)throw Error('Invalid financial progress.');Object.assign(this.progress,v);return 'ignored';}
     const r=p.result as {before:Profile;after:Profile;summary:DurableInvoiceBookingEvidence['summary'];ledgers:Record<string,unknown>[];billed:FlightBillingRead[];unknown:FinancialEvidenceSnapshot['unknown']};

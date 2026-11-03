@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runInNewContext } from 'node:vm';
 import { diagnosticJournal } from '../../apps/platform-lab/src/diagnostics.ts';
-import { loginDiagnosticScript, readLoginDiagnostic, recordProviderDocument } from '../../apps/platform-lab/src/vereinsflieger/provider-diagnostics.ts';
+import { loginDiagnosticScript, readLoginDiagnostic, recordFinancialCaptureDiagnostic, recordProviderDocument } from '../../apps/platform-lab/src/vereinsflieger/provider-diagnostics.ts';
 
 const login = 'https://vereinsflieger.de/';
 for (const documentUrl of [login, 'https://vereinsflieger.de/member/profile/viewprofile']) test(`login observations leave credentials and submission alone at ${new URL(documentUrl).pathname}`, () => {
@@ -51,4 +51,15 @@ test('diagnostic bridge rejects foreign/stale/malformed data and persists fixed 
   assert.deepEqual(diagnosticJournal.journey().filter(e => e.kind === 'provider').map(e => e.target), ['provider-start-member', 'provider-command-other']);
   assert.ok(!diagnosticJournal.export().includes('SECRET'));
   assert.ok(!diagnosticJournal.export().includes('https:'));
+});
+
+test('financial reader/native diagnostics persist only allowlisted stage, reason, and origin',()=>{
+ diagnosticJournal.clear();
+ recordFinancialCaptureDiagnostic({kind:'source',stage:'invoice-summary',reason:'response'});
+ recordFinancialCaptureDiagnostic({kind:'native',origin:'webview-http-error'});
+ recordFinancialCaptureDiagnostic({kind:'source',stage:'private account label',reason:'PRIVATE_SENTINEL'} as never);
+ assert.deepEqual(diagnosticJournal.journey().filter(event=>event.kind==='provider').map(event=>event.target),[
+  'provider-financial-source-invoice-summary-response','provider-financial-native-webview-http-error',
+ ]);
+ const report=diagnosticJournal.export();assert.equal(report.includes('PRIVATE_SENTINEL'),false);assert.equal(report.includes('private account label'),false);
 });

@@ -13,7 +13,7 @@ function deferred() { let resolve!: () => void; const promise = new Promise<void
 async function until(predicate: () => boolean) { for (let i = 0; i < 500; i++) { if (predicate()) return; await Promise.resolve(); } assert.fail('Synthetic asynchronous operation did not reach the expected checkpoint'); }
 async function fixture() {
   const db = nodeDriver(':memory:'), store = new FinancialObservationStore(db, target, hash, async () => {}); await store.initialize(true);
-  const state = { allowed: true, current: true, generation: 0, url: '', ids: 0, revocations: 0, saveCalls: 0 };
+  const state = { allowed: true, current: true, generation: 0, url: '', ids: 0, revocations: 0, saveCalls: 0, diagnostics: [] as unknown[] };
   const navigations: string[] = [], scripts: string[] = [], changes: FinancialCaptureState[] = [];
   const timers: Array<{ run(): void; cleared: boolean }> = [];
   const options: FinancialCaptureOptions = { target, observedListUrl: listUrl, observedDetailUrl: detailUrl,
@@ -23,6 +23,7 @@ async function fixture() {
     epoch: () => state.generation, navigate(url) { state.generation++; state.url = url; navigations.push(url); },
     inject(script) { scripts.push(script); }, revoke() { state.revocations++; state.generation++; },
     uuid: () => 'capture-' + ++state.ids, now: () => at, changed: value => changes.push(value),
+    diagnostic: value => state.diagnostics.push(value),
     schedule(run, ms) { assert.equal(ms, 90_000); const timer = { run, cleared: false }; timers.push(timer); return timer as unknown as ReturnType<typeof setTimeout>; },
     clear(handle) { (handle as unknown as {cleared:boolean}).cleared = true; },
   });
@@ -94,10 +95,25 @@ test('native load must be freshly observed before injection and repeated load-en
   const f = await fixture(); try {
     const first = f.start(); await f.ready(); f.request.pageLoaded(f.state.url, f.state.generation);
     await assert.rejects(first, /stopped/); assert.equal(f.scripts.length, 0); assert.equal(f.state.revocations, 1);
+    assert.deepEqual(f.state.diagnostics,[{kind:'native',origin:'load-state-invalid'}]);
     const second = f.start(); await until(() => f.navigations.length === 2); await f.loaded();
     f.request.pageLoaded(f.state.url, f.state.generation); f.request.pageLoaded(f.state.url, f.state.generation);
     await Promise.resolve(); assert.equal(f.scripts.length, 1); f.request.cancel(); await assert.rejects(second);
   } finally { await f.close(); }
+});
+
+test('allowlisted source diagnostics reach the bounded callback and preserve generic failure/no-save',async()=>{
+ const f=await fixture();try{
+  const pending=f.start({createRun:id=>({id,target,url:PROFILE_URL,script:'noop',observeNavigation(){},cancel(){return true;},markSaveAcknowledgementUncertain(){},
+   takeSourceDiagnostic(){return {stage:'invoice-summary',reason:'response'};},
+   accept(){throw Error('Generic source failure with private sentinel');},
+   save:store=>store.save(id,'billed-flight',observation()),
+  })});await f.ready();await f.loaded();
+  await f.request.receive(PROFILE_URL,PROFILE_URL,JSON.stringify({kind:'synthetic'}),f.state.generation);
+  await assert.rejects(pending,/stopped/);assert.equal(f.state.saveCalls,0);assert.equal((await f.store.history()).total,0);
+  assert.deepEqual(f.state.diagnostics,[{kind:'source',stage:'invoice-summary',reason:'response'}]);
+  assert.equal(JSON.stringify(f.state.diagnostics).includes('private sentinel'),false);
+ }finally{await f.close();}
 });
 
 test('stale epochs, forged sender/document/nonces and malformed/oversized bridge packets cannot advance or save', async () => {
