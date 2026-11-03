@@ -24,6 +24,7 @@ import { captureFixture } from './capture-review-fixture.ts';
 import * as information from '../../apps/platform-lab/src/vereinsflieger/information.ts';
 import * as providerDiagnostics from '../../apps/platform-lab/src/vereinsflieger/provider-diagnostics.ts';
 import { InformationRun } from '../../apps/platform-lab/src/vereinsflieger/information-run.ts';
+import { validateTaskSelectionRecovery, type TaskSelectionRecovery } from '../../apps/platform-lab/src/vereinsflieger/task-selection-recovery.ts';
 import { ActivityRequest } from '../../apps/platform-lab/src/vereinsflieger/activity-request.ts';
 import * as activityProbe from '../../apps/platform-lab/src/vereinsflieger/activity-probe.ts';
 import { FinancialCaptureRequest } from '../../apps/platform-lab/src/vereinsflieger/expense-capture-request.ts';
@@ -99,6 +100,7 @@ function fixture(options: { localOwner?: string; deferFinancialAck?: boolean; ht
   let historyBacks = 0;
   let nativeReloads = 0;
   let informationReads = 0, savedInformation: information.InformationCapture | null = null;
+  let pendingTaskRecovery: TaskSelectionRecovery | null = null;
   let informationReader = async (_scope: ProviderScope, gate: () => void): Promise<information.InformationCapture[]> => { gate(); return savedInformation ? [savedInformation] : []; };
   let informationCaptureReader = async (_scope: ProviderScope, id: string, gate: () => void): Promise<information.InformationCapture | null> => { gate(); return savedInformation?.id === id ? savedInformation : null; };
   let informationHistoryReader = async (_scope: ProviderScope, category: information.InformationCategory, position: number, gate: () => void): Promise<information.InformationHistory> => { gate(); return { category, index: position, total: 0, capture: null }; };
@@ -225,6 +227,18 @@ function fixture(options: { localOwner?: string; deferFinancialAck?: boolean; ht
         gate(); informationReads++;
         const records = await informationReader(scope, gate); gate();
         return records;
+      },
+    },
+    './task-selection-recovery-native': {
+      loadTaskSelectionRecovery: async (scope: ProviderScope, gate: () => void) => { gate(); const value = pendingTaskRecovery && canonical(pendingTaskRecovery.scope) === canonical(scope) ? pendingTaskRecovery : null; gate(); return value; },
+      saveTaskSelectionRecovery: async (scope: ProviderScope, value: TaskSelectionRecovery, gate: () => void) => {
+        gate(); const checked = validateTaskSelectionRecovery(value, scope);
+        if (pendingTaskRecovery && canonical(pendingTaskRecovery) !== canonical(checked)) throw new Error('Synthetic task selector recovery conflict.');
+        pendingTaskRecovery = checked; gate(); return checked;
+      },
+      clearTaskSelectionRecovery: async (scope: ProviderScope, value: TaskSelectionRecovery, gate: () => void) => {
+        gate(); const checked = validateTaskSelectionRecovery(value, scope);
+        assert.deepEqual(pendingTaskRecovery, checked); pendingTaskRecovery = null; gate();
       },
     },
   };
@@ -390,7 +404,7 @@ function fixture(options: { localOwner?: string; deferFinancialAck?: boolean; ht
     changeOwner: (value: string) => { localOwner = value; render(); },
     setDevelopmentRecoveryCheckpoints: (enabled: boolean) => { options.developmentRecoveryCheckpoints = enabled; render(); },
     controller: () => { render(); return controller; },
-    finishJournalSave, finishCaptureSave, pending: () => pending, savedCapture: () => savedCapture,
+    finishJournalSave, finishCaptureSave, pending: () => pending, savedCapture: () => savedCapture, taskRecovery: () => pendingTaskRecovery,
     loginStorage: () => ({ reads: savedLoginReads, forgets: savedLoginForgets }),
     finishClear, clearCalls: () => clearCalls, finishLoginRead, finishLoginForget, finishBinding, scopeWrites: () => scopeWrites,
     finishSafety, changeFingerprint: () => { currentFingerprint = 'cd'.repeat(32); },
@@ -3687,12 +3701,20 @@ test('task reader rejection emits a fixed diagnostic reason and preserves prior 
     await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
     await f.loadPage(information.OWN_OPEN_TASKS_URL);
     send('vf-information-v1','read',information.OWN_OPEN_TASKS_URL,{page:{error}});
-    await rejected;
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    const restoreUrl='https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=all';
+    await f.loadPage(restoreUrl);
+    send('vf-information-task-restore-v1','restore-only',restoreUrl,{selection:{selected:'Alle Aufgaben',options:[
+      {label:'Alle nicht beendeten Aufgaben',href:'?gselect=allopen'},
+      {label:'Meine nicht beendeten Aufgaben',href:'?gselect=myopen'},
+      {label:'Alle Aufgaben',href:'?gselect=all'},
+    ]}});
+    await f.flush(); await rejected;
     assert.ok(f.providerEvents.includes('provider-information-validation-failed'));
     assert.ok(f.providerEvents.includes(reason));
     assert.ok(!f.providerEvents.some(event=>event.includes('private')));
     assert.equal(f.writes.includes('information-saved'),false);
-    assert.equal(f.controller().url,'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=all');
+    assert.equal(f.controller().url,restoreUrl);
     f.unmount();
   }
 });
@@ -3719,8 +3741,15 @@ test('own-task refresh leaves an unsupported selector unchanged and attempts res
     (web.props.onMessage as (event:unknown)=>void)({nativeEvent:{url:information.TASK_SELECTION_PROBE_URL,data:JSON.stringify({kind:'vf-information-task-selection-v1',nonce:f.lastIssuedNonce()+'-selection',url:information.TASK_SELECTION_PROBE_URL,selection:{selected:'Alle Aufgaben',options}})}});
     await f.flush();await f.loadPage(context.PROFILE_URL);await f.contextMessage(observedContext);
     await f.loadPage(information.OWN_OPEN_TASKS_URL);
-    await f.controller().stopInformation();await rejected;
-    assert.equal(f.controller().url,'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=all');
+    await f.controller().stopInformation();
+    assert.equal(f.controller().url,context.PROFILE_URL);
+    await f.loadPage(context.PROFILE_URL); await f.contextMessage(observedContext);
+    const restoreUrl='https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=all';
+    await f.loadPage(restoreUrl);
+    const restoreWeb=f.find(f.render(),e=>e.type==='WebView')!;
+    (restoreWeb.props.onMessage as (event:unknown)=>void)({nativeEvent:{url:restoreUrl,data:JSON.stringify({kind:'vf-information-task-restore-v1',nonce:f.lastIssuedNonce()+'-restore-only',url:restoreUrl,selection:{selected:'Alle Aufgaben',options}})}});
+    await f.flush(); await rejected;
+    assert.equal(f.controller().url,restoreUrl);
     assert.equal(f.writes.includes('information-saved'),false);f.unmount();
   }
 });

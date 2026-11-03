@@ -9,6 +9,7 @@ import { INFORMATION_TYPES, retrievableInformationCategories, informationRouteSh
 import { InformationRun } from './information-run';
 import { recordProviderEvent } from './provider-diagnostics';
 import { loadInformation, readInformationCapture, readInformationHistory, saveAndLoadInformation } from './information-native';
+import { clearTaskSelectionRecovery, loadTaskSelectionRecovery, saveTaskSelectionRecovery } from './task-selection-recovery-native';
 
 export type FeatureInformationCategory = 'events' | 'document-notices' | 'work-summary' | 'work-hours' | 'tasks';
 const featureSources: Record<FeatureInformationCategory, string> = {
@@ -80,6 +81,8 @@ export function useInformationController(ports: InformationControllerPorts) {
   }
   const [informationRetryReady, setInformationRetryReady] = useState(false);
   const informationUncertain = useRef<string | null>(null);
+  const taskRecoveryTransition = useRef<{ run: InformationRun; document: string; epoch: number; stale: boolean } | null>(null);
+  const taskRecoveryStop = useRef<{ run: InformationRun; message: string; retryable: boolean; deadlineExpired: boolean } | null>(null);
   const [informationNeedsReload, setInformationNeedsReload] = useState(false);
   const informationLoadRequest = useRef(0);
   const [informationLoading, setInformationLoading] = useState(false);
@@ -132,10 +135,99 @@ export function useInformationController(ports: InformationControllerPorts) {
       if (ports.mounted() && request === historyRequest.current) setInformationHistoryBusy(false);
     }
   }
-  function stopInformation(message = 'Informationsabruf abgebrochen. Gespeicherte Belege bleiben erhalten.', retryable = false) {
+
+  function informationRunGate(run: InformationRun) {
+    if (!ports.mounted() || !ports.foreground() || informationRun.current !== run || !ports.ownerCurrent()) throw new Error('Expired information request');
+    run.assertScope(ports.scope());
+    const transition = taskRecoveryTransition.current;
+    if (transition?.run === run && (transition.stale || ports.currentUrl() !== transition.document || ports.epoch() !== transition.epoch)) throw new Error('Task recovery document changed during local persistence.');
+  }
+
+  function beginTaskRecoveryTransition(run: InformationRun) {
+    const transition = { run, document: ports.currentUrl(), epoch: ports.epoch(), stale: false };
+    taskRecoveryTransition.current = transition;
+    return transition;
+  }
+
+  function finishTaskRecoveryTransition(transition: { run: InformationRun; document: string; epoch: number; stale: boolean }) {
+    if (taskRecoveryTransition.current === transition) taskRecoveryTransition.current = null;
+  }
+
+  async function withTaskRecoveryTransition<T>(run: InformationRun, work: () => Promise<T>): Promise<T> {
+    const transition = beginTaskRecoveryTransition(run);
+    try {
+      informationRunGate(run);
+      const value = await work();
+      informationRunGate(run);
+      return value;
+    } finally { finishTaskRecoveryTransition(transition); }
+  }
+
+  function finishTaskRunWithoutCapture(run: InformationRun, message: string, retryable = false) {
+    if (informationRun.current !== run) return;
+    const failure = new Error('Task capture was not verified.');
+    const taskFailure = run.taskFailureEvent;
+    if (taskFailure) recordProviderEvent(taskFailure);
+    recordProviderEvent('provider-information-validation-failed');
+    run.cancel(); informationRun.current = null; clearInformationNavigation(run);
+    if (informationTimer.current) clearTimeout(informationTimer.current);
+    informationTimer.current = null; setInformationBusy(false); setInformationSaving(false); ports.setBusy(false);
+    if (taskRecoveryStop.current?.run === run) taskRecoveryStop.current = null;
+    setInformationRetryReady(retryable && !!informationRetry.current);
+    setInformationNotice(message);
+    if (featureRequest.current?.run === run) finishFeature(failure);
+    if (dutyRequest.current?.run === run) finishDuty(failure);
+  }
+
+  function beginTaskRestoreOnly(run: InformationRun, message: string): boolean {
+    if (informationRun.current !== run || !run.taskRecoveryPending || !ports.mounted() || !ports.foreground() || !ports.ownerCurrent()) return false;
+    try { if (canonical(ports.scope()) !== canonical(run.scope)) return false; } catch { return false; }
+    if (!run.beginTaskRestoreOnly()) return false;
+    setInformationSaving(false); setInformationBusy(true); ports.setBusy(true); setInformationNotice(message);
+    ports.navigate(run.url);
+    return true;
+  }
+
+  async function prepareTaskSelection(run: InformationRun) {
+    const transition = beginTaskRecoveryTransition(run);
+    let destination: string;
+    try {
+      const gate = () => informationRunGate(run);
+      gate();
+      const pending = await loadTaskSelectionRecovery(run.scope, gate); gate();
+      if (pending) run.resumeTaskSelectionRecovery(pending);
+      gate(); destination = run.url;
+    } catch {
+      // A corrupt, foreign or unavailable checkpoint is retained. No provider
+      // navigation occurs until this explicit task request can read it safely.
+      finishTaskRunWithoutCapture(run, 'Aufgabenfilter konnte nicht sicher geprüft werden. Konto und Aufgabenfilter prüfen.');
+      return;
+    } finally {
+      finishTaskRecoveryTransition(transition);
+    }
+    if (taskRecoveryStop.current?.run === run) { const stop = taskRecoveryStop.current; taskRecoveryStop.current = null; finishTaskRunWithoutCapture(run, stop.message, stop.retryable); return; }
+    informationRunGate(run);
+    if (ports.currentUrl() === destination) void ports.loadPage(destination);
+    else ports.navigate(destination);
+  }
+
+  function stopInformation(message = 'Informationsabruf abgebrochen. Gespeicherte Belege bleiben erhalten.', retryable = false, deadlineExpired = false) {
     const run = informationRun.current;
-    if (run?.stage === 'saving') return;
-    const restoreTaskUrl = run?.stage !== 'restore' && run?.taskRestoreAuthorized ? run.taskRestoreUrl : null;
+    if (run && taskRecoveryTransition.current?.run === run) { taskRecoveryStop.current = { run, message, retryable, deadlineExpired }; return; }
+    if (run?.stage === 'saving' && !(deadlineExpired && run.category === 'tasks' && run.taskRestoreOnly)) return;
+    if (deadlineExpired && run?.category === 'tasks' && run.taskRecoveryPending) {
+      finishTaskRunWithoutCapture(run, message, retryable);
+      return;
+    }
+    if (run?.taskRestoreOnly) {
+      finishTaskRunWithoutCapture(run, 'Aufgabenfilter-Wiederherstellung nicht bestätigt. Aufgabenfilter auf der Vereinsflieger-Seite prüfen.');
+      return;
+    }
+    if (run?.category === 'tasks' && run.taskRecoveryPending) {
+      if (beginTaskRestoreOnly(run, 'Aufgabenabruf beendet. Aufgabenfilter wird geprüft und wiederhergestellt…')) return;
+      finishTaskRunWithoutCapture(run, 'Aufgabenfilter bleibt zur Wiederherstellung vorgemerkt. Auf der Vereinsflieger-Seite prüfen.');
+      return;
+    }
     run?.cancel(); informationRun.current = null;
     clearInformationNavigation(run);
     finishMedical(new Error('Medical capture did not complete.'));
@@ -145,11 +237,11 @@ export function useInformationController(ports: InformationControllerPorts) {
     if (informationTimer.current) clearTimeout(informationTimer.current);
     informationTimer.current = null;
     if (ports.mounted()) { setInformationRetryReady(retryable && !!informationRetry.current); setInformationBusy(false); setInformationSaving(false); ports.setBusy(false); setInformationNotice(message); }
-    if (restoreTaskUrl && ports.mounted() && ports.ownerCurrent()) ports.navigate(restoreTaskUrl);
   }
   function beginInformation(retry = false, medical = false, dutyUrl?:string, feature?:FeatureInformationCategory): InformationRun | null {
     if (!(medical||dutyUrl||feature?ports.canStartMedical():ports.canStart(retry)) || informationRun.current || informationHistoryBusy || informationUncertain.current) {recordProviderEvent('provider-information-admission-blocked');return null;}
     try {
+      taskRecoveryStop.current = null;
       const selectedScope = ports.scope(), target = retry ? informationRetry.current : null;
       if (retry && (!informationRetryReady || !target || target.category !== informationCategory || target.scopeKey !== canonical(selectedScope))) return null;
       const reloadFailedProfile = !!(retry && target && informationFailedProfile.current?.target === target && informationFailedProfile.current.epoch === ports.epoch() && ports.currentUrl() === PROFILE_URL);
@@ -158,8 +250,13 @@ export function useInformationController(ports: InformationControllerPorts) {
       informationLoadRequest.current++; setInformationLoading(false);
       clearInformationNavigation();
       informationRun.current = run; setInformationBusy(true); ports.setBusy(true); setInformationNotice('Konto wird vor und nach der Erfassung geprüft…');
-      informationTimer.current = setTimeout(() => {recordProviderEvent('provider-information-timeout');stopInformation('Informationsabruf hat das Zeitlimit erreicht. Gespeicherte Belege bleiben erhalten. Quelle und Anmeldung prüfen und erneut versuchen.', true);}, 90_000);
-      if (run.stage === 'selection' && ports.currentUrl() === run.url) void ports.loadPage(run.url);
+      informationTimer.current = setTimeout(() => {
+        if (informationRun.current !== run) return;
+        recordProviderEvent('provider-information-timeout');
+        stopInformation('Informationsabruf hat das Zeitlimit erreicht. Gespeicherte Belege bleiben erhalten. Quelle und Anmeldung prüfen und erneut versuchen.', true, true);
+      }, 90_000);
+      if (run.category === 'tasks') void prepareTaskSelection(run);
+      else if (run.stage === 'selection' && ports.currentUrl() === run.url) void ports.loadPage(run.url);
       else if (run.stage === 'selection') ports.navigate(run.url);
       else {
         ports.navigate(run.url);
@@ -203,12 +300,9 @@ export function useInformationController(ports: InformationControllerPorts) {
   async function receiveInformation(event: WebViewMessageEvent) {
     const run = informationRun.current;
     if (!run || event.nativeEvent.data.length > 1_000_000) return;
-    const gate = () => {
-      if (!ports.mounted() || !ports.foreground() || informationRun.current !== run) throw new Error('Expired information request');
-      run.assertScope(ports.scope());
-    };
+    const gate = () => informationRunGate(run);
     try {
-      gate(); const message = JSON.parse(event.nativeEvent.data), wasRead = run.stage === 'read';
+      gate(); const message = JSON.parse(event.nativeEvent.data), wasRead = run.stage === 'read', previousStage = run.stage;
       const action = run.accept(event.nativeEvent.url, ports.currentUrl(), message);
       if (wasRead && action === 'navigate' && dutyRequest.current?.run === run && message.activity) {
         try {
@@ -217,7 +311,46 @@ export function useInformationController(ports: InformationControllerPorts) {
             dutyActivityByRun.current.set(run,metadata);
         } catch { /* Optional metadata never changes the canonical capture outcome. */ }
       }
-      if (action === 'navigate') { ports.navigate(run.url); return; }
+      if (action === 'navigate') {
+        let taskJournalTransition = false;
+        if (run.category === 'tasks' && previousStage === 'before') {
+          await withTaskRecoveryTransition(run, async () => {
+            const checkpoint = run.createTaskSelectionRecovery();
+            const saved = await saveTaskSelectionRecovery(run.scope, checkpoint, gate); gate();
+            run.recordTaskSelectionRecovery(saved);
+          });
+          taskJournalTransition = true;
+        } else if (run.category === 'tasks' && previousStage === 'recovery-restore') {
+          await withTaskRecoveryTransition(run, async () => {
+            const previous = run.pendingTaskSelectionRecovery;
+            if (!previous) throw new Error('Pending task selector recovery is unavailable.');
+            await clearTaskSelectionRecovery(run.scope, previous, gate); gate(); run.clearTaskSelectionRecovery(previous);
+          });
+          taskJournalTransition = true;
+        }
+        if (taskJournalTransition && taskRecoveryStop.current?.run === run) {
+          const deferredStop = taskRecoveryStop.current; taskRecoveryStop.current = null;
+          if (!deferredStop.deadlineExpired && beginTaskRestoreOnly(run, deferredStop.message)) return;
+          finishTaskRunWithoutCapture(run, deferredStop.message, deferredStop.retryable);
+          return;
+        }
+        gate(); ports.navigate(run.url); return;
+      }
+      if (action === 'restored') {
+        const checkpoint = run.pendingTaskSelectionRecovery;
+        if (!checkpoint) throw new Error('Pending task selector recovery is unavailable.');
+        run.stage = 'saving';
+        await withTaskRecoveryTransition(run, async () => {
+          await clearTaskSelectionRecovery(run.scope, checkpoint, gate); gate(); run.clearTaskSelectionRecovery(checkpoint);
+        });
+        run.completeTaskRestoreOnly(); informationRun.current = null; clearInformationNavigation(run);
+        if (informationTimer.current) clearTimeout(informationTimer.current);
+        informationTimer.current = null; setInformationBusy(false); setInformationSaving(false); ports.setBusy(false);
+        setInformationNotice('Aufgabenabruf beendet. Aufgabenfilter wiederhergestellt.');
+        if (featureRequest.current?.run === run) finishFeature(new Error('Task capture was not verified.'));
+        if (dutyRequest.current?.run === run) finishDuty(new Error('Task capture was not verified.'));
+        return;
+      }
       if (action !== 'save') return;
       if (informationTimer.current) clearTimeout(informationTimer.current);
       informationTimer.current = null; setInformationSaving(true);
@@ -233,6 +366,13 @@ export function useInformationController(ports: InformationControllerPorts) {
         // Combined jobs already finished on a freshly proven profile. A return
         // navigation after resolving can arrive during the next source job.
         recordProviderEvent('provider-information-complete');finishDuty(undefined,capture);return;
+      }
+      if (run.category === 'tasks') {
+        const checkpoint = run.pendingTaskSelectionRecovery;
+        if (!checkpoint) throw new Error('Pending task selector recovery is unavailable.');
+        await withTaskRecoveryTransition(run, async () => {
+          await clearTaskSelectionRecovery(run.scope, checkpoint, gate); gate(); run.clearTaskSelectionRecovery(checkpoint);
+        });
       }
       informationUncertain.current = run.nonce;
       const records = await saveAndLoadInformation(run.scope, run.capture(new Date().toISOString()), gate); gate();
@@ -254,20 +394,23 @@ export function useInformationController(ports: InformationControllerPorts) {
       // A commit may precede readback/lease failure. Do not claim rollback or publish old-owner rows.
       if (informationRun.current === run) {
         const uncertain = !!informationUncertain.current;
+        const deferredStop = taskRecoveryStop.current?.run === run ? taskRecoveryStop.current : null;
+        if (deferredStop) taskRecoveryStop.current = null;
         recordProviderEvent(uncertain?'provider-information-save-unconfirmed':'provider-information-validation-failed');
         const taskFailure = run.taskFailureEvent;
         if (taskFailure) recordProviderEvent(taskFailure);
-        const restoreTaskUrl = run.stage !== 'restore' && run.taskRestoreAuthorized ? run.taskRestoreUrl : null;
-        const taskRestoreFailed = run.category === 'tasks' && run.stage === 'restore';
+        const taskRestoreFailed = run.category === 'tasks' && run.taskRecoveryPending && ['restore','recovery-restore','restore-only','restore-acknowledged','saving'].includes(run.stage);
+        const taskCanRestore = run.category === 'tasks' && run.taskRecoveryPending && run.taskRestoreAuthorized &&
+          !run.taskRestoreOnly && !['restore','recovery-restore','restore-acknowledged','saving'].includes(run.stage);
+        if (!deferredStop && taskCanRestore && beginTaskRestoreOnly(run, 'Erfassung nicht bestätigt. Aufgabenfilter wird geprüft und wiederhergestellt…')) return;
         run.stage = 'cancelled'; informationRun.current = null;
         clearInformationNavigation(run);
         if (informationTimer.current) clearTimeout(informationTimer.current);
         informationTimer.current = null; setInformationBusy(false); setInformationSaving(false); ports.setBusy(false);
         setInformationNeedsReload(uncertain); setInformationRetryReady(!uncertain);
-        setInformationNotice(taskRestoreFailed
-          ? 'Erfassung nicht bestätigt. Der vorherige Aufgabenfilter konnte nicht bestätigt werden. Aufgabenfilter auf der Vereinsflieger-Seite prüfen. Gespeicherte Belege bleiben erhalten.'
-          : 'Erfassung nicht bestätigt. ' + (uncertain ? 'Zuerst gespeicherte Informationen lokal neu laden, bevor erneut erfasst wird. Eine eventuell bereits gespeicherte Erfassung bleibt erhalten.' : (run.failureMessage ?? 'Quelle, Spalten oder Konto nicht unterstützt.') + ' Quelle und Anmeldung prüfen, dann ausdrücklich erneut versuchen. Gespeicherte Belege bleiben erhalten.'));
-        if (restoreTaskUrl && ports.mounted() && ports.ownerCurrent()) ports.navigate(restoreTaskUrl);
+        setInformationNotice(deferredStop?.message ?? (taskRestoreFailed || run.category === 'tasks' && run.taskRecoveryPending
+          ? 'Erfassung nicht bestätigt. Aufgabenfilter-Wiederherstellung auf der Vereinsflieger-Seite prüfen.'
+          : 'Erfassung nicht bestätigt. ' + (uncertain ? 'Zuerst gespeicherte Informationen lokal neu laden, bevor erneut erfasst wird. Eine eventuell bereits gespeicherte Erfassung bleibt erhalten.' : (run.failureMessage ?? 'Quelle, Spalten oder Konto nicht unterstützt.') + ' Quelle und Anmeldung prüfen, dann ausdrücklich erneut versuchen. Gespeicherte Belege bleiben erhalten.')));
         if(medicalRequest.current?.run===run)finishMedical(new Error('Medical capture was not verified.'));
         if(dutyRequest.current?.run===run)finishDuty(new Error('Duty capture was not verified.'));
         if(featureRequest.current?.run===run)finishFeature(new Error('Feature capture was not verified.'));
@@ -275,7 +418,7 @@ export function useInformationController(ports: InformationControllerPorts) {
     }
   }
   function nextInformationCategory() { if (!informationRun.current) { informationRetry.current = null; setInformationRetryReady(false); setInformationCategory(old => retrievableInformationCategories[(retrievableInformationCategories.indexOf(old) + 1) % retrievableInformationCategories.length]!); } }
-  useEffect(() => () => { informationLoadRequest.current++; informationRun.current?.cancel(); informationRun.current = null; clearInformationNavigation(); finishMedical(new Error('Medical reader closed.')); finishFeature(new Error('Feature reader closed.')); finishDuty(new Error('Duty reader closed.')); if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
+  useEffect(() => () => { informationLoadRequest.current++; const run = informationRun.current; if (taskRecoveryStop.current?.run === run) taskRecoveryStop.current = null; run?.cancel(); informationRun.current = null; clearInformationNavigation(); finishMedical(new Error('Medical reader closed.')); finishFeature(new Error('Feature reader closed.')); finishDuty(new Error('Duty reader closed.')); if (informationTimer.current) clearTimeout(informationTimer.current); }, []);
   function beginInitialLoad() {
     const request = ++informationLoadRequest.current; setInformationLoading(ports.product); return request;
   }
@@ -296,6 +439,8 @@ export function useInformationController(ports: InformationControllerPorts) {
     if (request === informationLoadRequest.current) setInformationLoading(false);
   }
   function ownerChanged() {
+    const run = informationRun.current;
+    if (taskRecoveryStop.current?.run === run) taskRecoveryStop.current = null;
     finishMedical(new Error('Medical owner changed.'));
     finishFeature(new Error('Feature owner changed.'));
     finishDuty(new Error('Duty owner changed.'));
@@ -320,34 +465,42 @@ export function useInformationController(ports: InformationControllerPorts) {
   function pageLoaded(page: string): boolean {
     const run = informationRun.current;
     if (!run) return false;
+    const transition = taskRecoveryTransition.current;
+    if (transition?.run === run) {
+      if (page !== transition.document || ports.currentUrl() !== transition.document || ports.epoch() !== transition.epoch) transition.stale = true;
+      return true;
+    }
+    if (run.category === 'tasks' && run.stage === 'saving' && page === run.taskRestoreUrl && ports.currentUrl() === page) return true;
     if (page !== run.url) { recordProviderEvent('provider-information-unexpected-document');stopInformation('Quellseite oder Anmeldung nicht verfügbar. Gespeicherte Informationen bleiben erhalten.', true); return true; }
     // A previous same-URL load-end cannot advance a new request without its own load-start.
     if (run.stage !== 'selection' && (informationNavigation.current?.run !== run || informationNavigation.current.nonce !== run.messageNonce)) return true;
     run.observeNavigation(page);
     ports.inject(run.stage === 'selection'
       ? run.category === 'tasks' ? taskSelectionScript(run.messageNonce, 'probe') : informationSelectionScript(run.messageNonce)
-      : run.stage === 'restore' ? taskSelectionScript(run.messageNonce, 'restore')
+      : ['restore','recovery-restore','restore-only'].includes(run.stage) ? taskSelectionScript(run.messageNonce, 'restore')
       : run.stage === 'read' ? informationScript(run.category, run.messageNonce) : contextScript(run.messageNonce));
     return true;
   }
   function loadStarted(url: string) {
-    if (informationRun.current && url === informationRun.current.url)
-      informationNavigation.current = { run: informationRun.current, nonce: informationRun.current.messageNonce };
+    const run = informationRun.current;
+    if (!run) return;
+    if (taskRecoveryTransition.current?.run === run) {
+      taskRecoveryTransition.current.stale = true;
+      return;
+    }
+    if (url === run.url) informationNavigation.current = { run, nonce: run.messageNonce };
   }
   function navigationStarted() { informationFailedProfile.current = null; }
   function pageFailed(url?: string, recordProfileFailure = false): boolean {
     const run = informationRun.current;
     if (!run) return false;
     recordProviderEvent('provider-information-page-failed');
-    if (run.category === 'tasks' && run.stage === 'restore') {
-      stopInformation('Der vorherige Aufgabenfilter konnte nicht bestätigt werden. Aufgabenfilter auf der Vereinsflieger-Seite prüfen. Gespeicherte Belege bleiben erhalten.'); return true;
-    }
     if (recordProfileFailure && url === PROFILE_URL && ports.currentUrl() === PROFILE_URL && informationRetry.current && ['before', 'after'].includes(run.stage))
       informationFailedProfile.current = { target: informationRetry.current, epoch: ports.epoch() };
     stopInformation('Informationsquelle nicht verfügbar. Gespeicherte Belege bleiben erhalten.', true); return true;
   }
   function dismiss(): boolean {
-    if (informationRun.current?.stage === 'saving') return false;
+    if (informationRun.current?.stage === 'saving' || informationRun.current && taskRecoveryTransition.current?.run === informationRun.current) return false;
     if (informationRun.current) stopInformation();
     return true;
   }
