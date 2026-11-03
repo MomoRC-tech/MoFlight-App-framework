@@ -1,0 +1,13 @@
+{
+  "source_commit": "971829131d370305d7c9553a10e86f3eb887b6b6",
+  "apk_sha256": "dc56d9bc2cf3d3a9c669ec78842db9b73f3552d1bc301bfcca6ebd96611befbc",
+  "zip_sha256": "baa05a603d107ac323ee78749b8af49e625f408db91109ae1739e315a23beb2a",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "download_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-financial-batches-2026-11-03-9718291/MoFlight-Financial-Batches-9718291.zip",
+  "scope": "Full-reference financial batch/resume/save/offline trial; captured subtotals, no speedup/phone/iOS/beta acceptance. AI disabled/preparation-only."
+}

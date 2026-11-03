@@ -1,0 +1,132 @@
+{
+  "recorded_at_utc": "2026-11-03T16:44:31.742494+00:00",
+  "issue": 101,
+  "scope": "Full verified own-flight selection with resumable bounded batches; captured-subtotal v2, not complete provider-history or annual-expense coverage.",
+  "source_commit": "971829131d370305d7c9553a10e86f3eb887b6b6",
+  "apk_sha256": "dc56d9bc2cf3d3a9c669ec78842db9b73f3552d1bc301bfcca6ebd96611befbc",
+  "environment": {
+    "kind": "Android API37 x86_64 read-only provider-session emulator",
+    "logical_dp": [
+      480,
+      800
+    ],
+    "density_dpi": 160,
+    "font_scale": 1.0,
+    "theme": "dark",
+    "physical_phone": false,
+    "ios": false
+  },
+  "host": {
+    "runner": "build/host-checks/20261103T161656Z-8abcf6c5/report.json",
+    "runner_groups_passed": 4,
+    "runner_groups_total": 5,
+    "mobile_passed": 2228,
+    "mobile_skipped": 2,
+    "python_run": 170,
+    "python_skipped": 19,
+    "lint_and_fixtures_passed": true,
+    "initial_typecheck": "Failed only on a redundant narrowed-state assertion in a new test. Removed; subsequent focused pnpm typecheck passes. No relabelled clean5/5 run.",
+    "focused_typecheck_log": "build/financial-batches-typecheck.log",
+    "android_and_ios_exports_passed": true,
+    "committed_source_android_release_passed": true
+  },
+  "native": {
+    "installed_apk_hash_verified": true,
+    "installation_uid_preserved": true,
+    "initial_sign_in_required_observed": true,
+    "secure_original_form_login": "Helper observed submitted response; matching profile is separately enforced by the subsequent actual collection.",
+    "cancel_observed_after_processed": 20,
+    "selection_total": 101,
+    "fresh_process_resume": true,
+    "resumed_saved_prefix": 20,
+    "complete_processed": 101,
+    "billed_observed": 28,
+    "save_acknowledged": true,
+    "ordinary_costs_period_retained": "Jun 2026",
+    "eligible_contributors": 28,
+    "fully_offline_fresh_process_readback": true,
+    "exact_private_money_labels_match": true,
+    "compared_money_labels": 2,
+    "ai_model_calls": false,
+    "provider_record_writes_payments_pdfs": false
+  },
+  "measurements": {
+    "source": "Inclusive native UI observers; input/polling/dump and preparation overhead included. Different endpoints/windows overlap; not additive or controlled speed measurements.",
+    "ui_samples": [
+      {
+        "id": "costs-entry",
+        "milliseconds": 74755.26369991712,
+        "outcome": "success",
+        "endpoint": "inclusive native UI observer including input, polling and dump overhead"
+      },
+      {
+        "id": "entry-refusal",
+        "milliseconds": 121122.3363999743,
+        "outcome": "sign-in-required",
+        "endpoint": "inclusive native UI observer including input, polling and dump overhead"
+      },
+      {
+        "id": "after-login-refusal",
+        "milliseconds": 8256.813100073487,
+        "outcome": "sign-in-required",
+        "endpoint": "inclusive native UI observer including input, polling and dump overhead"
+      },
+      {
+        "id": "after-login-observer-failure",
+        "milliseconds": 39870.87199999951,
+        "outcome": "failed",
+        "endpoint": "inclusive native UI observer including input, polling and dump overhead"
+      },
+      {
+        "id": "cancel-after-committed-prefix",
+        "milliseconds": 9966.40589996241,
+        "outcome": "success",
+        "endpoint": "inclusive native UI observer including input, polling and dump overhead"
+      },
+      {
+        "id": "full-resume-and-save",
+        "milliseconds": 538139.7393001243,
+        "outcome": "success",
+        "endpoint": "inclusive native UI observer including input, polling and dump overhead"
+      },
+      {
+        "id": "offline-observer-failure",
+        "milliseconds": 28894.611099967733,
+        "outcome": "failed",
+        "endpoint": "inclusive native UI observer including input, polling and dump overhead"
+      },
+      {
+        "id": "offline-fresh-costs-reopen",
+        "milliseconds": 55281.070600030944,
+        "outcome": "success",
+        "endpoint": "inclusive native UI observer including input, polling and dump overhead"
+      }
+    ],
+    "secure_login_ms": 21852.504,
+    "initial_boot_ms": 41251,
+    "verification_boot_ms": 41142,
+    "offline_process_preparation_ms": 351.8216998782009
+  },
+  "observer_limits": [
+    "Stale prior sign-in text during new async preparation was initially mistaken for a fresh failure. The 8256.8131ms observation and subsequent39870.872ms helper failure are retained as observer errors; actual authenticated collection continued.",
+    "Cancellation-watch interval starts during an already running collection; it is not total cancellation-journey latency.",
+    "Immediate post-start pidof raced process creation. Later independent different-PID readback confirmed restart; no missing restart interval is invented.",
+    "Initial radio-setting readback raced asynchronous transition; first offline observer failed. Final offline trial independently verifies settled radios and a fresh process.",
+    "Initial discard boot-poll deadline ended before the41142ms boot completed; independent continuation verified that same boot.",
+    "No full original/final raw receipt inventory or private-data byte invariance, matched performance comparison, second real account, phone or iOS acceptance is claimed."
+  ],
+  "cleanup": {
+    "owned_read_only_emulator_stopped": true,
+    "original_radios_font_display_restored": true,
+    "source_image_sizes_unchanged": true,
+    "source_image_mtimes_unchanged": true,
+    "source_images_compared": 6,
+    "original_apk_and_settings_independently_reappeared": true,
+    "verification_boot_installed_or_explicitly_launched_app": false,
+    "owned_emulator_stopped_again": true,
+    "other_emulators_before": [],
+    "other_emulators_after": [],
+    "full_private_userdata_hash_compared": false,
+    "source_metadata_checked_after_both_boots": true
+  }
+}
