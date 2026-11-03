@@ -54638,6 +54638,1993 @@
           "details": {}
         }
       ]
+    },
+    {
+      "recorded_date": "2026-11-03",
+      "kind": "emulator-synthetic",
+      "source_commit": "8a1e022cdc882e01894b63e6fd0b55b2e02949ac",
+      "apk_sha256": "27eb5b54bcf95cb50612f0f8a7eae1e5c08318b185a8270d6a69ede6c5143f9b",
+      "device": "MoFlight_Synthetic_API37 / API37 / x86_64 / sdk_gphone64_x86_64 / test-entry Release; physical1080x1920px,420dpi,font1.0",
+      "input": "Synthetic101-flight main history and7-flight second isolated store; closed Expo SQLite caches with validated envelopes",
+      "conditions": "Offline synthetic native test entry; one fixture process, no live provider or ordinary owner-registry/account-switch UI. Original uninstalled-with-retained-data package state and settings restored.",
+      "evidence": [
+        "docs/verification/2026-11-03-local-cache-diagnostics.json"
+      ],
+      "comparison": null,
+      "id": "start-cache-native-20261103-cache",
+      "method": "Sixteen exact cacheProof samples from the completed native test entry. Duplicate cacheSamples and MOFLIGHT_START_CACHE_SAMPLE events verified equal and excluded.",
+      "limits": [
+        "No ordinary owner-registry/account-switch UI, first-visible native pixels, live provider, physical-phone or iOS acceptance.",
+        "Cached envelope readiness and full native service history-read readiness are different endpoints, not baseline/candidate implementations; no speedup or complete-history-validation acceptance.",
+        "Five alternating endpoint pairs retain trial labels; projection parity is asserted outside timing. No elapsed times are summed."
+      ],
+      "samples": [
+        {
+          "id": "sample-01",
+          "metric": "prepare-native-history",
+          "milliseconds": 12689.32660000003,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "sample-02",
+          "metric": "seed-two-cache-stores",
+          "milliseconds": 86.77069999999367,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "sample-03",
+          "metric": "closed-cache-readback-isolation",
+          "milliseconds": 34.624499999918044,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "sample-04",
+          "metric": "cancelled-cache-write",
+          "milliseconds": 18.48849999997765,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "sample-05",
+          "metric": "cached-summary-ready",
+          "milliseconds": 13.491200000047684,
+          "outcome": "success",
+          "details": {
+            "trial": 1
+          }
+        },
+        {
+          "id": "sample-06",
+          "metric": "validated-history-ready",
+          "milliseconds": 1188.313700000057,
+          "outcome": "success",
+          "details": {
+            "trial": 1
+          }
+        },
+        {
+          "id": "sample-07",
+          "metric": "validated-history-ready",
+          "milliseconds": 1164.6750999998767,
+          "outcome": "success",
+          "details": {
+            "trial": 2
+          }
+        },
+        {
+          "id": "sample-08",
+          "metric": "cached-summary-ready",
+          "milliseconds": 17.850600000005215,
+          "outcome": "success",
+          "details": {
+            "trial": 2
+          }
+        },
+        {
+          "id": "sample-09",
+          "metric": "cached-summary-ready",
+          "milliseconds": 10.491500000003725,
+          "outcome": "success",
+          "details": {
+            "trial": 3
+          }
+        },
+        {
+          "id": "sample-10",
+          "metric": "validated-history-ready",
+          "milliseconds": 1148.2036000001244,
+          "outcome": "success",
+          "details": {
+            "trial": 3
+          }
+        },
+        {
+          "id": "sample-11",
+          "metric": "validated-history-ready",
+          "milliseconds": 1200.5227000000887,
+          "outcome": "success",
+          "details": {
+            "trial": 4
+          }
+        },
+        {
+          "id": "sample-12",
+          "metric": "cached-summary-ready",
+          "milliseconds": 12.423100000014529,
+          "outcome": "success",
+          "details": {
+            "trial": 4
+          }
+        },
+        {
+          "id": "sample-13",
+          "metric": "cached-summary-ready",
+          "milliseconds": 12.108600000152364,
+          "outcome": "success",
+          "details": {
+            "trial": 5
+          }
+        },
+        {
+          "id": "sample-14",
+          "metric": "validated-history-ready",
+          "milliseconds": 1205.340899999952,
+          "outcome": "success",
+          "details": {
+            "trial": 5
+          }
+        },
+        {
+          "id": "sample-15",
+          "metric": "damaged-cache-rewarm",
+          "milliseconds": 64.65620000008494,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "sample-16",
+          "metric": "invalidation-isolation",
+          "milliseconds": 49.642500000074506,
+          "outcome": "success",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "recorded_date": "2026-11-03",
+      "kind": "emulator-synthetic",
+      "source_commit": "8a1e022cdc882e01894b63e6fd0b55b2e02949ac",
+      "apk_sha256": "27eb5b54bcf95cb50612f0f8a7eae1e5c08318b185a8270d6a69ede6c5143f9b",
+      "device": "MoFlight_Synthetic_API37 / API37 / x86_64 / sdk_gphone64_x86_64 / test-entry Release; physical1080x1920px,420dpi,font1.0",
+      "input": "Synthetic101-flight main history and7-flight second isolated store; closed Expo SQLite caches with validated envelopes",
+      "conditions": "Offline synthetic native test entry; one fixture process, no live provider or ordinary owner-registry/account-switch UI. Original uninstalled-with-retained-data package state and settings restored.",
+      "evidence": [
+        "docs/verification/2026-11-03-local-cache-diagnostics.json"
+      ],
+      "comparison": null,
+      "id": "start-cache-native-20261103-stored-stages",
+      "method": "All76 MOFLIGHT_STORED_READ_STAGE events from the fixture PID, preserved chronologically with every observed inclusive counter. No invented endpoint/trial attribution.",
+      "limits": [
+        "No ordinary owner-registry/account-switch UI, first-visible native pixels, live provider, physical-phone or iOS acceptance.",
+        "Cached envelope readiness and full native service history-read readiness are different endpoints, not baseline/candidate implementations; no speedup or complete-history-validation acceptance.",
+        "Five alternating endpoint pairs retain trial labels; projection parity is asserted outside timing. No elapsed times are summed.",
+        "Nested stage/counter intervals overlap the outer cache/proof intervals; do not add inclusive durations or treat them as independent trials.",
+        "Stage event sequence establishes chronology only; same named stages remain separate observations."
+      ],
+      "samples": [
+        {
+          "id": "stage-001",
+          "metric": "local-journal-open",
+          "milliseconds": 94.91650000005029,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-002",
+          "metric": "local-journal-close",
+          "milliseconds": 2.1502000000327826,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-003",
+          "metric": "receipt-recovery",
+          "milliseconds": 113.21690000011586,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-004",
+          "metric": "repository-open",
+          "milliseconds": 115.79480000003241,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-005",
+          "metric": "repository-close",
+          "milliseconds": 3.7790000000968575,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-006",
+          "metric": "local-journal-open",
+          "milliseconds": 83.6317000000272,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-007",
+          "metric": "local-journal-close",
+          "milliseconds": 1.4440000001341105,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-008",
+          "metric": "source-retrieval",
+          "milliseconds": 0.05499999993480742,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-009",
+          "metric": "local-journal-open",
+          "milliseconds": 82.68390000006184,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-010",
+          "metric": "local-journal-close",
+          "milliseconds": 1.690900000045076,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-011",
+          "metric": "repository-open",
+          "milliseconds": 135.75239999988116,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-012",
+          "metric": "repository-close",
+          "milliseconds": 3.2519000000320375,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-013",
+          "metric": "source-review",
+          "milliseconds": 453.03289999999106,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-014",
+          "metric": "repository-open",
+          "milliseconds": 105.90559999994002,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-015",
+          "metric": "local-journal-open",
+          "milliseconds": 72.85210000001825,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-016",
+          "metric": "command-prepare",
+          "milliseconds": 229.06279999995604,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-017",
+          "metric": "explicit-save",
+          "milliseconds": 624.159300000174,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-018",
+          "metric": "command-resolve",
+          "milliseconds": 231.35800000000745,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-019",
+          "metric": "local-journal-close",
+          "milliseconds": 2.9091000000480562,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-020",
+          "metric": "repository-close",
+          "milliseconds": 6.116900000022724,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-021",
+          "metric": "local-journal-open",
+          "milliseconds": 252.48420000006445,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-022",
+          "metric": "local-journal-close",
+          "milliseconds": 1.914600000018254,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-023",
+          "metric": "repository-open",
+          "milliseconds": 264.61639999994077,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-024",
+          "metric": "repository-close",
+          "milliseconds": 5.399999999906868,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-025",
+          "metric": "repository-open",
+          "milliseconds": 242.5164999999106,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-026",
+          "metric": "local-journal-open",
+          "milliseconds": 202.09840000001714,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-027",
+          "metric": "command-prepare",
+          "milliseconds": 206.26539999991655,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-028",
+          "metric": "explicit-save",
+          "milliseconds": 3302.722300000023,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-029",
+          "metric": "command-resolve",
+          "milliseconds": 151.28000000002794,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-030",
+          "metric": "local-journal-close",
+          "milliseconds": 3.7070999999996275,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-031",
+          "metric": "repository-close",
+          "milliseconds": 4.303800000110641,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-032",
+          "metric": "repository-open",
+          "milliseconds": 1042.8336999998428,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-033",
+          "metric": "repository-close",
+          "milliseconds": 2.3416999999899417,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-034",
+          "metric": "local-journal-open",
+          "milliseconds": 48.080800000112504,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-035",
+          "metric": "local-journal-close",
+          "milliseconds": 0.8998000000137836,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-036",
+          "metric": "receipt-recovery",
+          "milliseconds": 57.20530000003055,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-037",
+          "metric": "repository-open",
+          "milliseconds": 65.28490000008605,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-038",
+          "metric": "repository-close",
+          "milliseconds": 1.4246000000275671,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-039",
+          "metric": "local-journal-open",
+          "milliseconds": 44.94050000002608,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-040",
+          "metric": "local-journal-close",
+          "milliseconds": 1.109900000039488,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-041",
+          "metric": "source-retrieval",
+          "milliseconds": 0.07080000010319054,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-042",
+          "metric": "local-journal-open",
+          "milliseconds": 52.2785000000149,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-043",
+          "metric": "local-journal-close",
+          "milliseconds": 2.222400000086054,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-044",
+          "metric": "repository-open",
+          "milliseconds": 67.59710000013001,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-045",
+          "metric": "repository-close",
+          "milliseconds": 4.113700000103563,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-046",
+          "metric": "source-review",
+          "milliseconds": 200.2945999999065,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-047",
+          "metric": "repository-open",
+          "milliseconds": 69.73580000014044,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-048",
+          "metric": "local-journal-open",
+          "milliseconds": 47.69359999988228,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-049",
+          "metric": "command-prepare",
+          "milliseconds": 68.89459999999963,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-050",
+          "metric": "explicit-save",
+          "milliseconds": 191.24659999995492,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-051",
+          "metric": "command-resolve",
+          "milliseconds": 53.422799999825656,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-052",
+          "metric": "local-journal-close",
+          "milliseconds": 3.9034000001847744,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-053",
+          "metric": "repository-close",
+          "milliseconds": 2.728300000075251,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-054",
+          "metric": "local-journal-open",
+          "milliseconds": 72.10719999996945,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-055",
+          "metric": "local-journal-close",
+          "milliseconds": 1.5999000000301749,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-056",
+          "metric": "repository-open",
+          "milliseconds": 94.79509999998845,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-057",
+          "metric": "repository-close",
+          "milliseconds": 2.497999999905005,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-058",
+          "metric": "repository-open",
+          "milliseconds": 89.9749999998603,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-059",
+          "metric": "local-journal-open",
+          "milliseconds": 67.55380000011064,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-060",
+          "metric": "command-prepare",
+          "milliseconds": 70.33190000010654,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-061",
+          "metric": "explicit-save",
+          "milliseconds": 335.9073999999091,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-062",
+          "metric": "command-resolve",
+          "milliseconds": 57.83990000002086,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-063",
+          "metric": "local-journal-close",
+          "milliseconds": 2.309700000099838,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-064",
+          "metric": "repository-close",
+          "milliseconds": 4.763099999865517,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-065",
+          "metric": "repository-open",
+          "milliseconds": 131.37590000010096,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-066",
+          "metric": "repository-close",
+          "milliseconds": 4.79590000002645,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-067",
+          "metric": "repository-open",
+          "milliseconds": 943.0867999999318,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-068",
+          "metric": "repository-close",
+          "milliseconds": 2.834599999943748,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-069",
+          "metric": "repository-open",
+          "milliseconds": 925.4084999999031,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-070",
+          "metric": "repository-close",
+          "milliseconds": 2.797800000058487,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-071",
+          "metric": "repository-open",
+          "milliseconds": 898.2942999999505,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-072",
+          "metric": "repository-close",
+          "milliseconds": 3.6842000000178814,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-073",
+          "metric": "repository-open",
+          "milliseconds": 950.250299999956,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-074",
+          "metric": "repository-close",
+          "milliseconds": 4.083699999842793,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-075",
+          "metric": "repository-open",
+          "milliseconds": 974.0886999999639,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        },
+        {
+          "id": "stage-076",
+          "metric": "repository-close",
+          "milliseconds": 3.922400000039488,
+          "outcome": "success",
+          "details": {
+            "inclusiveCounters.ownerGuard.calls": 0,
+            "inclusiveCounters.ownerGuard.milliseconds": 0,
+            "inclusiveCounters.ownerGuard.failures": 0,
+            "inclusiveCounters.sql.calls": 0,
+            "inclusiveCounters.sql.milliseconds": 0,
+            "inclusiveCounters.sql.failures": 0,
+            "inclusiveCounters.transaction.calls": 0,
+            "inclusiveCounters.transaction.milliseconds": 0,
+            "inclusiveCounters.transaction.failures": 0,
+            "inclusiveCounters.hash.calls": 0,
+            "inclusiveCounters.hash.milliseconds": 0,
+            "inclusiveCounters.hash.failures": 0,
+            "inclusiveCounters.databaseOpen.calls": 0,
+            "inclusiveCounters.databaseOpen.milliseconds": 0,
+            "inclusiveCounters.databaseOpen.failures": 0
+          }
+        }
+      ]
+    },
+    {
+      "recorded_date": "2026-11-03",
+      "kind": "emulator-synthetic",
+      "source_commit": "8a1e022cdc882e01894b63e6fd0b55b2e02949ac",
+      "apk_sha256": "27eb5b54bcf95cb50612f0f8a7eae1e5c08318b185a8270d6a69ede6c5143f9b",
+      "device": "MoFlight_Synthetic_API37 / API37 / x86_64 / sdk_gphone64_x86_64 / test-entry Release; physical1080x1920px,420dpi,font1.0",
+      "input": "Synthetic101-flight main history and7-flight second isolated store; closed Expo SQLite caches with validated envelopes",
+      "conditions": "Offline synthetic native test entry; one fixture process, no live provider or ordinary owner-registry/account-switch UI. Original uninstalled-with-retained-data package state and settings restored.",
+      "evidence": [
+        "docs/verification/2026-11-03-local-cache-diagnostics.json"
+      ],
+      "comparison": null,
+      "id": "start-cache-native-20261103-tooling",
+      "method": "Runner toolingMilliseconds; includes install/start/poll/report/restore overhead and native proof work.",
+      "limits": [
+        "Harness total is not app latency, native startup or a first-visible measurement.",
+        "The33875ms window overlaps the recorded cache/nested work and excludes earlier emulator boot.",
+        "Ten proof checks passed; deliberate cancelled-write and corrupt-cache checks are successful rejection/recovery cases, not failed trial attempts."
+      ],
+      "samples": [
+        {
+          "id": "runner-window",
+          "metric": "harness-total",
+          "milliseconds": 33875.0,
+          "outcome": "success",
+          "details": {
+            "checks.passed": 10,
+            "cache_samples": 16,
+            "nested_stage_samples": 76
+          }
+        }
+      ]
+    },
+    {
+      "id": "start-cache-native-20261103-environment",
+      "recorded_date": "2026-11-03",
+      "kind": "emulator-synthetic",
+      "source_commit": null,
+      "apk_sha256": null,
+      "device": "MoFlight_Synthetic_API37 / API37 / x86_64 / sdk_gphone64_x86_64 / test-entry Release; physical1080x1920px,420dpi,font1.0",
+      "input": "Full no-snapshot startup of initially stopped synthetic AVD before the cache proof",
+      "conditions": "Emulator preparation before proof APK work; separate from runner tooling window",
+      "method": "Emulator console explicitly reports Boot completed in63956ms; no UTC difference inferred",
+      "limits": [
+        "Emulator/environment startup only, not app-source, APK, native app startup, rendering or speedup evidence.",
+        "Separate from33875ms runner/proof tooling window."
+      ],
+      "evidence": [
+        "docs/verification/2026-11-03-local-cache-diagnostics.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "emulator-boot",
+          "metric": "device-preparation",
+          "milliseconds": 63956,
+          "outcome": "success",
+          "details": {}
+        }
+      ]
     }
   ]
 }

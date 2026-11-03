@@ -1,0 +1,179 @@
+{
+  "date": "2026-11-03",
+  "source_commit": "8a1e022cdc882e01894b63e6fd0b55b2e02949ac",
+  "normal_apk_sha256": "318e671af2a8aa6a426b1a1b849ce0ac2b00b2dac34a7c8c9b3e65cd19b12d52",
+  "proof_apk_sha256": "27eb5b54bcf95cb50612f0f8a7eae1e5c08318b185a8270d6a69ede6c5143f9b",
+  "host": {
+    "groups_passed": 5,
+    "mobile_passed": 2209,
+    "mobile_skipped": 2,
+    "python_run": 169,
+    "python_skipped": 18,
+    "logs": "build/host-checks/20261103T141934Z-b96e1511"
+  },
+  "exports": [
+    "Android Hermes",
+    "iOS Hermes"
+  ],
+  "native": {
+    "avd": "MoFlight_Synthetic_API37",
+    "serial": "emulator-5562",
+    "device": {
+      "api": "37",
+      "abi": "x86_64",
+      "model": "sdk_gphone64_x86_64"
+    },
+    "display": {
+      "airplane_mode_on": "1",
+      "wifi_on": "0",
+      "mobile_data": "0",
+      "size": "Physical size: 1080x1920",
+      "density": "Physical density: 420",
+      "font": "1.0"
+    },
+    "logical_dp": {
+      "width": 411.42857142857144,
+      "height": 731.4285714285714
+    },
+    "fixture_clock": "2026-10-20T14:00:00.000Z",
+    "input_histories": [
+      101,
+      7
+    ],
+    "checks": [
+      "closed native cache 0 exact readback",
+      "native cache 0 admits its own valid envelope",
+      "closed native cache 1 exact readback",
+      "native cache 1 admits its own valid envelope",
+      "foreign account/store envelope rejected",
+      "cancelled write preserves committed cache",
+      "damaged native SQLite cache discarded as miss",
+      "verified values can warm cache after damage",
+      "failed-history cache invalidation removes saved preview",
+      "other account/store cache remains exact"
+    ],
+    "samples": [
+      {
+        "stage": "prepare-native-history",
+        "milliseconds": 12689.32660000003
+      },
+      {
+        "stage": "seed-two-cache-stores",
+        "milliseconds": 86.77069999999367
+      },
+      {
+        "stage": "closed-cache-readback-isolation",
+        "milliseconds": 34.624499999918044
+      },
+      {
+        "stage": "cancelled-cache-write",
+        "milliseconds": 18.48849999997765
+      },
+      {
+        "stage": "cached-summary-ready",
+        "milliseconds": 13.491200000047684,
+        "trial": 1
+      },
+      {
+        "stage": "validated-history-ready",
+        "milliseconds": 1188.313700000057,
+        "trial": 1
+      },
+      {
+        "stage": "validated-history-ready",
+        "milliseconds": 1164.6750999998767,
+        "trial": 2
+      },
+      {
+        "stage": "cached-summary-ready",
+        "milliseconds": 17.850600000005215,
+        "trial": 2
+      },
+      {
+        "stage": "cached-summary-ready",
+        "milliseconds": 10.491500000003725,
+        "trial": 3
+      },
+      {
+        "stage": "validated-history-ready",
+        "milliseconds": 1148.2036000001244,
+        "trial": 3
+      },
+      {
+        "stage": "validated-history-ready",
+        "milliseconds": 1200.5227000000887,
+        "trial": 4
+      },
+      {
+        "stage": "cached-summary-ready",
+        "milliseconds": 12.423100000014529,
+        "trial": 4
+      },
+      {
+        "stage": "cached-summary-ready",
+        "milliseconds": 12.108600000152364,
+        "trial": 5
+      },
+      {
+        "stage": "validated-history-ready",
+        "milliseconds": 1205.340899999952,
+        "trial": 5
+      },
+      {
+        "stage": "damaged-cache-rewarm",
+        "milliseconds": 64.65620000008494
+      },
+      {
+        "stage": "invalidation-isolation",
+        "milliseconds": 49.642500000074506
+      }
+    ],
+    "comparison": {
+      "flights": 101,
+      "pairs": 5,
+      "order": "alternating",
+      "cache": "closed SQLite cache read and envelope validation",
+      "history": "fresh native service read/validation; projection parity asserted outside timing"
+    },
+    "data_endpoint_observations": {
+      "cached-summary-ready": {
+        "samples": 5,
+        "median_ms": 12.423100000014529,
+        "range_ms": [
+          10.491500000003725,
+          17.850600000005215
+        ]
+      },
+      "validated-history-ready": {
+        "samples": 5,
+        "median_ms": 1188.313700000057,
+        "range_ms": [
+          1148.2036000001244,
+          1205.340899999952
+        ]
+      }
+    },
+    "native_log_sha256": "367aee594a8b1011e5886da6d808eea8012778e4b230e0c99de2f2d8cf7d5be0",
+    "nested_read_stage_observations": 76,
+    "tooling_milliseconds": 33875.0,
+    "configured_emulator_memory_mib": 2048
+  },
+  "cleanup": {
+    "fixture_files_removed": true,
+    "original_app_installed": false,
+    "original_retained_data": true,
+    "original_app_state_restored": true,
+    "display_and_radios_restored": true,
+    "initially_stopped_avd_stopped": true,
+    "unrelated_avd_untouched": true
+  },
+  "limits": [
+    "Synthetic native cache/helpers and101/7-flight service histories; ordinary owner-registry/account-switch UI not exercised.",
+    "Paired data endpoints differ: validated cached summary vs complete synthetic history read; not a before/after speedup, first-visible frame, phone or whole-app latency.",
+    "Projection parity is checked outside full-history timing; OS caches were not flushed.",
+    "Raw fixture wording no complete history validation means no production/ordinary history acceptance; complete101-flight synthetic validation is exercised.",
+    "No live provider/model/private input, paid service, iOS runtime or physical-device acceptance.",
+    "No full before/after byte comparison of retained application data; proof uses only fresh cache/history UUID paths.",
+    "Configured emulator RAM2048MiB; guest-reported RAM was not captured. Another task emulator remained active, so scheduling effects are possible."
+  ]
+}
