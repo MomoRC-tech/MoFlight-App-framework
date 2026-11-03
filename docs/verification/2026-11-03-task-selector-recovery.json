@@ -1,0 +1,88 @@
+{
+  "recorded_at_utc": "2026-11-03T18:17:20.817499+00:00",
+  "issue": 56,
+  "normal_application_source_commit": "641aad332a7f8236006c1fedb20da9b92d7250cd",
+  "normal_apk_sha256": "7de4036aa2bd271256924b8905cb4625151508ceae55f1afe1d02fe70631b1d4",
+  "fixture_source_commit": "da20103f9a2c143af3e8643e8e479fc32dff26c2",
+  "fixture_source_blob": "2fa183c0ad16afb3db610ce79b2dfc5621baac1b",
+  "fixture_source_sha256": "34b0d2ccf754432db9189ec894a64da8e38b3dceba36c5f2115b4d91718f230f",
+  "proof_apk_sha256": "fa9444cdf5fc33c46ed8252b6f24eae4da92b8371110a2e5401516004792c796",
+  "test_only_overrides": {
+    "apps/platform-lab/index.ts": "4594fa00c398467bf9d02d4da3122771b265b763952f95f0127141a2ce007e63",
+    "apps/platform-lab/src/development/android-task-selector-recovery-poc.tsx": "34b0d2ccf754432db9189ec894a64da8e38b3dceba36c5f2115b4d91718f230f"
+  },
+  "builder_sha256": "462bfb716c11a130f2319815248ed36c0a8c5efae1769eaceb07760b61fabdd1",
+  "normal_build_reused": true,
+  "scope": "Synthetic native journal/InformationRun platform proof only. No real provider/WebView crash-restoration or ordinary-app acceptance.",
+  "host": {
+    "runner": "build/host-checks/20261103T171649Z-2b44117f/report.json",
+    "runner_groups_passed": 5,
+    "runner_groups_total": 5,
+    "mobile_passed": 2244,
+    "mobile_skipped": 2,
+    "python_run": 170,
+    "python_skipped": 19,
+    "final_guard_delta": "Checkpoint-wide native load-start guard followed the shared checkpoint; final13-case controller suite, TypeScript and focused lint passed. Do not combine counts into a new full-suite result.",
+    "platform_exports": "Both Hermes exports passed before the final same-URL guard; unchanged export compatibility evidence is reused. Final normal Android committed-source Release builds successfully.",
+    "poc_checks": "Fixture TypeScript/ESLint and PowerShell parser passed; no duplicate broad application rerun for test-only fixture/tool work."
+  },
+  "live_provider_observation": {
+    "avd": "MoFlight_API37",
+    "read_only": true,
+    "root_refusal_independently_retried": true,
+    "reason": "production user/release-keys image: adbd cannot run as root; ro.debuggable0, shelluid2000",
+    "new_app_installed_or_explicitly_launched": false,
+    "provider_operation_or_filter_change": false,
+    "boot_ms": 42773,
+    "owned_instance_stopped": true,
+    "other5554_preserved": true,
+    "all_six_source_sizes_and_mtimes_match": true
+  },
+  "synthetic_native": {
+    "avd": "MoFlight_Synthetic_API37",
+    "read_only": true,
+    "installed_proof_hash_verified": true,
+    "installation_uid_preserved": true,
+    "fully_offline_verified": true,
+    "seed_marker": "SYNTHETIC TASK_SELECTOR_PROOF_SEEDED action=force-stop-and-relaunch",
+    "fresh_process_after_force_stop": true,
+    "ready_marker": "SYNTHETIC TASK_SELECTOR_PROOF_READY action=explicit-resume",
+    "explicit_resume_marker": "SYNTHETIC TASK_SELECTOR_PROOF_PASSED scopeRows=2 foreignGuards=3 selectorReadback=1 cleanup=complete",
+    "real_native_adapter_and_scope_registry": true,
+    "information_run_with_frozen_synthetic_profile_and_selector_messages": true,
+    "simulated_provider_view_only": true,
+    "actual_provider_or_model_calls": false,
+    "task_captures_saved": false,
+    "ordinary_task_webview_crash_acceptance": false
+  },
+  "measurements": {
+    "am_start_return_ms": 138.81809986196458,
+    "seed_marker_observer_ms": 2554.6184999402612,
+    "restart_to_fresh_pid_ms": 741.1036000121385,
+    "ready_marker_observer_ms": 2824.24240000546,
+    "explicit_resume_marker_observer_ms": 2715.1323999278247,
+    "synthetic_initial_boot_ms": 45810,
+    "synthetic_verification_boot_ms": 44282,
+    "boundaries": "Tooling/UI observers include input/dump/poll overhead and have distinct/overlapping endpoints; am-start/PID return is not app-ready or presented pixels. No speedup comparison."
+  },
+  "cleanup": {
+    "native_owned_fixture_cleanup_marker_passed": true,
+    "radios_font_display_restored": true,
+    "original_apk_install_identity_and_settings_independently_reappeared": true,
+    "no_install_or_explicit_app_launch_in_verification_boot": true,
+    "owned_synthetic_instance_stopped_again": true,
+    "other5554_preserved": true,
+    "all_six_image_sizes_match": true,
+    "changed_image_mtimes": [
+      "encryptionkey.img.qcow2",
+      "userdata-qemu.img.qcow2"
+    ],
+    "metadata_checked_after_both_boots": true,
+    "full_private_data_hash_compared": false
+  },
+  "remaining_gates": [
+    "Actual current-source provider/WebView interrupted task-filter restoration; synthetic platform proof does not pass this gate.",
+    "Positive-source/category coverage, real second account, physical Android/iOS, broader backup/update and beta acceptance.",
+    "AI remains disabled/preparation-only with no paid/model calls."
+  ]
+}

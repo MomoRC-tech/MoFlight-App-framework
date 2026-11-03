@@ -59807,6 +59807,137 @@
           "details": {}
         }
       ]
+    },
+    {
+      "recorded_date": "2026-11-03",
+      "kind": "emulator-synthetic",
+      "device": "Read-only MoFlight_Synthetic_API37 / API37 / x86_64;physical1080x1920px,420dpi,font1.0;logicaldp not separately recorded",
+      "input": "Simulated selector JSON over actual native SQLite two-scope information-run guards; same proof APK across real process restart",
+      "conditions": "Fully offline synthetic entry/fixture; no ordinary app,live provider,private journal or filter operation. Other5554 emulator preserved.",
+      "evidence": [
+        "docs/verification/2026-11-03-task-selector-recovery.json"
+      ],
+      "comparison": null,
+      "id": "task-selector-recovery-20261103-fixture",
+      "source_commit": "da20103f9a2c143af3e8643e8e479fc32dff26c2",
+      "apk_sha256": "fa9444cdf5fc33c46ed8252b6f24eae4da92b8371110a2e5401516004792c796",
+      "method": "Five exact saved observer/tooling intervals from synthetic install,seed and resume reports; fixture source da20103 over normal application base641aad3. No normal-build duration or missing-root-attempt elapsed interval copied.",
+      "limits": [
+        "138.81809986196458ms is am-start return,not app-ready. Seed2554.6184999402612ms marker polling starts after launch.",
+        "741.1036000121385ms force-stop→freshPID is not app-ready. READY2824.24240000546ms and explicitResume→PASSED2715.1323999278247ms include polling/observer overhead.",
+        "Two-scope/store/selector facts are fixture scope,not runtime performance counters. No stored-read stage events were emitted; none invented.",
+        "Synthetic entry only; no ordinary selected owner,production account/live provider recovery,first-visible,phone or iOS acceptance; no speedup/control-pair claim.",
+        "Successful fixture cleanup and original APK/UID/settings readback do not establish full private byte identity."
+      ],
+      "samples": [
+        {
+          "id": "am-start-return",
+          "metric": "tooling-activity-launch-return",
+          "milliseconds": 138.81809986196458,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "seed-marker",
+          "metric": "ui-observed-fixture-seed",
+          "milliseconds": 2554.6184999402612,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "restart-fresh-pid",
+          "metric": "tooling-process-observation",
+          "milliseconds": 741.1036000121385,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "ready-marker",
+          "metric": "ui-observed-fixture-ready",
+          "milliseconds": 2824.24240000546,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "explicit-resume-passed",
+          "metric": "ui-observed-fixture-resume",
+          "milliseconds": 2715.1323999278247,
+          "outcome": "success",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "recorded_date": "2026-11-03",
+      "kind": "emulator-synthetic",
+      "device": "Read-only MoFlight_Synthetic_API37 / API37 / x86_64;physical1080x1920px,420dpi,font1.0;logicaldp not separately recorded",
+      "input": "Simulated selector JSON over actual native SQLite two-scope information-run guards; same proof APK across real process restart",
+      "conditions": "Fully offline synthetic entry/fixture; no ordinary app,live provider,private journal or filter operation. Other5554 emulator preserved.",
+      "evidence": [
+        "docs/verification/2026-11-03-task-selector-recovery.json"
+      ],
+      "comparison": null,
+      "id": "task-selector-recovery-20261103-synthetic-environment",
+      "source_commit": null,
+      "apk_sha256": null,
+      "method": "Console-reported synthetic initial/discard-verification boots and one saved host/device clock-pair capture span.",
+      "limits": [
+        "Boots are emulator preparation,not application startup or latency. Clock pair is tooling overhead,not an app request.",
+        "After both boots all6source image sizes match;encryptionkey.img.qcow2 anduserdata-qemu.img.qcow2 mtimes changed. No full private byte-hash claim.",
+        "Discard verification used no install/explicit app launch;original APK/UID/settings reappeared and owned instance stopped again;5554 preserved."
+      ],
+      "samples": [
+        {
+          "id": "initial-readonly-boot",
+          "metric": "device-preparation",
+          "milliseconds": 45810,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "log-clock-pair",
+          "metric": "tooling-clock-pair",
+          "milliseconds": 61.66982650756836,
+          "outcome": "success",
+          "details": {}
+        },
+        {
+          "id": "discard-verification-boot",
+          "metric": "device-preparation",
+          "milliseconds": 44282,
+          "outcome": "success",
+          "details": {}
+        }
+      ]
+    },
+    {
+      "id": "task-selector-recovery-20261103-live-preflight",
+      "recorded_date": "2026-11-03",
+      "kind": "emulator-live",
+      "source_commit": null,
+      "apk_sha256": null,
+      "device": "Read-only MoFlight_API37 / API37 / x86_64;logical480x800dp,density160,font1.0;physical1080x1920px,420dpi",
+      "input": "Protected provider-AVD preflight;privileged production journal observation unavailable",
+      "conditions": "No new app install,explicit launch,provider operation or filter modification. Owned preflight instance stopped;5554 preserved.",
+      "method": "Only explicitly measured42773ms console boot retained;two privileged root refusals have no saved attempt durations.",
+      "limits": [
+        "Provider-AVD preflight blocked by privileged access;successful boot is not provider or ordinary app acceptance.",
+        "All6provider source image sizes/mtimes and original settings unchanged by that preflight;no private journal,cookie or credential read.",
+        "Emulator environment only;source/APK unknown,not app startup or benchmark."
+      ],
+      "evidence": [
+        "docs/verification/2026-11-03-task-selector-recovery.json"
+      ],
+      "comparison": null,
+      "samples": [
+        {
+          "id": "protected-provider-avd-boot",
+          "metric": "device-preparation",
+          "milliseconds": 42773,
+          "outcome": "success",
+          "details": {}
+        }
+      ]
     }
   ]
 }
