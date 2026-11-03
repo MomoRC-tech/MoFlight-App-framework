@@ -4,7 +4,7 @@
 
 **3 November financial recovery (#101):** verified sign-in-required and changed-account failures now retain specific recovery guidance; unknown provider errors remain generic. [Source-specific checks and limits](docs/verification/2026-10-30-financials-completion.md#recovery-reasons--3-november-2026) · [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-financial-recovery-2026-11-03-af24c92/MoFlight-Financial-Recovery-af24c92.zip), actual source af24c92cb2ad37af9a0ec1e01c57b7acb34726b7. Focused checks/types/lint, both exports and committed-source Release pass. Supabase Cloud Free readiness is resumed for the live-AI requirement; no paid inference is enabled.
 
-**2 November source review (#30/#94):** compact change markers, exact comparison and explicit local “Gesehen”; busy actions now explain when to retry. [Source-specific checks and limits](docs/verification/2026-11-02-flight-source-review.md#persistence-and-action-feedback-continuation) · [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-source-review-2026-11-02-c7a7393/MoFlight-Source-Review-c7a7393.zip), actual source c7a7393c262cfac08ab09df2ea314fa87b78a96f. The follow-up passes42 focused checks, types/lint, Release and synthetic native helper persistence/restart/isolation. Earlier host/export/layout evidence retains its source limits. Supabase stays parked; Start is unchanged.
+**2 November source review (#30/#94):** compact change markers, exact comparison and explicit local “Gesehen”; busy actions now explain when to retry. [Source-specific checks and limits](docs/verification/2026-11-02-flight-source-review.md#persistence-and-action-feedback-continuation) · [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-source-review-2026-11-02-c7a7393/MoFlight-Source-Review-c7a7393.zip), actual source c7a7393c262cfac08ab09df2ea314fa87b78a96f. The follow-up passes42 focused checks, types/lint, Release and synthetic native helper persistence/restart/isolation. Earlier host/export/layout evidence retains its source limits. At that checkpoint Supabase was parked; the 3 November Free AI resumption below supersedes that deferral. Start is unchanged.
 
 **2 November Android exit diagnostics (#48):** local prior-session crash/ANR/normal-exit categories, without telemetry or exported markers. Host5/5, Release/both exports and five actual synthetic Android checks pass. [Evidence and limits](docs/verification/2026-10-21-diagnostics.md#categorical-android-process-exit-adapter--2-november-2026-48) · [APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-process-exit-2026-11-02-b391ae1/MoFlight-Process-Exit-b391ae1.zip), actual source b391ae18d61fcb1ac8bc35170f27eac84339d61f. The [durable/backup inventory](docs/architecture/local-first-implementation-plan.md#durable-data-and-portable-backup-inventory--22-october-2026) is reconciled with current v1–v5 code; remaining restore/beta decisions stay open.
 
@@ -211,7 +211,7 @@ Deferred ideas include [Activities live — #14](https://github.com/MomoRC-tech/
 
 ## Current architecture proposal
 
-The approved development baseline is **Expo + React Native + strict TypeScript**, in a pnpm workspace, with **expo-sqlite as the single native database writer**. Local storage comes first. Supabase is parked at the owner's direction on 2 November while its need is reconsidered; prepared trials remain available. No replacement backend or production schema is selected.
+The approved development baseline is **Expo + React Native + strict TypeScript**, in a pnpm workspace, with **expo-sqlite as the single native database writer**. Local storage comes first. The owner resumed Supabase Cloud Free on 3 November for the existing AI relay: Frankfurt project and disabled policy/budget SQL are verified. General cloud sync and product Auth remain separate; no paid inference is enabled.
 
 ```mermaid
 flowchart TB
@@ -356,13 +356,13 @@ For feature-level criteria, see [flight-logbook stories](docs/product/flight-log
 
 ## Cost and effort status
 
-Supabase provisioning, trials and integration are parked at the owner's direction on 2 November while its need is reconsidered. Local flight analytics and issue work continue. Prepared schemas/probes are preserved as unexecuted reference work; no alternative service, paid AI, hosted CI or subscription is authorized by this deferral.
+The 2 November park was superseded on 3 November for the existing live-AI path. The owner-created Supabase Free Frankfurt project has verified disabled policy/budget SQL and project-scoped local DPAPI operator access. [Current reservation/runtime evidence](docs/verification/2026-10-24-ai-chat-implementation.md#conservative-context-reservation--3-november-2026): approved full-context reservation with EUR0.50 question/review ceilings, unchanged EUR1 personal/global monthly caps, and a real default-closed Edge bootstrap. Deployment, reviewed route/pricing/receipts, permitted inputs/funding and native live acceptance remain open. No paid plan, inference, hosted CI or general cloud sync is authorized by this setup.
 
 Earlier person-day and tariff estimates are historical planning inputs, not a delivery promise or measured current cost. The initial aim is a small local-first footprint; no claim of unlimited free operation is made.
 
 ## Low-usage availability and approval choices
 
-Cloud/sync, tutor/RAG, chat and weather are later work. A service that wakes automatically and one requiring owner recovery have different usability implications. [Backend/idle comparison](docs/architecture/low-usage-backend-comparison.md) and [ADR 0003](docs/adr/0003-low-usage-backend-proposal.md) retain the alternatives and approval boundaries. PowerSync and export-worker infrastructure remain deferred.
+General cloud sync, tutor/RAG and weather remain later work. Live AI chat is required for beta and retains explicit service/input/funding gates. A service that wakes automatically and one requiring owner recovery have different usability implications. [Backend/idle comparison](docs/architecture/low-usage-backend-comparison.md) and [ADR 0003](docs/adr/0003-low-usage-backend-proposal.md) retain the alternatives and approval boundaries. PowerSync and export-worker infrastructure remain deferred.
 
 </details>
 

@@ -8,7 +8,7 @@ export interface RelayModelResponse {id:string;status:'completed'|'incomplete';o
 export interface RelayServicePorts {
   ledger:ReturnType<typeof createAiLedger>; codec:ReturnType<typeof createContinuityCodec>;now():number;
   /** Must bound the COMPLETE exact serialized body for the selected model/route, including overhead.
-   * Missing/unverified tokenizer evidence must throw; bytes/4 estimates are not admission. */
+   * Use a verified model-capacity bound or count; bytes/4 estimates are not admission. */
   inputTokenUpperBound(body:string,policy:AiPolicy):Promise<number>;
   submit(body:ReturnType<typeof buildRoundBody>,signal?:AbortSignal):Promise<RelayModelResponse>;
   /** Lookup must independently bind the verified provider receipt to this response/opaque tag. */

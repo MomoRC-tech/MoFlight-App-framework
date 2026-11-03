@@ -1,0 +1,6 @@
+# Native relay uses the owner-selected historical provider-ID assertion, not product Supabase Auth.
+# The handler is closed unless its explicit server configuration and database gates permit work.
+[functions.ai-relay]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/ai-relay/index.ts"

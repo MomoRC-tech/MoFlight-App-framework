@@ -87,7 +87,8 @@ class AiPostgres(unittest.TestCase):
     @classmethod
     def stop(cls):
         if getattr(cls, 'started', False):
-            cls.command('pg_ctl', 'stop', '-D', str(cls.data), '-m', 'fast', '-w', '-t', '15')
+            # Windows shutdown exceeded15s under concurrent trial/build IO; retain a bounded owned-cluster wait.
+            cls.command('pg_ctl', 'stop', '-D', str(cls.data), '-m', 'fast', '-w', '-t', '30')
             cls.started = False
 
     @classmethod
@@ -162,6 +163,26 @@ class AiPostgres(unittest.TestCase):
         self.setup_policy()
         self.assertEqual(json.loads(self.ok("set role service_role; create temp table accounts(account_ref text); create temp table control(singleton boolean); create temp table policies(id text); select public.moflight_ai_snapshot('101')"))['policy']['id'],'p1')
         self.assertEqual(json.loads(self.ok('set role service_role; '+self.reserve()))['disposition'],'new')
+
+    def test_full_context_reservations_keep_personal_and_global_monthly_ceilings(self):
+        self.setup_policy(inputTokens=1050000, questionCapMicroEur=500000, reviewCapMicroEur=500000)
+        self.ok("insert into moflight_ai.prices(id,valid_from,valid_until,input_nano_usd,cache_read_nano_usd,cache_write_nano_usd,output_nano_usd,request_nano_usd,gross_micro_eur_per_usd,margin_bps,fees_covered,approved,evidence_ref) "
+                "values('synthetic-context','2020-01-01T00:00:00Z','2100-01-01T00:00:00Z',100,10,125,500,0,1000000,0,true,true,'synthetic-not-funding')")
+        self.ok("select public.moflight_ai_controls(3,false,true,true,'synthetic-context','synthetic-test')")
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            queries = []
+            for i in range(4):
+                account = str(101 + i)
+                if i:
+                    self.account(account)
+                queries.append(self.reserve(account=account, attempt='context'+str(i), run='run'+str(i)))
+            results = list(pool.map(self.sql, queries))
+        self.assertEqual(sum(result.returncode == 0 for result in results), 3,
+                         '\n'.join(result.stderr for result in results if result.returncode != 0))
+        granted = [json.loads(result.stdout) for result in results if result.returncode == 0]
+        self.assertEqual({result['boundMicroEur'] for result in granted}, {254942})
+        self.assertEqual(self.ok("select reserved from moflight_ai.period_totals where scope='*'"), '764826')
+        self.assertEqual(self.ok('select (max(body->>\'personalCapMicroEur\'))::bigint<=1000000 and (max(body->>\'globalCapMicroEur\'))::bigint<=1000000 from moflight_ai.policies'), 't')
 
     def test_policy_validation_cas_rollback_and_immutability(self):
         self.publish(base_policy(), 0)

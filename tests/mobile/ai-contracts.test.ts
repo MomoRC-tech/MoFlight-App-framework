@@ -4,6 +4,7 @@ import { AI_LIMITS, validateAiContext, assertAiContext, validateHistoricalProvid
   validateFlightReference, validateFlightFilter, validateAiToolCall, validateAiRequest,
   parseAiRequest, validateAiBudget, validateAiPolicy, validateAiReply, parseAiReply,
   validateAiCoverage, validateAiToolResult,
+  capabilitiesReplyPolicy, validateAiCapabilities,
   type AiContext, type AiPolicy, type AiReplyAuthority } from '../../packages/ai-contracts/src/index';
 
 const context: AiContext = { version: 1, localOwnerId: 'owner-a', provider: 'vereinsflieger', accountRef: '12345', contextVersion: 1,
@@ -100,11 +101,35 @@ test('five allowlisted tools reject SQL, writes, unsupported crew slots and unbo
 
 test('policy cannot silently weaken Luna Max, ZDR, no-retry or hard ceilings', () => {
   assert.deepEqual(validateAiPolicy(policy), policy);
-  for (const change of [{ reasoning: 'high' }, { model: 'other' }, { zdrOnly: false }, { store: true }, { automaticRetries: 1 }, { routes: ['other'] }, { routes: ['azure', 'other'] }, { tools: ['fetch'] }, { enabled: 'true' }, { personalCapMicroEur: 1000001 }, { globalCapMicroEur: 1000001 }, { questionCapMicroEur: 50001 }, { reviewCapMicroEur: 100001 }, { inputTokens: 32001 }, { outputTokens: 16385 }, { questionTurns: 7 }, { reviewTurns: 17 }, { questionTools: 13 }, { reviewTools: 49 }, { rowsPerRead: 201 }]) {
+  const maximumPolicy = { ...policy, questionCapMicroEur: AI_LIMITS.questionMicroEur,
+    reviewCapMicroEur: AI_LIMITS.reviewMicroEur, inputTokens: AI_LIMITS.inputTokens };
+  assert.deepEqual(validateAiPolicy(maximumPolicy), maximumPolicy);
+  assert.equal(policy.inputTokens, 32000); // Existing lower policies remain valid.
+  for (const change of [{ reasoning: 'high' }, { model: 'other' }, { zdrOnly: false }, { store: true }, { automaticRetries: 1 }, { routes: ['other'] }, { routes: ['azure', 'other'] }, { tools: ['fetch'] }, { enabled: 'true' }, { personalCapMicroEur: 1000001 }, { globalCapMicroEur: 1000001 }, { questionCapMicroEur: AI_LIMITS.questionMicroEur + 1 }, { reviewCapMicroEur: AI_LIMITS.reviewMicroEur + 1 }, { inputTokens: AI_LIMITS.inputTokens + 1 }, { outputTokens: 16385 }, { questionTurns: 7 }, { reviewTurns: 17 }, { questionTools: 13 }, { reviewTools: 49 }, { rowsPerRead: 201 }]) {
     assert.throws(() => validateAiPolicy({ ...policy, ...change }), JSON.stringify(change));
   }
   assert.throws(() => validateAiPolicy({ ...policy, features: ['question', 'question'] }));
   assert.throws(() => validateAiPolicy({ ...policy, personalCapMicroEur: 0 }));
+});
+
+test('capability validation carries approved maxima while preserving existing data bounds', () => {
+  assert.deepEqual({
+    monthlyMicroEur: AI_LIMITS.monthlyMicroEur, outputTokens: AI_LIMITS.outputTokens,
+    rows: AI_LIMITS.rows, historyExchanges: AI_LIMITS.historyExchanges,
+    userTextChars: AI_LIMITS.userTextChars, wireBytes: AI_LIMITS.wireBytes,
+  }, { monthlyMicroEur: 1000000, outputTokens: 16384, rows: 200, historyExchanges: 8, userTextChars: 16000, wireBytes: 512000 });
+  const capabilities = {
+    version: 1, policyId: 'policy-max', enabled: false, model: 'openai/gpt-6-luna', reasoning: 'max', routes: ['azure'], zdrOnly: true,
+    features: ['question', 'review', 'progress', 'term'], tools: ['describeDataset', 'resolveEntities', 'queryFlights', 'aggregateFlights', 'getFlightEvidence'],
+    inputTokens: AI_LIMITS.inputTokens, outputTokens: AI_LIMITS.outputTokens, rowsPerRead: AI_LIMITS.rows,
+    personalCapMicroEur: AI_LIMITS.monthlyMicroEur, questionTurns: AI_LIMITS.questionTurns, reviewTurns: AI_LIMITS.reviewTurns,
+    questionTools: AI_LIMITS.questionTools, reviewTools: AI_LIMITS.reviewTools,
+  } as const;
+  assert.equal(validateAiCapabilities(capabilities).inputTokens, 1_050_000);
+  const localPolicy = capabilitiesReplyPolicy(capabilities);
+  assert.equal(localPolicy.questionCapMicroEur, 500_000);
+  assert.equal(localPolicy.reviewCapMicroEur, 500_000);
+  assert.throws(() => validateAiCapabilities({ ...capabilities, inputTokens: AI_LIMITS.inputTokens + 1 }));
 });
 
 test('integer budget projection preserves uncertain holds and visible overage', () => {

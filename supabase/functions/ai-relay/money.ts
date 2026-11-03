@@ -1,4 +1,5 @@
 import { integer, object, text } from '../../../packages/ai-contracts/src/shape.ts';
+import {AI_LIMITS} from '../../../packages/ai-contracts/src/types.ts';
 
 export interface CostRates {
   inputNanoUsd: number; cacheReadNanoUsd: number; cacheWriteNanoUsd: number;
@@ -21,7 +22,7 @@ export function validateCostRates(value:unknown):CostRates {
 }
 /** Conservative: full input charge plus both cache categories; reasoning is inside output cap. */
 export function worstCaseMicroEur(rates:CostRates,inputTokens:number,outputTokens:number):number {
-  const r=validateCostRates(rates), input=BigInt(integer(inputTokens,32000)),output=BigInt(integer(outputTokens,16384));
+  const r=validateCostRates(rates), input=BigInt(integer(inputTokens,AI_LIMITS.inputTokens)),output=BigInt(integer(outputTokens,AI_LIMITS.outputTokens));
   const nano=input*(BigInt(r.inputNanoUsd)+BigInt(r.cacheReadNanoUsd)+BigInt(r.cacheWriteNanoUsd))+output*BigInt(r.outputNanoUsd)+BigInt(r.requestNanoUsd);
   return safeNumber(divideUp(nano*BigInt(r.grossMicroEurPerUsd)*BigInt(10000+r.marginBps),10_000_000_000_000n));
 }

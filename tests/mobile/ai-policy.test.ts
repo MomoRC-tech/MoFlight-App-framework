@@ -80,6 +80,21 @@ test('current numeric limits can only lower the pinned limits', () => {
   }
 });
 
+test('context-ceiling policies validate while older pinned limits stay effective', () => {
+  const contextCeiling = makePolicy({
+    questionCapMicroEur: 500000,
+    reviewCapMicroEur: 500000,
+    inputTokens: 1_050_000,
+  });
+  const lowerPolicy = makePolicy();
+  assert.equal(publicCapabilities(contextCeiling, true, 1, 1).inputTokens, 1_050_000);
+  assert.equal(effectiveDispatchPolicy(contextCeiling, lowerPolicy, true, 'question').inputTokens, 20_000);
+  assert.equal(effectiveDispatchPolicy(contextCeiling, lowerPolicy, true, 'question').questionCapMicroEur, 40_000);
+  assert.throws(() => publicCapabilities(makePolicy({ inputTokens: 1_050_001 }), true, 1, 1));
+  assert.throws(() => publicCapabilities(makePolicy({ questionCapMicroEur: 500_001 }), true, 1, 1));
+  assert.throws(() => publicCapabilities(makePolicy({ reviewCapMicroEur: 500_001 }), true, 1, 1));
+});
+
 test('disabled policy, revoked feature, or revoked tool blocks dispatch', () => {
   const pinned = makePolicy();
 

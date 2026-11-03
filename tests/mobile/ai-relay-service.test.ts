@@ -6,27 +6,28 @@ import {createRelayService,type RelayModelResponse} from '../../supabase/functio
 import {createContinuityCodec} from '../../supabase/functions/ai-relay/continuity.ts';
 import {validateAiPolicy} from '../../packages/ai-contracts/src/index.ts';
 import {createAiHttpHandler} from '../../supabase/functions/ai-relay/http-handler.ts';
+import {conservativeContextInputBound} from '../../supabase/functions/ai-relay/input-bound.ts';
 const policy=validateAiPolicy({version:1,id:'p1',enabled:true,model:'openai/gpt-6-luna',reasoning:'max',zdrOnly:true,store:false,automaticRetries:0,routes:['azure'],
   features:['question','review','term','progress'],tools:['describeDataset','aggregateFlights'],systemPrompt:'Synthetic policy. Return JSON with status and answer; exact metrics and references only.',
   personalCapMicroEur:1000000,globalCapMicroEur:1000000,questionCapMicroEur:50000,reviewCapMicroEur:100000,inputTokens:32000,outputTokens:16384,questionTurns:6,reviewTurns:16,questionTools:12,reviewTools:48,rowsPerRead:200});
 const start={version:1,toolVersion:1,provider:'vereinsflieger',accountRef:'101',conversationId:'c1',messageId:'m1',runId:'r1',attemptId:'a1',feature:'question',kind:'start',round:0,text:'Synthetic question',history:[]};
 const budget={period:'2026-10',timezone:'Europe/Berlin',capMicroEur:1000000,settledMicroEur:0,reservedMicroEur:0,unknownMicroEur:0,remainingMicroEur:1000000};
 const answer=():RelayModelResponse=>({id:'response-1',status:'completed',output:[{type:'message',role:'assistant',content:[{type:'output_text',text:JSON.stringify({status:'answer',answer:{text:'Synthetic answer',evidenceIds:[],actions:[],metrics:[]}})}]}]});
-async function fixture() {
+async function fixture(activePolicy=policy,bounder?:typeof conservativeContextInputBound,reservationBound=1000) {
   const calls:{name:string;args:Record<string,unknown>}[]=[],bodies:unknown[]=[];
   const admitted=new Set<number>();let upstream:RelayModelResponse=answer(),cost=true,fail=false,tokenBound=100,enabled=true,reservationDenied=false;let boundedBody='';
   const ledger=createAiLedger({async rpc(name,args){calls.push({name,args});
     const p={error:null,data:null as unknown};
-    if(name.endsWith('snapshot'))p.data={policy,billingTag:'mf_'+'a'.repeat(43),epoch:3,enabled};
+    if(name.endsWith('snapshot'))p.data={policy:activePolicy,billingTag:'mf_'+'a'.repeat(43),epoch:3,enabled};
     if(name.endsWith('usage'))p.data=budget;
     if(name.endsWith('status'))p.data={attemptId:'a1',runId:'r1',active:true,rounds:[{round:0,state:'unknown',responseId:'response-1',actualMicroEur:null}]};
-    if(name.endsWith('reserve')){if(reservationDenied)return {error:{message:'budget exhausted'},data:null};const round=args.round_number as number,existing=admitted.has(round);admitted.add(round);p.data=existing?{disposition:'existing',state:'settled',boundMicroEur:1000,policyId:'p1',period:'2026-10'}:{disposition:'new',state:'intent',boundMicroEur:1000,policyId:'p1',period:'2026-10',priceId:'synthetic',policy};}
+    if(name.endsWith('reserve')){if(reservationDenied)return {error:{message:'budget exhausted'},data:null};const round=args.round_number as number,existing=admitted.has(round);admitted.add(round);p.data=existing?{disposition:'existing',state:'settled',boundMicroEur:reservationBound,policyId:'p1',period:'2026-10'}:{disposition:'new',state:'intent',boundMicroEur:reservationBound,policyId:'p1',period:'2026-10',priceId:'synthetic',policy:activePolicy};}
     if(name.endsWith('settle'))p.data={actualMicroEur:500,halted:false};if(name.endsWith('finish'))p.data=true;
     return p;
   }});
   const key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
   const codec=createContinuityCodec(key,()=>1000000);
-  const service=createRelayService({ledger,codec,now:()=>1000000,inputTokenUpperBound:async body=>{boundedBody=body;return tokenBound;},
+  const service=createRelayService({ledger,codec,now:()=>1000000,inputTokenUpperBound:async (body,p)=>{boundedBody=body;return bounder?bounder(body,p):tokenBound;},
     submit:async body=>{bodies.push(structuredClone(body));if(fail)throw new Error('PRIVATE_UPSTREAM_ERROR');return upstream;},
     verifiedCost:async responseId=>cost?{responseId,receiptId:'usage-'+responseId,usdDecimal:'0.0005'}:null});
   return {service,codec,calls,bodies,boundedBody:()=>boundedBody,denyReservation:()=>{reservationDenied=true;},setOutput:(v:RelayModelResponse)=>{upstream=v;},costMissing:()=>{cost=false;},fail:()=>{fail=true;},tokens:(n:number)=>{tokenBound=n;},disable:()=>{enabled=false;}};
@@ -39,6 +40,16 @@ test('short relay reserves exact digest before submission, uses server-only priv
   assert.equal(JSON.stringify(reservation).includes(start.text),false);
   const body=f.bodies[0] as Record<string,unknown>;assert.equal(body.instructions,aviationInstructions(policy.systemPrompt));assert.equal(f.boundedBody(),JSON.stringify(body));assert.equal(body.store,false);assert.equal(JSON.stringify(body).includes('accountRef'),false);
   await assert.rejects(f.service.round(start),/never resubmit/);assert.equal(f.bodies.length,1);
+});
+test('conservative context reservation uses the existing guarded relay and refuses older lower admission limits before reserving',async()=>{
+  const old=await fixture(policy,conservativeContextInputBound);
+  await assert.rejects(old.service.round(start),/exceeds bound/);
+  assert.equal(old.bodies.length,0);assert.equal(old.calls.some(call=>call.name==='moflight_ai_reserve'),false);
+  const current=validateAiPolicy({...policy,inputTokens:1050000,questionCapMicroEur:500000,reviewCapMicroEur:500000});
+  const ready=await fixture(current,conservativeContextInputBound,254942);
+  assert.equal((await ready.service.round(start)).reply.status,'answer');assert.equal(ready.bodies.length,1);
+  assert.equal(ready.boundedBody(),JSON.stringify(ready.bodies[0]));
+  assert.ok(ready.calls.some(call=>call.name==='moflight_ai_settle'));
 });
 test('sealed tool continuation preserves every reasoning/item in order and accepts outputs only for pending calls',async()=>{
   const f=await fixture();const items=[{type:'reasoning',id:'rs1',encrypted_content:'opaque-provider-reasoning',summary:[]},

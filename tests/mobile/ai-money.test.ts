@@ -2,6 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MONEY_CASES, BERLIN_PERIOD_CASES } from './fixtures/ai-money-cases.ts';
 import { worstCaseMicroEur, settledMicroEur, usdToNanoUsd, assertPriceEvidence, berlinPeriod } from '../../supabase/functions/ai-relay/money.ts';
+import {conservativeContextInputBound} from '../../supabase/functions/ai-relay/input-bound.ts';
+
+test('full model context reserves all input/cache charges plus bounded output without enlarging monthly money', async()=>{
+  const policy={model:'openai/gpt-6-luna',reasoning:'max',routes:['azure']} as const;
+  const bound=await conservativeContextInputBound('Complete instructions, history, tools and framing are covered by model capacity.',policy);
+  const rates={inputNanoUsd:100,cacheReadNanoUsd:10,cacheWriteNanoUsd:125,outputNanoUsd:500,requestNanoUsd:0,grossMicroEurPerUsd:1000000,marginBps:0};
+  assert.equal(worstCaseMicroEur(rates,bound,16384),254942,'synthetic list-rate arithmetic, not approved live price/FX');
+  assert.equal(worstCaseMicroEur({...rates,marginBps:1000},bound,16384),280437);
+  assert.throws(()=>worstCaseMicroEur(rates,bound+1,16384));
+  await assert.rejects(conservativeContextInputBound('{}',{...policy,model:'other'} as any));
+});
 for(const c of MONEY_CASES)test('independent money vector: '+c.id,()=>{
   const {id:_,inputTokens,outputTokens,expectedMicroEur,...rates}=c;
   assert.equal(worstCaseMicroEur(rates,inputTokens,outputTokens),expectedMicroEur);

@@ -1,4 +1,4 @@
-import { validateAiBudget, validateAiPolicy, validateAiRequest, type AiPolicy } from '../../../packages/ai-contracts/src/index.ts';
+import { AI_LIMITS, validateAiBudget, validateAiPolicy, validateAiRequest, type AiPolicy } from '../../../packages/ai-contracts/src/index.ts';
 import { account, array, choice, id, integer, literal, object, tag, text } from '../../../packages/ai-contracts/src/shape.ts';
 import { opaqueBillingTag } from './admission.ts';
 import type { PolicySnapshot } from './policy.ts';
@@ -57,7 +57,7 @@ export function createAiLedger(port:AiRpcPort) {
         conversation_id:request.conversationId,message_id:request.messageId,feature:request.feature,policy_id:id(policyId),request_digest:digest});
       const p=object(value,tag(value,'disposition')==='new'
         ? ['disposition','state','boundMicroEur','policyId','period','policy','priceId'] : ['disposition','state','boundMicroEur','policyId','period']);
-      const common={boundMicroEur:integer(p.boundMicroEur,100000),policyId:literal(p.policyId,id(policyId)),period:period(p.period)};
+      const common={boundMicroEur:integer(p.boundMicroEur,Math.max(AI_LIMITS.questionMicroEur,AI_LIMITS.reviewMicroEur)),policyId:literal(p.policyId,id(policyId)),period:period(p.period)};
       if(p.disposition==='new') {
         const policy=validateAiPolicy(p.policy);
         literal(policy.id,common.policyId);

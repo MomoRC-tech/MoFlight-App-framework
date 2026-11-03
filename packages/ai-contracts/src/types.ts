@@ -2,9 +2,9 @@
 export const AI_VERSION = 1 as const;
 export const AI_STORAGE_VERSIONS = Object.freeze({ chat: 1, historicalIdentity: 1, userBackup: 2, oldestUserBackup: 1 });
 export const AI_LIMITS = Object.freeze({
-  monthlyMicroEur: 1_000_000, questionMicroEur: 50_000, reviewMicroEur: 100_000,
+  monthlyMicroEur: 1_000_000, questionMicroEur: 500_000, reviewMicroEur: 500_000,
   questionTurns: 6, reviewTurns: 16, questionTools: 12, reviewTools: 48,
-  rows: 200, inputTokens: 32_000, outputTokens: 16_384, historyExchanges: 8,
+  rows: 200, inputTokens: 1_050_000, outputTokens: 16_384, historyExchanges: 8,
   conversations: 50, settledRetentionDays: 90, userTextChars: 16_000,
   wireBytes: 512_000, protocolChars: 262_144,
 });
