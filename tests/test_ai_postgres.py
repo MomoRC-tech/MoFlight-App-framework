@@ -131,6 +131,24 @@ class AiPostgres(unittest.TestCase):
         for migration in sorted(MIGRATION.parent.glob('*_ai_*.sql')):
             self.ok(migration.read_text(encoding='utf-8'))
 
+    def test_automatic_rls_helper_revokes_runtime_execute_without_disabling_trigger(self):
+        self.ok("""create function public.rls_auto_enable() returns event_trigger language plpgsql
+          security definer set search_path=pg_catalog as $$
+          declare cmd record;
+          begin
+            for cmd in select * from pg_event_trigger_ddl_commands()
+              where command_tag='CREATE TABLE' and schema_name='public' and object_type='table'
+            loop execute format('alter table %s enable row level security',cmd.object_identity); end loop;
+          end $$;
+          grant execute on function public.rls_auto_enable() to anon,authenticated,service_role;
+          create event trigger ensure_rls on ddl_command_end execute function public.rls_auto_enable();""")
+        self.assertEqual(self.ok("select has_function_privilege('anon','public.rls_auto_enable()','EXECUTE')"),'t')
+        self.ok((MIGRATION.parent / '20261103133301_ai_bootstrap_helper_privileges.sql').read_text(encoding='utf-8'))
+        self.assertEqual(self.ok("select bool_and(not has_function_privilege(r,'public.rls_auto_enable()','EXECUTE')) from unnest(array['anon','authenticated','service_role']) r"),'t')
+        self.ok('create table public.synthetic_rls_probe(id integer)')
+        self.assertEqual(self.ok("select relrowsecurity from pg_class where oid='public.synthetic_rls_probe'::regclass"),'t')
+        self.assertEqual(self.ok("select evtenabled from pg_event_trigger where evtname='ensure_rls'"),'O')
+
     def setup_policy(self, **changes):
         self.policy = base_policy(**changes)
         self.publish(self.policy, 0)
