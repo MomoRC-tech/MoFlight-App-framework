@@ -1,7 +1,7 @@
 # ADR 0003: Low-usage backend trial and offline synchronization
 
 - Date: 2026-10-08
-- Status: Parked on 2026-11-02 — owner is reconsidering whether Supabase is needed; earlier trial/provider selection is preserved as history
+- Status: Resumed on 2026-11-03 for the selected Cloud Free backend/AI readiness path; paid services, model execution and production cloud synchronization remain separate
 - Decision owner: Manuel Singer
 - Amendment: 2026-11-02 — owner confirmed a single MoFlight app; cross-app identity/session requirements are retired for the current trial
 - Tracking: [#5](https://github.com/MomoRC-tech/MoFlight-App-framework/issues/5)
@@ -9,7 +9,9 @@
 
 ## Context and decision record
 
-**Current owner direction — 2 November 2026:** park Supabase for now and continue local issues. Do not provision, run hosted trials or continue Supabase-dependent integration. Preserve prepared source/evidence; necessity/provider choice will be revisited before resuming. This deferral selects no replacement backend, cancels no independent local requirement and does not declare any cloud acceptance passed.
+**Current owner direction — 3 November 2026:** live AI remains required for beta; the owner then instructed “if we need supabase for that, lets do it.” Resume the existing Cloud Free path used by the prepared protected relay/policy/budget code. Actual Personal Free organization/Frankfurt project and initial disabled SQL setup are now verified in the [readiness evidence](../verification/2026-11-03-supabase-readiness.json). The owner requested project-scoped local DPAPI password storage; that is saved/verified without changing the Vereinsflieger record. No paid upgrade, inference purchase/call, private flight upload, production data migration or general cloud sync follows. The preceding 2 November park is superseded within this scope; full Auth/sync/runtime/model acceptance is not claimed.
+
+Supabase Auth for ordinary app users is not a new prerequisite for AI: the separately selected historical provider-ID assertion/trust model remains unchanged. Independent #1 two-user Auth/email/recovery and #4 sync trials retain their own acceptance; do not expand the AI setup merely to exercise every Supabase product.
 
 Few users and weeks without activity are expected. Avoid subscription costs; preserve local data and queued edits through outages. Automatic database wake-up is distinct from a provider pause requiring operator restoration.
 

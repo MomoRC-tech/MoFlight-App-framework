@@ -17,6 +17,14 @@ function Expect-Failure([scriptblock]$operation) {
     Assert $failed 'An expected failure did not occur.'
 }
 try {
+    $defaultPath = Get-MoFlightCredentialPath
+    $projectPath = Get-MoFlightCredentialPath -SupabaseProjectRef 'aaaaaaaaaaaaaaaaaaaa'
+    $otherProjectPath = Get-MoFlightCredentialPath -SupabaseProjectRef 'bbbbbbbbbbbbbbbbbbbb'
+    Assert ($defaultPath -eq (Join-Path $env:LOCALAPPDATA 'MoFlight\secrets\vereinsflieger.dpapi.json')) 'Default credential path changed.'
+    Assert ($projectPath -ne $defaultPath -and $projectPath -ne $otherProjectPath) 'Credential scopes share a record.'
+    Assert ((Split-Path -Parent $projectPath) -eq (Split-Path -Parent $defaultPath)) 'Project credential escapes the private directory.'
+    Expect-Failure { Get-MoFlightCredentialPath -SupabaseProjectRef '../foreign' }
+    Expect-Failure { Get-MoFlightCredentialPath -SupabaseProjectRef '' }
     Expect-Failure { Get-MoFlightCredential -Path $path }
     $password = ConvertTo-SecureString 'synthetic-only-Pass!42' -AsPlainText -Force
     $inputCredential = [pscredential]::new('synthetic-pilot', $password)

@@ -1,0 +1,12 @@
+{
+  "source_commit": "af24c92cb2ad37af9a0ec1e01c57b7acb34726b7",
+  "apk_sha256": "8cdaa312ae039f5a20358117f9f0feac5d7441cb524f236c0cfeb3ab99d00cbe",
+  "zip_sha256": "8f294a5a9eee4654932a3bc4204697d9be48b7ed9b35f76ae8efd9052ccb40ac",
+  "exact_inventory": [
+    "app-release.apk",
+    "build.json"
+  ],
+  "published_download_matches_local": true,
+  "embedded_source_verified": true,
+  "download_url": "https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/lab-financial-recovery-2026-11-03-af24c92/MoFlight-Financial-Recovery-af24c92.zip"
+}

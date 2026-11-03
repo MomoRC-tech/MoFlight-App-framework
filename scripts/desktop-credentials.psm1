@@ -8,7 +8,9 @@ foreach ($builtIn in @('Microsoft.PowerShell.Security', 'Microsoft.PowerShell.Ut
 Set-StrictMode -Version Latest
 
 function Get-MoFlightCredentialPath {
+    param([ValidatePattern('^[a-z0-9]{20}$')][string]$SupabaseProjectRef)
     if ($env:OS -ne 'Windows_NT') { throw 'This credential store requires Windows.' }
+    if ($SupabaseProjectRef) { return Join-Path $env:LOCALAPPDATA "MoFlight\secrets\supabase-$SupabaseProjectRef-database.dpapi.json" }
     Join-Path $env:LOCALAPPDATA 'MoFlight\secrets\vereinsflieger.dpapi.json'
 }
 

@@ -3,14 +3,44 @@ import {opaqueBillingTag} from './admission.ts';
 import {id} from '../../../packages/ai-contracts/src/shape.ts';
 import {usdToNanoUsd} from './money.ts';
 const RPCS=new Set(['snapshot','usage','reserve','unknown','settle','finish','record_response','status','request_admit'].map(name=>'moflight_ai_'+name));
+interface BackendCredential {apiKey:string;authorizationToken?:string}
+function decodeJwtPart(value:string):unknown {
+ if(!/^[A-Za-z0-9_-]+$/.test(value)||value.length%4===1)throw new Error('Invalid AI backend credential');
+ const base64=value.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-value.length%4)%4);
+ const binary=atob(base64),bytes=Uint8Array.from(binary,char=>char.charCodeAt(0));
+ return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)) as unknown;
+}
+/** Recognize the two Supabase server-key formats without logging or echoing the value.
+ * Opaque sb_secret keys belong only in apikey; legacy service_role JWTs also go in Authorization. */
+function backendCredential(value:string):BackendCredential {
+ if(typeof value!=='string'||value.length===0||value.length>4096||value.trim()!==value)throw new Error('Invalid AI backend credential');
+ if(value.startsWith('sb_secret_')) {
+  if(!/^sb_secret_[A-Za-z0-9_-]+$/.test(value))throw new Error('Invalid AI backend credential');
+  return {apiKey:value};
+ }
+ if(value.startsWith('sb_'))throw new Error('Invalid AI backend credential');
+ const parts=value.split('.');
+ if(parts.length!==3||!parts[2]||!/^[A-Za-z0-9_-]+$/.test(parts[2]))throw new Error('Invalid AI backend credential');
+ try {
+  const header=decodeJwtPart(parts[0]!),claims=decodeJwtPart(parts[1]!);
+  if(!header||typeof header!=='object'||Array.isArray(header)||
+     (header as Record<string,unknown>).alg!=='HS256'||
+     !claims||typeof claims!=='object'||Array.isArray(claims)||
+     (claims as Record<string,unknown>).role!=='service_role')throw new Error('Invalid AI backend credential');
+ }catch{throw new Error('Invalid AI backend credential');}
+ return {apiKey:value,authorizationToken:value};
+}
 /** Protected PostgREST transport only; never imported in React Native. No retries/logging. */
-export function createBackendRpc(url:string,serviceRoleKey:string,fetcher:typeof fetch):AiRpcPort {
+export function createBackendRpc(url:string,backendKey:string,fetcher:typeof fetch):AiRpcPort {
  const base=new URL(url);
- if(base.protocol!=='https:'||!base.hostname.endsWith('.supabase.co')||base.username||base.password||base.search||base.hash||base.pathname!=='/'||!serviceRoleKey.trim())throw new Error('Invalid AI backend');
+ if(base.protocol!=='https:'||!base.hostname.endsWith('.supabase.co')||base.username||base.password||base.search||base.hash||base.pathname!=='/')throw new Error('Invalid AI backend');
+ const credential=backendCredential(backendKey);
  return {async rpc(name,args){
   if(!RPCS.has(name))throw new Error('Unsupported AI RPC');
   try {
-   const response=await fetcher(new URL('/rest/v1/rpc/'+name,base).href,{method:'POST',headers:{'Content-Type':'application/json','apikey':serviceRoleKey,'Authorization':'Bearer '+serviceRoleKey},body:JSON.stringify(args),redirect:'error',signal:AbortSignal.timeout(5000)});
+   const headers:Record<string,string>={'Content-Type':'application/json','apikey':credential.apiKey};
+   if(credential.authorizationToken)headers.Authorization='Bearer '+credential.authorizationToken;
+   const response=await fetcher(new URL('/rest/v1/rpc/'+name,base).href,{method:'POST',headers,body:JSON.stringify(args),redirect:'error',signal:AbortSignal.timeout(5000)});
    if(!response.ok||response.redirected)return {data:null,error:true};
    const raw=await response.text();if(raw.length>100000)return {data:null,error:true};
    return {data:raw.trim()?JSON.parse(raw):null,error:null};

@@ -1,0 +1,96 @@
+{
+  "date": "2026-11-03",
+  "environment": {
+    "project": "moflight-ai",
+    "organization": "MoFlight",
+    "plan": "Free",
+    "compute": "Nano",
+    "region": "eu-central-1",
+    "postgres_version_num": 170011,
+    "connection": "Dashboard-observed shared session pooler; port5432; no paid IPv4 add-on"
+  },
+  "credential": {
+    "kind": "Windows user-bound DPAPI, separate project file outside checkout",
+    "saved_and_decryptable": true,
+    "acl_current_user_and_system_only": true,
+    "vereinsflieger_record_unchanged": true,
+    "consumer": "anonymous child stdin pipe to existing local libpq18.4; no secret argv/log/output"
+  },
+  "first_preflight": {
+    "ok": false,
+    "stage": "preflight",
+    "error_type": "AssertionError",
+    "reason": "Observer incorrectly equated client SSL with the separately reported pooler-to-database SSL leg. Corrected before migration; no SQL had been applied."
+  },
+  "ssl": {
+    "client_verify_full": true,
+    "enforcement_enabled_in_dashboard": true,
+    "pooler_backend_tls_before_enforcement": false,
+    "pooler_backend_tls_after_enforcement": true,
+    "certificate_source": "Dashboard-linked Supabase prod-ca-2021.crt; certificate and hostname verified"
+  },
+  "migrations": [
+    {
+      "name": "202610240001_ai_policy_ledger.sql",
+      "sha256": "f82884c995c82cb556f39e01301b9aed7777dd3b346124a1aa22298c3dc62e6e"
+    },
+    {
+      "name": "202610240002_ai_receipts_and_request_limits.sql",
+      "sha256": "20163a348c93cb4822973d50605abe09faaf70fa44d37379faa2348d166e2013"
+    }
+  ],
+  "verification": {
+    "ok": true,
+    "action": "verify",
+    "stage": "complete",
+    "model_calls": 0,
+    "private_flight_upload": false,
+    "libpq_version": 180004,
+    "tls_mode": "verify-full",
+    "client_tls_active": true,
+    "preflight": {
+      "server_version_num": 170011,
+      "database_expected": true,
+      "operator_expected": true,
+      "pooler_backend_tls_observed": true,
+      "ai_schema_exists": true,
+      "public_table_count": 0
+    },
+    "controls": {
+      "epoch": 0,
+      "kill": true,
+      "operational_ready": false,
+      "funding_approved": false,
+      "halted": false,
+      "policy_unconfigured": true,
+      "price_unconfigured": true
+    },
+    "tables": {
+      "count": 10,
+      "all_rls": true,
+      "no_anon_or_authenticated_or_service_role_table_access": true
+    },
+    "function_privileges": {
+      "functions": 14,
+      "no_anon_or_authenticated_execution": true,
+      "service_role_runtime_only": true,
+      "runtime_functions": 9
+    },
+    "operator_checks": {
+      "synthetic_policy_publication": true,
+      "compare_and_swap_stale_rejected": true,
+      "runtime_cannot_change_controls": true,
+      "dispatch_remained_disabled": true,
+      "policy_version_activation_and_rollback": true,
+      "invalid_policy_preserves_previous": true
+    },
+    "synthetic_transaction_rolled_back": true
+  },
+  "limits": [
+    "AI disabled: kill=true, operational_ready=false, funding_approved=false, no policy/price/accounts persisted.",
+    "SQL source applied directly; Supabase CLI migration history was not registered. Reconcile before a future db push; never blindly reapply.",
+    "No public Edge HTTP entrypoint/deployment, model request, private flight upload, product Auth or cloud sync.",
+    "Actual Auth registration/confirmation/recovery, two-user REST/Storage/RLS, PostgREST key transport and hosted Edge Runtime remain untested.",
+    "Verified complete-body token bound, actual model/route/receipt/pricing/fees/input/funding and native beta acceptance remain open."
+  ]
+}

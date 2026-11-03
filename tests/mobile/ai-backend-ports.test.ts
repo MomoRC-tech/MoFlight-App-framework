@@ -13,7 +13,7 @@ test('foreign/missing provider receipt fields never settle as zero or retry infe
  }
 });
 test('backend transport permits fixed non-content RPCs only and hides raw errors',async()=>{
- let calls=0;const rpc=createBackendRpc('https://synthetic.supabase.co','synthetic-service-key',async(_url,options)=>{calls++;assert.equal(options?.method,'POST');return new Response('PRIVATE_BACKEND_ERROR',{status:500});});
+ let calls=0;const rpc=createBackendRpc('https://synthetic.supabase.co','sb_secret_synthetic-key',async(_url,options)=>{calls++;assert.equal(options?.method,'POST');return new Response('PRIVATE_BACKEND_ERROR',{status:500});});
  await assert.rejects(rpc.rpc('operator_publish',{}));assert.equal(calls,0);
  assert.deepEqual(await rpc.rpc('moflight_ai_usage',{account_id:'101'}),{data:null,error:true});assert.equal(calls,1);
  for(const url of ['http://synthetic.supabase.co','https://foreign.invalid','https://user:pass@synthetic.supabase.co'])assert.throws(()=>createBackendRpc(url,'synthetic',fetch));

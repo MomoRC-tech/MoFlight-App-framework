@@ -1,10 +1,12 @@
 # Independent early Supabase Cloud Free trial
 
-**Parked — owner direction, 2 November 2026:** Supabase's need is being reconsidered. Preserve this prepared work, but do not provision, execute the hosted probe or continue integration until explicitly resumed. The hosted proposal below is inactive; project/mailbox questions no longer block local issue work. No replacement provider is selected.
+**Resumed — owner direction, 3 November 2026:** live AI remains required for beta and the owner resumed the existing Supabase Cloud Free path. The new Personal Free MoFlight organization/Frankfurt `moflight-ai` project and initial disabled AI policy/budget SQL are verified in the [bounded readiness evidence](../../docs/verification/2026-11-03-supabase-readiness.json). Project-specific local DPAPI storage is saved and verified. This independent `mf_trial_*` Auth/Storage probe has not been applied/run; do not relabel the AI SQL checks as two-user Auth/RLS or Storage acceptance. No paid plan, model spending/private inputs or production cloud sync follows.
+
+The AI relay's selected historical provider-ID assertion does not require Supabase Auth for app users. This independent two-synthetic-user Auth/storage trial remains useful #1 acceptance, not a reason to add product sign-up or block AI deployment preparation on a new SMTP service. Never apply the disposable trial schema to an existing production/shared database.
 
 **Scope clarification — owner confirmed 2 November 2026:** this trial targets the single MoFlight app. Cross-app identity/session sharing is excluded. Two synthetic users/sessions remain required for isolation testing. This clarification does not provision a project, authorize spending or establish deployed acceptance.
 
-Tracking #1/#5/#7. **Prepared; no project provisioned or SQL/live tests executed.**
+Tracking #1/#5/#7. **Independent Auth/Storage trial prepared; its SQL/live probe has not been executed.**
 This does not persist or link the main app dataset. Requires a disposable Cloud
 Free test project and two synthetic email/password accounts. No paid services,
 billing activation, AI or service-role client key is authorized.
@@ -13,8 +15,9 @@ billing activation, AI or service-role client key is authorized.
 
 1. Connect/provide an existing disposable Cloud Free project or configure one
    in the owner Dashboard. Confirm it is Free and separate from any production
-   database. Current session has no Supabase connector, configured project or
-   authenticated test users; preparation is independent of mobile-stack approval.
+   database. A Supabase connector was suggested but remains unconnected; the
+   signed-in Dashboard and local DPAPI operator consumer now work. The two
+   synthetic Auth users for this separate trial remain unconfigured.
 2. Apply [schema.sql](schema.sql) once in that project. It creates only `mf_trial_*`
    tables, an invoker RPC and a private `moflight-trial` bucket. Do not apply to
    a shared/production project. Existing names deliberately fail rather than
@@ -79,7 +82,7 @@ focused evidence; no app suite/build/device run or additional SQL simulator.
 The publishing commit identifies these inputs. Actual SQL/Auth/RLS and the
 manual gates below remain untested.
 
-## Concrete next hosted trial — proposal, not provisioned
+## Concrete hosted trial scope — setup resumed, not provisioned
 
 | Item | Prepared scope / prerequisite |
 | --- | --- |
