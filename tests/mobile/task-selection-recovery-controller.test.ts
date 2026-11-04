@@ -124,8 +124,8 @@ function host(journal: Journal, startScope = scope) {
     canStart: () => true, canStartMedical: () => true, canReload: () => true, currentUrl: () => url, epoch: () => epoch,
     uuid: () => `synthetic-task-${++nonce}`, setBusy: (_value: boolean) => {}, setVisible: (_value: boolean) => {},
     navigate: (value: string) => { url = value; trace.push('navigate:' + value); },
-    loadPage: async (value: string) => { url = value; trace.push('load:' + value); },
-    inject: (script: string) => scripts.push(script), requestNativeReload: (_value: string) => {},
+    loadPage: async (value: string) => { url = value; trace.push('load:' + value); trace.push('load-page-callback:' + value); controller.pageLoaded(value); },
+    inject: (script: string) => scripts.push(script), requestNativeReload: (value: string) => { trace.push('native-reload:' + value); },
   };
   let controller: any;
   function render() { index = 0; controller = exports.useInformationController(ports); effects.splice(0).forEach(effect => effect()); return controller; }
@@ -180,8 +180,15 @@ test('task selector is journaled only after a fresh matching profile and resumes
   foreign.cleanup();
 
   const second = host(journal), resumed = second.start();
+  const resumeTraceStart = second.trace.length;
   await second.flush();
   assert.equal(second.url(), context.PROFILE_URL, 'pending recovery starts only after an explicit task request');
+  const resumeTrace = second.trace.slice(resumeTraceStart);
+  const profileNavigation = resumeTrace.indexOf('navigate:' + context.PROFILE_URL);
+  const profileReload = resumeTrace.indexOf('native-reload:' + context.PROFILE_URL);
+  assert.ok(profileNavigation >= 0, 'same-URL recovery forces a fresh provider navigation');
+  assert.ok(profileReload > profileNavigation, 'same-URL recovery requests a native WebView reload after navigation setup');
+  assert.equal(resumeTrace.includes('load-page-callback:' + context.PROFILE_URL), false, 'the stale same-URL load-end callback cannot substitute for a new native load');
   await second.profile();
   assert.equal(second.url(), 'https://vereinsflieger.de/member/community/tasklist/tasklist?gselect=allopen');
   await second.restore();

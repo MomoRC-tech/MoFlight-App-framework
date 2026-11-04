@@ -207,7 +207,13 @@ export function useInformationController(ports: InformationControllerPorts) {
     }
     if (taskRecoveryStop.current?.run === run) { const stop = taskRecoveryStop.current; taskRecoveryStop.current = null; finishTaskRunWithoutCapture(run, stop.message, stop.retryable); return; }
     informationRunGate(run);
-    if (ports.currentUrl() === destination) void ports.loadPage(destination);
+    if (ports.currentUrl() === destination && run.stage === 'recovery-before') {
+      // A same-URL load-end callback is not fresh profile evidence. Force a
+      // native reload so this recovery stage receives its own load-start.
+      ports.navigate(destination);
+      ports.requestNativeReload(destination);
+    }
+    else if (ports.currentUrl() === destination) void ports.loadPage(destination);
     else ports.navigate(destination);
   }
 
