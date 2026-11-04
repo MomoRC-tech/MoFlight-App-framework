@@ -1,5 +1,7 @@
 # MoFlight documentation
 
+**4 November engineering completion:** [native backup, live task recovery and Start/Statistics saved-account isolation](verification/2026-11-04-native-acceptance-completion.md), with exact normal/observation/fixture provenance and shared remaining gates. The current public APK retains its earlier source.
+
 Current delivery/status: [latest APK/source](../README.md#current-delivery) and [current plan](project-plan.md#next-executable-packages). Supabase Cloud Free project/disabled AI SQL/local DPAPI readiness is verified; [source-specific evidence and remaining gates](verification/2026-10-24-ai-chat-implementation.md#supabase-readiness-and-local-credential-storage--3-november-2026), [ADR0003](adr/0003-low-usage-backend-proposal.md). The obsolete two-app/collapse criteria remain retired. [Resumable financial collection/save/offline checkpoint](verification/2026-10-30-financials-completion.md#full-coverage-resumable-batches--3-november-2026) and [bounded multi-club review](architecture/vereinsflieger-multiple-memberships-review.md) distinguish implemented behavior from remaining acceptance. [Ordinary local AI checks](verification/2026-10-24-ai-chat-implementation.md#ordinary-local-draft-acceptance--3-november-2026) make no paid or live-answer claim.
 
 Selected UI features: [owner-selected Club/Assistant adoption and bare Start follow-up](verification/2026-11-02-selected-experiment-adoption.md). Current five destinations remain; other experiment proposals are unselected.

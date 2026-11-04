@@ -170,3 +170,8 @@ The ordinary real-flight view remains wired to the selected saved library; synth
 
 
 **Published delivery:** [Statistics APK ZIP](https://github.com/MomoRC-tech/MoFlight-App-framework/releases/download/statistics-2026-10-29-58851de/MoFlight-Statistics-58851de.zip), application source `58851de4d3de01539384d7e08163e736cce1022b`. The archive contains only the intended APK and sanitized build-metadata.json. GitHub's asset digest matches local ZIP SHA-256 `4ab9ba1d896f6d0048ccf61831d00393e765a36045f3aa84cacb6ea542982cd3`; APK SHA-256 is `351fa60bdef8a72fb5e290ca9a5f98e7ecf401143f5ba713d301e9d9478e2022`. Final source passes all five host checks (1,781 mobile passes, two skipped; 154 Python tests, 16 skipped), 38 focused package checks and both Android/iOS Hermes exports. No iOS runtime acceptance follows.
+
+
+### Saved-account native isolation completion — 4 November 2026
+
+The selected #9 production Start/Statistics saved-account A→B→A and fully offline fresh-process checks pass over actual isolated SQLite graphs. This is fixture-driven selection, not an ordinary account-switch UI or live two-user authentication. Phone/iOS/live-account gates remain #107/#8/#16. [Shared package, exact artifacts, checks and preservation limits](2026-11-04-native-acceptance-completion.md#start-and-statistics-account-isolation). No new appearance change, paid/model call or APK delivery.

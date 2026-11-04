@@ -1,0 +1,370 @@
+{
+  "format": "moflight-native-acceptance-completion-v1",
+  "date": "2026-11-04",
+  "application_source": "a8dfee00584ae90fadb5dc74d1ba1e2c25fa1522",
+  "normal_apk_sha256": "4f9d00e71da28db1507f4cf40ade75b6b5c91638de7e1f67501d5a4696670765",
+  "host_checks": {
+    "source_clean": true,
+    "groups_passed": 5,
+    "android_ios_hermes_exports": "passed",
+    "normal_release": "passed",
+    "task_regression_before": {
+      "passed": 12,
+      "total": 13
+    },
+    "task_regression_after": {
+      "passed": 13,
+      "total": 13
+    }
+  },
+  "observation": {
+    "apk_sha256": "7e707bdb73d32ab73b1844f1bd109dea67adc1a2b8c9b4f9cdf2e5eb36b834a1",
+    "release_build_config_debug": false,
+    "source_manifest_normal_apk_restored": true,
+    "publish": false,
+    "overrides": [
+      "WebView inspection enabled",
+      "packaged manifest android:debuggable=true"
+    ],
+    "business_logic_override": false
+  },
+  "task_recovery": {
+    "outcome": "passed",
+    "application_source": "a8dfee00584ae90fadb5dc74d1ba1e2c25fa1522",
+    "normal_apk_sha256": "4f9d00e71da28db1507f4cf40ade75b6b5c91638de7e1f67501d5a4696670765",
+    "observation_apk_sha256": "7e707bdb73d32ab73b1844f1bd109dea67adc1a2b8c9b4f9cdf2e5eb36b834a1",
+    "original_checkpoint_survived_force_stop_and_update": true,
+    "explicit_resume_only": true,
+    "actual_provider_webview_flow": true,
+    "original_selector": "allopen",
+    "independent_live_restored_responses": 2,
+    "all_restored_responses_verified": true,
+    "pending_checkpoint_cleared": true,
+    "sync_success_recorded": true,
+    "no_provider_record_writes": true,
+    "boundary": "Ordinary application/controller and actual provider HTML; observation-only WebView debug and packaged-manifest run-as flags. No business-logic override. Physical/iOS/shared provider coverage remains separately tracked."
+  },
+  "backup": {
+    "current_archive_version": 3,
+    "bytes": 9695722,
+    "fully_offline": true,
+    "rejection_cases": [
+      {
+        "case": "foreign_owner",
+        "outcome": "passed",
+        "visible_refusal": true,
+        "selection_and_restore_journal_unchanged": true,
+        "all_business_database_logical_hashes_unchanged": true,
+        "business_database_count": 22,
+        "external_file_hash_unchanged": true
+      },
+      {
+        "case": "foreign_store",
+        "outcome": "passed",
+        "visible_refusal": true,
+        "selection_and_restore_journal_unchanged": true,
+        "all_business_database_logical_hashes_unchanged": true,
+        "business_database_count": 22,
+        "external_file_hash_unchanged": true
+      },
+      {
+        "case": "newer_version_v6",
+        "outcome": "passed",
+        "visible_refusal": true,
+        "selection_and_restore_journal_unchanged": true,
+        "all_business_database_logical_hashes_unchanged": true,
+        "business_database_count": 22,
+        "external_file_hash_unchanged": true
+      },
+      {
+        "case": "corrupt_checksum",
+        "outcome": "passed",
+        "visible_refusal": true,
+        "selection_and_restore_journal_unchanged": true,
+        "all_business_database_logical_hashes_unchanged": true,
+        "business_database_count": 22,
+        "external_file_hash_unchanged": true
+      },
+      {
+        "case": "invalid_json",
+        "outcome": "passed",
+        "visible_refusal": true,
+        "selection_and_restore_journal_unchanged": true,
+        "all_business_database_logical_hashes_unchanged": true,
+        "business_database_count": 22,
+        "external_file_hash_unchanged": true
+      }
+    ],
+    "two_fresh_exports_sections_exact": {
+      "pilot": true,
+      "realFlights": true,
+      "information": true,
+      "ai": true,
+      "dutyTargets": true
+    },
+    "interrupted_phase": "prepared",
+    "pending_after_force_stop": true,
+    "fresh_process_requires_explicit_identical_file": true,
+    "same_operation_complete_once": true,
+    "activation_count": 1,
+    "owner_store_book_preserved": true,
+    "original_logical_databases_unchanged": 20,
+    "post_resume_sections_exact": {
+      "pilot": true,
+      "realFlights": true,
+      "information": true,
+      "ai": true,
+      "dutyTargets": true
+    },
+    "post_resume_archive_sha256": "fd8e984d794a0c7d2e4acc20d406204093ebba1faed4130c05eb802917b60951",
+    "historical_v5_evidence": "2026-11-02-financial-restore-reconciliation.json",
+    "no_current_financial_store_seeded": true,
+    "normal_release_offline_saved_readback": {
+      "accepted_flights": 97,
+      "additional_duplicates": 4,
+      "start_metrics_visible": true,
+      "no_unreadable_banner": true
+    }
+  },
+  "statistics": {
+    "status": "passed",
+    "application_source": "a8dfee00584ae90fadb5dc74d1ba1e2c25fa1522",
+    "fixture_source": "9e37ee92e57951d89e763ae39f541baf45d262e6",
+    "fixture_apk_sha256": "af11a5a4689f477d215082403711c3596af2e0e59b23e63a5039955a6b4957c7",
+    "fixture_overrides": {
+      "apps/platform-lab/src/development/android-statistics-isolation-poc.tsx": "aabafb556cc57540cd6c012ba2794c617ce4c09eb739f3f82dbefa4c98373688",
+      "apps/platform-lab/index.ts": "ceaa4d4c232ca1467f61a7fa59616a933bae768059293b03eb98f58b997085a5",
+      "apps/platform-lab/src/development/android-statistics-isolation-fixture.ts": "67a9b52f6eee5dc66f0b3ef96d969bcf2d0f3fd43582e8ea3213e05ed8f963c8"
+    },
+    "normal_build_reused": true,
+    "fully_offline": true,
+    "logical_dp": [
+      411.42857142857144,
+      800.0
+    ],
+    "font_scale": 1.0,
+    "theme": "dark",
+    "actual_production_start_statistics_and_native_sqlite_reader_cache": true,
+    "fixture_selector_only_no_normal_account_switch_ui": true,
+    "accounts_native_model_reports": [
+      {
+        "key": "A",
+        "synthetic_account_ref": "101",
+        "current_year": {
+          "count": 3,
+          "knownMinutes": 102,
+          "durationLabel": "1:42",
+          "unknownDurationCount": 1,
+          "contributorRefs": [
+            "70101",
+            "70102",
+            "70103"
+          ],
+          "unknownDurationRefs": [
+            "70103"
+          ]
+        },
+        "all_history": {
+          "count": 4,
+          "knownMinutes": 117,
+          "durationLabel": "1:57",
+          "unknownDurationCount": 1,
+          "unknownDateCount": 0,
+          "contributorRefs": [
+            "70101",
+            "70102",
+            "70103",
+            "70104"
+          ]
+        },
+        "empty_2025": true,
+        "production_cache_start_values_match": true,
+        "stale_selected_cache_rejected": true
+      },
+      {
+        "key": "B",
+        "synthetic_account_ref": "202",
+        "current_year": {
+          "count": 2,
+          "knownMinutes": 45,
+          "durationLabel": "0:45",
+          "unknownDurationCount": 1,
+          "contributorRefs": [
+            "80201",
+            "80202"
+          ],
+          "unknownDurationRefs": [
+            "80202"
+          ]
+        },
+        "all_history": {
+          "count": 3,
+          "knownMinutes": 75,
+          "durationLabel": "1:15",
+          "unknownDurationCount": 1,
+          "unknownDateCount": 0,
+          "contributorRefs": [
+            "80201",
+            "80202",
+            "80203"
+          ]
+        },
+        "empty_2025": true,
+        "production_cache_start_values_match": true,
+        "stale_selected_cache_rejected": true
+      }
+    ],
+    "actual_ui_A": {
+      "account": "A",
+      "actual_statistics_current_count": 3,
+      "actual_statistics_current_known_time": "1:42",
+      "contributor_card_count": 3,
+      "foreign_registration_absent": true,
+      "detail_and_back_to_same_contributors": true,
+      "unknown_reported_duration_remains_unknown_despite_start_landing_times": true,
+      "previous_year_empty_actual_screen": true,
+      "actual_all_history_count": 4,
+      "actual_all_history_known_time": "1:57",
+      "all_history_contributors_including_2024": true,
+      "observer_correction": "Detail header is actual date/registration; verified existing Gespeicherter Flug content and resumed from that state instead of repeating entry."
+    },
+    "actual_ui_B": {
+      "account": "B",
+      "actual_statistics_current_count": 2,
+      "actual_statistics_current_known_time": "0:45",
+      "contributor_card_count": 2,
+      "foreign_registration_absent": true,
+      "detail_and_back_to_same_contributors": true,
+      "previous_year_empty_actual_screen": true,
+      "actual_all_history_count": 3,
+      "actual_all_history_known_time": "1:15",
+      "all_history_contributors_including_2024": true
+    },
+    "actual_A_B_A_warm_return": {
+      "actual_current_count": 3,
+      "known_minutes": 102,
+      "only_A_contributor_cards": 3,
+      "statistics_and_start_return_preserved": true
+    },
+    "actual_A_start_viewer": {
+      "account": "A",
+      "actual_start_time_accessibility": "Flugzeit 2026: 1:42 bekannte Stunden und Minuten, 1 Zeiten unbekannt. 2025: 0:00.",
+      "actual_start_count_accessibility": "Fl\u00fcge 2026: 3. 2025: 0.",
+      "native_production_labels_not_fixture_banner": true,
+      "actual_monthly_viewer_visible": true
+    },
+    "actual_B_start_viewer": {
+      "account": "B",
+      "actual_start_time_accessibility": "Flugzeit 2026: 0:45 bekannte Stunden und Minuten, 1 Zeiten unbekannt. 2025: 0:00.",
+      "actual_start_count_accessibility": "Fl\u00fcge 2026: 2. 2025: 0.",
+      "native_production_labels_not_fixture_banner": true,
+      "actual_monthly_viewer_visible": true
+    },
+    "process_restart": {
+      "outcome": "passed",
+      "fully_offline": true,
+      "selected_B_persisted": true,
+      "fresh_process_marker_reopened": true,
+      "actual_B_start_and_statistics_preserved": true,
+      "actual_A_return_correct": true,
+      "both_owner_store_identities_and_all_flight_ids_preserved": true,
+      "both_accounts_stale_cache_rejected_on_earlier_cross_owner_selection": true,
+      "reopened_same_B_preview_fresh_verified": true,
+      "native_report_mode": "reopen",
+      "no_app_data_reset": true,
+      "observer_correction": "staleSelectionRejected is per-selection; final same-owner B verification correctly reports false. Both seed reports rejected stale selection; fresh B preview and all identities/flight IDs independently verified, without repeating restart."
+    },
+    "distinct_native_processes_verified": true,
+    "same_owner_fresh_preview_flag_is_not_stale_rejection_claim": true,
+    "owned_cleanup": {
+      "outcome": "passed",
+      "owned_fixture_cleanup_marker_visible": true,
+      "production_shell_unmounted_before_cleanup": true,
+      "only_fixture_namespace_and_owned_scopes_cache_keys": true
+    },
+    "initial_fixture_validation_failure_and_owned_cleanup": {
+      "fixture_apk_sha256": "de0f92391fa30b828499ce73e8dfc314396ebbb8630772f195722681c3026877",
+      "failed_seed_reason": "Invalid saved export scope.",
+      "owned_cleanup_marker_visible": true,
+      "no_source_reset": true
+    },
+    "unknown_date_native_acceptance": false,
+    "actual_monthly_graphics_review": {
+      "A_known_bar_months": [
+        "June",
+        "July"
+      ],
+      "A_time_scale": "0\u20131:12 h",
+      "B_known_bar_months": [
+        "June"
+      ],
+      "B_time_scale": "0\u20130:45 h",
+      "source": "retained native screenshots, not fixture banner"
+    }
+  },
+  "preservation": {
+    "provider": {
+      "outcome": "passed",
+      "boot_observer_ms": 34553.42910019681,
+      "original_apk_sha256": "7af2b6a345df1c0c5d14dee1a6626af0c39433ed62c2bfa8b8418902ac3dc0a8",
+      "original_uid_and_settings_and_display_recovered": true,
+      "original_sqlite_files_byte_identical": 21,
+      "no_new_sqlite_files": true,
+      "verification_observation_apk_installed_without_app_launch": true,
+      "read_only": true,
+      "limit": "Not a whole-disk or cookie-byte identity proof; no app launched during independent verification."
+    },
+    "exact_owned_external_files_removed": 10,
+    "original_settings_restored": true,
+    "unrelated_5554_untouched": true,
+    "statistics": {
+      "outcome": "passed",
+      "boot_observer_ms": 37705.88210015558,
+      "original_apk_sha256": "a92a12fb655a2ba80156e6423255e0518d522e2c6022c2536160b7a8cb177175",
+      "original_uid_settings_display_recovered": true,
+      "no_app_launched_during_verification": true,
+      "read_only": true,
+      "limit": "No whole-disk, original private database-byte or provider-session-byte comparison claimed."
+    },
+    "statistics_source_images": {
+      "owned_instances_stopped": true,
+      "all_six_source_image_sizes_unchanged": true,
+      "image_mtime_change_count": 0,
+      "independent_discard_original_apk_uid_settings_display_verified": true,
+      "owned_fixture_removed_before_discard": true,
+      "no_whole_image_byte_claim": true
+    },
+    "all_four_owned_instances_stopped": true
+  },
+  "remaining_gates": {
+    "source_completeness": [
+      "#2",
+      "#10"
+    ],
+    "live_two_accounts": "#16",
+    "physical_phone": "#107",
+    "ios": "#8",
+    "beta_baseline_matrix": "#34",
+    "system_restore": "#37"
+  },
+  "spending": {
+    "model_calls": 0,
+    "paid_calls": 0,
+    "new_services": false
+  },
+  "limitations": [
+    "One live provider account and allowlisted selector; native account rendering fixture uses synthetic persisted data.",
+    "Observation and proof APKs are not delivery artifacts.",
+    "Current native v3 and historical chronology-only v5 evidence have separate provenance.",
+    "No phone/iOS, whole-disk/cookie identity, speedup or first-presented-frame acceptance."
+  ],
+  "performance_append": {
+    "prior_groups_preserved": 192,
+    "new_groups": 5,
+    "new_observations": 48,
+    "new_numeric_values": 7153,
+    "all_prior_values_preserved": true,
+    "untimed_barriers_are_not_zero_duration_samples": true
+  },
+  "overall_scoped_engineering_result": "passed"
+}
