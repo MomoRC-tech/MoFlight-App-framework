@@ -2,7 +2,7 @@ import { traceLocalRead } from '../local-read-diagnostics';
 import { canonical } from '@moflight/flight-logbook';
 import * as Crypto from 'expo-crypto';
 import { hash } from '../storage';
-import { openOwnerRegistry, openRealFlightSelection, openRealFlightCommandJournal } from '../vereinsflieger/real-flight-native';
+import { openOwnerRegistry, openRealFlightSelection, openRealFlightCommandJournal, type RealFlightNativeAdapter } from '../vereinsflieger/real-flight-native';
 import { RealFlightService } from '../vereinsflieger/real-flight-service';
 import { assertOwnFlightDetailOwner, serializeOwnFlightReads, type OwnFlightDetailContext } from './own-flight-reader';
 import { loadProviderScope } from '../vereinsflieger/scoped-storage';
@@ -14,7 +14,12 @@ import { canCacheStartView, makeStartPreview, readStartPreview, startDay, type S
 import { loadStartPreviewCache, saveStartPreviewCache, clearStartPreviewCache } from './start-preview-native';
 
 /** Read the selected real owner. Missing files stay missing; no fallback to the lab library. */
-export const ownFlightReadPorts = serializeOwnFlightReads({
+export function createOwnFlightReadPorts(
+  adapter: Pick<RealFlightNativeAdapter, 'openOwnerRegistry' | 'openRealFlightSelection' | 'openRealFlightCommandJournal'>,
+  options: { readAuxiliarySections?: boolean } = {},
+): ReturnType<typeof serializeOwnFlightReads> {
+  const useAuxiliarySections = options.readAuxiliarySections !== false;
+  return serializeOwnFlightReads({
   async open(timing) {
     const timed = async <T>(name: string, work: () => Promise<T>): Promise<T> => {
       const finish = timing?.(name);
@@ -22,7 +27,7 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
       catch (error) { finish?.(false); throw error; }
     };
     await timed('local-restore-gate', () => traceLocalRead('restore-gate', () => assertNoPendingUserBackupRestore()));
-    const registry = await timed('owner-registry-open', () => traceLocalRead('registry-open', () => openOwnerRegistry(false)));
+    const registry = await timed('owner-registry-open', () => traceLocalRead('registry-open', () => adapter.openOwnerRegistry(false)));
     if (!registry) return null;
     try {
       const lease = await timed('owner-selection', () => registry.currentOwner());
@@ -34,7 +39,7 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         ownerId: lease.ownerId, storeId: lease.storeId, leaseId: lease.leaseId, writable: false,
       } };
       const journal = async () => {
-        const opened = await timed('local-journal-open', () => openRealFlightCommandJournal(scope, false));
+        const opened = await timed('local-journal-open', () => adapter.openRealFlightCommandJournal(scope, false));
         if (!opened) throw new Error('Own-flight setup or recovery is incomplete.');
         return opened;
       };
@@ -43,7 +48,7 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         retrieve: async () => { throw new Error('Provider retrieval requires the explicit reviewed flow.'); },
         journal,
         repository: async serviceTiming => {
-          const selection = await openRealFlightSelection(scope, false, undefined, timing ?? serviceTiming);
+          const selection = await adapter.openRealFlightSelection(scope, false, undefined, timing ?? serviceTiming);
           if (!selection) throw new Error('Own-flight selection is unavailable.');
           try {
             const selected = await selection.select();
@@ -82,7 +87,7 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         const opened=await journal();
         try { if(await opened.pending())throw new Error('Start preview blocked by pending save'); }
         finally { await opened.close(); }
-        detailSelection??=await openRealFlightSelection(scope,false);
+        detailSelection??=await adapter.openRealFlightSelection(scope,false);
         if(!detailSelection)throw new Error('Start preview selection missing');
         await detailSelection.assertIdentity(context.selectionIdentity);
         if((await detailSelection.listRestorePreparations()).some(item=>item.status==='pending'))throw new Error('Start preview blocked by restore');
@@ -156,13 +161,13 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
           await registry.assertCurrent(lease);
           if (closed) throw new Error('Displayed flight reader closed');
           assertOwnFlightDetailOwner(context, lease.selectionSeq);
-          detailSelection ??= await openRealFlightSelection(scope, false);
+          detailSelection ??= await adapter.openRealFlightSelection(scope, false);
           if (!detailSelection) throw new Error('Displayed flight selection is unavailable');
           await detailSelection.assertIdentity(context.selectionIdentity);
           await registry.assertCurrent(lease);
           await assertNoPendingUserBackupRestore();
         },
-        readDuties:async(accountRef:string)=>{
+        ...(useAuxiliarySections ? { readDuties:async(accountRef:string)=>{
           await registry.assertCurrent(lease);
           const selected=await loadProviderScope(lease.ownerId);
           if(!selected)return null;
@@ -175,11 +180,16 @@ export const ownFlightReadPorts = serializeOwnFlightReads({
         readMedical:async(accountRef:string)=>{
           const source=await readInformation(accountRef);
           return source?medicalSource(source.captures,lease.ownerId):null;
-        },
+        } } : {}),
         assertCurrent: () => registry.assertCurrent(lease),
         pendingCommand: async () => { const opened = await journal(); try { return !!await timed('local-journal-read', () => opened.pending()); } finally { await timed('local-journal-close', () => opened.close()); } },
         close: async () => { if (!closed) { closed = true; service.dispose(); try { await detailSelection?.close(); } finally { await registry.close(); } } },
       };
     } catch (error) { await registry.close(); throw error; }
   },
+  });
+}
+
+export const ownFlightReadPorts = createOwnFlightReadPorts({
+  openOwnerRegistry, openRealFlightSelection, openRealFlightCommandJournal,
 });

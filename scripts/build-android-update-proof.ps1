@@ -5,7 +5,7 @@ param(
     [Parameter(Mandatory)][string]$SourceRef,
     [Parameter(Mandatory)][ValidatePattern('^[a-z][a-z0-9-]{0,30}$')][string]$Namespace,
     [Parameter(Mandatory)][ValidateSet('seed','verify')][string]$Mode,
-    [ValidateSet('Update','AiChat','AiChatScreen','TaskSelector')][string]$Proof = 'Update',
+    [ValidateSet('Update','AiChat','AiChatScreen','TaskSelector','StatisticsIsolation')][string]$Proof = 'Update',
     [switch]$ReuseNormalBuild
 )
 $ErrorActionPreference = 'Stop'
@@ -55,22 +55,23 @@ $manifest.apk = $normalApkPath
 $normal = Join-Path $evidence 'normal-app.apk'
 Copy-Item -LiteralPath $normalApkPath -Destination $normal
 
-$proofModule = if ($Proof -eq 'AiChatScreen') { 'android-ai-screen-poc' } elseif ($Proof -eq 'AiChat') { 'android-ai-chat-poc' } elseif ($Proof -eq 'TaskSelector') { 'android-task-selector-recovery-poc' } else { 'android-update-preservation-poc' }
+$proofModule = if ($Proof -eq 'AiChatScreen') { 'android-ai-screen-poc' } elseif ($Proof -eq 'AiChat') { 'android-ai-chat-poc' } elseif ($Proof -eq 'TaskSelector') { 'android-task-selector-recovery-poc' } elseif ($Proof -eq 'StatisticsIsolation') { 'android-statistics-isolation-poc' } else { 'android-update-preservation-poc' }
+$configureFunction = if ($Proof -eq 'StatisticsIsolation') { 'configureStatisticsIsolationProof' } else { 'configureUpdateProof' }
 $overrides = @{
-    'apps/platform-lab/index.ts' = "import { registerRootComponent } from 'expo';`nimport Proof, { configureUpdateProof } from './src/development/$proofModule';`nconfigureUpdateProof('$Namespace','$Mode');`nregisterRootComponent(Proof);`n"
+    'apps/platform-lab/index.ts' = "import { registerRootComponent } from 'expo';`nimport Proof, { $configureFunction } from './src/development/$proofModule';`n$configureFunction('$Namespace','$Mode');`nregisterRootComponent(Proof);`n"
 }
-$proofSources = if ($Proof -eq 'Update') { @('apps/platform-lab/src/development/update-preservation-fixture.ts','apps/platform-lab/src/development/android-update-preservation-poc.tsx') } elseif ($Proof -eq 'TaskSelector') { @('apps/platform-lab/src/development/android-task-selector-recovery-poc.tsx') } else { @() }
+$proofSources = if ($Proof -eq 'Update') { @('apps/platform-lab/src/development/update-preservation-fixture.ts','apps/platform-lab/src/development/android-update-preservation-poc.tsx') } elseif ($Proof -eq 'TaskSelector') { @('apps/platform-lab/src/development/android-task-selector-recovery-poc.tsx') } elseif ($Proof -eq 'StatisticsIsolation') { @('apps/platform-lab/src/development/android-statistics-isolation-fixture.ts','apps/platform-lab/src/development/android-statistics-isolation-poc.tsx') } else { @() }
 $fixtureSourceCommit = $null
 $fixtureSourceBlob = $null
 $fixtureSourceSha256 = $null
-if ($Proof -eq 'TaskSelector') {
+if ($Proof -in @('TaskSelector','StatisticsIsolation')) {
     $fixtureSourceCommit = Read-Git $root @('rev-parse', 'HEAD')
     $builderRelative = 'scripts/build-android-update-proof.ps1'
-    $fixtureRelative = 'apps/platform-lab/src/development/android-task-selector-recovery-poc.tsx'
-    foreach ($relative in @($builderRelative, $fixtureRelative)) {
+    $fixtureRelative = if ($Proof -eq 'TaskSelector') { 'apps/platform-lab/src/development/android-task-selector-recovery-poc.tsx' } else { 'apps/platform-lab/src/development/android-statistics-isolation-poc.tsx' }
+    foreach ($relative in (@($builderRelative) + @($proofSources))) {
         Read-Git $root @('ls-files', '--error-unmatch', $relative) | Out-Null
         & git -C $root diff --quiet $fixtureSourceCommit -- $relative
-        if ($LASTEXITCODE -ne 0) { throw 'Task selector proof inputs must be committed before building.' }
+        if ($LASTEXITCODE -ne 0) { throw "$Proof proof inputs must be committed before building." }
     }
     $fixtureSourceBlob = Read-Git $root @('rev-parse', "$fixtureSourceCommit`:$fixtureRelative")
     $fixturePath = Join-Path $root $fixtureRelative
@@ -95,7 +96,7 @@ try {
         & ./gradlew.bat :app:assembleRelease '-PreactNativeArchitectures=arm64-v8a,x86_64' --max-workers=2 --init-script (Join-Path $checkout 'scripts/android-source-input.gradle') *> (Join-Path $evidence 'proof-build.log')
         if ($LASTEXITCODE) { throw 'Upgrade proof build failed.' }
     } finally { Pop-Location }
-    $proofName = if ($Proof -eq 'TaskSelector') { 'task-selector-proof.apk' } else { 'update-proof.apk' }
+    $proofName = if ($Proof -eq 'TaskSelector') { 'task-selector-proof.apk' } elseif ($Proof -eq 'StatisticsIsolation') { 'statistics-isolation-proof.apk' } else { 'update-proof.apk' }
     $proofApk = Join-Path $evidence $proofName
     Copy-Item -LiteralPath $manifest.apk -Destination $proofApk
     $hashes = @{}
@@ -105,7 +106,7 @@ try {
         builder_sha256=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();
         apk_sha256=(Get-FileHash -LiteralPath $proofApk -Algorithm SHA256).Hash.ToLowerInvariant();
         normal_apk_sha256=$normalHash; normal_build_reused=[bool]$ReuseNormalBuild;
-        boundary=if ($Proof -eq 'TaskSelector') { 'Synthetic local SQLite registry/journal and simulated selector JSON only; no live provider reads/writes, task capture, or normal app acceptance' } else { 'Historical/current production storage modules with explicit synthetic entry/fixture overrides; no ordinary app or provider acceptance' } } |
+        boundary=if ($Proof -eq 'TaskSelector') { 'Synthetic local SQLite registry/journal and simulated selector JSON only; no live provider reads/writes, task capture, or normal app acceptance' } elseif ($Proof -eq 'StatisticsIsolation') { 'Actual production MobileApp shell, Start/Statistics, reader and Start cache over a synthetic isolated SQLite owner/source graph; fixture selector only; no provider login/network or phone/iOS/release acceptance' } else { 'Historical/current production storage modules with explicit synthetic entry/fixture overrides; no ordinary app or provider acceptance' } } |
         ConvertTo-Json | Set-Content -LiteralPath (Join-Path $evidence 'provenance.json') -Encoding utf8
 } finally {
     foreach ($relative in $originals.Keys) {

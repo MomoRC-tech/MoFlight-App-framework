@@ -57,7 +57,8 @@ import { useOwnFlights } from './use-own-flights';
 import type { ChartKind, ChartContributors } from './statistics-charts-model';
 import { StatisticsOverlay } from './StatisticsOverlay';
 import type { StatisticsSection } from './statistics-overlay-model';
-import { ownFlightReadPorts } from './own-flight-reader-native';
+import { ownFlightReadPorts as defaultOwnFlightReadPorts } from './own-flight-reader-native';
+import type { OwnFlightReadPorts } from './own-flight-reader';
 import { buildDutyOverview, dutySnapshotExpiresAt } from '../vereinsflieger/duties';
 import { DutyRoster } from './DutyRoster';
 import { ClubHeading } from './ClubHeading';
@@ -72,7 +73,8 @@ type ClubSection = 'Übersicht' | ClubDetailSection;
 type Sheet = 'designPreview' | 'diagnostics' | 'paper' | 'development' | 'importPreview' | 'flightLab' | 'bookLab' | 'backup' | 'selectBook' | 'unsupported' | 'credits' | 'status' | 'profile' | 'medical' | 'statistics' | 'help' | null;
 const dateText = (date: string | null) => date ? new Date(date + 'T12:00:00Z').toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) : 'Datum unbekannt';
 
-export default function MobileApp() {
+interface MobileAppProps { ownFlightReadPorts?: OwnFlightReadPorts; [key: string]: unknown }
+export default function MobileApp({ ownFlightReadPorts = defaultOwnFlightReadPorts }: MobileAppProps = {}) {
   useEffect(() => { const finish = startTiming.initialization(); try { initializeDiagnostics(); finish(true); } catch { finish(false); } startTiming.shell(); }, []);
   const [entry,setEntry] = useState<{intent:ConnectionIntent;requestId:number;open:boolean;development:boolean;destination:OptionsDestination}|null>({intent:'options',requestId:0,open:false,development:false,destination:'settings'});
   const [detailPoc,setDetailPoc]=useState<{ownerId:string;expected?:ObservedContext}|null>(null);
@@ -98,7 +100,7 @@ export default function MobileApp() {
   },[syncProgress.state]);
   useEffect(()=>{diagnosticJournal.record('sync',modalOpen?'sync-popup-open':'sync-popup-hidden');},[modalOpen]);
   return <SafeAreaProvider><SyncKeepAwake active={syncProgress.state==='active'||syncProgress.state==='waiting'}/><View style={{flex:1}}>
-    <View style={[{flex:1},(maintenancePageOpen||!!detailPoc)&&{display:'none'}]} pointerEvents={modalOpen||detailPoc?'none':'auto'} aria-hidden={modalOpen||!!detailPoc} accessibilityElementsHidden={modalOpen||!!detailPoc} importantForAccessibility={modalOpen||detailPoc?'no-hide-descendants':'auto'}><Shell onDetailHttpPoc={()=>{
+    <View style={[{flex:1},(maintenancePageOpen||!!detailPoc)&&{display:'none'}]} pointerEvents={modalOpen||detailPoc?'none':'auto'} aria-hidden={modalOpen||!!detailPoc} accessibilityElementsHidden={modalOpen||!!detailPoc} importantForAccessibility={modalOpen||detailPoc?'no-hide-descendants':'auto'}><Shell ownFlightReadPorts={ownFlightReadPorts} onDetailHttpPoc={()=>{
       if(syncLock.current||entry?.open||!providerStatus.ownerId||!providerStatus.releaseForDevelopment?.()){Alert.alert('Test noch nicht bereit','Bitte laufende Anbieter- oder Speichervorgänge abschließen und erneut versuchen.');return;}
       const expected=providerStatus.connection.confirmed?providerStatus.connection.observed??undefined:undefined;
       setEntry(null);setSyncControls(null);setProviderStatus(unknownProviderStatus);setDetailPoc({ownerId:providerStatus.ownerId,expected});
@@ -119,7 +121,7 @@ export default function MobileApp() {
       setEntry(previous=>previous?{...previous,open:false}:null);if(result)setLastLoad(result);setFlightReload(value=>value+1);}}/>}</UpdateDialog>}
   </View></SafeAreaProvider>;
 }
-function Shell({onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,financialFlowOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus,syncRunning=false,syncControls=null,syncProgress=idleSyncProgress}:{onDetailHttpPoc?:()=>void;onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean,destination?:OptionsDestination)=>void;coreFlightsOpen?:boolean;financialFlowOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus;syncRunning?:boolean;syncControls?:SyncControls|null;syncProgress?:SyncProgressState}={}) {
+function Shell({ownFlightReadPorts=defaultOwnFlightReadPorts,onDetailHttpPoc,onCoreFlights=()=>{},coreFlightsOpen=false,financialFlowOpen=false,flightReload=0,lastLoad=null,providerStatus=unknownProviderStatus,syncRunning=false,syncControls=null,syncProgress=idleSyncProgress}:{ownFlightReadPorts?:OwnFlightReadPorts;onDetailHttpPoc?:()=>void;onCoreFlights?:(intent?:ConnectionIntent,developmentRecoveryCheckpoints?:boolean,destination?:OptionsDestination)=>void;coreFlightsOpen?:boolean;financialFlowOpen?:boolean;flightReload?:number;lastLoad?:FlightLoadResult|null;providerStatus?:ProviderStatus;syncRunning?:boolean;syncControls?:SyncControls|null;syncProgress?:SyncProgressState}={}) {
   const [tab, setTab] = useState<Tab>('home');
   const [statisticsContributors,setStatisticsContributors]=useState<ChartContributors|undefined>(undefined);
   const [statisticsChart,setStatisticsChart]=useState<ChartKind|undefined>(undefined);
