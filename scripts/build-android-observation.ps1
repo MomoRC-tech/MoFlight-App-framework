@@ -119,7 +119,10 @@ def parseManifest = { File file ->
 
 gradle.projectsEvaluated {
     def app = gradle.rootProject.findProject(':app')
-    if (app == null) throw new GradleException('Observation hook could not find :app.')
+    if (app == null) {
+        println('MoFlight observation manifest hook: no :app project in this Gradle build; skipping included build.')
+        return
+    }
     def processManifest = app.tasks.findByName('processReleaseManifestForPackage')
     if (processManifest == null) throw new GradleException('Expected processReleaseManifestForPackage task is missing.')
     def expectedDirectory = new File(app.buildDir, 'intermediates/packaged_manifests/release/processReleaseManifestForPackage').canonicalFile
