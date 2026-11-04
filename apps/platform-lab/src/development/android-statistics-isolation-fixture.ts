@@ -86,20 +86,20 @@ const SPECS: readonly FixtureAccountSpec[] = [
       { sourceFlightRef: '70101', date: '18.06.2026', registration: 'D-TA1', model: 'Synthetic Alpha', start: '09:00', landing: '10:12', duration: '72' },
       { sourceFlightRef: '70102', date: '21.07.2026', registration: 'D-TA2', model: 'Synthetic Alpha', start: '11:00', landing: '11:30', duration: '30' },
       { sourceFlightRef: '70103', date: '03.08.2026', registration: 'D-TA1', model: 'Synthetic Alpha', start: '13:00', landing: '13:45', duration: '' },
-      { sourceFlightRef: '70104', date: '', registration: 'D-TA3', model: 'Synthetic Alpha', start: '14:00', landing: '14:15', duration: '15' },
+      { sourceFlightRef: '70104', date: '03.08.2024', registration: 'D-TA3', model: 'Synthetic Alpha', start: '14:00', landing: '14:15', duration: '15' },
     ],
     expectedYear: { count: 3, knownMinutes: 102, unknownDurationCount: 1, contributorRefs: ['70101', '70102', '70103'], unknownDurationRefs: ['70103'] },
-    expectedAll: { count: 4, knownMinutes: 117, unknownDurationCount: 1, unknownDateCount: 1, contributorRefs: ['70101', '70102', '70103', '70104'] },
+    expectedAll: { count: 4, knownMinutes: 117, unknownDurationCount: 1, unknownDateCount: 0, contributorRefs: ['70101', '70102', '70103', '70104'] },
   },
   {
     key: 'B', accountRef: '202', label: 'Fixturekonto B · 202', clubLabel: 'Synthetic Statistics Club B',
     rows: [
       { sourceFlightRef: '80201', date: '19.06.2026', registration: 'D-TB2', model: 'Synthetic Bravo', start: '09:00', landing: '09:45', duration: '45' },
       { sourceFlightRef: '80202', date: '14.07.2026', registration: 'D-TB2', model: 'Synthetic Bravo', start: '11:00', landing: '11:30', duration: '' },
-      { sourceFlightRef: '80203', date: '', registration: 'D-TB3', model: 'Synthetic Bravo', start: '13:00', landing: '13:30', duration: '30' },
+      { sourceFlightRef: '80203', date: '14.07.2024', registration: 'D-TB3', model: 'Synthetic Bravo', start: '13:00', landing: '13:30', duration: '30' },
     ],
     expectedYear: { count: 2, knownMinutes: 45, unknownDurationCount: 1, contributorRefs: ['80201', '80202'], unknownDurationRefs: ['80202'] },
-    expectedAll: { count: 3, knownMinutes: 75, unknownDurationCount: 1, unknownDateCount: 1, contributorRefs: ['80201', '80202', '80203'] },
+    expectedAll: { count: 3, knownMinutes: 75, unknownDurationCount: 1, unknownDateCount: 0, contributorRefs: ['80201', '80202', '80203'] },
   },
 ];
 
@@ -187,7 +187,7 @@ function sourceFor(account: FixtureAccountSpec, runId: string): RealFlightSource
     binding: { provider: 'vereinsflieger', accountRef: account.accountRef },
     contextBefore: context,
     contextAfter: { ...context },
-    requestedWindow: { from: '2026-01-01', to: '2026-11-04', participation: 'Pilot oder Fluglehrer' },
+    requestedWindow: { from: '2024-01-01', to: '2026-11-04', participation: 'Pilot oder Fluglehrer' },
     capture: {
       captureId,
       retrievedAt: AT,
@@ -197,7 +197,7 @@ function sourceFor(account: FixtureAccountSpec, runId: string): RealFlightSource
       sourceIdentity: 'unverified',
       timeBasis: 'unknown',
       coverage: 'complete-requested-list',
-      exportContext: { from: '2026-01-01', to: '2026-11-04', preset: 'Synthetic isolation proof',
+      exportContext: { from: '2024-01-01', to: '2026-11-04', preset: 'Konfiguration laden',
         participation: 'Pilot oder Fluglehrer', accountLabel: `Synthetic account ${account.accountRef}`,
         recordCount: account.rows.length, pageCount: 1, columnIds: headers.map((_, index) => String(index + 1)), adapterVersion: 2 },
     },
