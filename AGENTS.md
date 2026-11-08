@@ -2,8 +2,8 @@
 
 ## Project map and sources of truth
 
-- [README](README.md) is the central project documentation. Keep requirements, architecture, status and meaningful test evidence aligned with code.
-- Use the [documentation map](docs/README.md) for maintained sources and the [archive](docs/archive/README.md) for superseded plans/rejected designs. Move obsolete next-action prose out of current entry points while preserving historical decisions and links; do not archive active requirements or evidence supporting open acceptance gates merely because it is old.
+- [README](README.md) is the project brief. Keep active documentation aligned with the actual product state, current decisions and open work. Replace superseded status when it changes and omit dated progress logs, completed-work recaps and lists of past releases from current documentation.
+- Use the [documentation map](docs/README.md) for maintained sources and the [archive](docs/archive/README.md) for superseded plans/rejected designs. Use verification reports and release notes for source-specific evidence. Keep active requirements and evidence needed for open acceptance gates accessible from the relevant current documents.
 - [Project plan](docs/project-plan.md) controls priorities, milestones and next actions. Read the relevant current source, documentation and ADRs before changing them. Update the roadmap for material status/decision changes; keep detailed results in verification reports.
 - Communicate and maintain active documentation in English; preserve historical source snapshots in their original language.
 
