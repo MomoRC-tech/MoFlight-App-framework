@@ -33,3 +33,5 @@ __pycache__/
 # Machine-specific project MCP launch paths; portable example lives in the PoC.
 .codex/config.toml
 .codex/config.toml.api-anything-backup
+.mcp.json
+.claude/settings.local.json
